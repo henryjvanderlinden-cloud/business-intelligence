@@ -1,5 +1,11 @@
 # 040 — Open questions
 
+> **Superseded 2026-09-19 by [`../../registers/OPEN_POINTS.md`](../../registers/OPEN_POINTS.md)**,
+> per [ADR-0007](../20_decisions/0007-register-and-handover-apparatus.md). This file is
+> retained for provenance: the register's rows cite these numbers in their `from` lines,
+> and the wording here is the wording in which each question was first asked. **Nothing
+> below is a current statement of what is open.** Do not add entries here.
+
 The register of things not yet resolved. Adding an entry is a contribution. Resolving
 one ends in an ADR, after which the entry is struck through here with a link.
 
