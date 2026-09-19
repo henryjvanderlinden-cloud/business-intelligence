@@ -55,6 +55,25 @@ Opened 2026-09-19, session 01. *(from open question 11)*
 rarely. Without an acceptance test, Phase 3 cannot be evaluated and its failure mode —
 statistically true irrelevance — will be invisible from inside the system.
 
+### CON-OP-4 — Is the three-component framing distinct from existing human-in-the-loop discourse?
+**⛔ STATE: OPEN**
+Opened 2026-09-19, session 01.
+
+[005_manifesto.md](../docs/00_concept/005_manifesto.md) claims that automated
+sense-making is a third component rather than an assistant to the other two, and that the
+binding constraint moves from construction to adjudication. Adjacent claims exist in the
+centaur and human-in-the-loop literatures, in the augmentation-versus-automation
+tradition, and in recent writing on agentic engineering.
+
+The specific claims to test for novelty are narrower than the framing as a whole: that
+the migration of judgement into determinism stalled at *statability* rather than at
+effort, and that what remains is therefore defined by having no general form. If those
+are standard, the manifesto should cite rather than assert, and its contribution reduces
+to the mandate policy built on the distinction — which may still be enough.
+
+Related to `CON-OP-1`; both close against
+[050_prior-art.md](../docs/00_concept/050_prior-art.md).
+
 ---
 
 ## §2 — Architecture (`ARC`)

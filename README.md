@@ -3,7 +3,9 @@
 A design repository for an agent-driven system that discovers, models, connects and
 exploits the data landscape of an organisation with a high degree of autonomy.
 
-The premise: building a data environment decomposes into a **deterministic** half
+The argument in one paragraph is in
+[`docs/00_concept/005_manifesto.md`](docs/00_concept/005_manifesto.md). The premise:
+building a data environment decomposes into a **deterministic** half
 (data logistics — capture, movement, materialisation, scheduling) and a **contextual**
 half (what the data means, how sets relate, which questions are worth asking, whether
 an answer is still true). The deterministic half is already automated to a large
@@ -25,6 +27,7 @@ cannot reverse.
 | --- | --- |
 | [`handovers/CURRENT.md`](handovers/CURRENT.md) | **A fresh session starts here** — state, task, traps, what not to reopen |
 | [`registers/OPEN_POINTS.md`](registers/OPEN_POINTS.md) | The authoritative answer to *what is open?* |
+| [`docs/00_concept/005_manifesto.md`](docs/00_concept/005_manifesto.md) | **The argument, stated plainly** — what changes when a third component arrives |
 | [`docs/00_concept/010_vision.md`](docs/00_concept/010_vision.md) | The original brief, verbatim and unedited |
 | [`docs/00_concept/020_critique.md`](docs/00_concept/020_critique.md) | What holds up in it, what does not, and what is missing |
 | [`docs/10_architecture/100_system-overview.md`](docs/10_architecture/100_system-overview.md) | The system as currently conceived |
@@ -39,7 +42,7 @@ cannot reverse.
 ```
 registers/             The authoritative open-points register, and its archive
 handovers/             One document per session, written for the next one
-docs/00_concept/       Problem statement, critique, glossary, prior art
+docs/00_concept/       Manifesto, original brief, critique, glossary, prior art
 docs/10_architecture/  How the system is meant to work
 docs/20_decisions/     Architecture decision records (ADRs)
 docs/30_research/      Prior art notes, tool evaluations, external review passes

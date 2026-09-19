@@ -31,8 +31,16 @@ data landscape — preserved it verbatim, critiqued it, and built an architectur
 the critique's central reframing: that autonomy is not uniform but tiered, structural to
 semantic to teleological.
 
-Settled six decisions (ADRs 0001–0006), including the project's mode: argument first,
-then proof of concept on public practice data, then offering.
+Settled seven decisions (ADRs 0001–0007), including the project's mode — argument first,
+then proof of concept on public practice data, then offering — and the adoption of the
+compendium's register, handover and enforcement apparatus.
+
+Wrote [`../docs/00_concept/005_manifesto.md`](../docs/00_concept/005_manifesto.md) last,
+at the author's request: the argument stated plainly, organised around the shift from two
+components to three and the relocation of the bottleneck from construction to
+adjudication. It is the document most likely to become public at the Mode 1 gate and the
+one most in need of the external pass, since it asserts more than the rest of the
+repository does.
 
 ### This session's task, in one sentence
 
@@ -43,8 +51,9 @@ candidates are stated below.
 
 **Candidate A — the external review pass (`PRC-OP-1`).** Everything in this repository
 was drafted by one model in one session and is unreviewed by construction. The argument
-has exactly one reader and that reader wrote it. Attack the three-tier distinction
-(`CON-OP-1`) and the machine-proposable-keys claim, adversarially, one object per pass,
+has exactly one reader and that reader wrote it. Attack the manifesto's core claims
+(`CON-OP-4`), the three-tier distinction (`CON-OP-1`) and the machine-proposable-keys
+claim, adversarially, one object per pass,
 per [`../docs/50_process/510_external-review.md`](../docs/50_process/510_external-review.md).
 Codex is already wired as a local MCP server, so the transport exists.
 
