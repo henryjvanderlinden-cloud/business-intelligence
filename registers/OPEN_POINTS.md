@@ -65,11 +65,22 @@ binding constraint moves from construction to adjudication. Adjacent claims exis
 centaur and human-in-the-loop literatures, in the augmentation-versus-automation
 tradition, and in recent writing on agentic engineering.
 
-The specific claims to test for novelty are narrower than the framing as a whole: that
-the migration of judgement into determinism stalled at *statability* rather than at
-effort, and that what remains is therefore defined by having no general form. If those
-are standard, the manifesto should cite rather than assert, and its contribution reduces
-to the mandate policy built on the distinction — which may still be enough.
+**Narrowed 2026-09-19, same session, on defining the term.** Statability is now
+decomposed in [005_manifesto.md](../docs/00_concept/005_manifesto.md) §III into
+articulability, generality and stability, and the first of those is straightforwardly
+Polanyi's tacit knowledge, whose role as a limit on automation is Autor's Polanyi's
+paradox. That much is prior art and is now cited rather than asserted.
+
+What remains to test is the specific claim that data semantics fail *generality* rather
+than *articulability* — sayable by anyone who knows, with no general rule that would
+produce them — and the consequence drawn from it: that learning a rule from examples,
+the standard answer to Polanyi's paradox, cannot address this failure, because there is
+no rule to learn. If that distinction is already made somewhere in the codification or
+knowledge-management literature, the manifesto should cite it and the contribution
+reduces to the mandate policy built on the distinction, which may still be enough.
+
+Closing this row requires reading Autor 2014 in full and surveying the tacit-knowledge
+literature far enough to be sure, not merely far enough to be comfortable.
 
 Related to `CON-OP-1`; both close against
 [050_prior-art.md](../docs/00_concept/050_prior-art.md).

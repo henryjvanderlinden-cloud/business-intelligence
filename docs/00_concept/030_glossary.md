@@ -58,6 +58,15 @@ other facts). Every fact in the context layer carries one.
 **Pruning** — the deliberate retirement of artifacts that have lost their demand
 justification. Given equal standing with construction.
 
+**Statability** — the property of a piece of knowledge that it can be expressed as a rule
+a deterministic machine can apply correctly to cases it has not seen. Requires three
+conditions together: *articulability* (it can be put into words at all), *generality*
+(the statement covers cases not individually enumerated), and *stability* (it stays true
+long enough to be worth encoding). Data semantics characteristically fail the second, not
+the first — perfectly sayable, with no general rule that would produce them — which is
+the distinction on which [005_manifesto.md](005_manifesto.md) §III turns. Not a standard
+term; coined here, and related to but not identical with Polanyi's tacit knowledge.
+
 **Structural / semantic / teleological** — the three layers of analysis distinguished in
 [020_critique.md](020_critique.md), each with a different degree of permitted autonomy.
 See [`../10_architecture/105_autonomy-tiers.md`](../10_architecture/105_autonomy-tiers.md).

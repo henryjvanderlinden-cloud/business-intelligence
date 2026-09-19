@@ -13,6 +13,21 @@ one-line verdict — *adopt*, *learn from*, or *distinguish from*.
   frameworks. The connector layer is likely worth adopting outright rather than rebuilt.
 - Apache Atlas; Collibra, Alation, Microsoft Purview on the commercial side.
 
+## The limits of codification
+
+- Michael Polanyi, *The Tacit Dimension* (1966) — "we can know more than we can tell."
+  The origin of the articulability condition in
+  [005_manifesto.md](005_manifesto.md) §III. *Verdict: cite.*
+- David H. Autor, "Polanyi's Paradox and the Shape of Employment Growth," NBER Working
+  Paper 20485 (2014) — tacitness as the binding constraint on automation, and the
+  machine-learning-from-examples resolution. The nearest prior statement of this
+  project's framing, and the thing `CON-OP-4` must distinguish itself from. *Verdict:
+  cite, and state the difference — this project claims data work fails generality rather
+  than articulability, which makes learning-from-examples the wrong remedy.* Confirmed
+  bibliographically 2026-09-19; the argument has not been read in full.
+- The wider codification / tacit-knowledge literature in knowledge management (Nonaka
+  and Takeuchi and successors) is likely to contain adjacent claims and is unexamined.
+
 ## Automated modelling
 
 - AutomateDV (formerly dbtvault), Datavault Builder, WhereScape — Data Vault generation
