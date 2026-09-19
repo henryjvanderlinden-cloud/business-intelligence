@@ -166,6 +166,30 @@ asked. If nobody holds it whole, there is no adjudicator to ask, and
 mechanism weaker than it needs. `ARC-OP-3` is promoted from a detail to a load-bearing
 component by this finding.
 
+### CON-OP-8 — Should the canon-cost argument replace statability as the manifesto's spine?
+**⛔ STATE: OPEN**
+Opened 2026-09-19, session 01, from the author's bitemporality observation; see
+[190_machine-authored-design-canon.md](../docs/10_architecture/190_machine-authored-design-canon.md) §5.
+
+[005_manifesto.md](../docs/00_concept/005_manifesto.md) §III is under challenge and
+losing. A candidate replacement framing arrived the same day and from the author rather
+than the model: *every methodology in this discipline is a compromise between correctness
+and human maintenance cost, and the canon is full of designs rejected on the cost side of
+that trade — a cost that has now collapsed.*
+
+Two reasons to prefer it. It makes an empirically checkable claim about an existing
+literature rather than a conceptual claim about kinds of knowledge that must survive
+forty years of tacit-knowledge philosophy. And it yields a research programme that can be
+executed without any code: survey the canon, separate designs rejected for authoring cost
+from those rejected for runtime cost, re-evaluate the first set.
+
+Against it: it is a narrower claim. It explains why *storage and modelling* designs change
+and says nothing about the semantic inference that the rest of the architecture rests on.
+It may be a better-supported thesis about a smaller thing, and the right answer may be
+that the manifesto carries both with the canon argument first because it is defensible.
+
+Decide as part of the §III rewrite, not separately.
+
 ---
 
 ## §2 — Architecture (`ARC`)
@@ -282,6 +306,62 @@ Opened 2026-09-19, session 01. *(from open question 10)*
 The teleological anchor is a hard dependency for everything at Tier 3, and it is
 maintained by people who have no immediate incentive to maintain it. If there is no
 answer to this, Phase 3 has no foundation and the honest move is to say so early.
+
+### ARC-OP-13 — Is the rule set a third temporal axis, or something else?
+**⛔ STATE: OPEN**
+Opened 2026-09-19, session 01.
+
+Derived data is a function of raw data and of the logic that refined it, and that logic
+versions independently of both valid time and transaction time. Whether this is properly
+a third time axis, a dimension on the derivation rather than on the fact, or simply
+content-addressed rule provenance carried per row, is unsettled and the choice has large
+consequences for storage and for query formulation.
+
+The three questions it must answer are in
+[190_machine-authored-design-canon.md](../docs/10_architecture/190_machine-authored-design-canon.md) §1:
+what we now believe was true then; what we reported then; and what we would have reported
+then knowing what we know now. A design that cannot distinguish the second from the third
+cannot support audit or restatement, which is most of why anyone wants this.
+
+Prior art is likely and unexamined: SQL:2011 temporal features, bitemporal modelling
+literature, and event-sourcing practice all bear on it.
+
+### ARC-OP-14 — Survey the canon for designs rejected on human-cost grounds
+**⛔ STATE: OPEN**
+Opened 2026-09-19, session 01.
+
+The research programme implied by
+[190_machine-authored-design-canon.md](../docs/10_architecture/190_machine-authored-design-canon.md):
+go through the modelling canon, identify designs that were correct and rejected, and
+separate **rejected for authoring and maintenance cost** from **rejected for runtime
+cost**. Only the first set is straightforwardly re-opened by machine authorship;
+conflating the two would license designs that are still slow.
+
+Candidates listed in §3 of that document: rule-versioned bitemporality, 6NF and anchor
+modelling, insert-only storage, exhaustive column-level lineage, per-fact provenance,
+explicit units and grain, redundant physical representations, maximum-granularity
+assertions.
+
+First half of the work is verification: the claims in that document about Anchor
+Modelling, SQL:2011 and the stated rejection reasons for Kimball and 6NF are from general
+knowledge and unchecked. Needs no code and is executable in Mode 1, which makes it a
+third candidate for the next session alongside `PRC-OP-1` and `EVI-OP-2`.
+
+### ARC-OP-15 — Machine-optimal storage owes a human-comprehensible adjudication surface
+**⛔ STATE: OPEN**
+Opened 2026-09-19, session 01.
+
+The direct tension between
+[190_machine-authored-design-canon.md](../docs/10_architecture/190_machine-authored-design-canon.md)
+and the rest of this project. If ruling is the scarce act, everything a human must rule on
+must be comprehensible to a human — and a four-thousand-table anchor model is not. The
+presumed resolution is that the physical model optimises for machine authorship while the
+adjudication surface optimises for human comprehension, both generated from one
+declaration.
+
+That is an assertion, not a design. Until it is one, every argument in this repository
+for machine-friendly verbosity is writing a cheque that
+[170_human-interfaces.md](../docs/10_architecture/170_human-interfaces.md) has to cash.
 
 ---
 

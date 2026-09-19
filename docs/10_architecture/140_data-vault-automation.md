@@ -10,6 +10,10 @@ it imposes between a source and anything a business user can read. Every one of 
 objections is a complaint about *human* labour, and every one of them weakens when the
 author is a machine that does not mind writing four hundred satellites.
 
+This is one instance of a general pattern, and the general pattern may matter more than
+the instance: see
+[190_machine-authored-design-canon.md](190_machine-authored-design-canon.md).
+
 Two properties then become decisive.
 
 **It is insert-only and non-destructive.** A wrong modelling decision does not destroy

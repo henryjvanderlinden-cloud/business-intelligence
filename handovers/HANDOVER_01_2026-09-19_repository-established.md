@@ -60,6 +60,28 @@ object, so the questions are unreviewed by construction. A second pass should be
 assigned by someone else, or at minimum should include the instruction to attack what the
 assignment failed to ask about.
 
+### A third candidate arrived late, and it may outrank the other two
+
+[190_machine-authored-design-canon.md](../docs/10_architecture/190_machine-authored-design-canon.md),
+from the author's observation that bitemporal validity has a third axis — the rule set
+that produced the derived data. Generalised: every methodology in this field is a
+compromise between correctness and human maintenance cost, and the canon is full of
+designs rejected on the cost side of a trade whose terms have changed.
+
+`ARC-OP-14` is the research programme that follows: survey the canon, separate designs
+rejected for *authoring* cost from those rejected for *runtime* cost, re-evaluate the
+first set. It needs no code, runs in Mode 1, and starts with verifying claims that
+document makes from general knowledge and has not checked.
+
+`CON-OP-8` asks the larger question: whether this framing should replace statability as
+the manifesto's spine, given that §III is losing its own review. It is empirically
+checkable against an existing literature rather than defensible only against philosophy —
+but it is also a narrower claim, explaining modelling choices while saying nothing about
+semantic inference. Decide it inside the §III rewrite.
+
+`ARC-OP-15` is the tension it creates and the one to watch: if ruling is the scarce act,
+machine-optimal storage still owes a human-comprehensible surface to rule on.
+
 ### This session's task, in one sentence
 
 There isn't one yet — the next session's task is chosen by the author, and the two
