@@ -1,157 +1,141 @@
-# nsdn — Handover 01: the repository is established, the argument is untested
-## Written 2026-09-19 at the end of session 01, for a fresh session
+# nsdn — Handover 01: the repository exists, the argument is under attack
+## Written 2026-09-19 at the close of session 01, for a fresh session
 
 > **STATUS: CURRENT.**
 
-### Where we stand
+> *Rewritten at session close. Earlier in the session this file was amended in place
+> three times as work landed, which the convention in [README.md](README.md) forbids for
+> good reason — a handover patched as it goes records the order things happened rather
+> than what a fresh session needs. This version supersedes those amendments; nothing
+> material is lost, since every disposition also lives in the register.*
 
-Repository at `C:\Git\business-intelligence`, branch `main`, remote
-`https://github.com/henryjvanderlinden-cloud/business-intelligence.git`. Whether the
-first push has happened depends on the author; the remote is configured and the push is
-his to run, since this session's sandbox holds no GitHub credentials.
+---
 
-Three commits expected at handover time:
+## First actions
 
-- the scaffold — concept, critique, architecture, ADRs 0001–0005, roadmap;
-- ADR-0006 and the resolution of open questions 1 and 2;
-- this apparatus — register, handovers, process conventions, checker, ADR-0007.
+1. `git log --oneline -8` — expect six commits, head `Record the canon-cost argument`
+   or later.
+2. `python tools/check_repo.py` — must pass before anything is changed.
+3. Read [`../registers/OPEN_POINTS.md`](../registers/OPEN_POINTS.md). It is the authority
+   on what is open; this handover is orientation only, and where the two disagree the
+   register wins.
+4. Read [`../docs/00_concept/005_manifesto.md`](../docs/00_concept/005_manifesto.md),
+   noting the challenge banner on §III, and
+   [`../docs/10_architecture/190_machine-authored-design-canon.md`](../docs/10_architecture/190_machine-authored-design-canon.md).
+   Those two documents are where the argument currently lives and where it is currently
+   contested.
 
-**First actions for a fresh session**, in order: `git log --oneline -5`; read
-[`../registers/OPEN_POINTS.md`](../registers/OPEN_POINTS.md); read
-[`../docs/00_concept/020_critique.md`](../docs/00_concept/020_critique.md) and
-[`../docs/10_architecture/105_autonomy-tiers.md`](../docs/10_architecture/105_autonomy-tiers.md),
-which carry the argument everything else rests on; run `python tools/check_repo.py` and
-confirm it passes before changing anything.
+## Outstanding action for the author, not the model
 
-### What session 01 actually did
+**The repository has never been pushed.** `origin` is configured to
+`https://github.com/henryjvanderlinden-cloud/business-intelligence.git`, the repo does
+not exist on GitHub yet, and this session's sandbox holds no credentials. The author
+creates the empty repository — no README, no .gitignore, no licence — and runs
+`git push -u origin main` from `C:\Git\business-intelligence`. Visibility was discussed
+and left undecided; the reasoning favoured private until the Mode 1 gate, since
+private-to-public is one click and the reverse is not.
 
-Took a long-form brief from the author — twenty-six years in business intelligence,
-proposing an agent-driven system that discovers, models and exploits an organisation's
-data landscape — preserved it verbatim, critiqued it, and built an architecture around
-the critique's central reframing: that autonomy is not uniform but tiered, structural to
-semantic to teleological.
+## Where the project stands
 
-Settled seven decisions (ADRs 0001–0007), including the project's mode — argument first,
-then proof of concept on public practice data, then offering — and the adoption of the
-compendium's register, handover and enforcement apparatus.
+Session 01 took a long-form brief from the author — twenty-six years in business
+intelligence, proposing an agent-driven system that discovers, models and exploits an
+organisation's data landscape — preserved it verbatim, critiqued it, built an
+architecture around the critique, stated the argument as a manifesto, ran the first
+adversarial pass against that manifesto, and watched it fail.
 
-Wrote [`../docs/00_concept/005_manifesto.md`](../docs/00_concept/005_manifesto.md) last,
-at the author's request: the argument stated plainly, organised around the shift from two
-components to three and the relocation of the bottleneck from construction to
-adjudication. It is the document most likely to become public at the Mode 1 gate and the
-one most in need of the external pass, since it asserts more than the rest of the
-repository does.
+Seven ADRs are settled. Thirty-three register rows are open. Nothing has been built,
+nothing has been verified, and no data has been touched.
 
-### The external pass ran, and the manifesto lost
+**The intellectual position, honestly stated.** The reframing the architecture rests on
+is that autonomy is tiered — structural, semantic, teleological — and that the binding
+constraint moves from construction to adjudication. That still stands. The *justification*
+offered for it in the manifesto, the statability argument, is under challenge and losing.
+A candidate replacement arrived at the end of the session from the author rather than the
+model, and is stronger in kind: the canon-cost argument, which is empirically checkable
+against an existing literature rather than defensible only against philosophy.
 
-[XREV_2026-09-19_manifesto-statability_sol](../docs/30_research/notes/XREV_2026-09-19_manifesto-statability_sol.md)
-— manifesto §III, adversarial, on gpt-5.6-sol. FAILS on all three questions.
-`CON-OP-5`, `CON-OP-6` and `CON-OP-7` opened; `CON-OP-4` folded. §III now carries a
-challenge banner and is **unchanged** — the rewrite is deliberate and has not happened.
+## Task for the next session, in one sentence
 
-**The next session's most likely first job is that rewrite**, and it is not a patch.
-If the `CON-OP-5` repair holds, statability reduces to articulability plus generality
-plus observability, and §III is restructured rather than annotated. `CON-OP-7(a)` should
-be settled first if possible, since it decides whether the section's central example
-survives at all.
+Rewrite [`005_manifesto.md`](../docs/00_concept/005_manifesto.md) §III against
+`CON-OP-5`, `CON-OP-6`, `CON-OP-7` and `CON-OP-8` — or, if that is judged premature,
+run `ARC-OP-14` or `EVI-OP-2` first and leave §III challenged.
 
-Note for whoever runs the next pass: the assignment was set by the model that wrote the
-object, so the questions are unreviewed by construction. A second pass should be
-assigned by someone else, or at minimum should include the instruction to attack what the
-assignment failed to ask about.
+## The three candidates, ranked
 
-### A third candidate arrived late, and it may outrank the other two
+**The §III rewrite (`CON-OP-5`, `-6`, `-7`, `-8`).** Owed, and not a patch. If the
+`CON-OP-5` repair holds, statability reduces to articulability plus generality plus
+observability, and the section is restructured rather than annotated. `CON-OP-8` — whether
+the canon-cost argument becomes the spine — is decided inside this work, not before it.
+`CON-OP-7(a)`, which decides whether §III's central example survives at all, should be
+settled first if it can be.
 
-[190_machine-authored-design-canon.md](../docs/10_architecture/190_machine-authored-design-canon.md),
-from the author's observation that bitemporal validity has a third axis — the rule set
-that produced the derived data. Generalised: every methodology in this field is a
-compromise between correctness and human maintenance cost, and the canon is full of
-designs rejected on the cost side of a trade whose terms have changed.
+**The canon survey (`ARC-OP-14`).** Needs no code, runs entirely in Mode 1, and begins
+with verifying claims that `190` makes from general knowledge and has not checked —
+Anchor Modelling, SQL:2011 temporal features, and the stated rejection reasons for
+Kimball and 6NF. Separate designs rejected for *authoring* cost from those rejected for
+*runtime* cost; only the first set is reopened by machine authorship.
 
-`ARC-OP-14` is the research programme that follows: survey the canon, separate designs
-rejected for *authoring* cost from those rejected for *runtime* cost, re-evaluate the
-first set. It needs no code, runs in Mode 1, and starts with verifying claims that
-document makes from general knowledge and has not checked.
+**The public dataset survey (`EVI-OP-2`).** Also needs no code. Sources must be
+independently built, must genuinely share entities, and must permit identity to be
+established by hand for a sample. Dutch public registers are the leading structural
+candidate. This is the one task that makes progress regardless of how the argument
+turns out.
 
-`CON-OP-8` asks the larger question: whether this framing should replace statability as
-the manifesto's spine, given that §III is losing its own review. It is empirically
-checkable against an existing literature rather than defensible only against philosophy —
-but it is also a narrower claim, explaining modelling choices while saying nothing about
-semantic inference. Decide it inside the §III rewrite.
+Two smaller ones worth folding into whichever is chosen: register triage (`PRC-OP-5`),
+and continuing the external review (`PRC-OP-1`), whose ranked target list has the
+falsifiable core first and still untouched.
 
-`ARC-OP-15` is the tension it creates and the one to watch: if ruling is the scarce act,
-machine-optimal storage still owes a human-comprehensible surface to rule on.
+## Traps and warnings
 
-### This session's task, in one sentence
+**The repository is more confident than the project is.** Twenty-two documents written in
+one sitting read as a settled design. One section has been tested and it failed on every
+question. Do not mistake fluency for consensus.
 
-There isn't one yet — the next session's task is chosen by the author, and the two
-candidates are stated below.
+**Nothing here has been verified.** [`050_prior-art.md`](../docs/00_concept/050_prior-art.md)
+is a register of unchecked leads and says so. `190` §6 flags its own unverified claims.
+The economics have no number (`CON-OP-2`). The repository is, at present, entirely
+assertion apart from two citations and one review pass.
 
-### The two live candidates
+**A review note is not an edit.** §III carries a challenge banner and its text is
+unchanged. That is deliberate. Dispositions become register rows; documents change
+later, once, on purpose.
 
-**Candidate A — continue the external review (`PRC-OP-1`, partly discharged).** One
-document of twenty-two has been reviewed. The falsifiable core — that business keys are
-machine-proposable at adjudication-worthy precision — is ranked first in the convention
-and remains untouched, as does the three-tier distinction (`CON-OP-1`). Adversarially,
-one object per pass,
-per [`../docs/50_process/510_external-review.md`](../docs/50_process/510_external-review.md).
-Codex is already wired as a local MCP server, so the transport exists.
+**The assignment for the first external pass was set by the model that wrote the object,**
+so the question selection is unreviewed by construction. A second pass should be assigned
+by someone else, or at minimum instructed to attack what the assignment failed to ask.
 
-**Candidate B — the public dataset survey (`EVI-OP-2`).** Needs no code, no review
-apparatus and no decisions. Produces the thing Mode 2 cannot start without. Dutch public
-registers are the leading structural candidate.
-
-A is the higher-value and more uncomfortable of the two — as the first pass demonstrated.
-B is the one that makes progress regardless of how A turns out. They are independent and
-could run in either order; running A first risks discovering that the architecture needs
-rewriting before the survey is spent, which is an argument for A.
-
-Ahead of both sits the §III rewrite, which is now owed.
-
-### Traps and warnings
-
-**Chain the thread; do not widen the prompt.** The first attempt at the external pass
-sent the whole assignment at once and exceeded the device bridge's sixty-second ceiling,
-orphaning the Codex session. The convention in
-[`../docs/50_process/510_external-review.md`](../docs/50_process/510_external-review.md)
+**Chain the thread; do not widen the prompt.** The first attempt at that pass sent the
+whole assignment at once, exceeded the device bridge's sixty-second ceiling and orphaned
+the Codex session. [`510_external-review.md`](../docs/50_process/510_external-review.md)
 says this in as many words and was ignored anyway. One question per turn, word-capped.
 
-**The repository is more confident than the project is.** Twenty architecture documents
-written in one sitting read as a settled design. They are one model's first pass on one
-person's brief. The prose is deliberately subjunctive; do not let a fresh session mistake
-fluency for consensus.
+**The apparatus now exceeds the work, visibly.** Forty-seven files, thirty-three open
+rows, a register, a handover series, a process convention and a checker — and no code,
+no data, no verified fact. `PRC-OP-2` holds this open deliberately. The next session
+should add no new conventions and no new documents unless a specific failure demands one.
 
-**`020_critique.md` is the load-bearing document, not the architecture.** If the critique
-is wrong — particularly §1, the three kinds of analysis — most of the architecture
-follows it into the ground. Review it before building on it.
+**The author's intuitions are data.** The two contributions that changed the direction of
+this session were an external attack and the author's own hunch about bitemporality.
+Neither came from the model drafting alone. `PRC-OP-4` records the ratio and what to do
+about it.
 
-**The author's own framing is the thing to preserve.** He supplies intuitions and
-domain judgement; the model supplies structure and prior art. A session that takes over
-the intuition half produces something confident and hollow. When his instinct and the
-argument disagree, the instinct is data.
+**Git mechanics.** Deletion in the connected folder is disabled by default, so git leaves
+stale `.git/index.lock` and temp objects behind after a commit until deletion is
+permitted. If git misbehaves, check for `.git/index.lock` first.
 
-**Do not expand the apparatus.** See `PRC-OP-2`. This repository now has a register, a
-handover series, a process convention and a checker while containing no code. That is
-justified at this size and stops being justified quickly.
-
-**The sandbox cannot push to GitHub**, and `git` deletion in the connected folder is
-disabled by default — the first commit left stale `.git` lock files behind until
-deletion was permitted. If git misbehaves in a fresh session, check for
-`.git/index.lock` first.
-
-### Do not reopen
+## Do not reopen
 
 - Models never operate in the data path — [ADR-0004](../docs/20_decisions/0004-models-out-of-the-data-path.md).
 - Autonomy is tiered — [ADR-0005](../docs/20_decisions/0005-three-autonomy-tiers.md).
-  *(The tiering itself is settled as this project's frame; whether it is original is
-  `CON-OP-1` and is open.)*
+  *(The tiering is settled as this project's frame. Whether it is original is `CON-OP-1`
+  and remains open.)*
 - Argument, then proof of concept on public data, then offering — [ADR-0006](../docs/20_decisions/0006-project-mode.md).
-- `nsdn` as the handle, metaphor private — [ADR-0003](../docs/20_decisions/0003-codename-nsdn.md).
+- `nsdn` as the handle, the biological metaphor kept private — [ADR-0003](../docs/20_decisions/0003-codename-nsdn.md).
+- The register, handover and enforcement apparatus — [ADR-0007](../docs/20_decisions/0007-register-and-handover-apparatus.md).
 - Prose-first, supersede-never-delete, numbered with gaps — [ADR-0002](../docs/20_decisions/0002-repository-layout.md)
   and [`../AGENTS.md`](../AGENTS.md).
 
-### What this session did not do
+## What session 01 did not do
 
-No prior-art verification — [050_prior-art.md](../docs/00_concept/050_prior-art.md) is a
-register of leads, every one of them unchecked, and it says so. No cost arithmetic
-(`CON-OP-2`). No external review. No code. No dataset survey.
+No prior-art verification. No cost arithmetic. No dataset survey. No code. No data. No
+review of anything except one section of one document. No push to GitHub.

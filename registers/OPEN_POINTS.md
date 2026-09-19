@@ -455,6 +455,47 @@ has found a comfortable way to avoid testing its thesis.
 
 Held rather than open because the correct response is vigilance, not action.
 
+### PRC-OP-4 — The drafting-to-challenging ratio was about five to one
+**⛔ STATE: OPEN**
+Opened 2026-09-19, session 01, as a finding about the session that produced this
+repository.
+
+Two contributions in session 01 changed the direction of the work: the external
+adversarial pass, which found three defects in the manifesto's central section, and the
+author's own observation about bitemporality, which produced
+[190_machine-authored-design-canon.md](../docs/10_architecture/190_machine-authored-design-canon.md)
+and a candidate replacement for the manifesto's spine.
+
+Neither came from the model drafting on its own. Everything that *did* come from the
+model drafting on its own — twenty architecture and concept documents — remains the least
+tested material here, and the one section of it that was tested failed on every question
+asked.
+
+The session spent roughly five parts drafting to one part challenging. The ratio should
+be closer to one to one, and the way to get there is not to draft less but to attack each
+substantial document as it is produced rather than at the end of a session. Whether that
+becomes a standing rule in
+[500_working-method.md](../docs/50_process/500_working-method.md) is what this row
+decides; it should be decided from a second session's evidence, not from this one's.
+
+### PRC-OP-5 — The register is a pile, not a queue
+**⛔ STATE: OPEN**
+Opened 2026-09-19, session 01.
+
+Thirty-one live rows, no priority, and dependencies stated only in prose where they were
+noticed. `ARC-OP-2` waits on `EVI-OP-1`; `ARC-OP-9` waits on `CON-OP-2`; `CON-OP-5`,
+`CON-OP-6` and `CON-OP-7` all feed one rewrite and should be worked together; `CON-OP-8`
+must be decided inside that rewrite rather than before it.
+
+The irony is exact and worth stating rather than enjoying quietly. This project's
+sharpest architectural argument is that an unranked queue of open questions wastes the
+scarce resource that has to answer them, and that ranking should be by what a resolution
+unblocks — `ARC-OP-6`. The register violates its own finding.
+
+Triage is a cheap next-session task: record blocking relationships, and mark the rows
+that close together. Resist inventing a scoring scheme; the compendium's experience is
+that structure added before it is needed becomes structure that lies.
+
 ### PRC-OP-3 — Cross-model review is unwired
 **⛔ STATE: OPEN**
 Opened 2026-09-19, session 01. *(from open question 15)*
