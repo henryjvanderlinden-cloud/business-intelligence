@@ -455,6 +455,14 @@ has found a comfortable way to avoid testing its thesis.
 
 Held rather than open because the correct response is vigilance, not action.
 
+**First instance, 2026-09-19, same session.** The model read the compendium's rule about
+writing handovers at session end as forbidding mid-session revision, and recorded ordinary
+working as a process defect. The author corrected it: revision as insight arrives is the
+normal order of business, this is uncharted territory, and git already holds whatever
+crosses sessions. Convention imported without the failure that motivated it, then enforced
+beyond its intent — exactly the mode this row exists to watch. The general form is now in
+[500_working-method.md](../docs/50_process/500_working-method.md).
+
 ### PRC-OP-4 — The drafting-to-challenging ratio was about five to one
 **⛔ STATE: OPEN**
 Opened 2026-09-19, session 01, as a finding about the session that produced this

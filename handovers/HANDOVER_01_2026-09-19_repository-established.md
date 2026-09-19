@@ -3,11 +3,8 @@
 
 > **STATUS: CURRENT.**
 
-> *Rewritten at session close. Earlier in the session this file was amended in place
-> three times as work landed, which the convention in [README.md](README.md) forbids for
-> good reason — a handover patched as it goes records the order things happened rather
-> than what a fresh session needs. This version supersedes those amendments; nothing
-> material is lost, since every disposition also lives in the register.*
+> *Revised through the session as the work landed, then rewritten whole at close. Earlier
+> states are in git for anyone who wants them.*
 
 ---
 

@@ -41,10 +41,22 @@ tempted to relitigate. Each with its ADR.
 
 ## Discipline
 
-- The handover is written at the *end* of a session, while the reasoning is still
-  available, not reconstructed later from the diff.
+- **Only the current state has to be right.** Revise the handover as often as the session
+  produces insight worth carrying; rewrite it whole at close if it has become a
+  patchwork. The file is under version control, so revising in place loses nothing and
+  the intermediate states stay recoverable. Do not annotate a handover with an account of
+  its own editing history — git holds that, and the next session does not need it.
+- What the rule actually guards against is **reconstruction after the fact**: writing the
+  handover days later from the diff, once the reasoning has evaporated. Write while the
+  reasoning is still available.
 - A handover does not duplicate the register. It points at rows; the rows hold the
   state. Where the two disagree, the register wins.
 - When a session ends without completing its task, the handover says so plainly. A
   handover that reports success it did not achieve is worse than none, because the next
   session will build on it.
+
+Note that supersede-don't-delete, which governs
+[`../registers/README.md`](../registers/README.md) and the design documents, is *not* the
+rule here. That discipline exists because superseded argument carries the reasoning that
+produced a ruling, and losing it leaves the ruling unexplained. A handover carries no
+argument that the register does not already hold, so git is sufficient retention for it.

@@ -34,6 +34,23 @@ argument it does not believe.
 `tools/check_repo.py` is the enforcement. A convention added to this repository without
 a corresponding check is decoration, and should be marked as such or not added.
 
+## Inherited conventions carry the failure they were written for
+
+Most of the apparatus in this repository was adopted from the compendium, where each
+part was added after a specific failure. A rule imported without its failure is a rule
+applied by guesswork, and the characteristic error is to enforce it more strictly than
+its author ever meant — which is how a convention becomes ceremony.
+
+Session 01 did this within hours of adopting the conventions: it read the compendium's
+"write the handover at the end of a session, not reconstructed later" as a prohibition on
+revising a handover mid-session, and duly flagged ordinary working as a defect. The
+author corrected it. The original rule guards against reconstruction from a cold diff; it
+says nothing against revision, and under version control revision is lossless anyway.
+
+So: before enforcing an inherited rule, state the failure it was written for. If that
+failure cannot be named, the rule is being followed rather than used, and it should be
+narrowed or dropped. This is `PRC-OP-2` in its specific form.
+
 ## The model-switch rule
 
 Material drafted by a model is reviewed on a *different* model before it is treated as
