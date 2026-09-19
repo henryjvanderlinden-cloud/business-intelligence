@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+.env.*
+!.env.example
+
+# Node
+node_modules/
+
+# Data — never commit extracted or sampled source data
+data/
+*.duckdb
+*.duckdb.wal
+*.sqlite
+*.parquet
+*.csv
+!docs/**/*.csv
+!spec/examples/*.csv
+
+# Credentials
+*.pem
+*.key
+secrets/
+credentials*.json
+
+# Tooling
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+.ipynb_checkpoints/
+dist/
+build/
+*.egg-info/
+
+# Agent scratch
+scratch/

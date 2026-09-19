@@ -1,0 +1,62 @@
+# 400 — Phasing
+
+The characteristic failure of projects of this shape is to build the ontology first and
+discover, two years later, that nothing consumes it. The phasing below is arranged so
+that each phase is independently useful, independently abandonable, and cheap to obtain
+permission for relative to the one after it.
+
+## Phase 0 — Consolidate the thinking *(current)*
+
+Assemble the concept, the critique, the architecture and the open questions; resolve the
+scope question (product, capability, or argument — open question 1); and complete the
+prior-art register far enough to know what is genuinely new. Ends when the claimed gap
+in [050_prior-art.md](../00_concept/050_prior-art.md) has been tested against reality.
+
+*Cost: reading and writing. Risk: that it continues indefinitely.*
+
+## Phase 1 — The read-only half
+
+Access contracts, discovery, profiling, card generation, hypothesis generation, the
+adjudication queue. Writes nothing anywhere except its own repository.
+
+This phase is the whole project's hinge. It is independently valuable — an organisation
+with a good context layer and nothing else is already better off — it is by far the
+easiest thing to get authorised, because it cannot break anything, and it de-risks
+everything downstream, since the quality of every later phase is bounded by the quality
+of the context layer.
+
+It is also the phase that tests the falsifiable core: **can business keys and entity
+identity be substantially machine-proposed, at a precision that makes adjudication
+worthwhile?** If the answer is no, the project reduces to a documentation tool and
+should be re-scoped rather than continued.
+
+## Phase 2 — Capture and the raw vault
+
+Historisation assessment, capture jobs, hub/link/satellite generation from adjudicated
+keys, quality expectations generated from profiles. Mechanical given Phase 1, which is
+the point: if Phase 1 succeeded, this phase is largely templating.
+
+*First writes. Blast radius per
+[150_trust-and-blast-radius.md](../10_architecture/150_trust-and-blast-radius.md).*
+
+## Phase 3 — Marts, analysis and narrative
+
+Requires a decision register to exist. Without one, this phase produces statistically
+true irrelevance, and it is better to delay it than to demonstrate that failure.
+
+## Phase 4 — Pruning and self-assessment
+
+In principle pruning should arrive with Phase 2, since that is when artifacts start
+accumulating. In practice it will be deferred, so it is named as a phase to make the
+deferral visible rather than accidental. Includes the held-out adjudication set and the
+cost-per-artifact accounting that make autonomy calibration possible.
+
+## Phase 5 — Enrichment
+
+External and open data, acquired data, data that should be generated but is not yet
+collected. Deliberately last: it is the most enjoyable to think about and the least
+valuable without everything preceding it.
+
+## Not on the roadmap
+
+A decision-making unit. See [020_critique.md](../00_concept/020_critique.md) §2.
