@@ -51,6 +51,17 @@ that particular failure is the one the third component happens to answer.
 
 ## III. What statability is
 
+> **⛔ UNDER CHALLENGE, 2026-09-19.** An adversarial pass on gpt-5.6-sol returned FAILS
+> against every claim in this section:
+> [XREV_2026-09-19_manifesto-statability_sol](../30_research/notes/XREV_2026-09-19_manifesto-statability_sol.md).
+> Stability is not individually necessary (`CON-OP-5`); the conditions are not jointly
+> sufficient, observability being absent (`CON-OP-6`); the articulability argument
+> equivocates between a conclusion and the knowledge that warrants it (`CON-OP-7`); and
+> the claimed distinction from Autor 2014 does not survive at the level of mechanism
+> (`CON-OP-4`). **The text below is unchanged and stands as written** — a review note is
+> not an edit, and the rewrite happens deliberately, once. Read it knowing that its
+> central distinction is contested and currently losing.
+
 The word is doing enough work in this argument to need defining.
 
 **A piece of knowledge is *statable* when it can be expressed as a rule that a

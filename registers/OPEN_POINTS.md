@@ -82,8 +82,89 @@ reduces to the mandate policy built on the distinction, which may still be enoug
 Closing this row requires reading Autor 2014 in full and surveying the tacit-knowledge
 literature far enough to be sure, not merely far enough to be comfortable.
 
+**Superseded in part 2026-09-19 by
+[XREV_2026-09-19_manifesto-statability_sol](../docs/30_research/notes/XREV_2026-09-19_manifesto-statability_sol.md)
+Q3, verdict FAILS AS STATED.** The argument above conflates the object level with the
+meta level. There is no general rule about *KLANTNR*; there is a perfectly general and
+learnable rule about *how to infer what a column like KLANTNR means*, and
+schema-matching research has been learning exactly that for two decades. Learning from
+examples therefore does address a generality failure, and the claimed distinction from
+Autor does not survive at the level of mechanism. "Situated inference" is, on this
+reading, not shown to be distinct from pattern learning over a context window.
+
+What may survive is weaker and empirical: cross-organisation schema matching has existed
+for twenty years without dissolving the problem in practice, which suggests the general
+inference function was right in principle and inadequate in performance until recently.
+That is a claim about capability thresholds rather than about kinds, and the manifesto
+should assert no more than it. Whether even that survives is what remains open here.
+
 Related to `CON-OP-1`; both close against
 [050_prior-art.md](../docs/00_concept/050_prior-art.md).
+
+### CON-OP-5 — Stability is not an independent condition of statability
+**⛔ STATE: OPEN**
+Opened 2026-09-19, session 01, from
+[XREV_2026-09-19_manifesto-statability_sol](../docs/30_research/notes/XREV_2026-09-19_manifesto-statability_sol.md) Q1.
+
+External review established that stability is not individually necessary. Effective-dated
+reference tables and Type 2 dimensions encode changing tax rates, hierarchies,
+classifications and code meanings deterministically: the fact changes, execution stays
+correct, because transaction time selects the applicable version.
+
+The defect in [005_manifesto.md](../docs/00_concept/005_manifesto.md) §III is a level
+confusion — it does not distinguish the stability of the *fact* from the stability of the
+*rule*, and Type 2 dimensioning is exactly the discipline's general rule for absorbing
+unstable facts. The repair candidate, unratified: what resists encoding is *ungoverned*
+change, change with no general form and no notification, which is a generality failure
+about the change process rather than a condition of its own. If that repair holds,
+statability reduces to two conditions plus `CON-OP-6`, and §III must be rewritten rather
+than annotated.
+
+### CON-OP-6 — Observability is a missing fourth condition
+**⛔ STATE: OPEN**
+Opened 2026-09-19, session 01, from the same pass, Q1.
+
+The three conditions are not jointly sufficient. The reviewer's counterexample:
+*attribute each sale to the customer's principal place of business at transaction time*
+is articulable, general and stable, and still cannot execute if historical location was
+never captured.
+
+Observability — every fact the rule needs must be available, identifiable and reliable
+enough at execution time — is a genuine omission rather than a refinement. The existing
+three characterise the proposition; observability connects it to evidence. It also
+connects §III to material the manifesto currently ignores: the original brief's bullet on
+data gaps, and the enrichment phase in
+[400_phasing.md](../docs/40_roadmap/400_phasing.md), which is precisely the business of
+making unobservable things observable.
+
+### CON-OP-7 — The articulability argument equivocates between conclusion and warrant
+**⛔ STATE: OPEN**
+Opened 2026-09-19, session 01, from the same pass, Q2. The sharpest finding of the pass.
+
+**(a) Conclusion versus warrant.** §III argues from the sayability of a conclusion —
+*these two records are the same customer* — and then claims a property of the knowledge.
+The steward who knows it can state the conclusion and frequently cannot state the
+cue-weighting that produced it: spelling, address history, household structure, source
+reliability, timing, exceptions. That is Polanyi's condition, appearing in the middle of
+the example §III uses to escape Polanyi.
+
+Not conceded, and the disagreement is recorded rather than resolved: the reviewer's
+counterexamples are *recognition* competencies, and the pass asserts without evidence
+that they are central rather than marginal to warehouse construction. §III concedes
+inarticulable recognition exists and calls the residue small. Which is right is
+empirically settleable and neither side has measured it.
+
+**(b) Distributed elicitation.** Where semantics exist only as a negotiated synthesis
+across operations, finance, legal and system owners — no participant holding the
+proposition whole — calling the eventual sentence "articulable" hides the cost of
+producing it, and the categorical distinction becomes a gradient of elicitation cost.
+
+This damages more than the definition. [005_manifesto.md](../docs/00_concept/005_manifesto.md)
+§VII argues adjudication is viable *because* someone can always state the particular once
+asked. If nobody holds it whole, there is no adjudicator to ask, and
+[170_human-interfaces.md](../docs/10_architecture/170_human-interfaces.md) assumes a
+mechanism weaker than it needs. `ARC-OP-3` is promoted from a detail to a load-bearing
+component by this finding.
 
 ---
 
@@ -254,9 +335,21 @@ and whether it is *permissible*, which matters more.
 
 ## §4 — Process (`PRC`)
 
-### PRC-OP-1 — Nothing in this repository has been externally reviewed
+### PRC-OP-1 — PARTLY DISCHARGED — external review of the repository
 **⛔ STATE: OPEN**
-Opened 2026-09-19, session 01.
+Opened 2026-09-19, session 01. First pass run the same day; the row stays open because
+one document of twenty-two has been reviewed and the falsifiable core has not.
+
+**First pass, 2026-09-19:**
+[XREV_2026-09-19_manifesto-statability_sol](../docs/30_research/notes/XREV_2026-09-19_manifesto-statability_sol.md)
+— manifesto §III on gpt-5.6-sol, adversarial, three determinate questions, FAILS on all
+three. Dispositions opened as `CON-OP-5`, `CON-OP-6`, `CON-OP-7`, and folded into
+`CON-OP-4`. Note that the assignment was set by the model that drafted the object, so the
+question selection is unreviewed by construction.
+
+Still unreviewed: everything else, including the falsifiable core — that business keys
+are machine-proposable at adjudication-worthy precision — which
+[510_external-review.md](../docs/50_process/510_external-review.md) ranks first.
 
 Every document here was drafted by one model in one session, which by the model-switch
 rule in [500_working-method.md](../docs/50_process/500_working-method.md) makes the
