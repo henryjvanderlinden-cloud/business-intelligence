@@ -40,7 +40,7 @@ organisation's data landscape — preserved it verbatim, critiqued it, built an
 architecture around the critique, stated the argument as a manifesto, ran the first
 adversarial pass against that manifesto, and watched it fail.
 
-Seven ADRs are settled. Thirty-three register rows are open. Nothing has been built,
+Seven ADRs are settled. Thirty-four register rows are open. Nothing has been built,
 nothing has been verified, and no data has been touched.
 
 **The intellectual position, honestly stated.** The reframing the architecture rests on
@@ -59,12 +59,19 @@ run `ARC-OP-14` or `EVI-OP-2` first and leave §III challenged.
 
 ## The three candidates, ranked
 
-**The §III rewrite (`CON-OP-5`, `-6`, `-7`, `-8`).** Owed, and not a patch. If the
+**The §III rewrite (`CON-OP-5`, `-6`, `-7`, `-8`, `-9`).** Owed, and not a patch. If the
 `CON-OP-5` repair holds, statability reduces to articulability plus generality plus
 observability, and the section is restructured rather than annotated. `CON-OP-8` — whether
 the canon-cost argument becomes the spine — is decided inside this work, not before it.
 `CON-OP-7(a)`, which decides whether §III's central example survives at all, should be
-settled first if it can be.
+settled first if it can be. `CON-OP-9` settles the vocabulary in the same pass: whether
+data belongs in the set at all (it does not — it is the substrate), and what the three
+are collectively called. **Do not rename anything across the repository until that row
+closes**; renaming twice costs more than deciding late.
+
+One phrase worth carrying into the rewrite, from the author: the third thing finds
+**case-specific meaning**. That is the generality failure in plainer English than anything
+in the current draft, and it may be the better formulation to build on.
 
 **The canon survey (`ARC-OP-14`).** Needs no code, runs entirely in Mode 1, and begins
 with verifying claims that `190` makes from general knowledge and has not checked —
@@ -106,15 +113,21 @@ whole assignment at once, exceeded the device bridge's sixty-second ceiling and 
 the Codex session. [`510_external-review.md`](../docs/50_process/510_external-review.md)
 says this in as many words and was ignored anyway. One question per turn, word-capped.
 
-**The apparatus now exceeds the work, visibly.** Forty-seven files, thirty-three open
+**The apparatus now exceeds the work, visibly.** Fifty-one files, thirty-four open
 rows, a register, a handover series, a process convention and a checker — and no code,
 no data, no verified fact. `PRC-OP-2` holds this open deliberately. The next session
 should add no new conventions and no new documents unless a specific failure demands one.
 
-**The author's intuitions are data.** The two contributions that changed the direction of
-this session were an external attack and the author's own hunch about bitemporality.
-Neither came from the model drafting alone. `PRC-OP-4` records the ratio and what to do
-about it.
+**The author's intuitions are data.** The contributions that changed the direction of
+this session were an external attack, the author's hunch about bitemporality, and his
+correction of an inherited convention the model was enforcing beyond its intent. None
+came from the model drafting alone. `PRC-OP-4` records the ratio and what to do about it;
+`PRC-OP-2` records the convention failure and its general form is in
+[`../docs/50_process/500_working-method.md`](../docs/50_process/500_working-method.md).
+
+When the author's instinct and the written argument disagree, the instinct is a
+compressed report from twenty-six years of observation. Find out what it is compressing
+before arguing with it.
 
 **Git mechanics.** Deletion in the connected folder is disabled by default, so git leaves
 stale `.git/index.lock` and temp objects behind after a commit until deletion is
