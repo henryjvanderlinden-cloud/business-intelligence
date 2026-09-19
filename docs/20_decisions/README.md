@@ -20,3 +20,4 @@ describe options; only an ADR adopts one.
 | [0003](0003-codename-nsdn.md) | Internal codename `nsdn`; metaphor stays private | Accepted |
 | [0004](0004-models-out-of-the-data-path.md) | Models never operate in the data path | Accepted |
 | [0005](0005-three-autonomy-tiers.md) | Autonomy is tiered: structural, semantic, teleological | Accepted |
+| [0006](0006-project-mode.md) | Project mode: argument, then proof of concept, then offering | Accepted |

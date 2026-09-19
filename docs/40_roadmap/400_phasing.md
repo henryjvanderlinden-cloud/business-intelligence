@@ -7,12 +7,18 @@ permission for relative to the one after it.
 
 ## Phase 0 — Consolidate the thinking *(current)*
 
-Assemble the concept, the critique, the architecture and the open questions; resolve the
-scope question (product, capability, or argument — open question 1); and complete the
-prior-art register far enough to know what is genuinely new. Ends when the claimed gap
-in [050_prior-art.md](../00_concept/050_prior-art.md) has been tested against reality.
+Assemble the concept, the critique, the architecture and the open questions; complete
+the prior-art register far enough to know what is genuinely new; and survey candidate
+public datasets against the three conditions in
+[410_first-vertical-slice.md](410_first-vertical-slice.md) §Environment. Ends when the
+claimed gap in [050_prior-art.md](../00_concept/050_prior-art.md) has been tested
+against reality.
 
-*Cost: reading and writing. Risk: that it continues indefinitely.*
+This is Mode 1 of [ADR-0006](../20_decisions/0006-project-mode.md) and is deliberately
+unhurried.
+
+*Cost: reading and writing. Risk: that it continues indefinitely. The gate into Phase 1
+is a decision taken on a date, not a condition that ripens on its own.*
 
 ## Phase 1 — The read-only half
 

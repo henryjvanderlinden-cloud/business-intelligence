@@ -7,14 +7,15 @@ Entries are grouped, not prioritised.
 
 ## Scope and framing
 
-1. Is the target a **product** (something deployable at an arbitrary organisation), an
-   **internal capability** (something Rick operates on client engagements), or a
-   **written argument** (a paper about how this ought to work)? The three imply very
-   different investments and the repository currently hedges.
-2. Is the first realistic environment a real corporate landscape, or a synthetic one
-   built specifically to develop against? A synthetic landscape removes the access
-   problem entirely and costs perhaps a week; it also risks a system that only works on
-   data it was designed against.
+1. ~~Is the target a **product**, an **internal capability**, or a **written
+   argument**?~~ Resolved: sequentially all three, with explicit gates.
+   See [ADR-0006](../20_decisions/0006-project-mode.md).
+2. ~~Is the first realistic environment a real corporate landscape, or a synthetic
+   one?~~ Resolved in part by [ADR-0006](../20_decisions/0006-project-mode.md): public
+   practice datasets first. The residual question is **ground truth** — public data
+   supplies genuine messiness but no answer key for cross-source entity identity, and
+   without an answer key the falsifiable core cannot be measured. See
+   [410_first-vertical-slice.md](../40_roadmap/410_first-vertical-slice.md) §Environment.
 3. What is the smallest landscape on which the idea is falsifiable? Two sources and one
    question, per the roadmap — but which two, and whose question?
 

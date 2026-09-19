@@ -56,12 +56,44 @@ more likely.
 
 ## Environment
 
-Open question 2 asks whether to work on a real landscape or a synthetic one. A synthetic
-landscape — two schemas with deliberately divergent naming, overlapping but non-identical
-populations, a historical code-list change, and a known ground truth — removes the
-access problem entirely, costs perhaps a week, and makes precision measurable against a
-known answer rather than against an adjudicator's opinion.
+[ADR-0006](../20_decisions/0006-project-mode.md) settles that the first environment is
+built from public practice datasets. That is a better answer than the synthetic
+landscape originally proposed here, and for a reason worth stating: public data is
+*genuinely* messy, and its messiness was not designed by the person being tested. A
+synthetic landscape flatters whoever built it; that failure mode is subtle, and it does
+not announce itself.
 
-Its weakness is obvious: a system tuned against data designed by the person building it
-will flatter itself. The reasonable compromise is to develop against the synthetic
-landscape and to report only numbers obtained against a real one.
+The thing public data does not supply is an answer key. Precision against an
+adjudicator's opinion is a weaker measurement than precision against ground truth, and
+the falsifiable core of this project is a precision figure.
+
+The resolution is to select public sources that satisfy three conditions
+simultaneously, which is a stronger constraint than it first appears:
+
+**They were built independently.** Different publishers, different eras, different
+keying conventions. Two extracts from the same warehouse test nothing, because their
+keys already agree.
+
+**They genuinely share entities.** The same companies, addresses, vehicles,
+institutions or municipalities, referred to by different identifiers. This is what makes
+key hypothesis a real question rather than a string-matching exercise.
+
+**Identity is establishable by hand for a sample.** Not for the whole population — for a
+few hundred entities, carefully, once. That sample is the answer key, and building it is
+a day of tedious work that makes every later number mean something. It should be built
+*before* the system is pointed at the data, and by someone who has not seen the system's
+hypotheses.
+
+Dutch open data is unusually well suited to this, because several public registers
+describe overlapping real-world entities with entirely different keying conventions and
+independent institutional histories. The same holds for equivalent registers elsewhere;
+the point is the structural property, not the jurisdiction. A candidate survey belongs
+in [`../30_research/`](../30_research/) and is a good early Mode 1 task, since it can be
+done before any code exists.
+
+Two guards against self-flattery. Freeze the answer-key sample before development
+begins, and hold part of it back entirely. And report separately the precision of the
+cheap structural signals alone — sketch overlap, naming, observed join predicates —
+because the project's claim is not that hypotheses can be generated, but that a model
+adds something beyond what profiling already tells you. If it does not, that is the
+finding.
