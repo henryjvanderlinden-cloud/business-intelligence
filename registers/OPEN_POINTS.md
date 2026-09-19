@@ -190,6 +190,44 @@ that the manifesto carries both with the canon argument first because it is defe
 
 Decide as part of the §III rewrite, not separately.
 
+### CON-OP-9 — What are the three things called, and is data one of them?
+**⛔ STATE: OPEN**
+Opened 2026-09-19, session 01, from the author's question about vocabulary. Decide inside
+the §III rewrite, not before it.
+
+[005_manifesto.md](../docs/00_concept/005_manifesto.md) calls them **components**, which
+is serviceable and under-claims. The distinction it draws is not only what each can do
+but what each is *entitled* to do — machinery executes and asserts nothing, sense-making
+proposes, humans rule and set purpose. That is an authority structure, and
+[ADR-0005](../docs/20_decisions/0005-three-autonomy-tiers.md) is an assignment of
+mandates rather than of capabilities.
+
+**A category question comes first.** Data is not a member of the set. The three do work;
+data is what they work on. Proposed: data is the **substrate**, the three are the things
+that act on it. Fixing this matters more than the collective noun, because a list mixing
+material with agency is why no single word fits all four.
+
+**Candidates, with their costs.** *Faculties* — a power to do a kind of work, carrying
+authority in the older sense, with no collision anywhere in data or machine-learning
+vocabulary; the objection is that faculties conventionally belong to one mind, which
+smuggles back the organism metaphor [ADR-0003](../docs/20_decisions/0003-codename-nsdn.md)
+set aside. *Capacities* — the same work without that implication, duller, safe.
+*Powers* or *offices* — carry the authority dimension most exactly, and "office" is
+principled rather than accidental given §VII's argument that this infrastructure is
+substantially a bureaucratic artifact; the cost is register, since the author writes
+political theory and the vocabulary may read as imported. *Tiers* or *layers* — ruled
+out, both for implying a stacking that is false and for colliding with the autonomy tiers.
+*Agents* or *actors* — unusable, total collision with "AI agent".
+
+**Provisional recommendation, unratified:** data is the substrate; the three are
+faculties; each has a **mandate**. The last term is the author's own, from the original
+brief — "a properly instructed LLM with enough mandate" — which makes the vocabulary for
+the authority dimension native rather than imported.
+
+**Do not rename across the repository until this closes.** A collective noun is a
+rhetorical choice, the §III rewrite is already owed, and renaming twice costs more than
+deciding late.
+
 ---
 
 ## §2 — Architecture (`ARC`)
