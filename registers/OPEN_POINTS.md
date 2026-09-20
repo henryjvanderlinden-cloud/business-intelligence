@@ -642,6 +642,31 @@ Closes in an ADR, and the ratification is the author's rather than a model's. De
 Related to `BIZ-OP-1`, since the offering's shape — method, product or practice — changes
 what evidence the criterion needs.
 
+**Narrowed 2026-09-20, session 03, by external review.** The wording now lives in
+[002_mission-statement.md](../docs/00_concept/002_mission-statement.md), a living document
+with a changelog; this row holds the question, that document holds the current answer. Per
+[XREV_2026-09-20_mission-statement_sol](../docs/30_research/notes/XREV_2026-09-20_mission-statement_sol.md)
+two things are settled enough to record.
+
+**A coverage measure must be value-weighted by people or it rewards legible abundance.** The
+candidate measure — coverage gained per unit of human adjudication — is maximised by
+modelling thousands of easy, stable, low-value tables under one coarse bulk approval,
+scoring well while diverting scarce experts from the few consequential claims and enlarging
+the trusted surface. The repair is to measure coverage *of what people have prioritised*,
+and the repair is forced rather than chosen: deciding consequence is exactly what
+[ADR-0005](../docs/20_decisions/0005-three-autonomy-tiers.md) forbids the system to do, so
+the weighting cannot come from the system.
+
+**That makes this row depend on `ARC-OP-12`**, which asks who maintains the decision
+register and records that it may simply never be supplied. If no one maintains it, the
+mission has no value weighting, the measure reverts to abundance, and the criterion is
+unmeasurable rather than merely unmeasured. This is a harder dependency than the ones
+already listed and should be treated as such.
+
+**The finding generalises past this row.** Any coverage-shaped measure the project adopts
+inherits the same defect, including in
+[410_first-vertical-slice.md](../docs/40_roadmap/410_first-vertical-slice.md).
+
 ---
 
 ## §2 — Architecture (`ARC`)
@@ -1194,7 +1219,22 @@ to be fatal, and the reviewer agreed with it. A reviewer told which attack is de
 weaker instrument than one that finds it, and the agreement is discounted in the note
 accordingly.
 
-**The falsifiable core is now unreviewed after three passes.** Each pass has reviewed the
+**Fourth pass run 2026-09-20, session 03:** [XREV_2026-09-20_mission-statement_sol](../docs/30_research/notes/XREV_2026-09-20_mission-statement_sol.md)
+— a candidate mission statement on gpt-5.6-sol, two chained questions. FAILS: the
+reframing universalises adjudication without establishing it, and its success measure
+rewards legible abundance. Q2 required the reviewer to produce repaired wording, which is
+generative rather than critical and is unusual for a pass here; the result is version 0.3
+in [002_mission-statement.md](../docs/00_concept/002_mission-statement.md). Narrowed
+`CON-OP-15`.
+
+**This is the third instance of the same drafting defect in two days**, and the mechanism
+was new. The drafter guarded explicitly against asserting a causal link between
+`CON-OP-8`'s two theses, and then asserted the governance pattern of one thesis over both
+— in a clause written for cadence rather than for content. The lesson is that the guard has
+to be applied clause by clause and not to an argument's headline, and that rhetorically
+strong lines are where it fails.
+
+**The falsifiable core is now unreviewed after four passes.** Each pass has reviewed the
 argument rather than the claim everything rests on. That is a pattern and not a choice, and
 it is the thing this row should be read as saying.
 

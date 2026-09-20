@@ -28,6 +28,7 @@ cannot reverse.
 | [`handovers/CURRENT.md`](handovers/CURRENT.md) | **A fresh session starts here** — state, task, traps, what not to reopen |
 | [`registers/OPEN_POINTS.md`](registers/OPEN_POINTS.md) | The authoritative answer to *what is open?* |
 | [`docs/00_concept/001_mission.md`](docs/00_concept/001_mission.md) | What the project is for — the author's end game, and the four parts of it that are not yet true |
+| [`docs/00_concept/002_mission-statement.md`](docs/00_concept/002_mission-statement.md) | **The mission in one paragraph** — a living document, with a changelog of what was cut |
 | [`docs/00_concept/005_manifesto.md`](docs/00_concept/005_manifesto.md) | **The argument, stated plainly** — what changes when a third component arrives |
 | [`docs/00_concept/060_faculty-inventory.md`](docs/00_concept/060_faculty-inventory.md) | The three faculties compared on common dimensions, for deciding which gets which work |
 | [`docs/00_concept/010_vision.md`](docs/00_concept/010_vision.md) | The original brief, verbatim and unedited |

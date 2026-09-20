@@ -16,7 +16,10 @@
    disposition the other two feed. Then
    [`../docs/00_concept/060_faculty-inventory.md`](../docs/00_concept/060_faculty-inventory.md)
    and [`../docs/00_concept/001_mission.md`](../docs/00_concept/001_mission.md), which are
-   new and unratified.
+   new and unratified. The mission's current wording is
+   [`../docs/00_concept/002_mission-statement.md`](../docs/00_concept/002_mission-statement.md),
+   a living document — read its changelog before rewording anything, because three
+   formulations have already been refused and the reasons are recorded there.
 
 ## Outstanding action for the author, not the model
 
@@ -63,8 +66,9 @@ refuted the interaction candidate it offered for `CON-OP-8`. All of that is fold
 [`../docs/30_research/notes/XREV_2026-09-20_faculty-inventory_sol.md`](../docs/30_research/notes/XREV_2026-09-20_faculty-inventory_sol.md)
 holds what it said before.
 
-**The mission is recorded for the first time**, verbatim from the author, with four
-arguments against it — that *orders of magnitude* is two claims of which only coverage
+**The mission is recorded for the first time**, verbatim from the author in 001 and as a
+living statement in 002, which has been through review and is at version 0.3. Four
+arguments were made against the author's formulation — that *orders of magnitude* is two claims of which only coverage
 survives, that *let loose* names the failure mode the mandate structure exists to prevent,
 that bundling a technology set dates the mission, and that the formulation quietly asserts
 the conjunction `CON-OP-8` just separated.
