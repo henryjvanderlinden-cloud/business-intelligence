@@ -47,6 +47,24 @@ size, and state the break-even in columns.
 If the number is unflattering, that is a finding and belongs in the argument rather than
 outside it.
 
+**Narrowed 2026-09-20, session 03, and deliberately not widened.** [060_faculty-inventory.md](../docs/00_concept/060_faculty-inventory.md)'s
+allocation rule names five quantities where this row names two: instruction, execution,
+mandatory verification, remediation, and probability-weighted residual harm, subject to a
+limit on irreversible downside. External review accepted that rule and then objected to it
+on this row's grounds — none of the five has a number here.
+
+The temptation is to grow this row to cover all five. It should not: the break-even in
+columns remains the cheapest and most decisive number available, it can be computed today
+from published token prices and a plausible landscape size, and it is the one that decides
+whether the thesis is dramatic or merely true. The other four are named in the grid so that
+they are not forgotten, and they are priced after the first number exists, not before.
+
+Note also that verification cost — not production cost — is where the grid locates the
+economic argument. A back-of-envelope that prices only generation answers the wrong
+question if verifying a semantic assertion costs what producing it cost. The envelope
+should therefore carry a second line: cost per adjudicated assertion, against cost per
+proposed one.
+
 ### CON-OP-3 — What is the acceptance test for an automated analysis?
 **⛔ STATE: OPEN**
 Opened 2026-09-19, session 01. *(from open question 11)*
@@ -275,6 +293,28 @@ demonstrated interaction are a weaker object than one thesis. There may be an in
 — a landscape whose deterministic machinery is cheap to regenerate is one where a revised
 semantic assertion is cheap to propagate — but this repository has not made that argument
 and must not assume it can. The §III rewrite either makes it or states its absence.
+
+**The first interaction candidate was tried and refuted, 2026-09-20, session 03.** Per
+[XREV_2026-09-20_faculty-inventory_sol](../docs/30_research/notes/XREV_2026-09-20_faculty-inventory_sol.md)
+Q3: the proposal was that deterministic auditability — all state explicit, the landscape
+materialised and queryable — is a precondition for verifying the second faculty's semantic
+output, so cheap deterministic authorship is what makes cheap semantic inference checkable.
+It fails because a materialised, queryable landscape does not depend on *cheap machine*
+authorship: conventional warehouses have supplied explicit transformations, lineage and
+recomputation for decades, so the argument connects the second thesis to materialisation in
+general rather than to the first thesis. Two lesser objections also land — many semantic
+claims are validated against people or authoritative documentation rather than against data
+at all, and auditability of machinery is not the same property as verifiability of an
+interpretation.
+
+**What survives is a test rather than an argument**, and it is the useful residue: *for
+semantic hypotheses whose validation depends on recomputable structural evidence, cheaper
+authorship and maintenance of evidence-producing artifacts may reduce validation cost or
+widen the evidence economically available.* To become the interaction this row demands, the
+project must show that machine authorship changes the availability, coverage or maintenance
+cost of validation evidence **relative to an otherwise equivalent conventionally authored
+warehouse**. That comparison is concrete enough to run once `ARC-OP-14`'s canon survey
+exists, which is a second reason to promote that survey.
 
 Note also what (c) costs procedurally. This row's attraction was that the canon argument
 yields a research programme executable without code. Under two theses that stays true of
@@ -549,6 +589,58 @@ The candidate formulation, unratified: the human faculty's mandate is **adjudica
 elicitation and purpose**, with elicitation a first-class expense rather than a
 precondition that will be arranged. Whether purpose can be collapsed into adjudication by
 the move above is what this row decides. Related to `ARC-OP-12`.
+
+**Narrowed 2026-09-20, session 03, with a capability-side argument.** [060_faculty-inventory.md](../docs/00_concept/060_faculty-inventory.md)
+dimension 9 — negotiation and value-setting — was added by external review on the test that
+a dimension must flip an allocation. It flips this one. Inferring a metric's likely meaning
+from documentation goes to the second faculty; defining *net revenue* where Finance and
+Sales hold conflicting legitimate interests goes to a human, and specifically to one with
+the authority to bind both, which is not any human.
+
+The point is that the second faculty's barrier here is **standing, not skill**. It can
+surface the conflict, enumerate the positions and draft a reconciliation; it cannot make
+anyone accept one, and no increase in capability changes that. So where a semantic question
+is actually a contested value question wearing a definitional costume — which is a large
+share of the hard cases in this discipline — the work is not adjudication of a proposal at
+all. It is settlement between parties, which is the elicitation cost this row exists to
+name, arriving from the capability side rather than from `CON-OP-7(b)`'s distribution
+argument. Two independent routes to the same conclusion strengthens the candidate
+formulation without settling it.
+
+### CON-OP-15 — What is the success criterion, and is it one claim or two?
+**⛔ STATE: OPEN**
+Opened 2026-09-20, session 03, from the author's statement of the end game, recorded
+verbatim in [001_mission.md](../docs/00_concept/001_mission.md).
+
+The author's formulation is *increase development speed and quality by orders of
+magnitude*. Three things in it need deciding before it can be a criterion rather than an
+ambition.
+
+**Speed of what, and quality of what.** Speed admits an orders-of-magnitude claim; quality
+does not, because quality is bounded above and nothing is a hundred times more correct than
+correct. The claim becomes coherent only when quality is replaced by a quantity with room
+to move. Two candidates are recorded in
+[001_mission.md](../docs/00_concept/001_mission.md): defect density, and **coverage** — the
+share of the landscape modelled at all, which moves by orders of magnitude if modelling
+cost collapses, without any single artifact being better than good human work. Coverage is
+the stronger reading and is not yet ratified.
+
+**Whether it is one claim or two.** Read against `CON-OP-8`, speed is the first thesis and
+coverage is the second, so the author's formulation asserts their conjunction — precisely
+the interaction external review has so far refused to grant. This row must not be used to
+smuggle that conjunction in. What the formulation supplies is a hypothesis with a known
+provenance: a practitioner of twenty-six years expects the halves to be one thing. That is
+a reason to look harder for the interaction before conceding there is none, and it is not
+evidence that one exists.
+
+**Against what it is measured.** A speed claim without a defect-rate floor is the ordinary
+way this discipline produces fast rubbish, and nothing currently states the floor.
+`EVI-OP-1` owes the ground truth any such measurement needs.
+
+Closes in an ADR, and the ratification is the author's rather than a model's. Depends on
+`CON-OP-2` for the arithmetic and on `CON-OP-8` for whether the criterion is unitary.
+Related to `BIZ-OP-1`, since the offering's shape — method, product or practice — changes
+what evidence the criterion needs.
 
 ---
 
@@ -893,6 +985,34 @@ is a stack chosen by familiarity and a principle written afterwards to justify i
 Depends on `ARC-OP-19` for who rules a design claim at all, and on `ARC-OP-11` for the
 SQL-dialect question any declaration language must answer.
 
+### ARC-OP-21 — No faculty self-reports incompetence, so out-of-depth detection has no home
+**⛔ STATE: OPEN**
+Opened 2026-09-20, session 03, from [XREV_2026-09-20_faculty-inventory_sol](../docs/30_research/notes/XREV_2026-09-20_faculty-inventory_sol.md) Q1.
+
+Each faculty fails to announce that it is out of its depth, and each fails differently.
+Deterministic machinery has no representation of its own scope and proceeds confidently on
+well-formed input that violates its assumptions. The second faculty is fluent at the
+boundary of competence, which is what makes `ARC-OP-17`'s correlated error dangerous rather
+than merely annoying. Humans usually know and frequently do not say, because admitting it
+carries a political cost.
+
+This was drafted as a capability dimension in [060_faculty-inventory.md](../docs/00_concept/060_faculty-inventory.md) and cut, on the ground that
+it flips no allocation: it applies to all three faculties equally, so no unit of work moves
+because of it. What survives is a **requirement on the architecture** rather than a property
+of any faculty. Nothing in
+[100_system-overview.md](../docs/10_architecture/100_system-overview.md) or
+[110_capability-map.md](../docs/10_architecture/110_capability-map.md) currently provides
+it, and the omission is invisible precisely because each faculty looks confident.
+
+What would close this row is a stated detection mechanism that does not rely on a faculty
+reporting on itself — candidates being coverage of the evidence a claim rests on, distance
+from adjudicated precedent (which is dimension 10 of the grid), and disagreement between
+independently prompted attempts. Each is a hypothesis; none is designed. Related to
+`ARC-OP-17`, `ARC-OP-18` and `ARC-OP-5`, and bears on
+[160_evaluation-and-regression.md](../docs/10_architecture/160_evaluation-and-regression.md),
+which currently assumes error is detectable by evaluation after the fact rather than
+flagged at the point of production.
+
 ---
 
 ## §3 — Evidence and measurement (`EVI`)
@@ -1053,6 +1173,30 @@ Still unreviewed after two passes: the falsifiable core, which
 [510_external-review.md](../docs/50_process/510_external-review.md) ranks first and which
 both passes have now stepped around; and `CON-OP-12`, `ARC-OP-17`, `ARC-OP-19` and
 `CON-OP-14`, which the second-pass assignment above named and the pass did not reach.
+
+**Third pass run 2026-09-20, session 03:** [XREV_2026-09-20_faculty-inventory_sol](../docs/30_research/notes/XREV_2026-09-20_faculty-inventory_sol.md)
+— the faculty inventory on gpt-5.6-sol, adversarial, three chained questions. FAILS on all
+three: one dimension cut, three added, the allocation rule replaced, and the proposed
+interaction between `CON-OP-8`'s two theses refuted. Narrowed `CON-OP-8`, `CON-OP-2` and
+`CON-OP-14`; opened `ARC-OP-21`, the only row opened in session 03.
+
+**Two process findings from this pass, both worth more than the individual dispositions.**
+The first is a transport lesson: supplying the apparatus does not require the reviewer to
+*read* the apparatus, and stating it inline keeps a pass inside the bridge's sixty-second
+ceiling. [510_external-review.md](../docs/50_process/510_external-review.md) should say so.
+The second is a pattern rather than an incident — the allocation rule failed for the same
+reason `CON-OP-11` failed the day before, by collapsing a multi-term expected-value
+calculation onto one convenient axis, and both were drafted by the same model. That is now
+twice in two days and is a standing defect in the drafter rather than bad luck.
+
+The assignment problem also worsened rather than improved: Q3 named the attack it expected
+to be fatal, and the reviewer agreed with it. A reviewer told which attack is decisive is a
+weaker instrument than one that finds it, and the agreement is discounted in the note
+accordingly.
+
+**The falsifiable core is now unreviewed after three passes.** Each pass has reviewed the
+argument rather than the claim everything rests on. That is a pattern and not a choice, and
+it is the thing this row should be read as saying.
 
 ### PRC-OP-2 — Keep the apparatus proportionate to the work
 **⛔ STATE: OPEN**

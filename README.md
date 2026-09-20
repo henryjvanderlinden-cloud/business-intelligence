@@ -27,7 +27,9 @@ cannot reverse.
 | --- | --- |
 | [`handovers/CURRENT.md`](handovers/CURRENT.md) | **A fresh session starts here** — state, task, traps, what not to reopen |
 | [`registers/OPEN_POINTS.md`](registers/OPEN_POINTS.md) | The authoritative answer to *what is open?* |
+| [`docs/00_concept/001_mission.md`](docs/00_concept/001_mission.md) | What the project is for — the author's end game, and the four parts of it that are not yet true |
 | [`docs/00_concept/005_manifesto.md`](docs/00_concept/005_manifesto.md) | **The argument, stated plainly** — what changes when a third component arrives |
+| [`docs/00_concept/060_faculty-inventory.md`](docs/00_concept/060_faculty-inventory.md) | The three faculties compared on common dimensions, for deciding which gets which work |
 | [`docs/00_concept/010_vision.md`](docs/00_concept/010_vision.md) | The original brief, verbatim and unedited |
 | [`docs/00_concept/020_critique.md`](docs/00_concept/020_critique.md) | What holds up in it, what does not, and what is missing |
 | [`docs/10_architecture/100_system-overview.md`](docs/10_architecture/100_system-overview.md) | The system as currently conceived |
@@ -42,7 +44,8 @@ cannot reverse.
 ```
 registers/             The authoritative open-points register, and its archive
 handovers/             One document per session, written for the next one
-docs/00_concept/       Manifesto, original brief, critique, glossary, prior art
+docs/00_concept/       Mission, manifesto, original brief, critique, glossary, prior art,
+                       faculty inventory
 docs/10_architecture/  How the system is meant to work
 docs/20_decisions/     Architecture decision records (ADRs)
 docs/30_research/      Prior art notes, tool evaluations, external review passes
