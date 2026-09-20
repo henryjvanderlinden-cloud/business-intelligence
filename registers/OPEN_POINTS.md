@@ -321,6 +321,65 @@ yields a research programme executable without code. Under two theses that stays
 one and false of the other, so the halves will not be evidenced at the same rate: expect
 the canon half to firm up via `ARC-OP-14` while the semantic half waits on `EVI-OP-1`.
 
+**The comparison this row demands arrived early, and it points away from the first thesis.**
+Per [2026-09-20-canon-survey](../docs/30_research/notes/2026-09-20-canon-survey.md) §1.7 and F4: Data Vault already presupposes generation, and a mature
+metadata-driven ecosystem — WhereScape, VaultSpeed, AutomateDV, Varigence — generates vault
+structures and loading logic today with no language model in the pipeline. What those
+generators require as input is the model metadata: which entity is a hub, what the business
+key is, which relationships are links. That input is the **second** thesis's output. So in
+the one case the mission statement names, the first thesis's machinery already exists
+conventionally and the binding input is semantic. The §III rewrite must not claim machine
+authorship as the thing that makes Data Vault attainable without meeting this.
+
+**A second interaction candidate, drafted 2026-09-20, session 04, and unreviewed.** It
+composes F3 and F4 of the survey: the designs the first thesis makes affordable are
+decomposed designs; decomposed designs perform only where key constraints are declared and
+trusted (`ARC-OP-22`); those constraints are semantic assertions about identity, which is
+what the second faculty proposes and a human adjudicates. If it holds, the first thesis
+*generates demand* for the second, and the volume of key adjudication scales with the
+decomposition cheap authorship enables.
+
+Two conditions on using it. Its direction is adverse as readily as favourable — a coupling
+in which thesis 1 loads the scarce faculty thesis 2 feeds is not mutual support, and must
+not be written as though it were. And it has the same shape as the candidate refuted above,
+so the first objection to test is whether the dependency is on *cheap machine* authorship or
+merely on decomposition, which a conventionally authored 6NF warehouse would share. It was
+drafted by the model working in this repository and is unreviewed by construction; per
+`PRC-OP-3` it goes to another model before the manifesto touches it.
+
+**Reviewed and refuted the same day, 2026-09-20, session 04.** Per [XREV_2026-09-20_canon-survey-interaction_sol](../docs/30_research/notes/XREV_2026-09-20_canon-survey-interaction_sol.md) it fails on
+the axis its own warning named: a conventionally authored 6NF warehouse uses many narrow
+tables and relies on declared, non-enforced keys for join elimination, so it incurs the same
+adjudication demand with no machine authorship anywhere. The dependency attaches to
+decomposition, exactly as the first candidate's attached to materialisation.
+
+A second objection is the more useful one and was not anticipated here: **most of the keys
+decomposition generates are mechanical consequences of the decomposition or surrogates, not
+hypotheses about business identity.** Forty attribute tables restate one identity decision;
+they do not pose forty. The quantity that would have to scale is the number of independently
+uncertain identities, and that is not the same quantity as table count — which is the
+single-axis error the traps keep recording, committed again.
+
+The minimal premise that would rescue it, quoted from the pass: *the marginal decompositions
+made economical specifically by machine authorship require previously unknown business-key or
+cross-source identity assertions, and acceptable performance requires optimisations that
+depend on declaring those assertions.* Nothing establishes either conjunct. **Two interaction
+candidates have now been refuted on the same axis**, and a third should not be drafted
+without first stating how it attaches to *cheap machine authorship* rather than to a property
+conventional warehouses already have.
+
+**The pass also corrected this row's own reasoning, and the correction outlives the
+candidate.** This row holds that two adjacent capability claims with no demonstrated
+interaction are a weaker object than one thesis, and the survey extended that to say an
+adverse coupling "is not mutual support." The reviewer answers that a demonstrated adverse
+coupling is *stronger* evidence that the theses describe one system, because it supplies a
+causal relation; adverse concerns the interaction's consequences, not the strength of the
+evidence for it. This repository has been conflating the strength of the object with the
+attractiveness of the conclusion. **The §III rewrite is therefore not obliged to find a
+favourable interaction, and must stop treating the absence of a favourable one as the absence
+of one** — including where the honest finding is that the first thesis makes the second's
+scarce faculty scarcer.
+
 **Superseded 2026-09-20, session 03.** The session-02 narrowing is retained below for
 provenance; its premise did not survive review, and nothing after this line is a current
 claim about this row.
@@ -492,6 +551,16 @@ what this row proposed is no longer a candidate. `ARC-OP-16`, `ARC-OP-17` and `A
 are not void with it — each was argued from locally-general rules existing, not from domain
 size explaining them — but each now needs re-deriving from the expected-value framing
 rather than inheriting this row's premise.
+
+**The counterexample was checked 2026-09-20, session 04, and survives its own wording.** Per
+[2026-09-20-canon-survey](../docs/30_research/notes/2026-09-20-canon-survey.md) §1.3, *almost unused* fails as stated: the Anchor paper self-reports
+production use in insurance, logistics and retail, an OLTP system managing a million
+customers, and warehouses to a terabyte. That is the method's own authors reporting, so it
+is weak evidence of adoption, and it defeats only the absolute wording. What the
+counterexample needs is that Anchor is rare *relative to what a discipline-wide domain would
+predict*, and nothing found contradicts that. The refutation stands; the sentence carrying
+it should not be requoted in its original form, and this repository has no adoption figure
+for any methodology.
 
 ### CON-OP-12 — Locally-general rules are already mined mechanically, and the claim must narrow accordingly
 **⛔ STATE: OPEN**
@@ -891,6 +960,33 @@ the kind machine authorship can absorb, which
 [002_mission-statement.md](../docs/00_concept/002_mission-statement.md) version 0.6 names as
 its load-bearing empirical assumption. That promotes this row again.
 
+**First half discharged 2026-09-20, session 04**, in [2026-09-20-canon-survey](../docs/30_research/notes/2026-09-20-canon-survey.md). The row stays `OPEN`
+because the second half — re-evaluating the designs that survive — is not attempted, and
+because the survey changed which designs are eligible for it.
+
+Four verification verdicts. Anchor's schema-evolution property holds. SQL:2011 supplies
+valid and transaction time and is silent on versioning derivation logic, so the rule-set
+axis is outside the standard rather than underused. The Kimball attribution **fails**: he
+argues two reasons, understandability and predictable query performance, and holds
+normalised ER modelling to be unsuitable for decision support rather than
+correct-but-expensive, so §190 §3 loses one of its three headline examples. *Almost unused*
+for Anchor fails as worded — its authors self-report production use in insurance, logistics
+and retail — while the counterexample that sentence carried against `CON-OP-11` survives in
+substance.
+
+The classification produced the finding this row did not anticipate. **The eight candidates
+are not eight of a kind**: three are designs with a rejection history, two are artifacts the
+system emits, and three are declaration disciplines. Explicit units, currencies, timezones
+and grain is the clean case — its cost was never authorship but semantic determination, so
+it belongs to the second thesis and is misfiled under the first. Assertions at maximum
+granularity are bound by adjudication volume, which is the scarce faculty rather than a
+cost cheap authorship relieves. Presenting either as an instance of *correct-but-unaffordable
+designs now affordable* counts the first thesis's dependencies as its evidence.
+
+Two consequences leave this row. The runtime relief the programme rests on is conditional
+and is now `ARC-OP-22`; the measurement it needs is `EVI-OP-6`. The Data Vault assumption
+this row was promoted to settle came back adverse — see `CON-OP-8`.
+
 ### ARC-OP-15 — Machine-optimal storage owes a human-comprehensible adjudication surface
 **⛔ STATE: OPEN**
 Opened 2026-09-19, session 01.
@@ -1109,6 +1205,48 @@ independently prompted attempts. Each is a hypothesis; none is designed. Related
 which currently assumes error is detectable by evaluation after the fact rather than
 flagged at the point of production.
 
+### ARC-OP-22 — The performance of decomposed designs depends on key constraints no engine enforces
+**⛔ STATE: OPEN**
+Opened 2026-09-20, session 04, from [2026-09-20-canon-survey](../docs/30_research/notes/2026-09-20-canon-survey.md) §1.4.
+
+Every argument in this repository that treats the join objection to 6NF, anchor-style
+modelling and Data Vault as answered by columnar execution is relying on join elimination,
+and join elimination is conditional in a way the documents do not state.
+[Snowflake](https://docs.snowflake.com/en/user-guide/join-elimination) removes a redundant
+join only where the `UNIQUE`, `PRIMARY KEY` or `FOREIGN KEY` constraint is declared **and**
+carries `RELY`; `NORELY` is the default; standard tables are not enforced, so "you are
+responsible for enforcing constraints on the data"; and where integrity fails, "the query
+results might differ." BigQuery requires the same declarations as `NOT ENFORCED` and warns
+that violated constraints may return incorrect results.
+
+**Narrowed within the hour, 2026-09-20, session 04**, by [XREV_2026-09-20_canon-survey-interaction_sol](../docs/30_research/notes/XREV_2026-09-20_canon-survey-interaction_sol.md) Q2. Join elimination
+is one optimisation among many, not a general condition of decomposed-design performance:
+columnar storage, partition and micro-partition pruning, clustering, predicate and projection
+pushdown, join ordering, caching, materialised views and prejoined serving layers are all
+available, and many workloads touch few narrow relations at modest volume. This row is
+therefore **not** a claim that decomposed designs need `RELY` to perform. It is a claim about
+what follows **where a project chooses to declare such constraints**, which nsdn plausibly
+would, and that is narrower and still live.
+
+The consequence is architectural rather than operational. **A business-key assertion stops
+being only a semantic claim and becomes a runtime-correctness dependency.** If a key the
+second faculty proposed and a human ratified is wrong, the engine does not merely record a
+wrong interpretation; it silently returns wrong rows, and it does so in queries that never
+mention the mistaken table. That interacts with `ARC-OP-2` on what evidence promotes a
+joinability hypothesis to a business-key assertion, with `ARC-OP-4` on how an assertion
+ages — a `RELY` constraint that was true in 2026 and is false in 2027 fails silently — and
+with [150_trust-and-blast-radius.md](../docs/10_architecture/150_trust-and-blast-radius.md),
+because the blast radius of a mistaken key is now the whole query workload rather than one
+model.
+
+Three things are owed. Whether a declared-and-trusted constraint is a tier-appropriate
+artifact for `ADR-0005`'s autonomy tiers at all, given that asserting it delegates
+correctness to unverified data. Whether the system should verify constraints it declares
+rather than trusting them, and what that costs — which is measurable and belongs with
+`EVI-OP-6`. And whether the adjudication surface of `ARC-OP-15` must present the constraint
+*and its consequences* to whoever rules on it, since ruling on a key without seeing that it
+licenses join elimination is ruling on something other than what is being decided.
+
 ---
 
 ## §3 — Evidence and measurement (`EVI`)
@@ -1203,6 +1341,35 @@ guessing, which is the thing actually in dispute once `CON-OP-4`(ii) has failed 
 `CON-OP-11`'s axis with it. The second arm is also cheaper, since it does not require a
 seventh source — only that some columns be withheld — so it can run inside the slice as
 scoped while the transfer measurement waits.
+
+### EVI-OP-6 — Does join elimination survive at anchor scale on a current engine?
+**⛔ STATE: OPEN**
+Opened 2026-09-20, session 04, from [2026-09-20-canon-survey](../docs/30_research/notes/2026-09-20-canon-survey.md) §1.4 and `ARC-OP-22`.
+
+The literature does not answer this. The Anchor paper's own experiment compared one table
+against "up to 25 tables in the anchor database" on Microsoft SQL Server 2008, and says so
+as a limitation. A four-thousand-table anchor model on a current columnar engine is not
+measured anywhere this survey found, and the whole re-evaluation programme of
+[190_machine-authored-design-canon.md](../docs/10_architecture/190_machine-authored-design-canon.md)
+assumes the answer.
+
+The measurement is cheap and does not wait on the argument. Generate a synthetic anchor-style
+schema at two or three decomposition levels, declare the constraints with `RELY` or
+`NOT ENFORCED`, run a fixed query set that touches a small subset of attributes, and report
+elapsed time and bytes scanned against a denormalised equivalent — with and without the
+constraint declarations, because the difference between those two is the size of the
+dependency `ARC-OP-22` names. Doing it on one engine is enough to be informative and not
+enough to generalise; say which engine in the result.
+
+Per [XREV_2026-09-20_canon-survey-interaction_sol](../docs/30_research/notes/XREV_2026-09-20_canon-survey-interaction_sol.md) Q2 the measurement must include the alternatives, or it will attribute to
+join elimination what pruning, clustering and projection pushdown were doing: report the
+denormalised baseline, the decomposed schema without declarations, and the decomposed schema
+with them, and state the workload shape, since a workload touching few narrow relations does
+not exercise the question at all.
+
+This is the first row in the register that requires running something rather than reading
+or arguing. Under [ADR-0006](../docs/20_decisions/0006-project-mode.md) that is Mode 2 work,
+and it is scoped small enough to argue for an exception rather than a phase change.
 
 ---
 

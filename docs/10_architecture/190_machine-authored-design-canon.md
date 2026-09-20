@@ -54,12 +54,25 @@ methodology in this discipline is a compromise between correctness and human mai
 cost, and the canon is full of designs that were rejected on the cost side of that
 trade.**
 
-Kimball's star schema is explicitly a usability compromise — denormalise so that humans
-can query and maintain it. Data Vault's object count is its acknowledged price, which
+~~Kimball's star schema is explicitly a usability compromise — denormalise so that humans
+can query and maintain it.~~ Data Vault's object count is its acknowledged price, which
 [140_data-vault-automation.md](140_data-vault-automation.md) already argues stops
 mattering under machine authorship. Anchor Modeling takes the same logic to 6NF, is
-formally superior on schema evolution, and is almost unused. None of these were rejected
-because they were wrong.
+formally superior on schema evolution, and is ~~almost unused~~. None of these were
+rejected because they were wrong.
+
+> **Annotated 2026-09-20, session 04, by the survey in
+> [2026-09-20-canon-survey.md](../30_research/notes/2026-09-20-canon-survey.md).** The
+> Kimball sentence fails against its source: he gives two reasons, understandability *and*
+> predictable query performance, and argues that normalised ER modelling is unsuitable for
+> decision support rather than correct-but-expensive — §1.6 of the survey. The example is
+> struck and not replaced, so this paragraph now opens on two examples rather than three.
+> *Almost unused* is struck as unsupported: the Anchor paper self-reports production use in
+> insurance, logistics and retail — §1.3. The claim the sentence was making, that Anchor is
+> rare relative to what its generality would predict, survives; the wording did not. Data
+> Vault's own clause stands but is narrowed by §1.7 and F4: conventional metadata-driven
+> generators already absorb its authoring burden, so what machine authorship adds there is
+> not authorship.
 
 A provisional list of candidates, each of which is a claim to be tested rather than a
 recommendation:
@@ -69,8 +82,15 @@ board pack exactly becomes a query rather than an excavation.
 
 **Sixth normal form and anchor-style modelling.** Every attribute its own table, fully
 temporal. Its property is lossless schema evolution — adding an attribute never migrates
-anything — and its cost is object count and join complexity, one of which no longer
-matters. See the caveat in §4.
+anything — and its cost is object count and join complexity, ~~one of which no longer
+matters~~. See the caveat in §4.
+
+> **Annotated 2026-09-20, session 04.** The schema-evolution property verifies (survey
+> §1.2). The join clause does not: relief is conditional, not accomplished. Snowflake and
+> BigQuery eliminate redundant joins only where key constraints are declared and trusted —
+> `RELY` and `NOT ENFORCED` respectively — and neither engine checks that they are true,
+> both warning that violated constraints can return wrong results. The Anchor paper's own
+> measurement reached twenty-five tables on SQL Server 2008. Survey §1.4, and `ARC-OP-22`.
 
 **Insert-only everything.** Never update, never delete. Storage is cheap; the reason
 people still overwrite is the query complexity of reconstructing current state, which is
@@ -99,7 +119,18 @@ declaration it is a compile-target problem.
 
 Two disciplines are needed to keep this from becoming a licence to generate anything.
 
-**Separate designs rejected for authoring cost from designs rejected for runtime cost.**
+**~~Separate designs rejected for authoring cost from designs rejected for runtime cost.~~
+Classify each design by where its lifecycle work accumulates.**
+
+> **Annotated 2026-09-20, sessions 03 and 04.** The authoring/runtime separation was
+> dissolved by the author and conceded by external review: authoring, comprehension, query
+> construction and optimisation are locations where lifecycle work lands, not distinct
+> obstacle classes. `ARC-OP-14` carries the replacement instruction and the survey executes
+> it. The paragraph's substantive warning — that conflating the two would license designs
+> that are still slow — is unaffected and is why runtime cost is now recorded separately
+> for every candidate rather than used as a rejection reason.
+
+
 6NF's join explosion was a query-performance objection as much as a maintenance one.
 Columnar engines and cheap compute have moved that too, but not by the same mechanism and
 not to the same degree, and conflating the two would let this document justify designs
@@ -135,9 +166,21 @@ That is a better shape of argument than the one the manifesto currently rests on
 it should become the manifesto's spine is `CON-OP-8`, and it should be decided as part of
 the §III rewrite rather than separately.
 
-## 6. Unverified
+## 6. Verification status
 
-Anchor Modelling, SQL:2011's temporal features, and the specific rejection reasons
-attributed above to Kimball and to 6NF are stated from general knowledge and have **not**
-been checked against sources in this session. Per [`../../AGENTS.md`](../../AGENTS.md)
-rule 8 they are hypotheses. Verifying them is the first half of `ARC-OP-14`.
+**Checked 2026-09-20, session 04**, in
+[2026-09-20-canon-survey.md](../30_research/notes/2026-09-20-canon-survey.md), which is the
+first half of `ARC-OP-14` and carries the citations. Four verdicts bear on this document:
+Anchor's schema-evolution property holds; SQL:2011 supplies valid and transaction time and
+says nothing about versioning derivation logic, so the third axis of §1 is outside the
+standard rather than merely underused; the Kimball attribution fails; and the join-cost
+claim is undetermined and conditional. The 6NF attribution to Anchor is second-hand, and
+Date, Darwen and Lorentzos remain unread.
+
+> Superseded text, retained per [`../../AGENTS.md`](../../AGENTS.md) rule 4:
+>
+> > Anchor Modelling, SQL:2011's temporal features, and the specific rejection reasons
+> > attributed above to Kimball and to 6NF are stated from general knowledge and have
+> > **not** been checked against sources in this session. Per
+> > [`../../AGENTS.md`](../../AGENTS.md) rule 8 they are hypotheses. Verifying them is the
+> > first half of `ARC-OP-14`.

@@ -37,6 +37,18 @@ met.
 
 **No figure exists for cost or coverage.** `CON-OP-2` is open.
 
+**The Data Vault clause rests on an assumption that came back adverse.** The statement names
+Data Vault to make the claim concrete, and the claim presumes its lifecycle burden is the
+kind machine authorship absorbs. [2026-09-20-canon-survey](../30_research/notes/2026-09-20-canon-survey.md)
+§1.7 and F4 find that the method already presupposes generation and that a mature
+metadata-driven ecosystem supplies it today with no language model involved; what those
+generators require is the model metadata — hub, business key, link — which is contextual
+inference's output rather than deterministic authorship's. The wording is left untouched
+pending `CON-OP-8`, because the statement's *practical test* survives either way: whether
+ordinary teams can implement and maintain the design is a question about outcomes, not about
+which faculty delivers them. What does not survive untouched is any argument that reaches
+the test by way of cheap machine **authorship** alone.
+
 ## The phrase doing the most work
 
 **"Total lifecycle burden … without displacing the burden elsewhere."** The second half is
@@ -66,6 +78,11 @@ sharper instruction than that row previously carried.
 ---
 
 ## Changelog
+
+**0.6 — annotated 2026-09-20, session 04. No wording change.** The canon survey landed
+against the Data Vault clause's load-bearing assumption; the finding is recorded in *What is
+not established* above and the statement itself is deliberately not reworded, per the
+standing warning that guards are lost when clauses are rewritten between versions.
 
 **0.6 — 2026-09-20.** Current. From the author's rejection of 0.5's key phrase, put back to
 gpt-5.6-sol, which conceded its own earlier finding —
