@@ -1,7 +1,7 @@
 # nsdn Open Points Register v1.0
 
-**Status: authoritative.** Cut 2026-09-19, session 01. This file is the single
-authoritative answer to *what is open?* for this project.
+**Status: authoritative.** Cut 2026-09-19, session 01; extended 2026-09-20, session 02.
+This file is the single authoritative answer to *what is open?* for this project.
 [`docs/00_concept/040_open-questions.md`](../docs/00_concept/040_open-questions.md) is
 superseded as of this cut and retained for provenance; its numbering is preserved in the
 `from` line of each migrated row.
@@ -81,6 +81,14 @@ reduces to the mandate policy built on the distinction, which may still be enoug
 
 Closing this row requires reading Autor 2014 in full and surveying the tacit-knowledge
 literature far enough to be sure, not merely far enough to be comfortable.
+
+**Narrowed further 2026-09-20, session 02.** `CON-OP-11` proposes a reading that concedes
+the mechanism finding below rather than resisting it: the claim becomes one about the
+*domain size* at which a generalisation repays its own authorship, not one about a kind of
+knowledge. On that reading, what this row must still establish is exactly what the
+historical block below already concedes may survive — an empirical claim about capability
+thresholds — and the prior art that bounds it is `CON-OP-12` as much as the
+tacit-knowledge literature.
 
 **Superseded in part 2026-09-19 by
 [XREV_2026-09-19_manifesto-statability_sol](../docs/30_research/notes/XREV_2026-09-19_manifesto-statability_sol.md)
@@ -190,10 +198,37 @@ that the manifesto carries both with the canon argument first because it is defe
 
 Decide as part of the §III rewrite, not separately.
 
-### CON-OP-9 — What are the three things called, and is data one of them?
-**⛔ STATE: OPEN**
-Opened 2026-09-19, session 01, from the author's question about vocabulary. Decide inside
-the §III rewrite, not before it.
+**Narrowed 2026-09-20, session 02.** The either/or this row poses may be a false choice.
+`CON-OP-11` proposes that statability and the canon-cost argument are one claim at two
+altitudes — the collapse of the domain size at which a generalisation repays its own
+authorship — in which case the canon argument is that claim's instance in the design
+literature, locally-general semantics is its instance in the landscape, and the objection
+recorded immediately above, that the canon argument says nothing about semantic inference,
+dissolves rather than being traded away. Decide with `CON-OP-11`, still inside the §III
+rewrite.
+
+### CON-OP-9 — RULED — what the three things are called, and whether data is one of them
+**✅ STATE: RULED 2026-09-20**
+Opened 2026-09-19, session 01, from the author's question about vocabulary. Ruled
+2026-09-20, session 02, by the author; recorded as
+[ADR-0008](../docs/20_decisions/0008-faculties-substrate-mandate.md).
+
+**The ruling.** Data is the **substrate** and is not a member of the set. The three things
+that act on it are **faculties**. Each faculty's grant of authority — what it is entitled
+to do, as distinct from what it is able to do — is its **mandate**, the author's own term
+from [010_vision.md](../docs/00_concept/010_vision.md). A faculty is named by its function
+and never by its implementation, which forecloses *the LLM*, *the model* and *the AI* as
+names of the second faculty.
+
+**Residuals, which is why this row is `RULED` and not `EXECUTED`.** The repository says
+*components* throughout and has not been renamed; the rename lands with the §III rewrite
+and not before, for the reason the historical block below gives. The enforcing check is
+owed in the same commit as the rename and is deliberately absent until then, per
+[ADR-0008](../docs/20_decisions/0008-faculties-substrate-mandate.md). And the second
+faculty still has no name, which is `CON-OP-10` and is blocking.
+
+**Superseded 2026-09-20 by the ruling above.** The candidate survey that produced it
+follows, retained because a ruling without its argument is a ruling nobody can revisit.
 
 [005_manifesto.md](../docs/00_concept/005_manifesto.md) calls them **components**, which
 is serviceable and under-claims. The distinction it draws is not only what each can do
@@ -227,6 +262,175 @@ the authority dimension native rather than imported.
 **Do not rename across the repository until this closes.** A collective noun is a
 rhetorical choice, the §III rewrite is already owed, and renaming twice costs more than
 deciding late.
+
+### CON-OP-10 — What is the second faculty called, now that it designs as well as interprets?
+**⛔ STATE: OPEN**
+Opened 2026-09-20, session 02, as the residual of `CON-OP-9`.
+
+[ADR-0008](../docs/20_decisions/0008-faculties-substrate-mandate.md) rules that a faculty
+is named by its function and never by its implementation, which forecloses *the LLM*, *the
+model* and *the AI* and leaves the second faculty without a name. The difficulty is that
+its work has grown since
+[100_system-overview.md](../docs/10_architecture/100_system-overview.md) named the
+capability **Sense-making**. The author's formulation on 2026-09-20 was *analysis and
+design*, and the second half of that is not covered anywhere in the current architecture:
+choosing a modelling pattern, a historisation strategy, a grain or a compile target is not
+sense-making, and `ARC-OP-19` records that the autonomy tiers cannot classify it either.
+
+The candidates carry the same kind of cost the collective noun did. *Sense-making* is
+accurate for the semantic half and silent on the design half. *Analysis* is the author's
+word and collides with the automated analyses of Phase 3, which are an artifact the system
+produces rather than a faculty that produces them — a collision landing exactly where the
+teleological tier is already weakest. *Interpretation and design* avoids both and is
+longer. *Design* alone drops the semantic half, which is the larger half.
+
+This is cheap to decide and it blocks, because every document the §III rewrite touches
+needs the word. Decide inside that rewrite, with `CON-OP-9`'s rename.
+
+### CON-OP-11 — Is the amortisation threshold, rather than statability, the manifesto's spine?
+**⛔ STATE: OPEN**
+Opened 2026-09-20, session 02, from the author's distinction between broad and specific
+generalisations.
+
+The author's formulation: the second faculty applies **broad generalisations** — design
+patterns such as Data Vault, which hold across the discipline — and **specific
+generalisations**, which hold only for the particular systems, organisation and
+administration in question.
+
+[005_manifesto.md](../docs/00_concept/005_manifesto.md) §III has no place for the second
+kind. It runs on a binary: knowledge is general, and migrates into deterministic
+machinery, or it is particular with a domain of one, and cannot. The external pass broke
+that binary at precisely this point — Q3 found that there is no general rule about
+*KLANTNR* but there is a perfectly general and learnable rule about how to infer what a
+column like *KLANTNR* means.
+
+The distinction supplies the missing middle term, and it does so by conceding Q3 rather
+than resisting it. Generalisations are not general or particular; they occupy an axis of
+**domain size**. Data Vault holds across the discipline. A convention that one ERP
+instance suffixes its foreign keys a particular way, or that one administration extended
+rather than replaced its code lists in a migration, holds over four hundred columns in one
+landscape and nowhere else. That is not a fact with a domain of one. It is a rule with a
+domain of four hundred, and it was never written down — not because it is unstatable, but
+because discovering, stating, testing and maintaining it never repaid a human at that
+domain size.
+
+Stated that way, this row and
+[190_machine-authored-design-canon.md](../docs/10_architecture/190_machine-authored-design-canon.md)
+are one claim at two altitudes: **the threshold of domain size at which a generalisation
+repays its own authorship has collapsed.** Broad generalisations were always above the
+threshold, and the canon adopted them subject to the maintenance-cost compromises §3 of
+that document lists. Specific generalisations were always below it, so the discipline
+handled them one instance at a time and called the handling *the human factor*.
+
+Nothing about the *kind* of knowledge is at issue on this reading, which is why it
+survives an attack §III did not. It is also why `CON-OP-8` may pose a false choice.
+
+Against it, recorded because the synthesis is suspiciously tidy and arrived at the moment
+a tidy synthesis was most welcome: it was produced by the model from the author's
+distinction inside a single exchange and has been examined by nobody; it has not been
+checked against the codification literature, which is `CON-OP-4`; and the structural half
+of what it calls a specific generalisation already has a mechanised literature, which is
+`CON-OP-12`. Its falsifier is `EVI-OP-5`.
+
+Decide inside the §III rewrite, together with `CON-OP-5`, `CON-OP-6`, `CON-OP-7` and
+`CON-OP-8`.
+
+### CON-OP-12 — Locally-general rules are already mined mechanically, and the claim must narrow accordingly
+**⛔ STATE: OPEN**
+Opened 2026-09-20, session 02, alongside `CON-OP-11`.
+
+Functional-dependency and denial-constraint discovery — the Metanome line of work and its
+successors — mines rules that hold over one particular dataset and nowhere else,
+automatically, and has done for roughly fifteen years. That is the structural half of what
+`CON-OP-11` calls a specific generalisation, and it is neither new nor model-produced.
+Stated without that qualification the claim is refutable in one sentence by anyone who
+knows the literature, which is the most expensive kind of wrong this project can publish.
+
+What the mining literature does not cover is the half the author means: conventions about
+**meaning and administration** rather than about data shape. *Every table in this ERP
+instance suffixes its foreign keys this way* is shape, and is mined. *This administration
+extended rather than replaced its code lists in the 2019 migration, so a code's meaning
+depends on the date it was issued* is not recoverable from the data at all, and is what
+the second faculty is claimed to supply.
+
+Per [`../AGENTS.md`](../AGENTS.md) rule 8 the characterisation above is stated from general
+knowledge and is unverified; it is a hypothesis until sourced. Closes against
+[050_prior-art.md](../docs/00_concept/050_prior-art.md) with a verdict on the mining
+literature and an explicit statement of the boundary. Related to `CON-OP-1` and
+`CON-OP-4`; all three close against the same document.
+
+### CON-OP-13 — RULED — the sources are sensory, the integrated store is memory
+**✅ STATE: RULED 2026-09-20**
+Opened and ruled 2026-09-20, session 02, on the author's refinement of the organism
+metaphor.
+
+[010_vision.md](../docs/00_concept/010_vision.md) calls the data sources the
+organisation's sensory information, and
+[020_critique.md](../docs/00_concept/020_critique.md) §5 accepts sensing as one of the
+three places the metaphor earns its keep. Integrated, historical, retained data is not
+sensation in any organism, and calling it so obscures what the system actually does.
+
+**The ruling, in the author's terms:** data in flight is sensory; from the moment it is
+captured and stored it is **memory**. The sources and the real-time surfaces are the
+sensory apparatus, the integrated historical store is memory, and the faculties are what
+turn the first into the second.
+
+Two consequences, which is why this is worth a row rather than being a matter of taste.
+It names the step the loose usage was concealing: no organism stores its sensory stream,
+and the operation that turns sensation into memory is a selection that discards nearly
+everything — which is
+[145_entropy-and-pruning.md](../docs/10_architecture/145_entropy-and-pruning.md)'s
+argument arriving from the metaphor's own logic rather than as a correction to the brief.
+And it is an instance of [ADR-0003](../docs/20_decisions/0003-codename-nsdn.md) working as
+intended: the analogy is productive as a private heuristic at exactly the point where its
+loose use was misleading.
+
+**Residual, which is why this row is `RULED` and not `EXECUTED`:** the distinction is in
+no document. It belongs in [020_critique.md](../docs/00_concept/020_critique.md) §5 and in
+[030_glossary.md](../docs/00_concept/030_glossary.md), and lands when the concept documents
+are next revised. Per [`../AGENTS.md`](../AGENTS.md) rule 2,
+[010_vision.md](../docs/00_concept/010_vision.md) is a verbatim transcript and is not
+corrected.
+
+### CON-OP-14 — Is the human faculty's mandate adjudication alone, or adjudication, elicitation and purpose?
+**⛔ STATE: OPEN**
+Opened 2026-09-20, session 02, from the author's statement that ideally the human is there
+only for final adjudication.
+
+That statement understates the human mandate by one function, and the repository says so
+twice. [ADR-0005](../docs/20_decisions/0005-three-autonomy-tiers.md) Tier 3 and
+[170_human-interfaces.md](../docs/10_architecture/170_human-interfaces.md) Surface 3 both
+hold that the system does not originate purpose: it works against a decision register that
+people maintain, and an artifact that cannot cite an entry is not built. Maintaining that
+register is origination, not adjudication, and
+[400_phasing.md](../docs/40_roadmap/400_phasing.md) states what a system without one
+produces — statistically true irrelevance, at scale.
+
+**The move that would rescue the statement**, recorded because it is interesting rather
+than because it is endorsed: the system observes what decisions an organisation actually
+makes — which reports are produced and consumed, which queries recur, which numbers are
+demanded at which cadence — and *proposes* a decision register for a human to rule on.
+Origination then collapses into adjudication and the author's sentence becomes true.
+
+Three objections to it. Nothing in the architecture currently supports the observation
+step. It inverts the dependency in `ARC-OP-12`, which assumes the register is a human
+input that may simply never be supplied. And it risks the worst available version of the
+teleological failure: a register inferred from what an organisation already measures
+contains, by construction, nothing about what it should be deciding and is not, which is
+precisely the failure
+[105_autonomy-tiers.md](../docs/10_architecture/105_autonomy-tiers.md) names at Tier 3.
+
+**The second objection is `CON-OP-7(b)` and is already established.** Adjudication
+presupposes an adjudicator who holds the proposition. Where semantics exist only as a
+negotiated synthesis across operations, finance, legal and system owners, with no
+participant holding it whole, there is nobody to rule and the cost reappears as
+**elicitation**. A mandate stated as adjudication alone assumes away the cost the external
+pass found to be the real one.
+
+The candidate formulation, unratified: the human faculty's mandate is **adjudication,
+elicitation and purpose**, with elicitation a first-class expense rather than a
+precondition that will be arranged. Whether purpose can be collapsed into adjudication by
+the move above is what this row decides. Related to `ARC-OP-12`.
 
 ---
 
@@ -296,6 +500,14 @@ Pure information gain will systematically under-ask exactly where the system is 
 ignorant. Some counterweight is needed — expected surprise, or uncertainty-weighted
 gain — and the naive formulation should not be implemented without one.
 
+**2026-09-20, session 02.** `ARC-OP-18` proposes the counterweight this row asks for, and
+proposes it as a replacement for the ranking quantity rather than as a correction to it:
+rank by the **scope of the rule a question settles** rather than by the degree of the
+entity it concerns. Scope is computable, it measures what a ruling actually buys, and it
+carries no bias toward the already-understood — the obscure administration with one
+unreadable convention governing three hundred columns ranks high precisely because nobody
+understands it. Work this row with `ARC-OP-18` and `ARC-OP-17`.
+
 ### ARC-OP-7 — Context layer: files, graph, or both?
 **⛔ STATE: OPEN**
 Opened 2026-09-19, session 01. *(from open question 12)*
@@ -344,6 +556,12 @@ Opened 2026-09-19, session 01. *(from open question 10)*
 The teleological anchor is a hard dependency for everything at Tier 3, and it is
 maintained by people who have no immediate incentive to maintain it. If there is no
 answer to this, Phase 3 has no foundation and the honest move is to say so early.
+
+**2026-09-20, session 02.** `CON-OP-14` records a proposal that would invert this row's
+dependency rather than answer it — the system proposing a decision register from observed
+decision behaviour, for a human to rule on — together with the reason it may produce the
+worst available version of the Tier 3 failure instead of a solution. Neither row is
+decided; this one should not be closed by the other without that objection being met.
 
 ### ARC-OP-13 — Is the rule set a third temporal axis, or something else?
 **⛔ STATE: OPEN**
@@ -401,6 +619,162 @@ That is an assertion, not a design. Until it is one, every argument in this repo
 for machine-friendly verbosity is writing a cheque that
 [170_human-interfaces.md](../docs/10_architecture/170_human-interfaces.md) has to cash.
 
+**2026-09-20, session 02.** The presumed resolution this row calls an assertion rather than
+a design now has a candidate shape: `ARC-OP-20`'s constitution-and-legislation partition,
+with `ARC-OP-19` asking the prior question of who rules a design claim at all. `ARC-OP-18`
+raises the same comprehension problem one level up, since ruling on a convention means
+ruling on a claim about objects the adjudicator cannot see. Work the four together.
+
+### ARC-OP-16 — The context layer has no card kind for a rule that holds over a set of objects
+**⛔ STATE: OPEN**
+Opened 2026-09-20, session 02, from `CON-OP-11`.
+
+If specific generalisations are real, they must be **artifacts**. A local rule that exists
+only in a context window is re-derived inconsistently from job to job, carries no
+provenance, cannot be adjudicated and cannot be pruned — which is to say it has none of
+the properties [120_context-layer.md](../docs/10_architecture/120_context-layer.md) exists
+to guarantee, and the system would be reasoning through something it cannot inspect.
+
+That document's card kinds are `source`, `dataset`, `field`, `entity`, `metric`,
+`decision`, `hypothesis`, `assertion`, `artifact` and `question`. Every one of them is
+about an object, or about a proposition concerning an object. None is about a rule holding
+over a *set* of objects.
+
+What such a kind needs beyond the standard assertion record is a declared **scope** — the
+set of objects over which the rule is claimed to hold, stated as a URN pattern or as an
+enumeration — together with the counterexamples found inside that scope, which are what
+distinguish a rule from a coincidence. The rest of the assertion record applies unchanged:
+provenance, confidence, falsifier, review date. A rule card is also the natural unit of
+the pruning discipline in
+[145_entropy-and-pruning.md](../docs/10_architecture/145_entropy-and-pruning.md), since a
+convention invalidated by a migration takes its dependent assertions with it.
+
+Depends on `ARC-OP-7`, which has not settled whether the context layer is files, a graph,
+or both, and which this row makes more consequential rather than less.
+
+### ARC-OP-17 — Rule-mediated inference produces correlated error, and the calibration story assumes independence
+**⛔ STATE: OPEN**
+Opened 2026-09-20, session 02, from `CON-OP-11`. The most consequential of the rows that
+distinction generated.
+
+[ADR-0005](../docs/20_decisions/0005-three-autonomy-tiers.md) rules that thresholds at the
+semantic tier are set from measured precision against a held-out adjudication set, and
+[160_evaluation-and-regression.md](../docs/10_architecture/160_evaluation-and-regression.md)
+builds the instrument. Both treat the system's errors as roughly independent: sample the
+rulings, score the hypotheses, obtain a precision figure that means something.
+
+A system reasoning through locally-general rules does not produce independent errors. One
+wrong convention yields four hundred assertions that are all wrong, in the same direction,
+for the same reason. A uniformly sampled held-out set then misestimates precision badly
+and in whichever direction the sample happened to fall — reporting near-perfect precision
+on a landscape riddled with one systematic mistake, or catastrophic precision on a
+landscape carrying only that one.
+
+This is not a refinement of the measurement. It undermines the mechanism by which autonomy
+is granted at Tier 2, which is the mechanism
+[ADR-0005](../docs/20_decisions/0005-three-autonomy-tiers.md) rests on, and it does so
+without announcing itself, because a precision figure computed the current way looks
+exactly as trustworthy as one computed correctly.
+
+It also subsumes `ARC-OP-5`: per-source reliability is the coarse version of the same
+observation, and rule scope is the sharper one, since a convention may span sources and a
+source may host several conventions. The candidate repair is `ARC-OP-18` and the two
+should be worked together.
+
+### ARC-OP-18 — Stratify adjudication by rule rather than sampling over instances
+**⛔ STATE: OPEN**
+Opened 2026-09-20, session 02, as the candidate repair for `ARC-OP-17` and the largest
+gain available from `CON-OP-11`.
+
+If assertions cluster under rules, the correlation that breaks calibration is also the
+leverage. Put the convention to the human, not the four hundred columns it governs. One
+ruling then buys the whole block, and adjudication burden — the quantity
+[410_first-vertical-slice.md](../docs/40_roadmap/410_first-vertical-slice.md) identifies as
+determining whether humans keep participating at all — falls by the block size rather than
+by a constant factor. This is the mechanism by which the manifesto's claim that
+adjudication is viable becomes arithmetic rather than hope.
+
+Two existing rows change shape as a consequence, and both are annotated above. `ARC-OP-6`
+gains the counterweight it asks for, in the form of scope-of-rule as the ranking quantity.
+`EVI-OP-1`'s hand-built answer key must be constructed to **span rules** rather than to be
+a random sample of entities, or it measures the system's performance on whichever
+conventions it happened to include.
+
+What is unresolved is what a human is actually shown. Ruling on a convention means ruling
+on a claim about four hundred objects the adjudicator cannot see, which is the same
+comprehension problem as `ARC-OP-15` at a different scale, and a ruling given on a
+summary is worth what the summary was. Some evidence discipline is owed here — a sample of
+instances drawn adversarially rather than favourably, and an explicit record of the
+counterexamples the system found and discounted.
+
+### ARC-OP-19 — Design is a fourth kind of claim and the autonomy tiers do not classify it
+**⛔ STATE: OPEN**
+Opened 2026-09-20, session 02, from the author's statement that the second faculty designs
+as well as interprets.
+
+*Choose Data Vault for this source; historise at this grain; compile a redundant star for
+these consumers; do not copy this source at all.*
+[ADR-0005](../docs/20_decisions/0005-three-autonomy-tiers.md) cannot classify such a claim.
+It is not **structural**, since it is not computable from the data and the catalogue. It is
+not **semantic**, since it is not about meaning, identity or authority. It is not
+**teleological**, since it is not about what is worth knowing. It is a **design claim**,
+and what adjudicates it is a principle rather than a fact — a different act from the one
+[170_human-interfaces.md](../docs/10_architecture/170_human-interfaces.md) Surface 1 is
+built for, and one that a source owner is not the right person to perform.
+
+At present such claims would enter the system as Tier 1, on the strength of
+[140_data-vault-automation.md](../docs/10_architecture/140_data-vault-automation.md)'s
+*mechanical given keys*, which is true of hub and satellite generation from a declared key
+set and false of everything above it.
+[190_machine-authored-design-canon.md](../docs/10_architecture/190_machine-authored-design-canon.md)
+§3 opens a whole space of these choices and does not say who makes them.
+
+**This does not reopen [ADR-0005](../docs/20_decisions/0005-three-autonomy-tiers.md).** The
+tiering stands and is on the do-not-reopen list; the question is whether its enumeration is
+complete. Whether the answer is a fourth tier, a cross-cutting classification, or the
+constitution-and-legislation partition in `ARC-OP-20` is what this row decides.
+`ARC-OP-15` is the visible edge of the same problem and should be worked with it.
+
+### ARC-OP-20 — Which methodologies, declaration languages, execution engines and principles are admissible
+**⛔ STATE: OPEN**
+Opened 2026-09-20, session 02, from the author's statement that design and architectural
+principles should drive tool and methodology choices.
+
+That statement runs two layers together, and separating them is the first half of this row.
+The **constitution** is what machinery may exist at all: which modelling methodologies are
+admissible, in which declaration language artifacts are expressed, on which execution
+engine they run, and under which architectural principles the choice was made. The
+**legislation under it** is which hubs, which satellites, which capture cadence, which
+compile target — instance design, made by the second faculty and adjudicated.
+
+The constitution is not open to the machine. A second faculty free to choose its own tools
+produces heterogeneous machinery across one landscape, which forfeits the regenerability
+that [180_technology-posture.md](../docs/10_architecture/180_technology-posture.md) treats
+as the point of the posture and, with it, the reproducibility
+[ADR-0004](../docs/20_decisions/0004-models-out-of-the-data-path.md) exists to protect. It
+is settled once, by a human, in ADRs.
+
+What is open is the constitution's **content**, and nothing in this repository has adopted
+any of it. [180_technology-posture.md](../docs/10_architecture/180_technology-posture.md)
+lists candidates — DuckDB, sqlglot, dbt-core, AutomateDV, sketch libraries, OpenLineage —
+and says in as many words that nothing is adopted. The principles that would justify a
+choice are stated there as four properties — declarative over imperative, regenerable,
+small files with stable identity, boring and well documented — and have never been
+ratified as principles, which means they currently operate as preferences wearing a
+principle's clothing.
+
+Three things are owed, in this order. Ratify the principles. State the admissible
+methodology set with the reason each is admissible, which is where `ARC-OP-14`'s canon
+survey lands and is the point at which
+[190_machine-authored-design-canon.md](../docs/10_architecture/190_machine-authored-design-canon.md)
+§4's separation of authoring cost from runtime cost becomes load-bearing rather than
+cautionary. Only then adopt a declaration language and an execution engine, each in its own
+ADR. Adopting tools before the principles are ratified produces the ordinary outcome, which
+is a stack chosen by familiarity and a principle written afterwards to justify it.
+
+Depends on `ARC-OP-19` for who rules a design claim at all, and on `ARC-OP-11` for the
+SQL-dialect question any declaration language must answer.
+
 ---
 
 ## §3 — Evidence and measurement (`EVI`)
@@ -417,6 +791,13 @@ is a hand-built sample of a few hundred entities, frozen before development and 
 held back.
 
 Closes when a candidate source pair is selected and the sample exists.
+
+**2026-09-20, session 02.** `ARC-OP-18` argues the sample must be built to **span rules**
+rather than to be a random sample of entities, or it measures performance on whichever
+conventions it happened to include — which is `ARC-OP-17` arriving in the instrument rather
+than in the system. That must be settled before the sample is frozen, and
+[410_first-vertical-slice.md](../docs/40_roadmap/410_first-vertical-slice.md) requires the
+freeze to happen before development begins.
 
 ### EVI-OP-2 — Candidate public dataset survey
 **⛔ STATE: OPEN**
@@ -449,6 +830,34 @@ How much joinability evidence do sketch-based methods yield across two schemas, 
 cost, without moving data? Determines whether profiling is affordable at landscape scale
 and whether it is *permissible*, which matters more.
 
+### EVI-OP-5 — Within-landscape transfer as the falsifier for locally-general rules
+**⛔ STATE: OPEN**
+Opened 2026-09-20, session 02, as the falsifier for `CON-OP-11`.
+
+If specific generalisations are real and are being captured, they must **transfer within a
+landscape**: precision on the seventh source should be measurably better than on the first,
+because the conventions learned from the first six apply. If precision is flat across the
+ingestion order, the rules are decorative — either none are being formed, or none are being
+reused, or there were none to find, and in every case `CON-OP-11` is a story rather than a
+mechanism.
+
+The measurement is cheap and belongs in
+[410_first-vertical-slice.md](../docs/40_roadmap/410_first-vertical-slice.md)'s list
+alongside precision, adjudication burden, evidence value and cost. It requires only that
+ingestion order be recorded and that precision be scored per source rather than in
+aggregate.
+
+Two confounds must be controlled before the number means anything. Later sources may be
+easier for reasons unrelated to transfer, which argues for randomising ingestion order or
+for reporting per-source difficulty separately. And the cheap structural signals improve
+with landscape coverage on their own, since sketch overlap has more to overlap with — the
+same confound that document already guards against by reporting the structural baseline
+separately, and the same guard applies here.
+
+The slice as currently scoped uses two sources and cannot measure transfer at all. Either
+the slice widens or this row waits for the source after it. Widening the slice to test this
+would violate the slice's own discipline and should not be done casually.
+
 ---
 
 ## §4 — Process (`PRC`)
@@ -479,10 +888,28 @@ three-tier distinction (`CON-OP-1`) and the assertion that business keys are
 machine-proposable at useful precision. Adversarial framing, one object per pass, per
 [510_external-review.md](../docs/50_process/510_external-review.md).
 
+**Second pass, assigned 2026-09-20, session 02, at the author's request.** The object is
+the set of rows opened in session 02 — `CON-OP-11` above all, with `CON-OP-12`,
+`ARC-OP-17`, `ARC-OP-19` and `CON-OP-14`. Those rows were drafted by the model that will
+set the assignment, from a distinction supplied by the author, inside a single exchange and
+with no interval for second thoughts; they are unreviewed by construction in exactly the
+sense this row exists to record, and the objection in the paragraph above — that the
+assignment is set by the drafter and the question selection is therefore unreviewed —
+applies to this pass as it did to the first. It is stated in the note rather than left to
+be noticed.
+
+Note what this pass is *not*. The falsifiable core — that business keys are
+machine-proposable at adjudication-worthy precision — remains unreviewed, and
+[510_external-review.md](../docs/50_process/510_external-review.md) still ranks it first.
+Reviewing this session's own output ahead of it is the comfortable choice, and it is taken
+knowingly because `CON-OP-11` is a candidate spine for the §III rewrite that is owed next.
+
 ### PRC-OP-2 — Keep the apparatus proportionate to the work
-**⚠ STATE: HELD**
-Opened 2026-09-19, session 01. Resume when the register exceeds roughly forty live rows
-or the first archive cut is contemplated.
+**⛔ STATE: OPEN**
+Opened 2026-09-19, session 01, and held. **Resumed 2026-09-20, session 02, on its own
+stated condition:** the register now carries forty-five live rows, past the roughly forty
+at which this row said to resume. The condition was written before anyone knew what would
+trip it, and what tripped it was a single conversation that added eleven rows.
 
 This repository has acquired a register, a handover series, a process convention and a
 checker while containing no code and one week of thinking. The apparatus is justified
@@ -500,6 +927,20 @@ normal order of business, this is uncharted territory, and git already holds wha
 crosses sessions. Convention imported without the failure that motivated it, then enforced
 beyond its intent — exactly the mode this row exists to watch. The general form is now in
 [500_working-method.md](../docs/50_process/500_working-method.md).
+
+**On resuming, 2026-09-20, session 02.** The honest reading is mixed and both halves should
+be stated. Session 02 added no documents and no conventions, which is what
+[HANDOVER_01](../handovers/HANDOVER_01_2026-09-19_repository-established.md) asked for, and
+one ADR recording a ruling the author actually took. Against that, the register grew by a
+third in one conversation without a single row closing, `PRC-OP-5`'s triage moved from
+cheap to overdue, and the project still has no code, no data and no verified fact. A
+register that only grows is a different failure from a bureaucracy that only grows, and it
+is the one now in evidence.
+
+The response this row prescribes is vigilance rather than action, and the specific
+vigilance owed is this: the next session should close rows or execute residuals, and should
+treat opening a new one as a cost. The §III rewrite is the natural instrument, because it
+closes five at once.
 
 ### PRC-OP-4 — The drafting-to-challenging ratio was about five to one
 **⛔ STATE: OPEN**
@@ -524,6 +965,23 @@ becomes a standing rule in
 [500_working-method.md](../docs/50_process/500_working-method.md) is what this row
 decides; it should be decided from a second session's evidence, not from this one's.
 
+**Session 02 evidence, 2026-09-20.** The ratio inverted. The author supplied one
+distinction — broad versus specific generalisation — and one refinement — sensing versus
+memory — and asked what the model thought. The model's response was adversarial rather than
+elaborative: it agreed with the distinction, found the consequence the author had not
+stated, supplied the prior art that narrows it, and refused the author's own conclusion
+about the human faculty's mandate. The author accepted all of it. The session then produced
+eleven register rows, one ADR and no new design documents.
+
+That is evidence for the row's hypothesis but not the evidence it asked for, and the
+difference matters. Session 02 was a conversation, not a drafting session; there was no
+document being produced to attack as it was produced, which is the specific practice the
+row proposes making standard. What session 02 does establish is narrower and worth keeping:
+**the author's material improves under attack and he asks for the attack**, which removes
+the usual objection to the practice — that it is socially expensive — and leaves only the
+question of when in a drafting session it is applied. Decide from a session that actually
+drafts.
+
 ### PRC-OP-5 — The register is a pile, not a queue
 **⛔ STATE: OPEN**
 Opened 2026-09-19, session 01.
@@ -541,6 +999,16 @@ unblocks — `ARC-OP-6`. The register violates its own finding.
 Triage is a cheap next-session task: record blocking relationships, and mark the rows
 that close together. Resist inventing a scoring scheme; the compendium's experience is
 that structure added before it is needed becomes structure that lies.
+
+**2026-09-20, session 02.** No longer cheap. The register carries forty-five live rows,
+eleven of them opened in one conversation, and the dependency structure grew faster than
+the row count: `CON-OP-11` feeds `CON-OP-12`, `ARC-OP-16`, `ARC-OP-17`, `ARC-OP-18` and
+`EVI-OP-5`; `ARC-OP-17` and `ARC-OP-18` must be worked together and jointly reshape
+`ARC-OP-5`, `ARC-OP-6` and `EVI-OP-1`; `ARC-OP-19`, `ARC-OP-20` and `ARC-OP-15` form a
+third cluster; and the §III rewrite now closes or rules on seven rows rather than five.
+Those relationships are stated in prose inside the rows, which is exactly the condition
+this row was opened to complain about, now at a third again the scale. `PRC-OP-2` resumed
+on the same evidence.
 
 ### PRC-OP-3 — Cross-model review is unwired
 **⛔ STATE: OPEN**

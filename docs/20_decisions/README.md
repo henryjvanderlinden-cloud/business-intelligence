@@ -22,3 +22,4 @@ describe options; only an ADR adopts one.
 | [0005](0005-three-autonomy-tiers.md) | Autonomy is tiered: structural, semantic, teleological | Accepted |
 | [0006](0006-project-mode.md) | Project mode: argument, then proof of concept, then offering | Accepted |
 | [0007](0007-register-and-handover-apparatus.md) | Adopt the register, handover and enforcement apparatus | Accepted |
+| [0008](0008-faculties-substrate-mandate.md) | Three faculties act on a substrate, each under a mandate | Accepted |
