@@ -184,3 +184,74 @@ document as their own sections.
 It did not test the statement on a reader outside the project. It did not establish that
 modelling labour is in fact Data Vault's principal obstacle, which is now the statement's
 load-bearing empirical assumption and belongs to `ARC-OP-14`.
+
+---
+
+# Third sitting — 2026-09-20, same day, same object, same model
+
+Thread continued from the second sitting. **The reviewer's own Q1 finding was put back to
+it and it conceded.** That is the first concession by a reviewer in this repository's
+review history and is worth recording as such, because it is also the first pass where the
+challenge originated with the author rather than with the model setting the assignment.
+
+**The author's argument**, stated by him and reproduced rather than paraphrased into the
+question: cognitive complexity is a subset of modelling labour rather than a separate
+obstacle class; 6NF does not avoid labour but relocates it, out of modelling and into query
+authoring and performance optimisation; and practitioners are perfectly capable of these
+complex modelling challenges — what defeats them is the organisation's temporal and
+budgetary constraints, not their capacity.
+
+> **VERDICT: Q1 FINDING SURVIVES [only as a warning against displaced or unmeasured
+> lifecycle cost] / CONCEDED [whose total lifecycle burden currently exceeds ordinary
+> teams' time, budget and validation capacity]**
+>
+> My Q1 finding does not survive in its original form. I treated authoring, comprehension,
+> querying and optimisation as separate obstacle classes when they are better understood as
+> locations where lifecycle work accumulates. [...] Calling only the first category
+> "modelling labour" arbitrarily privileges where the work occurs.
+>
+> What remains defensible is the warning against claiming success merely because model
+> generation becomes cheap. The test must count displaced work across the whole lifecycle.
+>
+> (a) Runtime and compute cost are genuinely not labour, although both consume the same
+> constrained budget. Columnar execution, cheap compute and join elimination have weakened
+> the historical objection, but have not abolished it [...] Runtime feasibility therefore
+> remains an empirical condition, not a settled reason to reject 6NF.
+>
+> (b) Adjudication capacity is labour, but it is scarce, specialised and non-fungible.
+> Calling it labour does not imply that organisations can buy arbitrary quantities of it.
+> Moreover, a representation that prevents a qualified person from reliably judging a claim
+> fails the human mandate as a quality problem, not merely through expense. That does not
+> condemn 6NF itself: tooling may present comprehensible semantic views while retaining a
+> complex physical model. The test must assess the adjudication surface, not raw object
+> count.
+
+**Disposition.** The concession is accepted and version 0.6 adopts the replacement phrase.
+Both carve-outs are accepted too and are carried into
+[002_mission-statement.md](../../00_concept/002_mission-statement.md) as their own section,
+because they are the reasons the statement does not claim that everything is labour.
+
+Three consequences beyond the wording, in ascending order of value.
+
+The surviving half of the finding — that success must not be claimed because generation
+became cheap while the work reappears downstream — is now a clause inside the statement
+rather than a caveat outside it.
+
+`ARC-OP-14`'s canon survey is re-specified. It was to separate designs rejected for
+authoring cost from those rejected for runtime cost; that distinction is the one this
+sitting dissolved, so it should instead classify each design by where its lifecycle work
+accumulates and report a distribution, keeping runtime cost and the adjudication surface as
+separate accounts.
+
+`ARC-OP-15` gains the sharpest instruction of the three: **assess the adjudication surface,
+not the object count.** Every argument in this repository that reasons from table counts to
+human comprehensibility is using a proxy, including §3 of the canon document — which is the
+same §3 whose 6NF example refuted `CON-OP-11` this morning. The example survives as a case
+of lifecycle burden; the inference from object count to incomprehensibility does not, and
+that is a second finding against a document this repository has been leaning on all day.
+
+## What this sitting did not do
+
+It did not verify that modelling labour, or lifecycle burden of any kind, is in fact what
+kept Data Vault from ordinary teams. That remains the statement's load-bearing empirical
+assumption and belongs to `ARC-OP-14`.

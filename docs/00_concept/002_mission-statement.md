@@ -5,7 +5,7 @@
 > [001_mission.md](001_mission.md) holds the author's original formulation verbatim and the
 > arguments against it; that document is the reasoning, this one is the wording.
 >
-> **Current version: 0.5, 2026-09-20. Unratified.** `CON-OP-15` holds the open question and
+> **Current version: 0.6, 2026-09-20. Unratified.** `CON-OP-15` holds the open question and
 > closes in an ADR the author rules.
 
 ## The statement
@@ -15,10 +15,11 @@
 > have prioritised. Its methodology is derived from the demonstrated strengths and limits of
 > deterministic machinery, contextual inference and human judgement, rather than applying
 > models wherever they appear useful. Its practical test is whether ordinary teams can
-> implement and maintain otherwise-appropriate designs, including Data Vault, whose
-> principal obstacle is modelling labour, without higher defect rates or disproportionate
-> validation cost. People decide what matters and rule on meaning; every accepted claim
-> remains traceable to evidence or to the responsible person.
+> implement and maintain otherwise-appropriate designs, including Data Vault, whose total
+> lifecycle burden currently exceeds their time, budget and validation capacity — without
+> higher defect rates, and without displacing the burden elsewhere in the lifecycle. People
+> decide what matters and rule on meaning; every accepted claim remains traceable to
+> evidence or to the responsible person.
 
 ## What is not established
 
@@ -38,24 +39,57 @@ met.
 
 ## The phrase doing the most work
 
-**"Whose principal obstacle is modelling labour."** It is what makes the Data Vault test
-sound rather than overreaching, and it is the most likely thing in the statement to be
-wrong: modelling labour may not be Data Vault's principal obstacle, and operational or
-cognitive complexity may dominate instead. The repository already holds the evidence that
-this can happen — Anchor-style 6NF has a discipline-wide domain and is almost unused for
-reasons of object count, join complexity and comprehensibility rather than authoring cost,
-which is recorded in
-[190_machine-authored-design-canon.md](../10_architecture/190_machine-authored-design-canon.md)
-§3 and was what refuted `CON-OP-11`.
+**"Total lifecycle burden … without displacing the burden elsewhere."** The second half is
+the guard and is the harder of the two to satisfy. Displaced cost is the characteristic way
+this claim would be won dishonestly: generation becomes cheap, the saving is announced, and
+the work reappears as query authoring, tuning, operational toil or review load that nobody
+counted. The test is only as good as the accounting behind it, and no such accounting
+exists yet — `CON-OP-2`.
 
-If modelling labour turns out not to be the principal obstacle for Data Vault either, the
-test does not fail — it selects a different design. What would fail is the mission, and
-`ARC-OP-15` is where the residual lives, since a machine-optimal design still owes a
-human-comprehensible surface.
+**Two things do not reduce to labour, and the statement does not pretend they do.**
+
+*Runtime and compute cost* are not effort, though they draw on the same budget. Cheap
+columnar execution and join elimination have weakened the historical objection to designs
+like Anchor without abolishing it: whether it binds depends on workload, physical design
+and whether joins can in fact be eliminated. Runtime feasibility is therefore an empirical
+condition on each design rather than a settled reason to reject one.
+
+*Adjudication capacity* is labour, but it is scarce, specialised and non-fungible, so
+calling it labour does not mean an organisation can buy more of it. A representation that
+stops a qualified person from reliably judging a claim fails the mandate of
+[ADR-0005](../20_decisions/0005-three-autonomy-tiers.md) as a quality problem and not
+merely as an expense. That is not a verdict against complex physical models: tooling can
+present a comprehensible semantic view over one. It means the thing to assess is the
+**adjudication surface**, not the object count — which is `ARC-OP-15`, and is now a
+sharper instruction than that row previously carried.
 
 ---
 
 ## Changelog
+
+**0.6 — 2026-09-20.** Current. From the author's rejection of 0.5's key phrase, put back to
+gpt-5.6-sol, which conceded its own earlier finding —
+[XREV_2026-09-20_mission-statement_sol](../30_research/notes/XREV_2026-09-20_mission-statement_sol.md)
+third sitting.
+
+- **Changed: "whose principal obstacle is modelling labour" to "whose total lifecycle
+  burden currently exceeds their time, budget and validation capacity."** The author's
+  argument: cognitive complexity is a subset of modelling labour rather than a separate
+  obstacle class; 6NF does not avoid labour but relocates it into query authoring and
+  performance optimisation; and practitioners are perfectly capable of these designs — what
+  defeats them is the organisation's calendar and budget, not their capacity. The reviewer
+  conceded, on the ground that authoring, comprehension, querying and optimisation are
+  better understood as *locations where lifecycle work accumulates* than as distinct
+  obstacle classes, and that naming only the first "modelling labour" arbitrarily privileges
+  where the work happens. The word *currently* is load-bearing: the burden is historical,
+  not intrinsic to the design.
+- **Added: "without displacing the burden elsewhere in the lifecycle."** This is the half of
+  the reviewer's original finding that survives its own concession — a warning against
+  claiming success because model generation became cheap, while the work reappears
+  downstream uncounted.
+- **Consequence for `ARC-OP-14`.** The canon survey should classify designs by *where their
+  lifecycle work accumulates*, not by whether they were rejected as "too laborious", which
+  was the distinction this change dissolved.
 
 **0.5 — 2026-09-20.** Current. Produced by gpt-5.6-sol under adversarial review of 0.4,
 recorded in

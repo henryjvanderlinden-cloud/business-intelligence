@@ -691,6 +691,14 @@ machine-optimal design still owes a human-comprehensible surface — is `ARC-OP-
 measure into a clause about who sets priorities, where it constrained nothing. A guard
 stated as authority is not a guard on a scorecard.
 
+**Superseded in part 2026-09-20, session 03**, by version 0.6: the test no longer selects
+designs by *principal obstacle is modelling labour* but by *total lifecycle burden currently
+exceeding ordinary teams' time, budget and validation capacity*, with an added guard against
+displacing the burden downstream. The author's argument and the reviewer's concession are in
+[002_mission-statement.md](../docs/00_concept/002_mission-statement.md)'s changelog; the
+consequence for the canon survey is in `ARC-OP-14`. Everything below this line about the
+obstacle classification is retained for provenance and is not a current claim.
+
 ---
 
 ## §2 — Architecture (`ARC`)
@@ -862,6 +870,27 @@ Modelling, SQL:2011 and the stated rejection reasons for Kimball and 6NF are fro
 knowledge and unchecked. Needs no code and is executable in Mode 1, which makes it a
 third candidate for the next session alongside `PRC-OP-1` and `EVI-OP-2`.
 
+**The survey's classification changed 2026-09-20, session 03.** It was to separate designs
+rejected for authoring cost from those rejected for runtime cost. That distinction was
+dissolved by the author and conceded by external review in [XREV_2026-09-20_mission-statement_sol](../docs/30_research/notes/XREV_2026-09-20_mission-statement_sol.md)
+third sitting: authoring, comprehension, query construction and optimisation are not
+distinct obstacle classes but **locations where lifecycle work accumulates**, and naming
+only the first of them *labour* arbitrarily privileges where the work happens. 6NF is the
+case in point — it does not avoid modelling labour so much as relocate it into query
+authoring and performance tuning.
+
+**So the survey should classify each design by where its lifecycle work accumulates**, and
+report that as a distribution rather than as a rejection reason. Two things stay outside
+the labour account and should be recorded separately for each candidate: runtime and compute
+cost, which is not effort though it draws on the same budget and whose bindingness is now an
+empirical question given columnar execution and join elimination; and the adjudication
+surface, per `ARC-OP-15`.
+
+This makes the survey the instrument that settles whether Data Vault's burden is in fact
+the kind machine authorship can absorb, which
+[002_mission-statement.md](../docs/00_concept/002_mission-statement.md) version 0.6 names as
+its load-bearing empirical assumption. That promotes this row again.
+
 ### ARC-OP-15 — Machine-optimal storage owes a human-comprehensible adjudication surface
 **⛔ STATE: OPEN**
 Opened 2026-09-19, session 01.
@@ -883,6 +912,24 @@ a design now has a candidate shape: `ARC-OP-20`'s constitution-and-legislation p
 with `ARC-OP-19` asking the prior question of who rules a design claim at all. `ARC-OP-18`
 raises the same comprehension problem one level up, since ruling on a convention means
 ruling on a claim about objects the adjudicator cannot see. Work the four together.
+
+**Sharpened 2026-09-20, session 03.** Per [XREV_2026-09-20_mission-statement_sol](../docs/30_research/notes/XREV_2026-09-20_mission-statement_sol.md)
+third sitting, two statements that this row previously left implicit.
+
+First, comprehensibility does not reduce to cost. Adjudication capacity is labour, but it is
+scarce, specialised and non-fungible, so a representation that stops a qualified person from
+reliably judging a claim fails
+[ADR-0005](../docs/20_decisions/0005-three-autonomy-tiers.md)'s mandate as a **quality**
+problem rather than as an expense. An organisation cannot buy its way out of it the way it
+can buy compute.
+
+Second, and this is the constructive half: that is not a verdict against complex physical
+models. Tooling can present a comprehensible semantic view over a complex physical one, so
+**the thing to assess is the adjudication surface, not the object count.** Every argument in
+this repository that reasons from table counts to human comprehensibility — including
+[190_machine-authored-design-canon.md](../docs/10_architecture/190_machine-authored-design-canon.md)
+§3 on Anchor — is using a proxy, and this row is where the proxy is replaced by the thing
+itself.
 
 ### ARC-OP-16 — The context layer has no card kind for a rule that holds over a set of objects
 **⛔ STATE: OPEN**

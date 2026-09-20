@@ -104,6 +104,14 @@ rule collapsed the same kind of calculation onto verifiability. Both were writte
 same model, both were refuted on the same grounds, and the second was written the day after
 the first was refuted. Treat any single-axis explanation drafted here as suspect on sight.
 
+**§3 of the canon document is now carrying a proxy, and two separate findings landed on it
+today.** Its 6NF example refuted `CON-OP-11` in the morning and survives as a case of
+lifecycle burden. But its inference from *object count and join complexity* to human
+incomprehensibility does not survive the evening: comprehensibility is a property of the
+adjudication surface, and tooling can present a comprehensible semantic view over a complex
+physical model. Anything in this repository that reasons from table counts to what a human
+can understand is using a proxy for the thing it means. `ARC-OP-15` now says so.
+
 **Boisot is unverified and a disposition rests on it.** The claim that the I-Space
 anticipates articulable-but-not-general is the reviewer's, from general knowledge, under
 [`../AGENTS.md`](../AGENTS.md) rule 8. Do not write it into the manifesto as settled prior
@@ -162,7 +170,9 @@ permitted. If git misbehaves, check for `.git/index.lock` first.
   and [`../AGENTS.md`](../AGENTS.md).
 - **The amortisation-threshold synthesis.** `CON-OP-11` was reviewed and failed. It stays
   `OPEN` because §III still needs a replacement for statability, not because the
-  domain-size reading is still a candidate.
+  domain-size reading is still a candidate. *(The 6NF counterexample that refuted it stands.
+  What no longer stands is reading that example as evidence about comprehensibility — see
+  `ARC-OP-15`.)*
 - **The auditability interaction.** Tried, refuted, and recorded against `CON-OP-8`. Do not
   re-propose it without the comparison that row now names.
 
