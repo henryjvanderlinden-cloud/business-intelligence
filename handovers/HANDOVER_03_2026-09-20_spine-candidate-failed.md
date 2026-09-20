@@ -1,7 +1,10 @@
 # nsdn — Handover 03: the candidate spine failed, the manifesto has two theses, and the mission is written down
 ## Written 2026-09-20 at the close of session 03, for a fresh session
 
-> **STATUS: CURRENT.**
+> **STATUS: HISTORICAL (superseded 2026-09-20)**, by
+> [HANDOVER_04_2026-09-20_canon-verified-second-interaction-refuted.md](HANDOVER_04_2026-09-20_canon-verified-second-interaction-refuted.md).
+> Its instruction to verify rather than write was followed; its named task was not
+> executed and travels forward.
 
 ---
 
