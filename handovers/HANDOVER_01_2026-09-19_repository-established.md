@@ -1,7 +1,8 @@
 # nsdn — Handover 01: the repository exists, the argument is under attack
 ## Written 2026-09-19 at the close of session 01, for a fresh session
 
-> **STATUS: CURRENT.**
+> **STATUS: HISTORICAL (superseded 2026-09-20)** — succeeded by
+> [HANDOVER_02_2026-09-20_faculties-ruled-spine-candidate.md](HANDOVER_02_2026-09-20_faculties-ruled-spine-candidate.md).
 
 > *Revised through the session as the work landed, then rewritten whole at close. Earlier
 > states are in git for anyone who wants them.*
