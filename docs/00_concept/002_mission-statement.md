@@ -1,97 +1,113 @@
 # 002 — Mission statement
 
 > **This is a living document.** It holds the current wording of the mission and nothing
-> else. It is expected to change, and every change is recorded in the changelog at the
-> bottom with what was cut and why. [001_mission.md](001_mission.md) holds the author's
-> original formulation verbatim and the arguments against it; that document is the
-> reasoning, this one is the wording.
+> else. Every change is recorded in the changelog at the bottom with what was cut and why.
+> [001_mission.md](001_mission.md) holds the author's original formulation verbatim and the
+> arguments against it; that document is the reasoning, this one is the wording.
 >
-> **Current version: 0.3, 2026-09-20. Unratified.** `CON-OP-15` holds the open question and
+> **Current version: 0.5, 2026-09-20. Unratified.** `CON-OP-15` holds the open question and
 > closes in an ADR the author rules.
 
 ## The statement
 
-> nsdn exists to extend how much of an organisation's data landscape can be reliably
-> understood. Machines express and maintain human-specified deterministic designs more
-> cheaply, and — separately — propose semantic interpretations for people to judge. People
-> decide what matters; every accepted claim stays traceable to the evidence or the person
-> behind it. Success is more of what people have prioritised, modelled and maintained, at a
-> defect rate no worse than competent practice and without disproportionate validation
-> cost. Whether those two capabilities interact, and whether human judgement is the binding
-> constraint, are open.
+> nsdn builds modelled, meaningful and trustworthy data landscapes at far lower cost and
+> higher quality than current practice, where quality includes coverage of the scope people
+> have prioritised. Its methodology is derived from the demonstrated strengths and limits of
+> deterministic machinery, contextual inference and human judgement, rather than applying
+> models wherever they appear useful. Its practical test is whether ordinary teams can
+> implement and maintain otherwise-appropriate designs, including Data Vault, whose
+> principal obstacle is modelling labour, without higher defect rates or disproportionate
+> validation cost. People decide what matters and rule on meaning; every accepted claim
+> remains traceable to evidence or to the responsible person.
 
-## What it deliberately does not claim
+## What is not established
 
-**No order of magnitude.** Quality is bounded above and nothing is a hundred times more
-correct than correct. The quantity with room to move is coverage, and no figure for it has
-been computed — `CON-OP-2` is open.
+**The interaction between deterministic machinery and contextual inference, and whether
+human adjudication is the binding constraint, are not yet established.** The statement is
+written to be true whichever way both resolve. `CON-OP-8` holds the first and records that
+the only interaction candidate so far was refuted; the second was asserted in version 0.2
+and withdrawn.
 
-**No single mechanism.** The two capabilities are stated separately because `CON-OP-8`
-holds them to be independent theses and the first proposed interaction between them was
-refuted. The statement says they are open rather than asserting either way.
+**The strengths and limits the methodology is "derived from" are currently hypotheses, not
+demonstrations.** [060_faculty-inventory.md](060_faculty-inventory.md) states them and says
+so; no cell in it has been measured on this project's data. The word *demonstrated* in the
+statement is therefore a standard the methodology must meet, not a claim that it has been
+met.
 
-**No autonomy.** *Installed under an explicit mandate* rather than let loose. The system
-may measure freely, propose freely, and may not decide what matters
-([ADR-0005](../20_decisions/0005-three-autonomy-tiers.md)).
+**No figure exists for cost or coverage.** `CON-OP-2` is open.
 
-**No technology.** A technology set is an output of the methodology and the architecture,
-ratified separately and replaceable without touching this statement — which is
-[ADR-0008](../20_decisions/0008-faculties-substrate-mandate.md)'s rule against naming a
-thing after its implementation, applied one level up.
+## The phrase doing the most work
 
-## The word doing the most work
+**"Whose principal obstacle is modelling labour."** It is what makes the Data Vault test
+sound rather than overreaching, and it is the most likely thing in the statement to be
+wrong: modelling labour may not be Data Vault's principal obstacle, and operational or
+cognitive complexity may dominate instead. The repository already holds the evidence that
+this can happen — Anchor-style 6NF has a discipline-wide domain and is almost unused for
+reasons of object count, join complexity and comprehensibility rather than authoring cost,
+which is recorded in
+[190_machine-authored-design-canon.md](../10_architecture/190_machine-authored-design-canon.md)
+§3 and was what refuted `CON-OP-11`.
 
-**Prioritised.** The statement measures coverage *of what people have prioritised*, and
-that qualifier is the whole defence against the metric rewarding legible abundance. Remove
-it and a system maximises the measure by modelling thousands of easy, stable, low-value
-tables under one coarse bulk approval, scoring well while diverting scarce experts from the
-few consequential claims and enlarging the trusted surface.
-
-The qualifier is also the statement's weakest point, and the objection is unanswered:
-human priorities may be incomplete, political or unstable, so optimising against them may
-relocate the value problem from the system to its governors rather than solving it. It also
-makes the mission depend on the decision register that `ARC-OP-12` says may simply never be
-supplied.
+If modelling labour turns out not to be the principal obstacle for Data Vault either, the
+test does not fail — it selects a different design. What would fail is the mission, and
+`ARC-OP-15` is where the residual lives, since a machine-optimal design still owes a
+human-comprehensible surface.
 
 ---
 
 ## Changelog
 
-**0.3 — 2026-09-20.** Current. Produced by gpt-5.6-sol under adversarial review and
-rewritten for cadence; recorded in
-[XREV_2026-09-20_mission-statement_sol](../30_research/notes/XREV_2026-09-20_mission-statement_sol.md).
+**0.5 — 2026-09-20.** Current. Produced by gpt-5.6-sol under adversarial review of 0.4,
+recorded in
+[XREV_2026-09-20_mission-statement_sol](../30_research/notes/XREV_2026-09-20_mission-statement_sol.md)
+second sitting. One cadence change only — *It builds a methodology around* became *Its
+methodology is derived from*, to avoid repeating the verb. No substantive change.
+
+**0.4 — 2026-09-20.** Drafted by Claude Opus 5 from the author's rejection of 0.3. Adopted
+the author's corrections: the objective is to **build** a landscape rather than to
+understand one, coverage is an aspect of quality rather than a separate measure, the
+methodology is derived from capability analysis rather than from applying models where they
+look interesting, and Data Vault is named to make the claim concrete. Failed review on two
+of three counts.
+
+- **Repaired: coverage was unqualified.** Folding coverage into quality is coherent only if
+  quality means quality of the landscape as a portfolio, and then coverage must still be
+  coverage of a human-prioritised scope. *People set priorities* assigns authority but does
+  not constrain the measure, so 0.4 reopened the legible-abundance gaming that 0.3's
+  qualifier existed to prevent. Restored as *coverage of the scope people have prioritised*.
+- **Repaired: the attainability test was too broad.** *Designs the canon rejected as too
+  laborious become ordinary* is defeated by the 6NF finding, because laboriousness was one
+  of several reasons for non-adoption and cheap authorship addresses only that one.
+  *Become ordinary* also confounds technical attainability with adoption, training and
+  fashion. Narrowed to designs *whose principal obstacle is modelling labour*, tested by
+  whether ordinary teams can implement and maintain them without higher defect rates or
+  disproportionate validation cost.
+- **Upheld: moving the open hypotheses out of the statement.** Legitimate on condition that
+  the adjacent section states them plainly, which it now does. Without that, *derived from
+  what each does well and badly* would read as though the decomposition were already
+  established.
+
+**0.3 — 2026-09-20.** Rejected by the author for making the objective *understanding* the
+landscape, which he named as drift into an academic exercise. The rejection is upheld and
+the drift was real: 0.3 made the output knowledge, when the output is a built environment.
+It was a consequence of drafting toward what was defensible rather than toward what is
+true.
+
+**0.2 — 2026-09-20.** Drafted by Claude Opus 5. Reframed the binding constraint from
+development speed to adjudication capacity.
 
 - **Cut: "not by removing the people who understand both the systems and the business, but
-  by making their judgement reach very much further."** Rhetorically the best line in 0.2
-  and refused on substance. Paired with *machines propose, people rule*, it recast
-  authoring a known deterministic design as a proposal awaiting adjudication, which
-  collapses specification labour into adjudication labour and makes the second thesis's
-  governance pattern universal. That is the unification `CON-OP-8` refused, arriving
-  through the governance clause instead of through a causal claim.
-- **Cut: "coverage gained per unit of human adjudication" as the success measure.**
-  Gameable: coverage was not value-weighted and a unit of adjudication was undefined, so
-  the ratio is maximised by bulk-approving large quantities of easy low-value modelling.
-  Replaced by coverage *of what people have prioritised*, which moves the weighting to
-  people — necessarily, since ADR-0005 forbids the system from deciding consequence.
-- **Added: an explicit statement that the interaction and the bottleneck are open.** 0.2
-  asserted the adjudication bottleneck as established. It is not.
+  by making their judgement reach very much further."** Paired with *machines propose,
+  people rule*, it recast authoring a known deterministic design as a proposal awaiting
+  adjudication, collapsing specification labour into adjudication labour and making the
+  second thesis's governance pattern universal — the unification `CON-OP-8` refused,
+  arriving through a clause written for cadence.
+- **Cut: "coverage gained per unit of human adjudication."** Gameable: maximised by
+  bulk-approving large quantities of easy low-value modelling.
 
-**0.2 — 2026-09-20.** Drafted by Claude Opus 5 from the session's findings. Reframed the
-binding constraint from development speed to adjudication capacity. Failed review on both
-counts above; retained here because the reframing may still be right and only its assertion
-was premature.
+**0.1 — 2026-09-20.** The author's formulation, verbatim in [001_mission.md](001_mission.md).
 
-**0.1 — 2026-09-20.** The author's formulation, verbatim in
-[001_mission.md](001_mission.md).
-
-- **Cut: "by orders of magnitude", applied to quality.** Two claims of different kinds;
-  only the coverage reading survives.
-- **Changed: "let loose on" to "installed under an explicit mandate".** The original names
-  the failure mode [ADR-0005](../20_decisions/0005-three-autonomy-tiers.md) and
-  [150_trust-and-blast-radius.md](../10_architecture/150_trust-and-blast-radius.md) exist
-  to prevent, and would be read literally by the governance function whose objection
-  matters most.
-- **Demoted: "a set of technologies" from a deliverable to an output.** Bundling it dates
-  the mission.
-- **Retained without change: "for that we need a solid conceptual foundation."** It is the
-  sentence that makes the rest legitimate and it is the project's actual discipline.
+- **Cut: "by orders of magnitude", applied to quality.**
+- **Changed: "let loose on" to "installed under an explicit mandate".**
+- **Demoted: "a set of technologies" from a deliverable to an output.**
+- **Retained without change: "for that we need a solid conceptual foundation."**

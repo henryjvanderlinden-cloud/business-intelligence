@@ -667,6 +667,30 @@ already listed and should be treated as such.
 inherits the same defect, including in
 [410_first-vertical-slice.md](../docs/40_roadmap/410_first-vertical-slice.md).
 
+**Narrowed again 2026-09-20, session 03, on the author's correction.** The author rejected
+the *understanding* framing as academic drift and restated the objective as building a
+landscape at lower cost and higher quality, with coverage an aspect of quality rather than a
+separate measure. Both are adopted in
+[002_mission-statement.md](../docs/00_concept/002_mission-statement.md) version 0.5.
+
+**The criterion now has a concrete falsifiable test**, which is the most useful thing to
+happen to this row: *whether ordinary teams can implement and maintain otherwise-appropriate
+designs, Data Vault among them, whose principal obstacle is modelling labour, without higher
+defect rates or disproportionate validation cost.* It replaces an unfalsifiable
+orders-of-magnitude claim with something that can be run.
+
+**Its load-bearing assumption is unverified and is named as such.** The test selects designs
+by the kind of obstacle, so it holds only where modelling labour genuinely is the principal
+obstacle. Operational and cognitive complexity may dominate instead — which is exactly what
+[190_machine-authored-design-canon.md](../docs/10_architecture/190_machine-authored-design-canon.md)
+§3 records for Anchor-style 6NF and what refuted `CON-OP-11`. Establishing which obstacle
+dominates for Data Vault belongs to `ARC-OP-14`'s canon survey, and the residual — that a
+machine-optimal design still owes a human-comprehensible surface — is `ARC-OP-15`.
+
+**The human-prioritisation guard was lost and restored.** Version 0.4 moved it from the
+measure into a clause about who sets priorities, where it constrained nothing. A guard
+stated as authority is not a guard on a scorecard.
+
 ---
 
 ## §2 — Architecture (`ARC`)

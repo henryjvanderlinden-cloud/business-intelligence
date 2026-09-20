@@ -107,3 +107,80 @@ the wording.
 It did not test the statement against a reader outside the project, which is the audience
 it is written for and the one this repository has never had. It did not review the
 falsifiable core.
+
+---
+
+# Second sitting — 2026-09-20, same day, same object, same model
+
+Thread 01a0bf09-de77-7383-a199-93ca0a001a3a. Appended rather than filed separately because
+it is the same object, the same model and the same day; a near-duplicate note would add
+apparatus without adding record, which `PRC-OP-2` exists to resist. The verdict shape is
+preserved per [510_external-review.md](../../50_process/510_external-review.md).
+
+**Occasion.** The author rejected version 0.3 for making the objective *understanding* the
+data landscape, which he named as drift into an academic exercise. His correction: the
+objective is to **build** a modelled, meaningful and trustworthy landscape at lower cost and
+higher quality, with coverage an aspect of quality; to derive a methodology from a real
+understanding of the new capabilities rather than applying models where they look
+interesting; and to make best practices such as Data Vault — theoretically superior,
+practically unattainable for ordinary teams — actually attainable. The rejection is upheld
+and is not reviewed here; what was reviewed is the replacement.
+
+## Q1 — does version 0.4 survive?
+
+> **VERDICT: 0.4 HOLDS [only after restoring human-prioritised scope, narrowing the
+> attainability test, and retaining the open hypotheses adjacently] / FAILS [a, b]**
+>
+> **(a) It hides the problem as written.** Coverage can coherently be an aspect of quality
+> only if "quality" means quality of the landscape as a portfolio, not correctness of each
+> modelled item. But then coverage must remain coverage of the human-prioritised scope.
+> "People set priorities" merely assigns authority; it does not constrain the success
+> measure. Consequently, 0.4 again rewards modelling abundant, easy, low-value material.
+>
+> **(b) The test is unsound.** Cheap authoring and maintenance can remove labour barriers;
+> it cannot by itself remove inherent object count, join complexity, operational cost, or
+> poor comprehensibility. The 6NF finding therefore defeats the general claim about designs
+> "the canon rejected", though not a narrower claim about methods rejected principally
+> because their specification and maintenance burden exceeded ordinary teams' capacity.
+> [...] "Become ordinary" otherwise confounds technical attainability with adoption,
+> training, tooling, and organisational fashion.
+>
+> **(c) Dropping the sentence is legitimate, conditionally** [...] honest if that section
+> states plainly that the interaction between deterministic machinery and contextual
+> inference, and the alleged adjudication bottleneck, remain unestablished.
+
+**Disposition.** All three accepted; (a) and (b) as repairs, (c) as a condition now met.
+
+The (a) finding is the same defect as version 0.2's, surviving a rewrite that was supposed
+to fix it: the guard moved from the measure into a clause about authority, where it looks
+like a guard and does no work. *People set priorities* is a mandate statement and
+`ARC-OP-12`'s problem; it constrains nobody's scorecard. This is the fourth time in two days
+that a protection has been lost by rewording, and it is worth recording that the loss was
+invisible to the drafter each time.
+
+The (b) finding is the more valuable, because it turns the author's Data Vault ambition
+into something falsifiable without weakening it. Naming Data Vault was right; the error was
+generalising from it to *designs the canon rejected*, which the repository's own 6NF
+counterexample refutes. The narrowed form selects designs by the kind of obstacle rather
+than by the fact of rejection, which is a sharper claim and is testable against
+`ARC-OP-14`'s survey once it exists.
+
+## Q2 — version 0.5
+
+The reviewer was required to bind all three repairs, to stay under 110 words, to read as a
+statement of what the project builds rather than understands, and to keep Data Vault named
+unless naming it was a mistake. It judged naming it correct.
+
+The result is adopted verbatim as version 0.5 in
+[002_mission-statement.md](../../00_concept/002_mission-statement.md) with one cadence
+change and no substantive edit. Its self-nominated weak point — *whose principal obstacle
+is modelling labour* — and the required honesty sentence are both carried into that
+document as their own sections.
+
+> **VERDICT: "whose principal obstacle is modelling labour"**
+
+## What this sitting did not do
+
+It did not test the statement on a reader outside the project. It did not establish that
+modelling labour is in fact Data Vault's principal obstacle, which is now the statement's
+load-bearing empirical assumption and belongs to `ARC-OP-14`.
