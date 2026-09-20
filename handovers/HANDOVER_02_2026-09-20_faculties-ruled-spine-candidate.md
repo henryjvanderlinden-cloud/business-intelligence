@@ -1,7 +1,9 @@
 # nsdn — Handover 02: the vocabulary is ruled, and the argument has a candidate spine
 ## Written 2026-09-20 at the close of session 02, for a fresh session
 
-> **STATUS: CURRENT.**
+> **STATUS: HISTORICAL (superseded 2026-09-20)** — succeeded by
+> [HANDOVER_03_2026-09-20_spine-candidate-failed.md](HANDOVER_03_2026-09-20_spine-candidate-failed.md).
+> Its candidate spine, `CON-OP-11`, failed external review the same day.
 
 ---
 

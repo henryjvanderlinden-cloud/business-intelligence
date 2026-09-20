@@ -82,6 +82,54 @@ reduces to the mandate policy built on the distinction, which may still be enoug
 Closing this row requires reading Autor 2014 in full and surveying the tacit-knowledge
 literature far enough to be sure, not merely far enough to be comfortable.
 
+**Narrowed 2026-09-20, session 03, by external review.** Reviewed on gpt-5.6-sol —
+[XREV_2026-09-20_amortisation-threshold_sol](../docs/30_research/notes/XREV_2026-09-20_amortisation-threshold_sol.md)
+— and the second half failed while the first was found defensible but not novel.
+
+**(ii) fails**, and it fails without depending on `CON-OP-11`'s result, which is worth
+stating because the two findings could otherwise look like one finding counted twice. A
+learner need not discover a universal rule mapping every column name to its meaning; it
+may learn a landscape-local regularity, or a general inference function from contextual
+evidence to probabilistic semantic hypotheses. Where no object-level rule exists the
+machine is performing learned, fallible inference — not executing an unstated
+deterministic rule. The first pass established the meta-level version of this; this pass
+removes the remaining escape, so §III's residual formulation *there is no rule to learn*
+is false as stated whichever way `CON-OP-11` resolves. The rewrite must say what the
+second faculty is doing instead, and the reviewer's formulation is usable: learned
+inference to probabilistic local hypotheses, which is a claim about performance and
+calibration rather than about kinds of knowledge, and a considerably more modest thing to
+assert.
+
+**(i) survives as prior art, not as a contribution.** Boisot's I-Space is the close match:
+it separates codification from abstraction as independent axes, which licenses knowledge
+that is highly codified yet concrete and context-bound, and substantially anticipates
+*articulable but not general*. Hayek's knowledge of the particular circumstances of time
+and place is the adjacent account, though he does not consistently establish that such
+knowledge is readily articulable. Cowan, David and Foray supply the codebook-cost argument
+for why codifiable knowledge stays uncodified. Nonaka and Takeuchi are the loosest fit:
+SECI emphasises context without cleanly isolating generality from articulability. On that
+reading the manifesto cannot claim the distinction itself, and the contribution reduces to
+the mandate policy built on it — which this row already conceded might be enough, and
+which [ADR-0008](../docs/20_decisions/0008-faculties-substrate-mandate.md) has since made
+load-bearing.
+
+Per [`../AGENTS.md`](../AGENTS.md) rule 8, the characterisation of Boisot above is the
+reviewer's, stated from general knowledge, and is a hypothesis until somebody reads the
+source. It is the most consequential unverified claim in the repository, because a
+disposition now rests on it.
+
+**What is owed is now specific**, which replaces this row's previous instruction to survey
+the literature far enough to be sure: Boisot, *Knowledge Assets*, the sections defining
+codification and abstraction; Hayek, *The Use of Knowledge in Society*; Cowan, David and
+Foray, *The Explicit Economics of Knowledge Codification and Tacitness*; Nonaka 1994 with
+the Nonaka–Takeuchi SECI chapters; and Autor 2014 in full. Then the holdout test folded
+into `EVI-OP-5`. Closes against
+[050_prior-art.md](../docs/00_concept/050_prior-art.md) with `CON-OP-1` and `CON-OP-12`.
+
+**Superseded 2026-09-20, session 03.** The session-02 narrowing immediately below rests on
+`CON-OP-11`, which failed review the same day; nothing from here to the end of this row is
+a current claim. Retained for provenance.
+
 **Narrowed further 2026-09-20, session 02.** `CON-OP-11` proposes a reading that concedes
 the mechanism finding below rather than resisting it: the claim becomes one about the
 *domain size* at which a generalisation repays its own authorship, not one about a kind of
@@ -197,6 +245,45 @@ It may be a better-supported thesis about a smaller thing, and the right answer 
 that the manifesto carries both with the canon argument first because it is defensible.
 
 Decide as part of the §III rewrite, not separately.
+
+**Narrowed 2026-09-20, session 03, by external review.** The either/or is live again and
+has an answer. Reviewed on gpt-5.6-sol —
+[XREV_2026-09-20_amortisation-threshold_sol](../docs/30_research/notes/XREV_2026-09-20_amortisation-threshold_sol.md)
+— which denied the unification `CON-OP-11` proposed and then refused both single-spine
+options. Demoting semantic inference would make the manifesto sturdier only by amputating
+the premise much of the architecture depends on; subordinating the canon argument to
+statability would hitch the better-supported claim to the one the first pass damaged, and
+would misdescribe known-design automation as evidence about knowledge.
+
+The disposition is that the manifesto carries **two independent theses** and says so:
+machine authorship lowers the cost of expressing and maintaining already-known designs as
+deterministic machinery, and contextual inference makes locally situated semantic
+hypotheses cheap enough to propose while validation and adjudication remain the limiting
+costs. Humans validate and authorise both. Neither is evidence for the other: bitemporality
+and exhaustive lineage demonstrate cheaper implementation, not better semantic discovery,
+and schema interpretation demonstrates better hypothesis generation, not that elaborate
+physical designs have become affordable to operate.
+
+The cost is explicit and should not be softened in the rewrite. The manifesto loses a
+single causal mechanism and must establish two capability changes, two cost curves and two
+failure regimes; their conjunction may be historically important but is not conceptually
+necessary, since either could have occurred without the other.
+
+**The obligation this creates is the reviewer's own closing objection**, and adopting the
+two-thesis reading does not discharge it: two adjacent capability claims with no
+demonstrated interaction are a weaker object than one thesis. There may be an interaction
+— a landscape whose deterministic machinery is cheap to regenerate is one where a revised
+semantic assertion is cheap to propagate — but this repository has not made that argument
+and must not assume it can. The §III rewrite either makes it or states its absence.
+
+Note also what (c) costs procedurally. This row's attraction was that the canon argument
+yields a research programme executable without code. Under two theses that stays true of
+one and false of the other, so the halves will not be evidenced at the same rate: expect
+the canon half to firm up via `ARC-OP-14` while the semantic half waits on `EVI-OP-1`.
+
+**Superseded 2026-09-20, session 03.** The session-02 narrowing is retained below for
+provenance; its premise did not survive review, and nothing after this line is a current
+claim about this row.
 
 **Narrowed 2026-09-20, session 02.** The either/or this row poses may be a false choice.
 `CON-OP-11` proposes that statability and the canon-cost argument are one claim at two
@@ -334,6 +421,37 @@ of what it calls a specific generalisation already has a mechanised literature, 
 
 Decide inside the §III rewrite, together with `CON-OP-5`, `CON-OP-6`, `CON-OP-7` and
 `CON-OP-8`.
+
+**Narrowed 2026-09-20, session 03, by external review.** Reviewed on gpt-5.6-sol —
+[XREV_2026-09-20_amortisation-threshold_sol](../docs/30_research/notes/XREV_2026-09-20_amortisation-threshold_sol.md)
+— and the domain-size axis failed. Repayment is an expected-value quantity — expected
+reuse, value per correct application and stability, set against discovery, validation,
+execution and maintenance cost — in which extension is one multiplier among several. This
+row promoted one benefit proxy into the governing axis.
+
+The counterexample is the repository's own apparatus. Anchor-style 6NF has a
+discipline-wide domain and
+[190_machine-authored-design-canon.md](../docs/10_architecture/190_machine-authored-design-canon.md)
+§3 records it as almost unused, on object-count and join-complexity grounds: maximal
+domain, no adoption. In the other direction a two-value regulatory mapping is carefully
+authored because it executes on every transaction and is stable. Cardinality predicts
+neither case.
+
+What survives is the narrower claim that was already available before this row was
+opened: machine authorship lowers one cost term, the generation and maintenance of
+deterministic machinery. The unification with the canon-cost argument falls with the axis,
+and it falls on the ground `CON-OP-8` had already stated against itself — in the canon
+case the generalisation is known and what changed is the cost of expressing it; in the
+semantic case the rule must be inferred from noisy local evidence and validation may
+dominate generation. To rescue the axis, this row must show that adoption varies
+systematically with extension size while frequency of use, stakes, stability, confidence
+and elicitation cost are held roughly constant. `EVI-OP-5` as scoped does not measure that.
+
+The row stays `OPEN` because the §III rewrite must still decide what replaces statability;
+what this row proposed is no longer a candidate. `ARC-OP-16`, `ARC-OP-17` and `ARC-OP-18`
+are not void with it — each was argued from locally-general rules existing, not from domain
+size explaining them — but each now needs re-deriving from the expected-value framing
+rather than inheriting this row's premise.
 
 ### CON-OP-12 — Locally-general rules are already mined mechanically, and the claim must narrow accordingly
 **⛔ STATE: OPEN**
@@ -858,6 +976,18 @@ The slice as currently scoped uses two sources and cannot measure transfer at al
 the slice widens or this row waits for the source after it. Widening the slice to test this
 would violate the slice's own discipline and should not be done casually.
 
+**Second arm added 2026-09-20, session 03, from external review.** The pass recorded in
+[XREV_2026-09-20_amortisation-threshold_sol](../docs/30_research/notes/XREV_2026-09-20_amortisation-threshold_sol.md)
+names a test adjacent to this one and not identical to it, and the difference is the
+useful part. This row asks whether precision improves along the ingestion order. The
+second arm asks whether examples improve semantic inference over a **context-only
+baseline**, on held-out columns within a landscape and on held-out landscapes. The first
+measures reuse; the second discriminates learnable local regularity from case-by-case
+guessing, which is the thing actually in dispute once `CON-OP-4`(ii) has failed and
+`CON-OP-11`'s axis with it. The second arm is also cheaper, since it does not require a
+seventh source — only that some columns be withheld — so it can run inside the slice as
+scoped while the transfer measurement waits.
+
 ---
 
 ## §4 — Process (`PRC`)
@@ -903,6 +1033,26 @@ machine-proposable at adjudication-worthy precision — remains unreviewed, and
 [510_external-review.md](../docs/50_process/510_external-review.md) still ranks it first.
 Reviewing this session's own output ahead of it is the comfortable choice, and it is taken
 knowingly because `CON-OP-11` is a candidate spine for the §III rewrite that is owed next.
+
+**Second pass run 2026-09-20, session 03:**
+[XREV_2026-09-20_amortisation-threshold_sol](../docs/30_research/notes/XREV_2026-09-20_amortisation-threshold_sol.md)
+— `CON-OP-11` chained to `CON-OP-8` and `CON-OP-4` on gpt-5.6-sol, adversarial, three
+determinate questions, word-capped. `CON-OP-11` FAILS on its own counterexample from
+§190; `CON-OP-8` resolves to two independent theses; `CON-OP-4`(ii) FAILS and (i) is
+found to be Boisot's prior art. Dispositions narrowed `CON-OP-11`, `CON-OP-8`, `CON-OP-4`
+and `EVI-OP-5`; no row was opened. The candidate spine did not survive, which is the
+result this row's assignment was written to obtain and the reason the pass was worth
+taking ahead of the falsifiable core.
+
+The assignment was again set by the model that drafted the object, and this time it went
+further: two of the three questions supplied the argument the reviewer was asked to rule
+on rather than merely asking a question. That material is unreviewed by construction in
+the strongest sense yet recorded here, and it is stated in the note as well as here.
+
+Still unreviewed after two passes: the falsifiable core, which
+[510_external-review.md](../docs/50_process/510_external-review.md) ranks first and which
+both passes have now stepped around; and `CON-OP-12`, `ARC-OP-17`, `ARC-OP-19` and
+`CON-OP-14`, which the second-pass assignment above named and the pass did not reach.
 
 ### PRC-OP-2 — Keep the apparatus proportionate to the work
 **⛔ STATE: OPEN**
