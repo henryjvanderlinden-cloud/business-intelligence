@@ -29,7 +29,7 @@ calculation onto one axis.
 [ADR-0008](../20_decisions/0008-faculties-substrate-mandate.md) already holds this
 distinction and this document inherits rather than proposes it: a mandate is what a
 faculty is *entitled* to do, which does not follow from what it is *able* to do.
-Dimensions 1 to 12 are capability. Dimension 13 is entitlement and is set by
+Dimensions 1 to 12, and 14, are capability. Dimension 13 is entitlement and is set by
 [ADR-0005](../20_decisions/0005-three-autonomy-tiers.md), not by anything in the other
 twelve. Keeping them apart matters because an argument that slides from *cannot* to *may
 not* is refutable at the first counterexample, and the repository has an instance of
@@ -277,6 +277,25 @@ the tiers do not classify, which is `ARC-OP-19`.
 **Human.** Rules, and sets purpose. Whether the mandate also includes elicitation as a
 first-class function is `CON-OP-14`, and dimension 9 is the capability-side argument that it
 does.
+
+## 14 — Creating commitment
+
+Added 2026-09-21 from external review of the task allocation, and accepted by the author; see
+[070_task-allocation.md](070_task-allocation.md) and
+[XREV_2026-09-21_task-allocation_sol](../30_research/notes/XREV_2026-09-21_task-allocation_sol.md).
+It is the ability to gain trust, change behaviour, negotiate adoption, and get people to give
+up familiar reports. It is distinct from signal access (8), because seeing the politics is not
+persuading, and from mandate (13), because authority does not guarantee adoption.
+
+**Deterministic.** None.
+
+**Second faculty.** Can prepare the case, including usage analysis, training material and a
+migration plan. It has no standing that makes people commit.
+
+**Human.** The only faculty that can, and only a person the others trust.
+
+*The flip:* producing training material and a legacy-report migration plan goes to the second
+faculty; getting a department to retire its familiar report goes to the human.
 
 ---
 

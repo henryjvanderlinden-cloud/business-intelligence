@@ -1353,6 +1353,23 @@ The design owes a split of metadata tasks into those two kinds, and a mandate fo
 [ADR-0005](../docs/20_decisions/0005-three-autonomy-tiers.md). Related to `EVI-OP-1`, since the uncheckable half is the falsifiable core in
 another form, and to `ARC-OP-21`.
 
+### ARC-OP-24 — The task allocation is a working draft awaiting review
+**⛔ STATE: OPEN**
+Opened 2026-09-21, session 04, on the author's direction.
+
+[070_task-allocation.md](../docs/00_concept/070_task-allocation.md) lists 39 BI implementation
+tasks as chains (who proposes, who decides, who executes, who checks), with the reason for
+each taken from [060_faculty-inventory.md](../docs/00_concept/060_faculty-inventory.md). The
+author endorsed its direction and accepted every finding of the first external review. He has
+not yet reacted to individual rows and has asked that it be settled slowly.
+
+Owed before it can be treated as a framework rather than a draft: the author's own row-by-row
+reaction; a second external review on a different model; a test of the list's completeness
+and grain against a real implementation; and a description of what the handoffs between
+faculties cost, which the table makes visible and nothing in the repository yet prices. This
+is also the first time [060](../docs/00_concept/060_faculty-inventory.md)'s allocation rule
+has had concrete work to allocate, so the table is the natural place to test that rule.
+
 ---
 
 ## §3 — Evidence and measurement (`EVI`)

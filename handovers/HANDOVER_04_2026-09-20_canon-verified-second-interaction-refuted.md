@@ -74,11 +74,13 @@ question is mostly beside the point, because join cost is paid when marts load;
 
 *Revised 2026-09-21 on the author's direction; the previous task is below it, not deleted.*
 
-With the author, draft an inventory of the tasks a Business Intelligence implementation
-entails and the faculty best suited to each — the deterministic machinery included — with
-the reason for each drawn from the dimensions of
-[060_faculty-inventory.md](../docs/00_concept/060_faculty-inventory.md), and let the author
-react before anything is written into the repository.
+Take the author's row-by-row reaction to
+[070_task-allocation.md](../docs/00_concept/070_task-allocation.md) and the pending second
+review on GPT-6 Astra, and revise the table with him — slowly, per `ARC-OP-24`.
+
+The draft exists: 39 tasks as chains (proposes, decides, executes, checks), revised from a
+28-row first draft by external review on sol, all of whose findings the author accepted. It
+added a fourteenth dimension to 060, *creating commitment*.
 
 ## Why that task and not another
 
