@@ -58,7 +58,7 @@ trade.**
 can query and maintain it.~~ Data Vault's object count is its acknowledged price, which
 [140_data-vault-automation.md](140_data-vault-automation.md) already argues stops
 mattering under machine authorship. Anchor Modeling takes the same logic to 6NF, is
-formally superior on schema evolution, and is ~~almost unused~~. None of these were
+formally superior on schema evolution, and is almost unused. None of these were
 rejected because they were wrong.
 
 > **Annotated 2026-09-20, session 04, by the survey in
@@ -74,11 +74,30 @@ rejected because they were wrong.
 > generators already absorb its authoring burden, so what machine authorship adds there is
 > not authorship.
 
+> **Corrected 2026-09-21 by the author, overriding part of the annotation above.** *Almost
+> unused* is restored: the Anchor paper's deployments are its own authors', clustered around
+> Stockholm and the university that teaches the method, which against thousands of
+> organisations is proximity rather than adoption. Kimball returns in a different role. He is
+> not a correct design rejected on cost; he is the design that won *because* it is cheap for
+> humans to understand and report from, accepting known weaknesses in return — evolving
+> environments, integrating new sources, and overlapping data such as that of acquired
+> companies. Kimball has written strategies for those, and in the author's experience they
+> are seldom implemented; nor are the conceptually harder parts of the method. The features
+> skipped *inside* the most-used method are better evidence for this document's thesis than
+> any method the canon rejected. The architecture the author calls mature is layered: a Data
+> Vault between raw data and the dimensional model for complete record keeping, and
+> dimensional marts on top for self-service because they are human-readable.
+
 A provisional list of candidates, each of which is a claim to be tested rather than a
 recommendation:
 
 **Rule-versioned bitemporality**, as above. The payoff is that reproducing the April
 board pack exactly becomes a query rather than an excavation.
+
+> **Annotated 2026-09-21 by the author.** Strengthened by practice: one can argue rules have
+> no place in a warehouse, but they are applied there because not everything can be a
+> separate calculation engine. The warehouse is therefore where rule versions must be
+> tracked, and SQL:2011 does not track them.
 
 **Sixth normal form and anchor-style modelling.** Every attribute its own table, fully
 temporal. Its property is lossless schema evolution — adding an attribute never migrates
@@ -91,6 +110,13 @@ matters~~. See the caveat in §4.
 > `RELY` and `NOT ENFORCED` respectively — and neither engine checks that they are true,
 > both warning that violated constraints can return wrong results. The Anchor paper's own
 > measurement reached twenty-five tables on SQL Server 2008. Survey §1.4, and `ARC-OP-22`.
+
+> **Corrected 2026-09-21 by the author.** The join question is mostly beside the point. 6NF,
+> Anchor, Data Vault and temporal models are never to be exposed to end users as they are;
+> they are processed into marts with a clear purpose, preferably dimensional. Join cost is
+> paid once, when the marts load — the answer is materialisation, not the optimiser, and it
+> predates columnar engines. The real cost of this design therefore sits under *redundant
+> physical representations* below: building and maintaining the projection into the marts.
 
 **Insert-only everything.** Never update, never delete. Storage is cheap; the reason
 people still overwrite is the query complexity of reconstructing current state, which is
@@ -112,6 +138,13 @@ this constantly and it is a large share of silent error in real warehouses.
 **Redundant physical representations.** The same content as vault, star and wide table
 for different consumers was unmaintainable when a human maintained each; from one
 declaration it is a compile-target problem.
+
+> **Annotated 2026-09-21 by the author.** This is the strongest candidate in the list and
+> should lead it. The layered practice — vault for record keeping, dimensional marts for
+> exposure — already maintains two representations by hand, and the projection between them
+> is where the build-and-maintain work sits. Explicit units and grain, and maximum-granularity
+> assertions, belong to the metadata capability rather than to this document's argument; see
+> [ADR-0009](../20_decisions/0009-separate-capabilities-open-value-areas.md) and `ARC-OP-14`.
 
 **Assertions at maximum granularity**, generated from profiles and pruned by usage.
 

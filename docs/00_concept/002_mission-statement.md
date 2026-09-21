@@ -27,7 +27,8 @@
 human adjudication is the binding constraint, are not yet established.** The statement is
 written to be true whichever way both resolve. `CON-OP-8` holds the first and records that
 the only interaction candidate so far was refuted; the second was asserted in version 0.2
-and withdrawn.
+and withdrawn. Under [ADR-0009](../20_decisions/0009-separate-capabilities-open-value-areas.md), ruled 2026-09-21, the first no longer
+needs establishing: the capabilities are presented separately and no interaction is owed.
 
 **The strengths and limits the methodology is "derived from" are currently hypotheses, not
 demonstrations.** [060_faculty-inventory.md](060_faculty-inventory.md) states them and says
@@ -48,6 +49,14 @@ pending `CON-OP-8`, because the statement's *practical test* survives either way
 ordinary teams can implement and maintain the design is a question about outcomes, not about
 which faculty delivers them. What does not survive untouched is any argument that reaches
 the test by way of cheap machine **authorship** alone.
+
+**The author's response, 2026-09-21.** Metadata-driven generators are only as good as their
+metadata; good metadata is human-produced, boring to make, and in practice reliable only for
+the obviously valuable attributes; catalogue implementations fail for the same reason. That
+makes the case for machine-assisted metadata stronger, and places the Data Vault clause's
+value on the metadata capability rather than on cheap building. Under ADR-0009 that is a
+reassignment between capabilities, not a weakness. `ARC-OP-23` holds the caveat: tirelessness
+helps most where the output can be checked mechanically.
 
 ## The phrase doing the most work
 
@@ -78,6 +87,9 @@ sharper instruction than that row previously carried.
 ---
 
 ## Changelog
+
+**0.6 — annotated 2026-09-21. No wording change.** ADR-0009 and the author's metadata
+argument recorded under *What is not established*.
 
 **0.6 — annotated 2026-09-20, session 04. No wording change.** The canon survey landed
 against the Data Vault clause's load-bearing assumption; the finding is recorded in *What is

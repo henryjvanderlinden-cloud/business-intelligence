@@ -16,6 +16,17 @@ version 0.6, whose load-bearing empirical assumption is that Data Vault's burden
 kind machine authorship can absorb, and `CON-OP-8`, which requires the §III rewrite either
 to argue an interaction between the two theses or to state its absence.
 
+> **Reviewed by the author 2026-09-21; this note is annotated, not revised.** Four
+> corrections, carried in `ARC-OP-14`, `ARC-OP-22`, `CON-OP-11` and `ARC-OP-23`. §1.3
+> over-corrected: *almost unused* stands, since the self-reported deployments cluster around
+> the method's own authors in Stockholm. §1.6's narrow point stands, but Kimball returns in a
+> reversed role, as the design that won on human cost. §1.4 largely misses the target:
+> decomposed layers are never exposed and are projected into marts, so join cost is paid at
+> load. F4 stands in substance, and the author's metadata argument turns it from bad news
+> into the strongest case for the metadata capability. The obligation behind F5 — to argue an
+> interaction at all — is removed by
+> [ADR-0009](../../20_decisions/0009-separate-capabilities-open-value-areas.md).
+
 ---
 
 ## 1. Verification verdicts

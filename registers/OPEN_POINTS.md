@@ -241,7 +241,7 @@ mechanism weaker than it needs. `ARC-OP-3` is promoted from a detail to a load-b
 component by this finding.
 
 ### CON-OP-8 — Should the canon-cost argument replace statability as the manifesto's spine?
-**⛔ STATE: OPEN**
+**✅ STATE: RULED 2026-09-21**
 Opened 2026-09-19, session 01, from the author's bitemporality observation; see
 [190_machine-authored-design-canon.md](../docs/10_architecture/190_machine-authored-design-canon.md) §5.
 
@@ -380,6 +380,15 @@ favourable interaction, and must stop treating the absence of a favourable one a
 of one** — including where the honest finding is that the first thesis makes the second's
 scarce faculty scarcer.
 
+**Ruled 2026-09-21 by the author, in [ADR-0009](../docs/20_decisions/0009-separate-capabilities-open-value-areas.md).** Neither argument is the spine. The
+manifesto presents separate capabilities — building known designs cheaply, and proposing
+meaning for people to rule on — with room left for more value areas, and it owes no
+interaction between them. A link is mentioned where it exists and matters. That removes the
+obligation recorded above as the reviewer's closing objection, and with it the reason to
+draft further interaction candidates; the two refuted ones stay here as history, as does the
+reviewer's point about adverse coupling, which the ruling makes moot rather than wrong. The
+§III rewrite is still owed, which is why this row is `RULED` and not `EXECUTED`.
+
 **Superseded 2026-09-20, session 03.** The session-02 narrowing is retained below for
 provenance; its premise did not survive review, and nothing after this line is a current
 claim about this row.
@@ -473,6 +482,19 @@ longer. *Design* alone drops the semantic half, which is the larger half.
 This is cheap to decide and it blocks, because every document the §III rewrite touches
 needs the word. Decide inside that rewrite, with `CON-OP-9`'s rename.
 
+**Proposal from the author, 2026-09-21, not yet ruled: *agents* or *agentic*.** His ground
+is that the faculty is not a model but a working system — a heartbeat (in his musical terms,
+a MIDI clock), workflows, documented procedures, memory, and LLMs. Two things the ruling
+should state rather than leave to interpretation. [ADR-0008](../docs/20_decisions/0008-faculties-substrate-mandate.md) rejected *agents* as the
+collective noun for all three faculties because of the collision with "AI agent"; that
+objection was to calling the humans and the deterministic engines agents too, and it does
+not bite on the one faculty that is in fact built from agents. And the same ADR forbids
+naming a faculty after its implementation; the author's description names the arrangement
+rather than the model, which is within the rule's intent — it was written to stop *the LLM*
+being the name — but the ruling should say so. The architecture already uses *agent* for the
+unit of work ([130_agent-loop.md](../docs/10_architecture/130_agent-loop.md), `ARC-OP-8`), so
+*agentic* for the faculty and *agent* for its workers would be consistent.
+
 ### CON-OP-11 — Is the amortisation threshold, rather than statability, the manifesto's spine?
 **⛔ STATE: OPEN**
 Opened 2026-09-20, session 02, from the author's distinction between broad and specific
@@ -561,6 +583,13 @@ counterexample needs is that Anchor is rare *relative to what a discipline-wide 
 predict*, and nothing found contradicts that. The refutation stands; the sentence carrying
 it should not be requoted in its original form, and this repository has no adoption figure
 for any methodology.
+
+**Corrected 2026-09-21 by the author: *almost unused* stands.** The deployments the Anchor
+paper reports are its own authors', clustered around Stockholm and the university that
+teaches the method. Against the thousands of organisations that do not use it, that is
+proximity, not adoption. The block above over-corrected on weak evidence, and its instruction
+not to requote the original wording is withdrawn. The claim remains an estimate without a
+figure.
 
 ### CON-OP-12 — Locally-general rules are already mined mechanically, and the claim must narrow accordingly
 **⛔ STATE: OPEN**
@@ -759,6 +788,12 @@ machine-optimal design still owes a human-comprehensible surface — is `ARC-OP-
 **The human-prioritisation guard was lost and restored.** Version 0.4 moved it from the
 measure into a clause about who sets priorities, where it constrained nothing. A guard
 stated as authority is not a guard on a scorecard.
+
+**Partly answered 2026-09-21 by [ADR-0009](../docs/20_decisions/0009-separate-capabilities-open-value-areas.md).** *One claim or two* is answered for the
+capabilities: they are separate, the list is open, and no conjunction is asserted, so the
+concern above about smuggling an interaction in through this row no longer applies. What
+success means for each capability, and the value-weighting problem, remain open and remain
+the author's to rule.
 
 **Superseded in part 2026-09-20, session 03**, by version 0.6: the test no longer selects
 designs by *principal obstacle is modelling labour* but by *total lifecycle burden currently
@@ -986,6 +1021,36 @@ designs now affordable* counts the first thesis's dependencies as its evidence.
 Two consequences leave this row. The runtime relief the programme rests on is conditional
 and is now `ARC-OP-22`; the measurement it needs is `EVI-OP-6`. The Data Vault assumption
 this row was promoted to settle came back adverse — see `CON-OP-8`.
+
+**Reviewed by the author 2026-09-21.** Five corrections and additions, all from practice
+rather than literature, and on three of the four points where they disagreed with the survey
+they outrank it.
+
+**The strongest case for cheaper building is not in §190's list as written.** It is the
+projection from the record-keeping layer into the marts. The architecture the author calls
+mature is layered — raw data, then a Data Vault for complete record keeping ("all the data,
+all the time"), then dimensional marts for self-service because they are human-readable —
+and the vault and temporal layers are never exposed as they are. Building and maintaining
+that projection is expensive hand work wherever it is done. It is the candidate *redundant
+physical representations*, which should lead the list.
+
+**Rule-versioned bitemporality is strengthened.** One can argue rules have no place in a
+warehouse, but in practice they are applied there — not everything can be a separate
+calculation engine — so the warehouse is where rule versions must be tracked, and SQL:2011
+does not track them.
+
+**Kimball returns in a reversed role**: the design that won *because* it is cheap for humans,
+accepting known weaknesses with evolving environments, new sources, and overlapping data
+such as that of acquired companies. Kimball's own strategies for those, and the conceptually
+harder parts of the method, are seldom implemented. **Features skipped inside the most-used
+method are better evidence for the building capability than whole methods the canon
+rejected**, and the survey's second half should look there first.
+
+**Explicit units and grain, and maximum-granularity assertions, belong to the metadata
+capability**, not to cheap building. Under [ADR-0009](../docs/20_decisions/0009-separate-capabilities-open-value-areas.md) that is a reassignment, not a loss.
+
+**Sign-off work scales with real business entities and their keys, not with tables.** Forty
+attribute tables restate one identity decision. That bounds the metadata workload.
 
 ### ARC-OP-15 — Machine-optimal storage owes a human-comprehensible adjudication surface
 **⛔ STATE: OPEN**
@@ -1247,6 +1312,41 @@ rather than trusting them, and what that costs — which is measurable and belon
 *and its consequences* to whoever rules on it, since ruling on a key without seeing that it
 licenses join elimination is ruling on something other than what is being decided.
 
+**Narrowed again 2026-09-21 by the author.** Decomposed models — 6NF, Anchor, Data Vault,
+temporal — are never to be exposed to end users as they are; they are processed into marts
+with a clear purpose, preferably dimensional. Join cost is paid once, when the marts load, by
+materialisation, which predates columnar engines. For the record-keeping layers the `RELY`
+question is therefore mostly beside the point. The dependency survives where
+trusted-but-unenforced constraints are most tempting: on the dimensional marts themselves,
+where eliminating dimension joins from filter-only queries is the whole attraction, and a
+wrong key silently corrupts a dashboard. The row is kept for that layer only.
+
+### ARC-OP-23 — Which metadata work can a machine do without a person checking every item?
+**⛔ STATE: OPEN**
+Opened 2026-09-21, session 04, from the author's review of the canon survey.
+
+The author's observation from practice: metadata catalogue implementations — Collibra is the
+one named — fail widely because people lack the attention span and context to keep
+descriptions accurate, flag near-duplicates and maintain hygiene; the work is boring, and it
+degrades. Good metadata therefore exists only for the obviously valuable attributes, and
+metadata-driven generators such as WhereScape are only as good as that metadata. A model does
+not tire and holds far more context, which makes machine-assisted metadata the strongest case
+the project has for the metadata capability. This is practitioner testimony and unsourced
+under rule 8; it is nonetheless the best evidence for that capability now in the repository.
+
+The open question is where such work can be verified without a person checking each item.
+Some of it can be checked mechanically: near-duplicate detection, a description that
+contradicts the profiled data, units that do not match observed ranges, grain that disagrees
+with the keys, a description that disagrees with lineage. There, tirelessness is the whole
+advantage. Some of it cannot: whether a description of what a column *means* is right has no
+check but a person or an authoritative source. Tireless generation there produces more to
+review without making review easier — the legible abundance the coverage guard in
+[002_mission-statement.md](../docs/00_concept/002_mission-statement.md) exists to prevent.
+
+The design owes a split of metadata tasks into those two kinds, and a mandate for each under
+[ADR-0005](../docs/20_decisions/0005-three-autonomy-tiers.md). Related to `EVI-OP-1`, since the uncheckable half is the falsifiable core in
+another form, and to `ARC-OP-21`.
+
 ---
 
 ## §3 — Evidence and measurement (`EVI`)
@@ -1370,6 +1470,11 @@ not exercise the question at all.
 This is the first row in the register that requires running something rather than reading
 or arguing. Under [ADR-0006](../docs/20_decisions/0006-project-mode.md) that is Mode 2 work,
 and it is scoped small enough to argue for an exception rather than a phase change.
+
+**Demoted 2026-09-21.** Under the author's architecture (`ARC-OP-22`) the vault is never
+queried interactively, so join elimination at anchor scale answers a question the design
+does not ask. If run at all it should measure the mart layer. Not a candidate for the next
+session.
 
 ---
 
