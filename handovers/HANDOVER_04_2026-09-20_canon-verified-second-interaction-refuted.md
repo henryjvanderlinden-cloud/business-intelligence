@@ -20,11 +20,11 @@
 
 ## Outstanding actions for the author, not the model
 
-**The repository has still never been pushed.** `origin` is configured to
-`https://github.com/henryjvanderlinden-cloud/business-intelligence.git`, the repository does
-not exist on GitHub, and these sessions hold no credentials. The author creates the empty
-repository — no README, no .gitignore, no licence — and runs `git push -u origin main` from
-`C:\Git\business-intelligence`.
+**Pushing is the author's, and it happens.** The claim carried in Handovers 01–04 that the
+repository had never been pushed was false and has been removed; the author pushes from
+`C:\Git\business-intelligence`, and on 2026-09-21 local `main` tracked `origin/main` with
+nothing ahead. These sessions hold no GitHub credentials and cannot verify the remote
+directly.
 
 **`CON-OP-15`, what success means for each capability.** Partly answered by ADR-0009; the
 rest is still his to rule.
@@ -72,12 +72,28 @@ question is mostly beside the point, because join cost is paid when marts load;
 
 ## Task for the next session, in one sentence
 
+*Revised 2026-09-21 on the author's direction; the previous task is below it, not deleted.*
+
+With the author, draft an inventory of the tasks a Business Intelligence implementation
+entails and the faculty best suited to each — the deterministic machinery included — with
+the reason for each drawn from the dimensions of
+[060_faculty-inventory.md](../docs/00_concept/060_faculty-inventory.md), and let the author
+react before anything is written into the repository.
+
+## Why that task and not another
+
+The author's words, 2026-09-21: the manifesto *"is just a start, and a working document"*;
+*"the cost calculation depends on the entire methodology"*; the central bet *"hasn't been
+settled yet. Let's be slow to settle. I want to get the conceptual framework first."* The
+task-by-faculty allocation is that framework. It also gives `060`'s allocation rule
+something to allocate, which it has never had.
+
+## Previous task, superseded 2026-09-21
+
 Rewrite [`../docs/00_concept/005_manifesto.md`](../docs/00_concept/005_manifesto.md) §III as
 separate capabilities per ADR-0009 — building and metadata first, with room for more — against
 `CON-OP-5`, `CON-OP-6`, `CON-OP-7`, `CON-OP-11` and `CON-OP-4`, executing `CON-OP-9`'s rename
 to *faculties* and *the agentic layer* in the same pass, with the check ADR-0008 deferred.
-
-## Why that task and not another
 
 Four handovers have named it. ADR-0009 removed the obstacle that kept moving and ADR-0010
 removed the last blocker; nothing now stands in its way. `CON-OP-2` — the break-even in
@@ -86,6 +102,13 @@ decisive number in the register; do it next, or first if the rewrite is expected
 long.
 
 ## Traps and warnings
+
+**Check claims before carrying them.** The "never pushed" line survived four handovers and
+a direct statement to the author without anyone running `git status -sb`. A handover is
+orientation, not evidence; verify anything checkable before repeating it.
+
+**Do not run ahead of the author.** On 2026-09-21 he said the model was moving too fast.
+Propose, let him react, and write into the repository only what he has settled.
 
 **Ask what practice does before reasoning from literature about how BI is done.** Session
 04's survey was sourced and careful, and the author corrected it on Anchor adoption, Kimball's
@@ -141,5 +164,4 @@ cadence.
 Did not execute the §III rewrite. Did not read Date, Darwen and Lorentzos, or Linstedt and
 Olschimke. Did not price anything for `CON-OP-2`. Did not attempt `ARC-OP-14`'s second half,
 which should now start from the features skipped inside Kimball and from the vault-to-mart
-projection. The survey's findings were reviewed by the author but not by another model. Did
-not push.
+projection. The survey's findings were reviewed by the author but not by another model.
