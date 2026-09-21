@@ -458,8 +458,8 @@ the authority dimension native rather than imported.
 rhetorical choice, the §III rewrite is already owed, and renaming twice costs more than
 deciding late.
 
-### CON-OP-10 — What is the second faculty called, now that it designs as well as interprets?
-**⛔ STATE: OPEN**
+### CON-OP-10 — RULED — What is the second faculty called, now that it designs as well as interprets?
+**✅ STATE: RULED 2026-09-21**
 Opened 2026-09-20, session 02, as the residual of `CON-OP-9`.
 
 [ADR-0008](../docs/20_decisions/0008-faculties-substrate-mandate.md) rules that a faculty
@@ -494,6 +494,12 @@ rather than the model, which is within the rule's intent — it was written to s
 being the name — but the ruling should say so. The architecture already uses *agent* for the
 unit of work ([130_agent-loop.md](../docs/10_architecture/130_agent-loop.md), `ARC-OP-8`), so
 *agentic* for the faculty and *agent* for its workers would be consistent.
+
+**Ruled 2026-09-21 by the author: the agentic layer**, recorded as
+[ADR-0010](../docs/20_decisions/0010-the-agentic-layer.md), which states both readings of
+ADR-0008 explicitly. An *agent* is a unit of work inside the layer. `RULED` rather than
+`EXECUTED` because the rename across the repository is owed with `CON-OP-9`, in the §III
+rewrite.
 
 ### CON-OP-11 — Is the amortisation threshold, rather than statability, the manifesto's spine?
 **⛔ STATE: OPEN**

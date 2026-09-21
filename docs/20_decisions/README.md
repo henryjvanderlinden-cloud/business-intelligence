@@ -24,3 +24,4 @@ describe options; only an ADR adopts one.
 | [0007](0007-register-and-handover-apparatus.md) | Adopt the register, handover and enforcement apparatus | Accepted |
 | [0008](0008-faculties-substrate-mandate.md) | Three faculties act on a substrate, each under a mandate | Accepted |
 | [0009](0009-separate-capabilities-open-value-areas.md) | Separate capabilities, an open list of value areas, and no interaction owed | Accepted |
+| [0010](0010-the-agentic-layer.md) | The second faculty is the agentic layer | Accepted |

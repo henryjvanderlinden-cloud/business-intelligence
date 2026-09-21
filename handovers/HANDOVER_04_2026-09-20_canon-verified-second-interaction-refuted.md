@@ -10,12 +10,13 @@
 1. `git log --oneline -8` — expect HEAD at the commit recording the author's review, on top
    of `cb8647a`.
 2. `python tools/check_repo.py` — must pass before anything is changed. Expect 50 rows, all
-   live, and 9 ADRs.
+   live, and 10 ADRs.
 3. Read [`../registers/OPEN_POINTS.md`](../registers/OPEN_POINTS.md). It is the authority on
    what is open; this handover is orientation only, and where the two disagree the register
    wins.
 4. Then [ADR-0009](../docs/20_decisions/0009-separate-capabilities-open-value-areas.md),
-   `CON-OP-10`, and the author's review block at the end of `ARC-OP-14`.
+   [ADR-0010](../docs/20_decisions/0010-the-agentic-layer.md), and the author's review block
+   at the end of `ARC-OP-14`.
 
 ## Outstanding actions for the author, not the model
 
@@ -25,16 +26,15 @@ not exist on GitHub, and these sessions hold no credentials. The author creates 
 repository — no README, no .gitignore, no licence — and runs `git push -u origin main` from
 `C:\Git\business-intelligence`.
 
-**`CON-OP-10`, the second faculty's name.** The author proposed *agents* or *agentic* on
-2026-09-21; the row records the proposal and what a ruling should state. It is one word, it
-is his, and it blocks the rename.
-
 **`CON-OP-15`, what success means for each capability.** Partly answered by ADR-0009; the
 rest is still his to rule.
 
 ## Where the project stands
 
-Nine ADRs settled. Fifty register rows live.
+Ten ADRs settled. Fifty register rows live. **The second faculty is named: the agentic
+layer** ([ADR-0010](../docs/20_decisions/0010-the-agentic-layer.md)), with *agent* for a unit
+of work inside it. The three faculties are the deterministic machinery, the agentic layer, and
+the human faculty.
 
 Session 04 checked seven claims in
 [190_machine-authored-design-canon.md](../docs/10_architecture/190_machine-authored-design-canon.md)
@@ -75,14 +75,15 @@ question is mostly beside the point, because join cost is paid when marts load;
 Rewrite [`../docs/00_concept/005_manifesto.md`](../docs/00_concept/005_manifesto.md) §III as
 separate capabilities per ADR-0009 — building and metadata first, with room for more — against
 `CON-OP-5`, `CON-OP-6`, `CON-OP-7`, `CON-OP-11` and `CON-OP-4`, executing `CON-OP-9`'s rename
-with the name the author rules in `CON-OP-10`.
+to *faculties* and *the agentic layer* in the same pass, with the check ADR-0008 deferred.
 
 ## Why that task and not another
 
-Four handovers have named it, and ADR-0009 removed the obstacle that kept moving. The only
-thing left in its way is the name, which is the author's single word. **If the name is not
-ruled, do `CON-OP-2` instead** — the break-even in columns, from published token prices — now
-five handovers deferred and still the cheapest decisive number in the register.
+Four handovers have named it. ADR-0009 removed the obstacle that kept moving and ADR-0010
+removed the last blocker; nothing now stands in its way. `CON-OP-2` — the break-even in
+columns, from published token prices — is five handovers deferred and remains the cheapest
+decisive number in the register; do it next, or first if the rewrite is expected to run
+long.
 
 ## Traps and warnings
 
@@ -123,7 +124,7 @@ cadence.
 - `nsdn` as the handle, the biological metaphor kept private — [ADR-0003](../docs/20_decisions/0003-codename-nsdn.md).
 - The register, handover and enforcement apparatus — [ADR-0007](../docs/20_decisions/0007-register-and-handover-apparatus.md).
 - Data is the substrate; the three are faculties; each has a mandate — [ADR-0008](../docs/20_decisions/0008-faculties-substrate-mandate.md).
-  *(The second faculty's own name is `CON-OP-10` and is open.)*
+  *(The second faculty is the agentic layer — [ADR-0010](../docs/20_decisions/0010-the-agentic-layer.md).)*
 - Prose-first, supersede-never-delete, numbered with gaps — [ADR-0002](../docs/20_decisions/0002-repository-layout.md)
   and [`../AGENTS.md`](../AGENTS.md).
 - **Separate capabilities, open list, no interaction owed** — [ADR-0009](../docs/20_decisions/0009-separate-capabilities-open-value-areas.md).
