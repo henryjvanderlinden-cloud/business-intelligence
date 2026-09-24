@@ -26,6 +26,12 @@ and proposed a fourteenth dimension. The author agreed with all of it the same e
 review is recorded in
 [XREV_2026-09-21_task-allocation_sol](../30_research/notes/XREV_2026-09-21_task-allocation_sol.md).
 
+A second review, on GPT-6 Astra on 2026-09-24, found three further problems and tested the
+patterns at the end of this document: a missing task (row 37), a missing check (row 34),
+generation given to the wrong faculty (row 17), an overstated pattern, an unproven one, and a
+runbook named as though it were a faculty (row 31). The author accepted all of it. The review
+is recorded in [XREV_2026-09-24_task-allocation_astra](../30_research/notes/XREV_2026-09-24_task-allocation_astra.md).
+
 ## How to read the table
 
 Each task is a **chain** rather than a single owner: who **proposes**, who **decides**, who
@@ -76,9 +82,9 @@ below)
 | 15 | Historisation and grain choices | A recommends | H | — | H | 13 |
 | 16 | Detailed model from the high-level design plus metadata | A | H reviews | D deploys | D | 7, 11 |
 | | **Build** | | | | | |
-| 17 | Generate code: DDL, load logic, vault-to-mart projection | A writes | H approves | D | D via tests | 1 |
+| 17 | Generate code: DDL, load logic, vault-to-mart projection | D instantiates approved templates where metadata fully determines the output; A writes only what the templates cannot express | H approves the meaning of A's additions | D | D via tests | 1, 3 |
 | 18 | Load and transformation runs | — | — | D | D | 3, 6 |
-| 19 | Orchestration: dependencies, retry policy, recovery paths, backfills | A designs | H | D runs the schedule | D | 10, 3 |
+| 19 | Orchestration: dependencies, retry policy, recovery paths, backfills | A designs | H approves the policy; routine runs follow it | D runs the schedule | D | 10, 3 |
 | 20 | Deployment: versioning, CI/CD, environment promotion, rollback | A writes pipelines | H for production | D | D | 6 |
 | 21 | Performance engineering and capacity planning | A diagnoses and proposes | H | D benchmarks | D | 10, 3 |
 | | **Test** | | | | | |
@@ -93,17 +99,18 @@ below)
 | 29 | User acceptance, adoption, retiring legacy reports | A analyses usage, drafts migration plans | H | H | H | 14, 8 |
 | | **Run** | | | | | |
 | 30 | Monitor loads, quality and anomalies | D detects; A explains, prompted by the heartbeat | H when action is needed | D | D | 12 |
-| 31 | Troubleshooting | A diagnoses | Runbook for routine cases; H for consequential ones | D | D | 10, 3, 13 |
+| 31 | Troubleshooting | A diagnoses | Routine cases under an H-approved runbook: D where its conditions are coded, A where an agent applies it; H for consequential or contested cases | D | D | 10, 3, 13 |
 | 32 | Operational recovery: retries, replay, backfill, disaster recovery | A plans | H when consequential | D | D | 6 |
-| 33 | Source schema drift | D detects; A proposes the adaptation | H for breaking changes | D | D | 12, 6 |
+| 33 | Source schema drift | D detects; A proposes the adaptation | Non-breaking changes under H-approved rules; H for breaking changes | D | D | 12, 6 |
 | | **Change and govern** | | | | | |
-| 34 | Impact analysis of a change | D from lineage, dependencies and query logs; A interprets gaps and business consequences | H | — | — | 3 |
+| 34 | Impact analysis of a change | D from lineage, dependencies and query logs; A interprets gaps and business consequences | H | — | D verifies how far recorded dependencies reach; H confirms the affected business uses, including exports and manual reports lineage cannot see | 3, 5 |
 | 35 | Approve production changes, especially destructive ones | A prepares | H | D | D | 6, 13 |
 | 36 | Access, privacy, legal basis | A drafts | H | D enforces | D | 13 |
-| 37 | Improve the methodology over time | A detects recurring friction, drafts improvements | H leads | — | H | 13 |
+| 37 | Retention, erasure and controlled historical correction across raw data, vault, marts and backups | A plans the implementation: which records, which layers | H decides policy and exceptions | D executes and verifies it reached every layer | H checks policy compliance | 6, 13 |
+| 38 | Improve the methodology over time | A detects recurring friction, drafts improvements | H leads | — | H | 13 |
 | | **Use** | | | | | |
-| 38 | Ad-hoc analysis | A generates hypotheses | H interprets and communicates | D retrieves and calculates | H | 10, 3, 8 |
-| 39 | Turn insights into action | A may draft options | H | H | H | 13, 9, 6, 14 |
+| 39 | Ad-hoc analysis | A generates hypotheses | H interprets and communicates | D retrieves and calculates | H | 10, 3, 8 |
+| 40 | Turn insights into action | A may draft options | H | H | H | 13, 9, 6, 14 |
 
 ⚠ Row 9 is the project's unsettled central bet: that the agentic layer can propose business
 keys accurately enough to be worth a person's time to check.
@@ -131,14 +138,26 @@ These patterns are observations, not rulings.
 - **A mostly writes and explains.** It drafts code, metadata, tests, documentation and options,
   and it diagnoses problems. It proposes far more often than it decides, and it never decides
   anything that is consequential or contested.
-- **H decides wherever there is meaning, dispute, consequence or commitment**, and checks
-  wherever the only check is judgement.
-- **The handoffs are where cost is likely to sit.** Most rows involve two or three faculties,
-  and every arrow between them is a place where context is lost and waiting starts. That cost
-  is not yet described anywhere.
+- **H decides contested meaning, commitments and consequential exceptions; routine decisions
+  may follow H-approved rules** (rows 19, 31, 33), and H checks wherever the only check is
+  judgement. *Revised after the second review:* approving a procedure is not the same as
+  deciding each case under it.
+- **A runbook is an artifact, not a faculty.** Whoever applies it decides: D where its
+  conditions are coded, A where an agent interprets it, H where a person does. A row that
+  names a runbook must say which.
+- **Where a template fully determines the output, D should generate it, not A** (row 17).
+  That suggests the agentic layer's larger job is writing and maintaining the templates and
+  rules that deterministic machinery then runs, rather than producing each output itself.
+  Rows 16, 25 and 26 may deserve the same split; not yet examined.
+- **Handoffs may be where cost sits — a hypothesis, not a finding.** The rows show where
+  faculties hand work to each other; whether those handoffs dominate cost needs their
+  procedures, frequency and review effort described, and none of that exists yet.
+- **Erasure and correction constrain history-keeping** (row 37). "All the data, all the time"
+  in the vault has to coexist with obligations to delete or correct, and that tension has to
+  be settled in the historisation design (row 15), not discovered afterwards.
 
 ## Open
 
 This list is not complete, and its grain has not been tested against a real implementation.
-The author has not yet given his own reaction to the individual rows. A second external review
-on a different model is pending. `ARC-OP-24` holds the status.
+The author has not yet given his own reaction to the individual rows. Two external reviews are
+done, on sol and on Astra. `ARC-OP-24` holds the status.

@@ -75,12 +75,12 @@ question is mostly beside the point, because join cost is paid when marts load;
 *Revised 2026-09-21 on the author's direction; the previous task is below it, not deleted.*
 
 Take the author's row-by-row reaction to
-[070_task-allocation.md](../docs/00_concept/070_task-allocation.md) and the pending second
-review on GPT-6 Astra, and revise the table with him — slowly, per `ARC-OP-24`.
+[070_task-allocation.md](../docs/00_concept/070_task-allocation.md) and revise the table with
+him — slowly, per `ARC-OP-24`.
 
-The draft exists: 39 tasks as chains (proposes, decides, executes, checks), revised from a
-28-row first draft by external review on sol, all of whose findings the author accepted. It
-added a fourteenth dimension to 060, *creating commitment*.
+The draft has 40 tasks as chains (proposes, decides, executes, checks). It has been through two
+external reviews, sol on 2026-09-21 and GPT-6 Astra on 2026-09-24, and the author accepted every
+finding of both. It added a fourteenth dimension to 060, *creating commitment*.
 
 ## Why that task and not another
 
@@ -104,6 +104,13 @@ decisive number in the register; do it next, or first if the rewrite is expected
 long.
 
 ## Traps and warnings
+
+**Cross-model review transport changed on 2026-09-22.** Codex 0.154.0 removed
+`codex mcp-server`, which is how Claude desktop reaches sol and Astra. Claude desktop's codex
+entry now points at a pinned 0.153 copy in `C:\Tools\codex-0153` — do not upgrade it. That
+copy cannot run commands, so a reviewer cannot read repository files: paste the object into the
+prompt. Model ids are `gpt-5.6-sol` and `gpt-6-astra`. When 0.153 stops being accepted, the
+durable fix is a small bridge that runs `codex exec`; nothing is built.
 
 **Check claims before carrying them.** The "never pushed" line survived four handovers and
 a direct statement to the author without anyone running `git status -sb`. A handover is

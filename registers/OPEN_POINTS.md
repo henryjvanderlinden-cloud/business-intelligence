@@ -1370,6 +1370,15 @@ faculties cost, which the table makes visible and nothing in the repository yet 
 is also the first time [060](../docs/00_concept/060_faculty-inventory.md)'s allocation rule
 has had concrete work to allocate, so the table is the natural place to test that rule.
 
+**Second review done 2026-09-24, on GPT-6 Astra**, recorded in
+[XREV_2026-09-24_task-allocation_astra](../docs/30_research/notes/XREV_2026-09-24_task-allocation_astra.md)
+and accepted in full by the author. The table now has 40 rows. Still owed: the author's own
+row-by-row reaction, a test against a real implementation, and a description of what the
+handoffs cost, which the table's patterns now state as a hypothesis rather than a finding. Two
+questions the review opened and nobody has examined: whether rows 16, 25 and 26 need the same
+template-versus-agent split as row 17, and how erasure obligations (row 37) bound the
+historisation choices in row 15.
+
 ---
 
 ## §3 — Evidence and measurement (`EVI`)
