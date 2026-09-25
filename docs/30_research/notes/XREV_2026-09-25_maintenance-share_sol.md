@@ -13,9 +13,9 @@ assignment:    one question, adversarial ("judge as a practitioner who has run B
                minimal guard or companion measure for each. Ranked, 300 words; praise, assessment and
                summary forbidden. Declared out of scope: analogy status and the items CON-OP-16
                already lists as owed. The note went to astra in parallel on the model.
-second reader: assignment set by Claude Opus 5.5, which wrote the object. Dispositions pending the
-               author's reaction.
-verdict:       FAILS — eight findings, four of them outright.
+second reader: assignment set by Claude Opus 5.5, which wrote the object. The author accepted
+               every finding.
+verdict:       FAILS — eight findings, four of them outright; all integrated 2026-09-25.
 ```
 
 Sol's answer, verbatim:
@@ -40,4 +40,16 @@ Sol's answer, verbatim:
 
 ## Dispositions
 
-Pending the author's reaction.
+The author accepted all eight findings on 2026-09-25: "Good stuff, not groundbreaking, but useful nuances. But also reassuring that it doesn't find diametrically opposed views. Please process." Integrated the same day into register row
+`CON-OP-16` and an annotation to
+[2026-09-25-generative-structures-mapping](2026-09-25-generative-structures-mapping.md).
+
+The four outright failures (1–4) end the share as a measure on its own. Together with astra's second
+finding, the measure is restated as maintenance effort per stable unit of landscape while burden
+indicators hold steady. The guards are recorded in `CON-OP-16` as owed: counterfactual classification
+with independent audit (1), rebuilds charged to lifecycle maintenance (2), latent-risk indicators (3),
+effort captured across everyone who does it (4), absolute and severity-weighted defects (5), human
+attention, compute cost and recovery time kept separate (6), comparison at fixed capacity (7), and stock
+counted in stable operational units (8).
+
+No second round: the guards are those the reviewer proposed.

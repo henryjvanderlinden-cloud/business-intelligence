@@ -20,6 +20,38 @@ revised. The two register rows it opens are `CON-OP-16` and `CON-OP-17`.
 > still closes, at a higher level, and it can also close for reasons outside the landscape — the
 > sponsor's budget falling — which the paper's model has no term for.
 
+> **Corrected after external review 2026-09-25; this note is annotated, not revised.** Reviewed on
+> GPT-6 Astra (the model) and gpt-5.6-sol (practice), recorded in
+> [XREV_2026-09-25_generative-structures-mapping_astra](XREV_2026-09-25_generative-structures-mapping_astra.md)
+> and [XREV_2026-09-25_maintenance-share_sol](XREV_2026-09-25_maintenance-share_sol.md). The author
+> accepted every finding: "Good stuff, not groundbreaking, but useful nuances. But also reassuring that it doesn't find diametrically opposed views. Please process." Five corrections to §3 stand over the text below.
+>
+> *Cheaper building does not lower the threshold.* The cost of generation does not appear in the
+> closure condition, so cheaper building leaves C_crit where it is; it reaches it sooner only if the
+> savings are spent on building more. They could equally fund maintenance. What moves the threshold is
+> the coupling α₀ and the maintenance efficiency μ. "Accelerates the collapse" and "safe only in
+> company with" are therefore conditional on how the savings are spent, not unconditional.
+>
+> *The maintenance share measures spending, not adequacy.* It can stay flat while burden grows, or rise
+> while burden falls. What the model cares about is whether maintenance keeps burden latent — μm
+> against αC — and how much headroom remains. The success measure is restated in `CON-OP-16` as
+> maintenance effort per stable unit of stock *while burden indicators hold steady*; the share is kept
+> as a diagnostic. In the model, required maintenance per unit of stock grows as C^θ/μ, so that trend
+> estimates the unmeasured θ of §4 directly.
+>
+> *Not every lever of 155 raises μ.* Precedent and cheaper review do. Parking slows capability
+> accumulation instead; prevention lowers α₀; detection alone removes no burden until something is
+> repaired.
+>
+> *Pairs are an upper bound.* Join knowledge over *possible* pairs is quadratic; the joins actually in
+> use may scale more gently, and a stock of knowledge is not a flow of burden. The quadratic claim is
+> an upper bound whose real scaling a sandbox would measure.
+>
+> *Architecture comes from the paper's prose, not its equations.* The model's scalar form has no
+> topology; the case for modular stacks rests on Simon (1962) and Perrow (1984) as the paper cites
+> them, and the Data Vault and hub points should be read as that argument, not as a result of the
+> model.
+
 ---
 
 ## 1. The paper in one paragraph

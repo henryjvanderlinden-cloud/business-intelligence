@@ -13,9 +13,9 @@ assignment:    one question, adversarial ("assume the conclusions do not follow 
                not support. Ranked, minimal corrections, 300 words; praise, assessment and summary
                forbidden. Declared out of scope: analogy status, unmeasured theta, the sponsor-set
                budget. The note went to sol in parallel on organisational practice.
-second reader: assignment set by Claude Opus 5.5, which wrote the object. Dispositions pending the
-               author's reaction.
-verdict:       FAILS — five findings.
+second reader: assignment set by Claude Opus 5.5, which wrote the object. The author accepted
+               every finding.
+verdict:       FAILS — five findings; all integrated 2026-09-25.
 ```
 
 Astra's answer, verbatim:
@@ -34,4 +34,20 @@ FAILS + unconditional collapse, maintenance-share success criterion, and unsuppo
 
 ## Dispositions
 
-Pending the author's reaction.
+The author accepted all five findings on 2026-09-25: "Good stuff, not groundbreaking, but useful nuances. But also reassuring that it doesn't find diametrically opposed views. Please process." Integrated the same day as an annotation to
+[2026-09-25-generative-structures-mapping](2026-09-25-generative-structures-mapping.md), not a
+revision, and in register rows `CON-OP-16` and `CON-OP-17`.
+
+1. **Accepted.** Cheaper building leaves the threshold unmoved and only brings it nearer if savings go
+   to more building; `CON-OP-17` is narrowed to how savings are allocated.
+2. **Accepted.** The share measures spending, not adequacy; `CON-OP-16` restates the measure as
+   maintenance per stable unit of stock while burden indicators hold steady, with the share as a
+   diagnostic. That trend also estimates θ.
+3. **Accepted.** Levers reassigned: precedent and cheaper review raise μ; parking slows accumulation;
+   prevention lowers α₀; detection alone removes nothing.
+4. **Accepted.** The quadratic claim is an upper bound over possible pairs; active joins are to be
+   measured.
+5. **Accepted.** The architectural points rest on Simon and Perrow as the paper cites them, not on the
+   model's equations.
+
+No second round: the corrections are those the reviewer asked for.

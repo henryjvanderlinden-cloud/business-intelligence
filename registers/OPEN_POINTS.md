@@ -831,6 +831,30 @@ human minutes and would need that split. Owed: a definition of *maintaining* ver
 log can apply without judgement; whether agent effort and human effort are summed, weighted or kept
 apart; and the author's ruling on whether this is the criterion, a criterion, or a diagnostic.
 
+**Narrowed 2026-09-25, session 05, by external review**, recorded in
+[XREV_2026-09-25_generative-structures-mapping_astra](../docs/30_research/notes/XREV_2026-09-25_generative-structures-mapping_astra.md)
+and [XREV_2026-09-25_maintenance-share_sol](../docs/30_research/notes/XREV_2026-09-25_maintenance-share_sol.md),
+all findings accepted by the author. **The share on its own fails as a measure.** It measures
+spending, not adequacy — it can stay flat while burden grows — and in an organisation it is broken
+outright by relabelling maintenance as new work, by rebuilds booked as new programmes, by deferred
+maintenance, and by upkeep displaced to analysts, business users and vendors.
+
+The candidate is restated: **maintenance effort per stable unit of landscape, while burden indicators
+hold steady.** Stock is counted in stable operational units — supported sources, governed data
+products, dependencies, service commitments — not in releases or tickets. Burden indicators are
+maintenance backlog age, unsupported components, control exceptions, recovery-test results and
+severity-weighted defects in absolute terms, not only as rates. In the paper's model this trend
+estimates θ, whether burden grows faster than the landscape. The share is kept as a diagnostic.
+
+Guards, all owed: classify work by counterfactual — *would it be needed merely to keep existing
+service running?* — with a sample audited independently, which answers the first owed item above;
+charge rebuilds and dual running to lifecycle maintenance unless they deliver independently valued
+capability; count effort across everyone who does it, not only the team, which is the principle that
+cost must not simply move elsewhere; report human attention, compute cost and elapsed recovery time
+separately, never as one effort total, consistent with
+[155](../docs/10_architecture/155_adjudication-economy.md); and compare at fixed capacity, so that a
+sponsor's budget cut or expansion does not move the measure.
+
 ### CON-OP-17 — Does cheaper building owe a pairing with the maintenance value areas?
 **⛔ STATE: OPEN**
 Opened 2026-09-25, session 05, from the same note as `CON-OP-16`.
@@ -847,6 +871,16 @@ standing instruction. It is the author's to rule whether it reopens ADR-0009, is
 capabilities stay separate as claims while an implementation is advised to adopt them together — or is
 dismissed. `CON-OP-16` would supply the evidence either way: a sandbox that builds cheaply without the
 maintenance capabilities should show the maintenance share rising.
+
+**Narrowed 2026-09-25, session 05, by external review** on GPT-6 Astra, recorded in
+[XREV_2026-09-25_generative-structures-mapping_astra](../docs/30_research/notes/XREV_2026-09-25_generative-structures-mapping_astra.md)
+and accepted by the author. In the paper's model the cost of building does not move the threshold; it
+only brings it nearer if the savings are spent on building more. The question is therefore narrower
+than an interaction between value areas: **whether the savings from cheaper building are all spent on
+more building, or partly on maintenance.** That is a question about how an implementation allocates
+its capacity, and it probably no longer bears on ADR-0009. It remains the author's to rule. The
+evidence is now the restated measure of `CON-OP-16` — maintenance per stable unit, with burden
+indicators — rather than the share.
 
 ---
 
