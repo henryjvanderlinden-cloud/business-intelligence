@@ -904,6 +904,11 @@ memory would live in an expiring task journal. The derived graph and search inde
 them and stay disposable. This meets both of the objections recorded above. It still wants an
 ADR.
 
+**Revised the same day:** six kinds, not five. External review in [XREV_2026-09-25_context-system_astra](../docs/30_research/notes/XREV_2026-09-25_context-system_astra.md) separated
+durable **workflow state** — awaited approvals, checkpoints, records of actions taken — from
+expiring working memory, and added evidence snapshots and a version manifest so the split
+across stores cannot silently lose the evidence behind a ruling.
+
 ### ARC-OP-8 — What is the unit of agent work?
 **⛔ STATE: OPEN**
 Opened 2026-09-19, session 01. *(from open question 13)*
@@ -1407,6 +1412,14 @@ live; how the after-task measurements are collected; the expiry period; and a fi
 recipes written for real task types, which is the only way to learn whether the idea holds. The
 rule rung of the ladder depends on `ARC-OP-16`.
 
+**Reviewed 2026-09-25** in [XREV_2026-09-25_context-system_astra](../docs/30_research/notes/XREV_2026-09-25_context-system_astra.md) (write-back) and [XREV_2026-09-25_context-system_sol](../docs/30_research/notes/XREV_2026-09-25_context-system_sol.md) (retrieval); every finding
+integrated. Recipes are now composable, risk-triggered and fail closed; context comes in facets
+rather than one zoom hierarchy; trust is recorded per claim on several dimensions; write-back
+allows "nothing new", caps and prioritises what it sends to people, keeps negative findings and
+separates re-checking from re-encountering. Newly owed: the **benchmark tasks** with known
+required evidence, against which retrieval is measured — without them the measures in
+[122](../docs/10_architecture/122_context-retrieval.md) cannot be taken.
+
 ### ARC-OP-26 — One store, two views: agent context and the human metadata catalogue
 **⛔ STATE: OPEN**
 Opened 2026-09-25, session 04, from a brainstorm with the author.
@@ -1419,6 +1432,12 @@ depend on it rather than because people are asked to maintain it — the failure
 records. Unexamined: whether what people need from a catalogue and what agents need from
 context are close enough to share a store, and what the human view would look like, which is
 [170_human-interfaces.md](../docs/10_architecture/170_human-interfaces.md)'s territory.
+
+**Reviewed 2026-09-25** in [XREV_2026-09-25_context-system_astra](../docs/30_research/notes/XREV_2026-09-25_context-system_astra.md) Q1. Two conditions now recorded in
+[120](../docs/10_architecture/120_context-layer.md): a shared store needs access, publication
+and executable-authority boundaries enforced before retrieval, not just two presentations; and
+agents depending on the catalogue does not by itself keep it current, so every assertion needs
+a revalidation trigger and an owner.
 
 ### ARC-OP-27 — Temporal behaviour and join knowledge are rarely enforced, so they must be observed, asserted and monitored
 **⛔ STATE: OPEN**
@@ -1436,6 +1455,14 @@ temporal section and for the proposed `relationship` card kind; and how drift is
 against everything else in the adjudication queue. Related to `ARC-OP-22`, since a `RELY`
 constraint on a mart is an asserted cardinality the engine will not check, and to `ARC-OP-2`
 on what evidence promotes a joinability hypothesis.
+
+**Reviewed 2026-09-25** in [XREV_2026-09-25_context-system_sol](../docs/30_research/notes/XREV_2026-09-25_context-system_sol.md) Q1–Q2; every finding integrated. Temporal
+behaviour is now six independent axes plus a **capture guarantee** per source, with history
+labelled *sampled* where complete transitions cannot be captured; the claim that the vault keeps
+every change is qualified; deletion requires evidence of a complete extract; the order of time
+is monitored, not only values. Join knowledge now records grain and population, key roles,
+declared uniqueness and inclusion separately with their enforcement state, directional and
+segmented referential integrity, and requires **query-level tests** before a relationship is used.
 
 ---
 

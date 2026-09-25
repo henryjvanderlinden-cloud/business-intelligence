@@ -84,15 +84,15 @@ finding of both; rows 41–43, added on 2026-09-25, are unreviewed. It added a f
 dimension to 060, *creating commitment*.
 
 **The context system was designed on 2026-09-25**, and the author called it one of the key
-factors for success. [120](../docs/10_architecture/120_context-layer.md) now distinguishes five
+factors for success. [120](../docs/10_architecture/120_context-layer.md) now distinguishes six
 kinds of context and proposes one store with two views; five new documents follow it —
 [122](../docs/10_architecture/122_context-retrieval.md) retrieval,
 [124](../docs/10_architecture/124_context-write-back.md) write-back,
 [126](../docs/10_architecture/126_context-gardening.md) gardening, which the author singled out,
 [127](../docs/10_architecture/127_temporal-behaviour.md) temporal behaviour and
 [128](../docs/10_architecture/128_join-knowledge.md) join knowledge. `ARC-OP-25` to `ARC-OP-27`
-hold what is open. None of it has been externally reviewed; a review pass on it is a natural
-next step.
+hold what is open. All six documents were reviewed the same day — astra on 120, 124 and 126,
+sol on 122, 127 and 128 — and every finding was integrated; a crossed second pass followed.
 
 ## Why that task and not another
 
@@ -119,9 +119,11 @@ long.
 
 **Cross-model review transport changed on 2026-09-22.** Codex 0.154.0 removed
 `codex mcp-server`, which is how Claude desktop reaches sol and Astra. Claude desktop's codex
-entry now points at a pinned 0.153 copy in `C:\Tools\codex-0153` — do not upgrade it. That
-copy cannot run commands, so a reviewer cannot read repository files: paste the object into the
-prompt. Model ids are `gpt-5.6-sol` and `gpt-6-astra`. When 0.153 stops being accepted, the
+entry now points at a pinned 0.153 copy in `C:\Tools\codex-0153` — do not upgrade it. Its
+helper programs must be named without the platform suffix (`codex-code-mode-host.exe`, not
+`codex-code-mode-host-x86_64-pc-windows-msvc.exe`); since that was fixed on 2026-09-25,
+reviewers can read repository files themselves. Keep to one file per question to stay under
+the bridge's sixty-second ceiling. Model ids are `gpt-5.6-sol` and `gpt-6-astra`. When 0.153 stops being accepted, the
 durable fix is a small bridge that runs `codex exec`; nothing is built.
 
 **Check claims before carrying them.** The "never pushed" line survived four handovers and

@@ -37,7 +37,8 @@ Rows 41–43 were added on 2026-09-25 from the design of the context system
 the author's: temporal behaviour and join knowledge, with cardinality singled out because it
 is "not always implemented 'hard'". Row 43, maintaining the context system, is the gardening
 the author called the most important of that day's points. Row 37 was extended to reach the
-context store. None of the three new rows has been externally reviewed.
+context store. The rows themselves have not been externally reviewed; the documents behind
+them were, on 2026-09-25, and rows 41–43 were updated to match.
 
 ## How to read the table
 
@@ -119,9 +120,9 @@ below)
 | 39 | Ad-hoc analysis | A generates hypotheses | H interprets and communicates | D retrieves and calculates | H | 10, 3, 8 |
 | 40 | Turn insights into action | A may draft options | H | H | H | 13, 9, 6, 14 |
 | | **Knowledge and context** | | | | | |
-| 41 | Temporal behaviour per table and attribute: static, overwritten, versioned, event, snapshot, deleted, corrected, late-arriving | D measures change across loads; A classifies and proposes the treatment | H, feeding row 15 | D builds the chosen history | D monitors for drift | 3, 12, 13 |
-| 42 | Join knowledge: joinable pairs, cardinality (declared, observed, asserted), optionality, referential integrity, join risks | D measures overlap, cardinality and orphans; A proposes intended cardinality and risks | H asserts cardinality where the source does not enforce it | D runs it as a standing test | D; drift to row 43 | 5, 3, 12, 13 |
-| 43 | Maintain the context system: re-check, rebuild summaries, merge, expire, find contradictions and drift, propagate erasure, improve recipes | A proposes, on the heartbeat | Routine under H-approved rules; H for anything touching a ruled fact | A and D | D via retrieval measures; H spot checks | 7, 12, 11 |
+| 41 | Temporal behaviour per table and attribute, on six axes (mutation, delivery, effective dating, arrival latency, correction, deletion), and each source's capture guarantee | D measures change and extract completeness across loads; A classifies and proposes the treatment | H, feeding row 15 | D builds the chosen history | D monitors for drift | 3, 12, 13 |
+| 42 | Join knowledge: joinable pairs, grain and population, key roles, cardinality (declared, observed, asserted), optionality, referential integrity, join risks | D measures overlap, multiplicity both ways and orphans; A proposes intended cardinality and risks | H asserts cardinality where the source does not enforce it | D runs query-level tests before use, then as standing tests | D; drift to row 43 | 5, 3, 12, 13 |
+| 43 | Maintain the context system: re-check, quarantine, rebuild summaries, merge, expire, find contradictions and drift, handle absences, propagate erasure to every copy, improve recipes, reconcile its own coverage | A proposes, on the heartbeat | Routine under H-approved rules; H for anything touching a ruled fact | A and D | D via retrieval measures; H spot checks | 7, 12, 11 |
 
 ⚠ Row 9 is the project's unsettled central bet: that the agentic layer can propose business
 keys accurately enough to be worth a person's time to check.

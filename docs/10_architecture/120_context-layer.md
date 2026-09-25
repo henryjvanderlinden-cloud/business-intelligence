@@ -2,10 +2,16 @@
 
 *Extended 2026-09-25, session 04, after a brainstorm with the author, who called the context
 system "one of the key factors for a successful implementation of this idea". The original text
-stands; the additions are the sections on the five kinds of context, the new card kinds, one
+stands; the additions are the sections on the kinds of context, the new card kinds, one
 store with two views, and the pointers to [122](122_context-retrieval.md),
 [124](124_context-write-back.md), [126](126_context-gardening.md),
 [127](127_temporal-behaviour.md) and [128](128_join-knowledge.md).*
+
+*Revised the same day after external review on GPT-6 Astra (this document, 124 and 126) and
+gpt-5.6-sol (122, 127 and 128), recorded in [XREV_2026-09-25_context-system_astra](../30_research/notes/XREV_2026-09-25_context-system_astra.md) and [XREV_2026-09-25_context-system_sol](../30_research/notes/XREV_2026-09-25_context-system_sol.md). The author accepted
+every finding. Here that added a sixth kind of context, evidence snapshots and version
+manifests, the split between what was decided and what is observed, and publication
+boundaries for the shared store.*
 
 The brief's most acute observation is that the system must "grow very large, but with
 enough breadcrumb trails everywhere that LLMs can still find their way without hogging
@@ -75,26 +81,43 @@ in the derived store with only their *conclusions* promoted to cards. Both are
 manageable, and both are cheaper than the alternative of losing the audit trail. This
 should nonetheless be decided explicitly rather than by drift — see open question 12.
 
-## Five kinds of context
+## Six kinds of context
 
 *Added 2026-09-25.* Not all context behaves the same, and storing it all the same way is the
-mistake to avoid. Five kinds differ in volume, in how fast they change, in who writes them and
+mistake to avoid. Six kinds differ in volume, in how fast they change, in who writes them and
 in how far they can be trusted:
 
 | Kind | Example | Written by | Changes | Where it belongs |
 |---|---|---|---|---|
 | **Landscape facts** | tables, columns, profiles, lineage, row counts | Deterministic machinery | constantly | a database, regenerated, never hand-edited |
 | **Knowledge** | what a column means, business keys, entity matches, temporal behaviour ([127](127_temporal-behaviour.md)), join knowledge ([128](128_join-knowledge.md)) | The agentic layer proposes; a person rules | slowly | cards, with the assertion record below |
-| **Decisions and purpose** | KPI definitions, priorities, why something was built | People | rarely | decision cards; the highest trust |
+| **Decisions and purpose** | KPI definitions, priorities, why something was built | People | rarely | decision cards; the highest *authority*, which is not the same as the highest truth (below) |
 | **Know-how** | templates, conventions, runbooks, methodology, context recipes ([122](122_context-retrieval.md)) | The agentic layer drafts; a person approves | occasionally | versioned procedure cards — the agentic layer's skills |
+| **Workflow state** | approvals awaited, retry checkpoints, records of actions taken | The agentic layer and deterministic machinery | per workflow | a durable store, kept until the workflow is explicitly closed |
 | **Working memory** | what a task tried, what failed, what is still open | The agentic layer | per task | a task journal that expires unless something is promoted ([124](124_context-write-back.md)) |
 
 This sharpens the objection above into a rule rather than a caveat. Cards in git are for
 knowledge, decisions and know-how. Landscape facts are high-volume and volatile, so they live
 in a database written by deterministic machinery, and only their *conclusions* are promoted to
-cards. Working memory lives in a journal. The derived graph and search index span all three
+cards. Workflow state lives in a durable store of its own, because losing an awaited approval
+or a record of an action already taken makes the next heartbeat repeat or abandon work.
+Working memory lives in a journal and expires. The derived graph and search index span the
 stores and remain disposable. That is a candidate answer to `ARC-OP-7` — *both, split by kind*
 — and not a ruling.
+
+**Evidence must outlive the facts it was drawn from.** Landscape facts are regenerated, so a
+card that approved a join because yesterday's profile showed unique keys could survive after
+the profile that justified it is gone. Every promoted assertion therefore keeps an immutable
+snapshot of the evidence it rests on and records what it depends on. When that evidence
+changes, the assertion is marked stale. Retrieval runs against an explicit **version
+manifest** — which database snapshot, which git commit, which journal state — so that a task
+never combines incompatible versions of the stores.
+
+**What was decided is not the same as what is.** A person with authority can define *net
+revenue* correctly and still be wrong about how the warehouse actually computes it. So a card
+separates **normative** claims (what something should be: authority, scope, effective dates)
+from **descriptive** claims (what it is: evidence, confidence, freshness). When they
+contradict, the contradiction is shown, not settled by which kind outranks the other.
 
 ## Card kinds
 
@@ -158,6 +181,19 @@ system one investment rather than two. It also attacks the failure `ARC-OP-23` r
 human-maintained catalogues decay because nobody's work depends on them — because the agents
 need this catalogue to do their work, so keeping it current is part of every task rather than
 a separate chore. `ARC-OP-26` holds the idea; it is promising and unexamined.
+
+Two cautions from review. **A shared store needs boundaries, not just two presentations.** Task
+journals may hold sensitive sample values; unapproved hypotheses must not appear beside
+approved catalogue definitions; retrieved prose must never be mistaken for an executable
+procedure. So access rights, publication status (draft, approved, retired) and executable
+authority are enforced *before* retrieval, in graph traversal and search as well. The two views
+share identifiers and assertions; they need not show the same content.
+
+**Agents depending on the catalogue does not by itself keep it current.** Agents can succeed
+with stale shortcuts and never visit neglected objects, and repeated use can reinforce
+unsupported claims. Every assertion therefore carries an explicit revalidation trigger and an
+owner, and freshness and contradiction coverage are measured separately from task success
+([126](126_context-gardening.md)).
 
 ## The rest of the context system
 

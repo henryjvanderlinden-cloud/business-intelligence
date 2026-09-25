@@ -1,8 +1,12 @@
-# 122 — Context retrieval: recipes, zoom levels and trust labels
+# 122 — Context retrieval: recipes, facets and trust
 
 Part of the context system described in [120_context-layer.md](120_context-layer.md). Drafted
-2026-09-25, session 04, from a brainstorm with the author. Nothing here is built; everything is
-stated as what the system should do.
+2026-09-25, session 04, from a brainstorm with the author, and revised the same day after
+external review on gpt-5.6-sol, recorded in
+[XREV_2026-09-25_context-system_sol](../30_research/notes/XREV_2026-09-25_context-system_sol.md)
+Q3. The review replaced the zoom levels with facets, single trust labels with claim-level
+dimensions, and the efficiency measures with outcome measures. Nothing here is built;
+everything is stated as what the system should do.
 
 ## The problem
 
@@ -11,88 +15,120 @@ The agentic layer starts cold on every task (dimension 7 of
 to be useful, but never all of it at once. Retrieval has to deliver the *right* context for the
 task in hand, within a budget, and it has to say how far each piece can be trusted.
 
-## Retrieval is shaped by the task, not by search
+## Retrieval is shaped by the task
 
-[070_task-allocation.md](../00_concept/070_task-allocation.md) lists about forty task types.
-Each type needs a predictable set of context. So each task type should have a **context
-recipe**: a short, versioned description of what to load, starting from which object, and at
-what level of detail.
+[070_task-allocation.md](../00_concept/070_task-allocation.md) lists the task types. Each type
+needs a predictable core of context, so each should have a **context recipe**: a short,
+versioned description of what to load, starting from which object, and at what level of
+detail.
 
 A recipe states:
 
 - **the anchor** — the object the task is about, by its permanent identifier;
-- **what to load** — named neighbours of the anchor, found by following links, not by search;
-- **the zoom level** for each item (see below);
-- **a budget** — how much context the task may use;
-- **the minimum trust** acceptable for each item, and what to do when only lower-trust context
-  exists;
-- **what to write back** afterwards, which links it to
-  [124_context-write-back.md](124_context-write-back.md).
+- **mandatory context** — what the task may not proceed without;
+- **optional context** — what helps but can be dropped under budget pressure;
+- **the facets** to load for each item (below);
+- **a budget**, and what happens when it is exceeded;
+- **acceptance rules** — which claims may be relied on for this task, by their trust
+  dimensions (below);
+- **what to write back** afterwards ([124_context-write-back.md](124_context-write-back.md)).
 
-Example: *propose a business key for table X* (row 9 of 070) would load the table's card and
-its profile summary; columns elsewhere that look similar; existing hub cards for the entity the
-table seems to describe; hypotheses about this table that were rejected earlier; the naming
-conventions that apply to its source; and its temporal profile
-([127_temporal-behaviour.md](127_temporal-behaviour.md)) and known relationships
-([128_join-knowledge.md](128_join-knowledge.md)).
+Example: *propose a business key for table X* (row 9 of 070). Mandatory: the table's card and
+profile; its temporal behaviour ([127](127_temporal-behaviour.md)); known relationships and key
+roles ([128](128_join-knowledge.md)). Optional: similar columns elsewhere, existing hub cards
+for the likely entity, earlier rejected hypotheses, naming conventions for the source.
 
-Search still has a role, but only as the **entry point**: finding the anchor when the task
-names something by description rather than by identifier. After that the agent walks links.
-This is [120](120_context-layer.md)'s "search is the entry point; traversal is the method",
-made concrete per task.
+**Recipes compose, and risk adds to them.** Real work is compound: changing a dimension may
+need security, regulatory, ownership, reconciliation, deployment and consumer-impact context
+at once. So a task assembles its context from several recipes, and risk triggers add
+mandatory items — for example, anything touching personal data adds the access and erasure
+context of rows 36 and 37.
 
-Recipes are know-how, one of the five kinds of context in 120. They are drafted by the agentic
-layer, approved by a person, and improved over time from the measurements below.
+**Retrieval fails closed.** If a mandatory item is missing, or would be cut by the budget, the
+task stops and says so. It never proceeds on a silently truncated context.
 
-## Zoom levels
+## Links, plus discovery
 
-Context is summarised at several levels, and the agent starts coarse:
+[120](120_context-layer.md) says "search is the entry point; traversal is the method". Traversal
+alone assumes the graph is complete, and real landscapes are full of what nobody recorded:
+undocumented reports, copied SQL, spreadsheets, cross-system dependencies. Following recorded
+links will confidently miss exactly those.
 
-1. **landscape map** — the whole estate on a page;
-2. **source summary** — one per source system;
-3. **dataset card** — one per table, file or endpoint;
-4. **field card** — one per column;
-5. **raw profile** — the full measurements, loaded only when a decision turns on them.
+So retrieval combines three means:
 
-A recipe names the level for each item. Most tasks should need levels 2–4, and should reach
-level 5 only for the few objects the decision actually depends on. This is the "breadcrumb
-trail" of the author's original vision in [010_vision.md](../00_concept/010_vision.md).
+- **traversal** of recorded links from the anchor;
+- **bounded search** for what the links do not reach;
+- **discovery scans** — lineage parsing, query logs and reverse-dependency searches, run by
+  deterministic machinery.
 
-Summaries go stale when what they summarise changes. Rebuilding them is a gardening job
+Every retrieval result states how complete the graph around the anchor is believed to be.
+
+## Facets, not a single zoom hierarchy
+
+Context comes in different facets, and a more detailed facet is not a substitute for a
+different one:
+
+| Facet | What it holds |
+|---|---|
+| **Summary** | the landscape map, source summary, dataset card, field card — coarse to fine |
+| **Profile** | the measurements: counts, distributions, uniqueness, change rates |
+| **Definition** | what the business says it means |
+| **Transformation** | the executable code that produces it |
+| **Lineage** | where it comes from and what depends on it, with evidence |
+| **Usage** | who and what uses it, and how often |
+| **Decisions** | what was ruled about it, by whom, and when |
+
+A recipe names which facets it needs. Summaries still come first where they suffice, which is
+the "breadcrumb trail" of the author's original vision in
+[010_vision.md](../00_concept/010_vision.md). But a summary can erase a rare, decisive
+exception, so every summary **cites its sources**, **discloses what it left out**, and carries
+**drill-down triggers**: conditions under which the task must load the detail instead — for
+example, when the summary mentions exceptions, or when the decision turns on a specific value.
+
+Rebuilding summaries when their sources change is a gardening job
 ([126_context-gardening.md](126_context-gardening.md)).
 
-## Trust labels
+## Trust is recorded per claim, in several dimensions
 
-The faculty inventory records that a model does not, by itself, distinguish between what a
-person ruled and what it guessed. So every piece of context should arrive with a visible
-label:
+A model does not by itself distinguish between what a person ruled and what it guessed, so
+trust has to be explicit. A single label per card is too coarse: one card holds claims with
+different owners and evidence, and *ruled*, *evidenced* and *stale* are not alternatives — a
+claim can be all three. Following [120](120_context-layer.md)'s split between normative and
+descriptive claims, each claim records:
 
-| Label | Meaning |
-|---|---|
-| **ruled** | a person with the mandate decided it |
-| **evidenced** | backed by a measurement or a recomputable check |
-| **inferred** | proposed by the agentic layer, not yet checked or ruled |
-| **stale** | was ruled or evidenced, but has not been re-checked within its review period |
-| **disputed** | contradicted by newer evidence, awaiting a ruling |
+- **provenance** — who or what produced it;
+- **authority** — whether someone with the mandate ruled it, and who;
+- **scope** — the population and conditions it holds for;
+- **evidence method** — how it was established;
+- **confidence**;
+- **freshness** — when it was last actually verified;
+- **conflict status** — whether newer evidence contradicts it.
 
-Without these labels the agent treats its own earlier guesses as facts, and errors compound
-from task to task. A recipe can then require, for example, that a mart may only be generated
-from *ruled* or *evidenced* key assertions.
+For display, these may be summarised as a short label — *ruled*, *evidenced*, *inferred*,
+*stale*, *disputed* — but the label is a view of the record, not the record.
+
+**Acceptance rules are set per decision type.** A semantic decision needs authority; a
+statistical observation cannot stand in for it. A mart may be generated only from key
+assertions that are both authorised and currently evidenced.
 
 ## Measuring whether it works
 
-Two measures, both cheap:
+Measures that reward looking efficient are easy to game: one enormous "load" satisfies a
+three-load rule, and an agent cannot report context it never knew existed. So:
 
-- **The three-load rule** from [120](120_context-layer.md): a task should establish what exists,
-  what is known, what is uncertain and what depends on it in at most three loads. More than
-  three means the context system, not the agent, needs fixing.
-- **An after-task question:** *what did you need that you could not find, and what did you
-  load that you did not use?* The answers are written back and used to improve the recipe.
+- The **three-load rule** from [120](120_context-layer.md) stays as a design heuristic, with
+  *load* defined — one retrieval call returning a bounded amount — and is not used as a target.
+- The real measures are taken against **benchmark tasks** whose required evidence is known in
+  advance: **required-evidence recall**, the share of irrelevant material loaded, cost, latency,
+  corrections made by reviewers, and defects found downstream.
+- **Missing context** is found by independent review and by later incidents, not only by the
+  agent's own after-task report. The after-task question — *what did you need and not find,
+  what did you load and not use?* — stays as one input among several, with the caution that
+  "unused" evidence may be what ruled out a dangerous option.
 
-Over many tasks this gives each recipe a record of how well it serves its task type. That is
-continuous improvement of the method, row 38 of 070, applied to the context system itself.
+This is continuous improvement of the method, row 38 of 070, applied to the context system.
 
 ## Open
 
-`ARC-OP-25` holds what is not yet designed: the recipe format, where recipes live, and how
-their measurements are collected.
+`ARC-OP-25` holds what is not yet designed: the recipe format, where recipes live, the
+benchmark tasks, and how measurements are collected.
