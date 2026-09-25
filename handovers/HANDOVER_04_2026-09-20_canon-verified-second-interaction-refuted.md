@@ -10,7 +10,7 @@
 1. `git log --oneline -8` — expect HEAD at the commit recording the author's review, on top
    of `cb8647a`.
 2. `python tools/check_repo.py` — must pass before anything is changed. Expect 54 rows, all
-   live, and 10 ADRs.
+   live, and 11 ADRs.
 3. Read [`../registers/OPEN_POINTS.md`](../registers/OPEN_POINTS.md). It is the authority on
    what is open; this handover is orientation only, and where the two disagree the register
    wins.
@@ -91,8 +91,12 @@ kinds of context and proposes one store with two views; five new documents follo
 [126](../docs/10_architecture/126_context-gardening.md) gardening, which the author singled out,
 [127](../docs/10_architecture/127_temporal-behaviour.md) temporal behaviour and
 [128](../docs/10_architecture/128_join-knowledge.md) join knowledge. `ARC-OP-25` to `ARC-OP-27`
-hold what is open. All six documents were reviewed the same day — astra on 120, 124 and 126,
-sol on 122, 127 and 128 — and every finding was integrated; a crossed second pass followed.
+hold what is open. All six documents were reviewed twice the same day — astra then sol on 120,
+124 and 126; sol then astra on 122, 127 and 128 — and every finding was integrated. Three
+second-round findings became [ADR-0011](../docs/20_decisions/0011-assertions-identity-plane-publication-gate.md):
+assertions are the core record and cards are views; one identity plane over separate stores; a
+publication gate. The author and the reviews agree that returns have diminished: **do not review
+the context system on paper again**; the next test of it is a proof of concept.
 
 ## Why that task and not another
 

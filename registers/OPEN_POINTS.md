@@ -909,6 +909,13 @@ durable **workflow state** — awaited approvals, checkpoints, records of action
 expiring working memory, and added evidence snapshots and a version manifest so the split
 across stores cannot silently lose the evidence behind a ruling.
 
+**Partly answered 2026-09-25 by [ADR-0011](../docs/20_decisions/0011-assertions-identity-plane-publication-gate.md), ruled by the author.** The logical model is
+decided: assertions are the canonical record, cards are generated views of them, and separate
+stores share one identity plane with policy-filtered indexes and a publication pipeline. The
+**physical medium for assertions** — git, a database, or both — is not decided, and 120's
+audit-log argument for git now applies to assertions rather than to cards. This row stays open for
+that.
+
 ### ARC-OP-8 — What is the unit of agent work?
 **⛔ STATE: OPEN**
 Opened 2026-09-19, session 01. *(from open question 13)*
@@ -1139,6 +1146,12 @@ convention invalidated by a migration takes its dependent assertions with it.
 Depends on `ARC-OP-7`, which has not settled whether the context layer is files, a graph,
 or both, and which this row makes more consequential rather than less.
 
+**Shape settled 2026-09-25 by [ADR-0011](../docs/20_decisions/0011-assertions-identity-plane-publication-gate.md):** a rule is an **assertion type** whose scope is a
+set of objects, not a separate card kind, and — per
+[124](../docs/10_architecture/124_context-write-back.md) — it is accepted on its own evidence, never
+by promotion from a claim about one member. What remains open is the scope syntax and how
+counterexamples are recorded.
+
 ### ARC-OP-17 — Rule-mediated inference produces correlated error, and the calibration story assumes independence
 **⛔ STATE: OPEN**
 Opened 2026-09-20, session 02, from `CON-OP-11`. The most consequential of the rows that
@@ -1341,6 +1354,11 @@ trusted-but-unenforced constraints are most tempting: on the dimensional marts t
 where eliminating dimension joins from filter-only queries is the whole attraction, and a
 wrong key silently corrupts a dashboard. The row is kept for that layer only.
 
+**Given a consequence 2026-09-25 by [ADR-0011](../docs/20_decisions/0011-assertions-identity-plane-publication-gate.md):** the **publication gate**. A mart is published
+only when the tests on its data version have passed; a failing test blocks publication and revokes
+the `RELY` or `NOT ENFORCED` assertions that depend on the failed claim before consumers see the
+data. This row's dependency is now controlled, not only described.
+
 ### ARC-OP-23 — Which metadata work can a machine do without a person checking every item?
 **⛔ STATE: OPEN**
 Opened 2026-09-21, session 04, from the author's review of the canon survey.
@@ -1420,6 +1438,15 @@ separates re-checking from re-encountering. Newly owed: the **benchmark tasks** 
 required evidence, against which retrieval is measured — without them the measures in
 [122](../docs/10_architecture/122_context-retrieval.md) cannot be taken.
 
+**Second review 2026-09-25**, crossed — sol on write-back, astra on retrieval — all findings
+integrated. Retrieval now begins with a baseline risk screen and has fixed rules for combining
+recipes, checks that claims fit together across versions, and scores completion and justified
+abstention separately. Write-back now runs throughout a task with idempotency keys, routes one
+package to several consumers, replaces the ladder with a lifecycle that can go down as well as up,
+keeps every candidate outside the human queue, and makes expiry and merging decidable and
+reversible. **Which candidates enter the human queue at all** is raised as its own question on
+2026-09-25 and is not answered here.
+
 ### ARC-OP-26 — One store, two views: agent context and the human metadata catalogue
 **⛔ STATE: OPEN**
 Opened 2026-09-25, session 04, from a brainstorm with the author.
@@ -1438,6 +1465,10 @@ context are close enough to share a store, and what the human view would look li
 and executable-authority boundaries enforced before retrieval, not just two presentations; and
 agents depending on the catalogue does not by itself keep it current, so every assertion needs
 a revalidation trigger and an owner.
+
+**Refined 2026-09-25 by [ADR-0011](../docs/20_decisions/0011-assertions-identity-plane-publication-gate.md):** not one store but one identity plane over separate stores,
+with policy-filtered indexes — so that even the existence of a sensitive object or draft claim is
+not revealed — and an explicit publication pipeline to the human catalogue.
 
 ### ARC-OP-27 — Temporal behaviour and join knowledge are rarely enforced, so they must be observed, asserted and monitored
 **⛔ STATE: OPEN**
@@ -1463,6 +1494,14 @@ every change is qualified; deletion requires evidence of a complete extract; the
 is monitored, not only values. Join knowledge now records grain and population, key roles,
 declared uniqueness and inclusion separately with their enforcement state, directional and
 segmented referential integrity, and requires **query-level tests** before a relationship is used.
+
+**Second review 2026-09-25** by astra on 127 and 128; all findings integrated. Temporal:
+effective time may be unknown and is then recorded as such, with observed-state history separated
+from business-valid history; change detection includes temporal metadata; deletion additionally
+needs a comparable population and a consistent snapshot, else it is *unresolved*; capture
+guarantees state demonstrated coverage, not capability. Joins: per-fact reconciliation with
+attribution cases, uniqueness tested after the join's own transformations, a defined allocation
+origin for bridges, and the publication gate of ADR-0011.
 
 ---
 

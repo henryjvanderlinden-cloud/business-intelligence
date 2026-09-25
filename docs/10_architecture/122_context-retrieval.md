@@ -5,7 +5,9 @@ Part of the context system described in [120_context-layer.md](120_context-layer
 external review on gpt-5.6-sol, recorded in
 [XREV_2026-09-25_context-system_sol](../30_research/notes/XREV_2026-09-25_context-system_sol.md)
 Q3. The review replaced the zoom levels with facets, single trust labels with claim-level
-dimensions, and the efficiency measures with outcome measures. Nothing here is built;
+dimensions, and the efficiency measures with outcome measures. A second review on GPT-6 Astra,
+recorded in [XREV_2026-09-25_context-system-r2_astra](../30_research/notes/XREV_2026-09-25_context-system-r2_astra.md) Q3, added a baseline risk screen, rules for combining recipes, compatibility
+checks across claims, and benchmark scoring that does not reward giving up. Nothing here is built;
 everything is stated as what the system should do.
 
 ## The problem
@@ -38,11 +40,25 @@ profile; its temporal behaviour ([127](127_temporal-behaviour.md)); known relati
 roles ([128](128_join-knowledge.md)). Optional: similar columns elsewhere, existing hub cards
 for the likely entity, earlier rejected hypotheses, naming conventions for the source.
 
+**Every task starts with a baseline risk screen.** Risk triggers can only fire on context that
+has been loaded: if personal-data status is not on the anchor's card and shows up only through
+upstream lineage, a security recipe would never activate. So before recipes are chosen, a fixed,
+cheap screen checks the anchor and its immediate lineage for the risk markers that add mandatory
+context — personal data, regulatory scope, published consumers, irreversible actions. **An
+unknown risk counts as a risk**: it has to be investigated or escalated before the task
+proceeds.
+
 **Recipes compose, and risk adds to them.** Real work is compound: changing a dimension may
 need security, regulatory, ownership, reconciliation, deployment and consumer-impact context
 at once. So a task assembles its context from several recipes, and risk triggers add
 mandatory items — for example, anything touching personal data adds the access and erasure
 context of rows 36 and 37.
+
+**Combining recipes follows fixed rules.** Two recipes may ask for different evidence, facets or
+budgets. The combined task takes the **union** of their mandatory items; every claim it relies on
+must satisfy **every** applicable acceptance rule, so the stricter recipe is never bypassed by the
+weaker one; the combined budget is stated explicitly; and an unresolvable contradiction between
+recipes stops the task.
 
 **Retrieval fails closed.** If a mandatory item is missing, or would be cut by the budget, the
 task stops and says so. It never proceeds on a silently truncated context.
@@ -107,6 +123,13 @@ descriptive claims, each claim records:
 For display, these may be summarised as a short label — *ruled*, *evidenced*, *inferred*,
 *stale*, *disputed* — but the label is a view of the record, not the record.
 
+**Claims must also fit together.** Each claim can pass its own acceptance rule while the
+combination is invalid: a recently verified definition and a recently verified transformation may
+concern different schema or policy versions. So claims and summaries are bound to the **source
+revisions and validity scopes** they concern, as the evidence bundles of
+[120](120_context-layer.md) record, and the assembled context is checked for compatibility,
+including through transitive dependencies. A summary names which revisions it summarises.
+
 **Acceptance rules are set per decision type.** A semantic decision needs authority; a
 statistical observation cannot stand in for it. A mart may be generated only from key
 assertions that are both authorised and currently evidenced.
@@ -121,6 +144,13 @@ three-load rule, and an agent cannot report context it never knew existed. So:
 - The real measures are taken against **benchmark tasks** whose required evidence is known in
   advance: **required-evidence recall**, the share of irrelevant material loaded, cost, latency,
   corrections made by reviewers, and defects found downstream.
+- **Completion and abstention are scored separately.** A retriever that stops early looks cheap,
+  loads little irrelevant material and causes few defects. So the benchmark scores **correct
+  completion** and **justified abstention** — stopping because evidence really is missing or
+  contradictory — separately, and penalises **unnecessary stops**. It includes deliberately hard
+  cases: evidence that is unavailable, claims that conflict, and risks discoverable only outside
+  recorded links. Results are reported **by task type and risk class**, so routine successes
+  cannot hide consequential failures.
 - **Missing context** is found by independent review and by later incidents, not only by the
   agent's own after-task report. The after-task question — *what did you need and not find,
   what did you load and not use?* — stays as one input among several, with the caution that

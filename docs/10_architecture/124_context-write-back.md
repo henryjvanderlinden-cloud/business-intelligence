@@ -1,46 +1,61 @@
 # 124 — Context write-back: what the agentic layer records, and how it earns trust
 
 Part of the context system described in [120_context-layer.md](120_context-layer.md). Drafted
-2026-09-25, session 04, from a brainstorm with the author, and revised the same day after
-external review on GPT-6 Astra, recorded in
-[XREV_2026-09-25_context-system_astra](../30_research/notes/XREV_2026-09-25_context-system_astra.md)
-Q2. The review separated re-checking from re-encountering, bound verification to exactly what
-was tested, decoupled scope from trust, capped the human queue, kept negative findings, and
-restricted merging. Nothing here is built.
+2026-09-25, session 04, from a brainstorm with the author. Revised twice the same day after
+external review: first on GPT-6 Astra
+([XREV_2026-09-25_context-system_astra](../30_research/notes/XREV_2026-09-25_context-system_astra.md)
+Q2), which separated re-checking from re-encountering, bound verification to exactly what was
+tested, decoupled scope from trust, controlled the human queue, kept negative findings and
+restricted merging; then on gpt-5.6-sol
+([XREV_2026-09-25_context-system-r2_sol](../30_research/notes/XREV_2026-09-25_context-system-r2_sol.md)
+Q2), which moved write-back from the end of a task to its whole duration, allowed one write to
+reach several destinations, replaced the one-way ladder with a lifecycle, kept every candidate
+outside the human queue, made expiry decidable and made merges reversible. Under
+[ADR-0011](../20_decisions/0011-assertions-identity-plane-publication-gate.md), what is written
+back are assertions. Nothing here is built.
 
-## The risk this addresses
+## The risks this addresses
 
 Too little context is an obvious failure. The less obvious and more likely one is **too
 much**: an agent that writes everything it notices back into the store, so that every future
-retrieval returns noise, and true entries become indistinguishable from stale ones. That is
-the catalogue decay [145_entropy-and-pruning.md](145_entropy-and-pruning.md) describes for
-warehouse objects, happening to the system's own memory. A second risk is that write-back
-manufactures *apparent* trust that nothing earned.
+retrieval returns noise. That is the catalogue decay
+[145_entropy-and-pruning.md](145_entropy-and-pruning.md) describes for warehouse objects,
+happening to the system's own memory. Two further risks: write-back that manufactures
+*apparent* trust nothing earned, and write-back that is lost when a task fails.
 
-## Every task ends with write-back — which may be empty
+## Write-back runs throughout a task, not only at its end
 
-Write-back is a mandatory last step of every task. The task records:
+A task that crashes, is cancelled or fails part-way never reaches a final step, and loses
+exactly the diagnostics needed to recover; a retry may then write everything twice. So
+observations and actions are **appended as the task goes**, each carrying the task's run
+identifier and an **idempotency key**, so that a retry does not duplicate them. The final step
+only marks the run complete and adds the summary:
 
 - **what was learned** that is not already in the store;
 - **what was decided**, and by whom;
-- **what is still open**, as a question card, so the next agent does not rediscover it;
+- **what is still open**, as a question, so the next agent does not rediscover it;
 - the answers to the retrieval questions of [122_context-retrieval.md](122_context-retrieval.md).
 
 **"Nothing new" is a valid result, and a common one.** A step that must always produce
 something invites agents to invent marginal "learnings" to complete it.
 
-## Write-back is sorted by the chain
+## One package, several destinations
 
-The chain from [070_task-allocation.md](../00_concept/070_task-allocation.md) decides where a
-write goes:
+A single finding can matter in several places at once: an orphan rate is an observation, evidence
+for a semantic hypothesis, and possibly a blocker for a workflow. Routing each write to exactly
+one destination would drop some of those consequences or create disconnected copies. So each
+write is one **immutable write-back package**, and explicit routing rules send **references** to
+it to every consumer that needs it, recording each routing decision and any routing failure.
 
-| What is written back | Route |
+The consumers follow the chain of [070_task-allocation.md](../00_concept/070_task-allocation.md):
+
+| Consumer | What it receives |
 |---|---|
-| A fact a machine can check (a count, a uniqueness, an orphan rate) | Deterministic machinery verifies it, then it goes in as evidenced — as the claim the check established, nothing wider (below) |
-| A claim about meaning (what a column means, which records are the same customer) | Enters as inferred and joins the human adjudication queue; a pull request against the card, as [120](120_context-layer.md) proposes |
-| A change to how things are done (a template, convention, runbook or recipe) | Goes to methodology review, row 38 of 070 |
-| Workflow state (an approval awaited, a checkpoint, a record of an action taken) | Goes to the durable workflow store of [120](120_context-layer.md); never expires until the workflow is closed |
-| A working note about this task | Goes to the task journal, and expires unless promoted or retained as a negative finding |
+| **The facts store** | Facts a machine can check, after deterministic machinery has verified them — as the claim the check established, nothing wider (below) |
+| **The adjudication candidates** | Claims about meaning, which only a person can rule on — see *keeping the human queue workable* |
+| **Methodology review** | Proposed changes to templates, conventions, runbooks or recipes — row 38 of 070 |
+| **The workflow store** | Approvals awaited, checkpoints, records of actions taken — never expire until the workflow closes |
+| **The task journal** | Working notes, under the retention rules below |
 
 ### A check establishes only what it checked
 
@@ -57,53 +72,71 @@ re-check. **The *last verified* date changes only after a recorded verification.
 claim is encountered is tracked separately, because repetition would otherwise manufacture
 freshness.
 
-## The promotion ladder
+## A lifecycle, not a ladder
 
-Context earns trust by climbing a ladder:
+The first draft had a promotion ladder — note, hypothesis, assertion, rule — which made trust look
+like something that only increases. It is not: a later contradiction, a revoked approval or a
+change in source behaviour has to be able to take a claim back down. And a *rule* is a claim with
+a wider scope, not a more mature one.
 
-1. **note** — something observed during a task; lives in the task journal;
-2. **hypothesis** — a stated claim with a falsifier, worth checking;
-3. **assertion** — a claim with evidence or a human ruling, carrying the full record of
-   [120](120_context-layer.md) and the trust dimensions of [122](122_context-retrieval.md);
-4. **rule** — a claim that holds over a *set* of objects, with its scope and counterexamples;
-   the card kind `ARC-OP-16` asks for.
+So three things are recorded separately for every assertion:
 
-**Scope and trust are independent.** Evidence about one dataset does not become a rule for a
-whole source family by being promoted. Generalising a claim to a wider scope creates a **new
-hypothesis** that needs its own validation; recorded counterexamples say nothing about members
-nobody examined.
+- **lifecycle status** — `proposed`, `accepted`, `contested`, `superseded`, `retracted`. Any
+  accepted claim can become contested or retracted;
+- **evidence** — what supports it, in its evidence bundle ([120](120_context-layer.md));
+- **authority** — whether someone with the mandate ruled it.
+
+Human ruling and empirical evidence are **different routes** to acceptance and establish different
+things; which one a claim needs is set by its type and by the acceptance rules of
+[122](122_context-retrieval.md). A **rule** is an assertion whose scope is a set of objects; it is
+accepted on its own evidence, never by promotion from a claim about one member. **Generalising a
+claim to a wider scope creates a new proposed claim**, and recorded counterexamples say nothing
+about members nobody examined. A working note that deserves to become a claim is written as a new
+proposed assertion referring to the note.
 
 ## Keeping the human queue workable
 
-Mandatory write-back can produce semantic claims faster than people can rule on them, burying
-the consequential ones. So:
+Mandatory write-back can produce semantic claims faster than people can rule on them. A cap on
+what may be submitted would help, but on its own it causes silent loss — agents would have to
+choose what to drop — and it invites gaming by splitting tasks. So:
 
-- each task has a **cap** on the claims it may submit for adjudication;
-- the queue is **prioritised by consequence and by reuse** — how much depends on the claim;
-- **related claims are batched** into one request rather than arriving separately.
+- **every candidate is kept**, in a candidate store outside the queue; nothing is lost because the
+  queue is full;
+- only a selection enters the **adjudication queue**, which has **service classes** (for example
+  regulatory, consequential, routine), **ageing** so that rare but critical items cannot be starved
+  by frequent ones, and an explicit **capacity** per reviewer role;
+- duplicates are removed before anything reaches a person;
+- related claims may be presented together, but **each claim gets its own decision** — a batch is
+  never accepted or rejected wholesale.
+
+Which candidates enter the queue at all is the question of the adjudication economy, which is
+still open.
 
 ## What expires, and what is kept
 
-Unpromoted notes expire after a set period, removed by the gardening jobs of
-[126_context-gardening.md](126_context-gardening.md). But expiry by lack of reference would
-favour popular notes over valuable ones: a failed approach nobody looks at expires, and next
-quarter someone repeats the investigation. So:
+Every note is created with a **retention class, an owner, a review date, a privacy ceiling** and,
+when it expires, an **expiry reason**. That makes expiry a decision someone can apply, rather than
+an estimate of "how likely this is to come back" that nobody owns.
 
-- **negative findings are kept**, in compact form — *tried X on Y, it failed because Z* — with
-  the conditions under which it is worth revisiting;
-- retention is decided by **how likely the question recurs and how costly it is to
-  rediscover**, not by how often a note was referenced.
+- **Negative findings are kept**, in compact form — *tried X on Y, it failed because Z* — with the
+  conditions under which it is worth revisiting.
+- When a note expires, a **tombstone or harmless digest** is kept, so that a later search shows the
+  question was considered.
+- A note never outlives the retention its privacy ceiling allows.
 
 ## Merging
 
-Near-duplicates are merged only when their **predicates and scopes are equivalent**. "Unique
-per tenant" and "globally unique" are different claims; they are linked, not merged. When
-claims are merged, both provenances are kept.
+Near-duplicates are consolidated only when their **predicates and scopes are equivalent**. "Unique
+per tenant" and "globally unique" are different claims; they are linked, not merged.
+Consolidation is **reversible**: the original claims stay unchanged and are linked into a
+canonical group, which can be split again if they later diverge by validity period or source
+correction. Consolidations use **optimistic version checks**, so that two concurrent merges cannot
+consolidate against stale state.
 
 ## Provenance
 
-A write without source, time and author is rejected. Git supplies author and time for cards;
-the facts store and the workflow store record them per row.
+A write without source, time and author is rejected. Git supplies author and time where it is the
+medium; the other stores record them per row.
 
 ## Open
 

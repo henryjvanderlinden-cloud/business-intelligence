@@ -13,6 +13,16 @@ every finding. Here that added a sixth kind of context, evidence snapshots and v
 manifests, the split between what was decided and what is observed, and publication
 boundaries for the shared store.*
 
+*Revised again the same day after a crossed second review — sol on this document, 124 and 126;
+astra on 122, 127 and 128 — recorded in
+[XREV_2026-09-25_context-system-r2_sol](../30_research/notes/XREV_2026-09-25_context-system-r2_sol.md)
+and
+[XREV_2026-09-25_context-system-r2_astra](../30_research/notes/XREV_2026-09-25_context-system-r2_astra.md).
+The author accepted every finding and ruled three of them as design decisions in [ADR-0011](../20_decisions/0011-assertions-identity-plane-publication-gate.md):
+assertions are the core record and cards are views of them; one identity plane over separate
+stores; and a publication gate. Where the sections below conflict with that ADR, the ADR wins, and
+the conflicting text is marked.*
+
 The brief's most acute observation is that the system must "grow very large, but with
 enough breadcrumb trails everywhere that LLMs can still find their way without hogging
 the context windows." This document takes that seriously, because it is the engineering
@@ -119,6 +129,46 @@ separates **normative** claims (what something should be: authority, scope, effe
 from **descriptive** claims (what it is: evidence, confidence, freshness). When they
 contradict, the contradiction is shown, not settled by which kind outranks the other.
 
+## Assertions are the core record; cards are views
+
+*Added 2026-09-25, from [ADR-0011](../20_decisions/0011-assertions-identity-plane-publication-gate.md).* The six kinds above remain a useful **default** for where
+typical context lives, but they are not the classification that decides trust or storage. That is
+decided per claim. Every claim is a typed **assertion** carrying its own attributes:
+
+- **subject** — the object or objects it is about, by identifier;
+- **claim type** — intended, declared, implemented, observed or certified (below);
+- **lifecycle status** — proposed, accepted, contested, superseded or retracted;
+- **authority** — who, with what mandate, ruled it, if anyone;
+- **evidence bundle** — below;
+- **scope** — the population and conditions it holds for;
+- **volatility, owner, retention class and privacy class**.
+
+Where an assertion is stored follows from those attributes, not from a category. A **card** is a
+bounded, readable view of the assertions about one stable business object, generated for people
+and for agents. Hypotheses and approvals are statuses of assertions, not separate objects; a
+relationship between two objects and a rule over a set are assertion types.
+
+**The evidence bundle** is what makes an assertion re-checkable. It is content-addressed and holds:
+the source version or as-of time; the query or computation; its parameters; the tool and code
+version; the privacy classification; the retained aggregate or sample; and an assertion-specific
+**invalidation predicate** — the condition under which the assertion must be re-checked. Staleness
+is decided by that predicate, not by the mere fact that some evidence changed.
+
+**Five claim types, not two.** The normative/descriptive split above is too coarse for a warehouse,
+where the ETL code and the observed data can disagree while both describe "what is". Claims are
+therefore typed as:
+
+| Type | Meaning | Example |
+|---|---|---|
+| **Intended** | what it should be | the business definition of *net revenue* |
+| **Declared** | what a system or document says | a constraint in the source, a data contract |
+| **Implemented** | what the code does | the transformation that computes it |
+| **Observed** | what the data shows | a profile, a reconciliation |
+| **Certified** | what someone with authority has signed off | a published KPI |
+
+Each carries an **effective time** (when it holds in the business) and an **observation time** (when
+it was established). Contradictions between types are shown, never resolved by rank.
+
 ## Card kinds
 
 `source`, `dataset` (table, file, topic, endpoint), `field`, `entity` (a business
@@ -138,6 +188,12 @@ of objects — joins, cardinality, referential integrity and join risks
 and context recipes ([122](122_context-retrieval.md)); and `rule`, for a claim holding over a
 set of objects, which is `ARC-OP-16`. Temporal behaviour ([127](127_temporal-behaviour.md))
 does not need its own kind; it is a section in dataset and field cards.
+
+~~*Proposed additions … `relationship` … `rule` …*~~ **Superseded by [ADR-0011](../20_decisions/0011-assertions-identity-plane-publication-gate.md):** `relationship`
+and `rule` are assertion types, not card kinds, and `hypothesis` and `assertion` in the original
+list above are respectively a status and the underlying record rather than kinds of card. Card
+kinds are the business objects — `source`, `dataset`, `field`, `entity`, `metric`, `decision`,
+`artifact`, `question` — plus `procedure` for know-how.
 
 ## The assertion record
 
@@ -172,6 +228,13 @@ If a task requires more than three, the context layer has failed at its job and 
 belongs here rather than in the agent's prompt.
 
 ## One store, two views
+
+> **Refined by [ADR-0011](../20_decisions/0011-assertions-identity-plane-publication-gate.md):** not one store, but **one identity plane over separate stores**. All
+> stores share one scheme of permanent identifiers; indexes are filtered by access policy before
+> retrieval, so that even the *existence* of a sensitive object or a draft claim is not revealed to
+> those not entitled to it; and material reaches the human catalogue only through an explicit
+> **publication pipeline**. No unfiltered graph is shared. The argument below — that sharing makes
+> the catalogue stay current — still holds for the identity plane and the published assertions.
 
 *Added 2026-09-25.* The context store the agents use and the metadata catalogue people use
 could be **the same thing, shown two ways**: a readable catalogue for people, cards and

@@ -10,7 +10,11 @@ Part of the context system described in [120_context-layer.md](120_context-layer
 Revised the same day after external review on gpt-5.6-sol, recorded in
 [XREV_2026-09-25_context-system_sol](../30_research/notes/XREV_2026-09-25_context-system_sol.md)
 Q1, which added grain and population, split the declared layer, added key roles, specified
-referential integrity properly and required query-level tests. The author's point is
+referential integrity properly and required query-level tests. A second review on GPT-6
+Astra, recorded in [XREV_2026-09-25_context-system-r2_astra](../30_research/notes/XREV_2026-09-25_context-system-r2_astra.md) Q1, added per-fact reconciliation, uniqueness tested after the
+join's own transformations, a publication gate, and a defined allocation denominator for bridges.
+Under [ADR-0011](../20_decisions/0011-assertions-identity-plane-publication-gate.md), a relationship is an **assertion type** shown on a relationship view, not a
+separate kind of card. The author's point is
 practitioner input and unsourced under [AGENTS.md](../../AGENTS.md) rule 8. Nothing here is
 built.
 
@@ -21,11 +25,11 @@ expecting one customer per order, meet the order that has two, and every revenue
 that join is overstated — without an error message anywhere. Cardinality, the author's first
 point, is what prevents this, and it is exactly the property sources rarely enforce.
 
-## Joins get their own card
+## Joins get their own record
 
-Join knowledge is about a *pair* of objects, not about one, so it should have its own card kind:
-a **relationship** card, alongside the kinds in [120](120_context-layer.md). A relationship card
-holds:
+Join knowledge is about a *pair* of objects, not about one, so it is recorded as a
+**relationship assertion** — per [ADR-0011](../20_decisions/0011-assertions-identity-plane-publication-gate.md) an assertion type, shown to people and agents as a
+relationship view. It holds:
 
 - **the join** — the columns on each side, including any normalisation needed (trimming, case,
   type casts, leading zeros), and who owns that normalisation;
@@ -47,7 +51,7 @@ side, on **filters** (tenant, source, status), and on the **time window**. Profi
 unfiltered pair can hide fan-out that appears within one tenant, or invent fan-out that no real
 query would see.
 
-So every relationship card states:
+So every relationship assertion states:
 
 - the **grain** of both sides — what one row represents;
 - the **direction and purpose** of the join — what question it serves;
@@ -69,6 +73,13 @@ Because cardinality is so seldom enforced, it is recorded in layers that can dis
 Each declared constraint also records its **enforcement state**: enforced; declared but not
 validated; trusted but not enforced (`RELY`, `NOT ENFORCED`); disabled.
 
+**A declared constraint counts only if it survives the join.** Uniqueness in the source does not
+necessarily supply the *one* side of this join: after the normalisation the join applies, `001` and
+`1` collide on an integer cast, and a unique `(tenant, customer)` constraint says nothing about a
+join on `customer` alone. So each constraint records its **applicability to the complete join
+predicate**, and uniqueness is tested **after the actual transformations and population filters**,
+not taken from the source catalogue.
+
 **Disagreement between the layers is the most valuable signal in the record.** Observed
 many-to-many where the business asserts one-to-many is either a data-quality problem or a
 misunderstood business rule, and either way it must be found before a mart is built on it.
@@ -77,7 +88,7 @@ violations often appear only after months.
 
 This connects to `ARC-OP-22`. When a mart declares a key constraint with `RELY` so the engine can
 skip joins, it hands the engine an *asserted* cardinality that the engine will not check. The
-relationship card is where that assertion, its evidence and its tests live.
+relationship assertion is where that assertion, its evidence and its tests live.
 
 ## Key roles
 
@@ -143,11 +154,30 @@ So before a relationship may be used to build marts, deterministic machinery run
   grain must be kept;
 - **aggregate reconciliation** — the recorded invariant measure totals the same before and after
   the join;
-- **bridge-weight totals** — allocation weights on a bridge sum to one per member;
+- **per-fact reconciliation** — totals can reconcile while attribution is wrong: one fact lost and
+  another of equal value duplicated, or a fact joined to the wrong customer, leave both row counts
+  and sums intact. So reconciliation is done **per originating fact** at the preserved grain,
+  including the expected number of matches for each, with explicit **attribution cases** —
+  known facts that must land on known members; whole-query totals are supplementary;
+- **bridge allocation** — "weights sum to one" is ambiguous until the **origin** of the allocation
+  is fixed: in an account-to-customer bridge, weights summing to one *per customer* can still
+  multiply account balances. So the test states the allocation grain, the measure, the population
+  and the effective interval, sums weights **across recipients for each origin**, and checks
+  **coverage** too — an origin with no bridge rows disappears without any weight group failing;
 - **multi-path fan-out checks** — queries combining several relationships do not inflate totals.
 
-These then run as **standing tests** on every load (row 22 of 070), and a failure is drift for
-gardening ([126_context-gardening.md](126_context-gardening.md)).
+These then run as **standing tests** on every load (row 22 of 070).
+
+## The publication gate
+
+Detecting a failure is not enough if consumers keep using the result. Per [ADR-0011](../20_decisions/0011-assertions-identity-plane-publication-gate.md), a mart
+built on a relationship is **published only when the tests on the data version it was built from
+have passed**. A failing test **blocks publication** and **revokes the `RELY` or `NOT ENFORCED`
+assertions** that depend on the failed claim, so the engine stops optimising on a false
+assumption before consumers see the data. Responsibility for remediation and re-approval is
+assigned; the failure is also drift for gardening
+([126_context-gardening.md](126_context-gardening.md)). The consequence to accept: a flaky or
+over-strict test now stops delivery, so test quality becomes a production concern.
 
 ## Finding which tables join
 
@@ -155,10 +185,11 @@ Most pairs of tables in a landscape do not join, so candidate pairs have to be f
 Deterministic machinery computes the evidence: key-like columns, value overlap (the share of one
 column's values found in another), and existing lineage. Query logs, where available, show the
 joins people already trust (`EVI-OP-3`). The agentic layer ranks the candidates and drafts
-relationship cards; a person rules on the intended cardinality where it is not obvious.
+relationship assertions; a person rules on the intended cardinality where it is not obvious.
 
 ## Where it is recorded
 
-Relationship cards hold the knowledge, with evidence snapshots; the observed statistics and
+Relationship assertions hold the knowledge, with evidence bundles, and are shown as
+relationship views; the observed statistics and
 their history stay in the landscape-facts store and are summarised on the card; the tests are
 generated code. `ARC-OP-27` holds what is open.

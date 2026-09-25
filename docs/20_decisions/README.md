@@ -25,3 +25,4 @@ describe options; only an ADR adopts one.
 | [0008](0008-faculties-substrate-mandate.md) | Three faculties act on a substrate, each under a mandate | Accepted |
 | [0009](0009-separate-capabilities-open-value-areas.md) | Separate capabilities, an open list of value areas, and no interaction owed | Accepted |
 | [0010](0010-the-agentic-layer.md) | The second faculty is the agentic layer | Accepted |
+| [0011](0011-assertions-identity-plane-publication-gate.md) | Assertions are the core record; one identity plane over separate stores; a publication gate | Accepted |

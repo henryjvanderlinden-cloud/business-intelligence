@@ -11,7 +11,10 @@ Revised the same day after external review on gpt-5.6-sol, recorded in
 [XREV_2026-09-25_context-system_sol](../30_research/notes/XREV_2026-09-25_context-system_sol.md)
 Q2, which replaced a single list of classes with independent axes, corrected an overstatement
 about what the Data Vault keeps, and added capture guarantees, a stricter test for deletion and
-monitoring of temporal order. The author's point is practitioner input and unsourced under
+monitoring of temporal order. A second review on GPT-6 Astra, recorded in
+[XREV_2026-09-25_context-system-r2_astra](../30_research/notes/XREV_2026-09-25_context-system-r2_astra.md) Q2, added unknown effective time, temporal metadata in change detection, a stricter
+test again for deletion, and capture guarantees stated as demonstrated coverage rather than
+capability. The author's point is practitioner input and unsourced under
 [AGENTS.md](../../AGENTS.md) rule 8. Nothing here is built.
 
 ## Two different questions
@@ -44,6 +47,15 @@ per attribute or per table where the whole table behaves alike:
 
 ## The capture guarantee
 
+**Capability is not coverage.** A source that *can* deliver change data capture may still lose
+history: its log may expire before it is read, the handoff from an initial snapshot to the stream
+may be inconsistent, or events may be dropped. So a capture guarantee records not just the
+mechanism but its **coverage interval**, its **bootstrap boundary** (where the initial snapshot
+ends and the stream begins), its **retention and recovery assumptions**, and the source's own
+**cursor semantics**. Deterministic machinery verifies snapshot-to-stream continuity and durable
+consumption against those semantics, and a card claims complete history only for the interval in
+which coverage has been demonstrated.
+
 **Loading more often can never guarantee complete history.** If a value changes twice between
 two loads, the intermediate state is invisible however often the warehouse polls, so observed
 change frequency always understates true volatility.
@@ -65,10 +77,19 @@ all the time". That holds only if the loading guarantees it, and several things 
   vault records *changes*, not every delivery.
 - **Deletion and effectivity need explicit structures** — records of deletes and of validity
   periods — because they are not ordinary attribute changes.
-- **Two timestamps, always:** when something was true in the business (source-effective time)
-  and when the warehouse loaded it (load time). A raw vault cannot tell a retroactive correction
-  from a genuinely new business state by load order alone; only source effective dates or
-  explicit correction markers can.
+- **Two timestamps where the source has them:** when something was true in the business
+  (source-effective time) and when the warehouse loaded it (load time). A raw vault cannot tell a
+  retroactive correction from a genuinely new business state by load order alone; only source
+  effective dates or explicit correction markers can.
+- **Effective time may be unknown, and must then be recorded as unknown.** An overwritten source
+  often exposes no business date. Substituting load time invents when a value became true. So
+  every timestamp records its provenance, and the vault distinguishes **observed-state history**
+  (what we saw, when we saw it) from **business-valid history** (what was true, when). A person
+  decides which reporting questions remain answerable with only the former.
+- **Change detection must include time, not only values.** A correction can keep the same value
+  while changing its effective start, its end or its deletion status. A hash difference computed
+  over attribute values alone would discard it as a repeat. The definition of a change therefore
+  includes the relevant temporal metadata and the operation (insert, update, delete).
 
 ## What we choose to keep
 
@@ -94,7 +115,14 @@ wrong historical status.
 
 So a disappearance is classified as a deletion only with **evidence that the extract was
 complete**: control totals, watermarks, the expected partitions present, a successful run
-status — and preferably an explicit delete event from the source. The same principle governs
+status — and preferably an explicit delete event from the source.
+
+Even that is not enough on its own. A complete extract under a **changed filter** legitimately
+omits rows that still exist, and a fully traversed but **non-atomic paginated read** can miss rows
+that moved between pages. So a deletion also requires that the population is **unchanged and
+comparable** with the previous extract, and that the read was a **consistent snapshot** or an
+equivalent reconciliation. Without that, the disappearance is recorded as **unresolved**, not as
+a deletion. The same principle governs
 the context store's own housekeeping ([126](126_context-gardening.md)).
 
 ## Who does what
@@ -120,7 +148,9 @@ duplicate events, out-of-order change data capture and gaps in source sequences 
 plausible-looking values while corrupting the timeline. So deterministic machinery also
 monitors:
 
-- **sequence continuity** — gaps in source sequence numbers or CDC positions;
+- **sequence continuity** — gaps in source sequence numbers or CDC positions, judged by each
+  source's own **cursor semantics**, since positions may legitimately skip or be ordered only
+  within a partition;
 - **latency** — the difference between when an event happened and when it was ingested;
 - **replays and duplicates** — the same delivery or event arriving twice;
 - **closed periods** — reconciliation of periods that should no longer change.
