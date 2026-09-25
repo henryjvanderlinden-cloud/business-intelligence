@@ -240,6 +240,7 @@ def check_records():
 
     steps = {}
     by_actor, by_class, overhead = {}, {}, 0
+    h_sizes, h_words = {}, [0]
     step_files = sorted(f for f in os.listdir(os.path.join(rdir, "steps")) if f.endswith(".jsonl"))
     for fname in step_files:
         rel = "%s/steps/%s" % (RECORDS_DIR, fname)
@@ -282,6 +283,25 @@ def check_records():
                 err(where, "agent %r is %s, but actor is %s" % (rec["agent"], faculty, rec["actor"]))
             if rec["actor"] == "H" and rec["role"] in ("request", "decide") and not rec.get("verbatim"):
                 err(where, "a person's request or decision needs the verbatim field")
+            if rec["actor"] == "H":
+                he = rec.get("human_effort")
+                if not he:
+                    err(where, "a person's step needs human_effort (activity, size, answers)")
+                else:
+                    enum(where, "human_effort.activity", he.get("activity"), vocab["human_activity"])
+                    enum(where, "human_effort.size", he.get("size"), vocab["human_size"])
+                    want = vocab["_size_by_activity"].get(he.get("activity"))
+                    if want and he.get("size") != want:
+                        err(where, "activity %r is size %s, not %s" % (he.get("activity"), want, he.get("size")))
+                    if not isinstance(he.get("answers"), int):
+                        err(where, "human_effort.answers must be an integer")
+                    if he.get("activity") == "answer":
+                        if rec.get("verbatim") and he.get("words") != len(rec["verbatim"].split()):
+                            err(where, "human_effort.words does not match the verbatim text")
+                    h_sizes[he.get("size")] = h_sizes.get(he.get("size"), 0) + 1
+                    h_words[0] += he.get("words", 0) or 0
+            elif rec.get("human_effort"):
+                err(where, "human_effort on a step whose actor is not H")
             if rec.get("task_row") is not None and rec["task_row"] not in task_rows:
                 err(where, "task_row %r is not a row of 070" % rec["task_row"])
             for rid in rec.get("register_rows", []):
@@ -338,6 +358,7 @@ def check_records():
     fmt = lambda d: ", ".join("%s %d" % kv for kv in sorted(d.items())) or "none"
     print("records: %d sessions, %d steps (%s; %s), %d sources"
           % (len(sessions), len(steps), fmt(by_actor), fmt(by_class), len(src_ids)))
+    print("records: author steps by size: %s; %d words answered" % (fmt(h_sizes), h_words[0]))
 
 
 def main():

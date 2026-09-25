@@ -2013,6 +2013,12 @@ Second question: the deciding number of [155](../docs/10_architecture/155_adjudi
 step, per session, or not at all is his to decide; until then the log records elapsed upper bounds and
 marks human effort `unknown`.
 
+**Second question ruled 2026-09-25, session 06, by the author:** "Don't record mytime, just the number of
+answers. If anything, answer length is a good indicator. Another one is maybe the type of activity.
+Answering is Small. If I have to download stuff, or am otherwise your hands in the real world, it's a
+size large." Implemented in [520](../docs/50_process/520_record-keeping.md) as `human_effort`. The first
+question, external review, remains open.
+
 ## §5 — Commercial premises (`BIZ`)
 
 ### BIZ-OP-1 — The adjudication hedge may not be priced

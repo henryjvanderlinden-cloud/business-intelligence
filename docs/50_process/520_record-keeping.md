@@ -84,10 +84,27 @@ from the vocabulary and a sentence of detail. `defects` lists anything wrong in 
 its type, who found it and which step fixed it. A defect found later is appended to the original step,
 never silently corrected.
 
-**Effort, kept apart.** `effort` holds `human_minutes` with `human_basis` (`measured`, `estimated`,
-`stated` by the person, or `unknown`), `elapsed_minutes`, `tool_calls` by tool, `model_calls` for
+**Effort, kept apart.** `effort` holds `elapsed_minutes`, `tool_calls` by tool, `model_calls` for
 external reviewer passes, and `compute_eur`. They are never summed into one total, as `CON-OP-16`'s guard
 and 155 both require.
+
+**The author's effort, by proxy.** Every step whose actor is H carries `human_effort`, as the author ruled
+on 2026-09-25:
+
+> Don't record mytime, just the number of answers. If anything, answer length is a good indicator.
+> Another one is maybe the type of activity. Answering is Small. If I have to download stuff, or am
+> otherwise your hands in the real world, it's a size large.
+
+So `human_effort` holds `activity` — `answer`, `approve` (a permission prompt) or `act` (downloads,
+installs, logins, moving files: being the model's hands) — `size`, which follows from the activity
+(`small` for answering and approving, `large` for acting), `answers` (a count, usually 1), and for answers
+`words`, the length of his verbatim text. The checker enforces the size mapping and recounts the words.
+A step in which the model asks him to act is recorded as the model's; his doing it is a separate H step
+of size large.
+
+*Superseded 2026-09-25 by that ruling:* `effort` was to hold `human_minutes` with a `human_basis` of
+measured, stated, estimated or unknown. His time is not recorded; `human_basis` stays in the vocabulary
+for old records only.
 
 **Words and references.** `summary` is one sentence. `verbatim` is required whenever a person requests or
 decides something: the author's words, unedited. `inputs` and `outputs` are paths, URLs, commit hashes or
@@ -115,14 +132,10 @@ resolve, and prints a count by faculty and by work class.
 
 ## What cannot be measured
 
-This should be stated before it is discovered. **The author's minutes are not observed.** The log knows
-when his messages arrive, not how long he spent on them; `elapsed_minutes` between a reply and his
-answer is an upper bound, not effort. He can state his time, and a stated figure is marked `stated`.
-**The model's token use is not visible to the model** in this environment, so agent effort is recorded
-as tool calls and elapsed time, and tokens are left empty rather than guessed. **Work outside the
-conversation is invisible** — a download, a conversation with a colleague, thinking in the shower —
-unless someone records it.
-
-These gaps matter most for the adjudication economy, whose deciding number is human minutes. The
-sandbox should close the first gap by having the author state his time on the steps that cost him
-something, which is `PRC-OP-6`'s second question.
+This should be stated before it is discovered. **The author's time is not recorded, by his ruling.** The
+proxy — answers, their length, and small or large activity — stands in for it; the deciding number of
+[155](../10_architecture/155_adjudication-economy.md), human minutes, is therefore approximated by counts
+and sizes, and any figure derived from them must say so. **The model's token use is not visible to the
+model** in this environment, so agent effort is recorded as tool calls and elapsed time, and tokens are
+left empty rather than guessed. **Work outside the conversation is invisible** unless someone records it:
+a download the author makes is logged only because the model asked for it and he reports it done.

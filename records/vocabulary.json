@@ -95,6 +95,7 @@
     "later-reconstruction": "written in a later session"
   },
   "human_basis": {
+    "_superseded": "superseded 2026-09-25 by the author's ruling not to record his time; kept for old records only",
     "measured": "timed",
     "stated": "stated by the person",
     "estimated": "estimated by the recorder",
@@ -107,8 +108,36 @@
     "blocked": "wanted but not obtainable yet; reason given"
   },
   "instruments": [
-    "device_bash", "device_request_delete_permission", "device_stage_files", "device_commit_files",
-    "WebSearch", "WebFetch", "memory_read", "current_time", "codex", "Read", "Write", "Edit", "Bash",
-    "Artifact", "SendUserFile", "python", "git"
-  ]
+    "device_bash",
+    "device_request_delete_permission",
+    "device_stage_files",
+    "device_commit_files",
+    "WebSearch",
+    "WebFetch",
+    "memory_read",
+    "current_time",
+    "codex",
+    "Read",
+    "Write",
+    "Edit",
+    "Bash",
+    "Artifact",
+    "SendUserFile",
+    "python",
+    "git"
+  ],
+  "human_activity": {
+    "answer": "replies in the conversation; size small",
+    "approve": "approves a permission prompt or similar; size small",
+    "act": "acts in the real world for the model: downloads, installs, logs in, fetches, moves files; size large"
+  },
+  "human_size": {
+    "small": "answering (author's ruling, 2026-09-25)",
+    "large": "being the model's hands in the real world (author's ruling, 2026-09-25)"
+  },
+  "_size_by_activity": {
+    "answer": "small",
+    "approve": "small",
+    "act": "large"
+  }
 }
