@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 975" width="1280" height="975" font-family="Segoe UI, Helvetica, Arial, sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 1000" width="1280" height="1000" font-family="Segoe UI, Helvetica, Arial, sans-serif">
   <title>nsdn — overview schematic (draft)</title>
   <style>
     .t   { font-size: 22px; font-weight: 700; fill: #1f2328; }
@@ -10,6 +10,7 @@
     .s   { font-size: 11px; fill: #57606a; }
     .sb  { font-size: 12px; font-weight: 700; fill: #1f2328; }
     .al  { font-size: 10.5px; fill: #57606a; font-style: italic; }
+    .red { font-size: 11px; fill: #b42318; }
     .arr { stroke: #57606a; stroke-width: 1.6; fill: none; marker-end: url(#a); }
     .arr2{ stroke: #57606a; stroke-width: 1.6; fill: none; marker-end: url(#a); marker-start: url(#as); }
     .box { fill: #ffffff; stroke: #8c959f; stroke-width: 1; }
@@ -19,11 +20,11 @@
     <marker id="as" viewBox="0 0 10 10" refX="1" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M10,0 L0,5 L10,10 z" fill="#57606a"/></marker>
   </defs>
 
-  <rect width="1280" height="975" fill="#ffffff"/>
+  <rect width="1280" height="1000" fill="#ffffff"/>
 
   <!-- Title -->
   <text class="t" x="20" y="38">nsdn — a generic framework for BI with an agentic layer</text>
-  <text class="st" x="20" y="62">Three faculties act on one substrate of data. Every task is a chain: proposes → decides → executes → checks. Draft for discussion, 2026-09-25.</text>
+  <text class="st" x="20" y="62">A proposed design; nothing is built. Governed work runs as a chain — proposes → decides → executes → checks — with stages automated where policy allows. Draft, 2026-09-25.</text>
 
   <!-- Left panel: value areas -->
   <rect x="20" y="90" width="210" height="620" rx="8" fill="#f6f8fa" stroke="#8c959f"/>
@@ -43,7 +44,7 @@
   <text class="sb" x="46" y="386">Continuous</text>
   <text class="sb" x="46" y="402">improvement</text>
   <rect x="34" y="430" width="182" height="40" rx="5" fill="none" stroke="#8c959f" stroke-dasharray="4 3"/>
-  <text class="s" x="46" y="455">… more to be added</text>
+  <text class="s" x="46" y="455">… more may be added</text>
   <text class="s" x="34" y="500">Each capability stands on</text>
   <text class="s" x="34" y="516">its own; none owes a link</text>
   <text class="s" x="34" y="532">to another.</text>
@@ -51,14 +52,14 @@
   <!-- HUMANS band -->
   <rect x="250" y="90" width="730" height="100" rx="8" fill="#fff4e5" stroke="#d4a15a"/>
   <text class="h" x="266" y="114">HUMANS</text>
-  <text class="hs" x="266" y="140">set purpose · decide meaning, disputes and consequences · approve · act on insight</text>
-  <text class="s" x="266" y="164">By mandate, not by risk: meaning, KPI definitions, priorities, anything irreversible or regulatory.</text>
-  <text class="s" x="266" y="180">Attention is a fixed weekly budget per role.</text>
+  <text class="hs" x="266" y="140">set purpose and delegation policy · rule on meaning, disputes and consequences · act on insight</text>
+  <text class="s" x="266" y="164">Directly, by mandate: meaning, KPI definitions, priorities, anything irreversible or regulatory.</text>
+  <text class="s" x="266" y="180">Everything else is decided within the policy they set. Attention is a fixed weekly budget per role.</text>
 
   <!-- ADJUDICATION band -->
   <rect x="250" y="222" width="730" height="114" rx="8" fill="#fdf8e1" stroke="#c9a227"/>
   <text class="h" x="266" y="246">ADJUDICATION ECONOMY</text>
-  <text class="s" x="476" y="246">review only where it averts the most loss per minute of a person's time</text>
+  <text class="s" x="476" y="246">aims at the most loss averted per minute · most proposals never reach a person</text>
   <rect class="box" x="266" y="260" width="166" height="62" rx="5"/>
   <text class="sb" x="276" y="279">Auto-accept</text>
   <text class="s" x="276" y="296">machine-verified, reversible</text>
@@ -70,7 +71,7 @@
   <rect x="622" y="260" width="166" height="62" rx="5" fill="#ffffff" stroke="#d4a15a" stroke-width="1.8"/>
   <text class="sb" x="632" y="279">Human</text>
   <text class="s" x="632" y="296">decision owner, deadline,</text>
-  <text class="s" x="632" y="311">and a default if silent</text>
+  <text class="s" x="632" y="311">a safe default if silent</text>
   <rect class="box" x="800" y="260" width="166" height="62" rx="5"/>
   <text class="sb" x="810" y="279">Park</text>
   <text class="s" x="810" y="296">nothing depends on it yet;</text>
@@ -97,109 +98,137 @@
   <path class="arr" d="M520,368 L520,338"/>
   <text class="al" x="528" y="357">proposes</text>
 
+  <!-- accepted work: from adjudication outcomes, down past the agentic layer, to machinery -->
+  <path d="M945,322 L945,506" stroke="#ffffff" stroke-width="7" fill="none"/>
+  <path class="arr" d="M945,322 L945,506"/>
+  <circle cx="945" cy="322" r="3.5" fill="#57606a"/>
+  <text class="al" x="937" y="494" text-anchor="end">accepted work only — executed by machinery</text>
+
+  <!-- identity plane: dashed boundary around data platform and context stores -->
+  <path d="M242,503 L1026,503 L1026,82 L1268,82 L1268,718 L242,718 Z" fill="none" stroke="#3f9a8a" stroke-width="1.4" stroke-dasharray="6 4"/>
+  <text class="al" x="250" y="735" style="fill:#2f7a6d">dashed: one identity plane over every store, data platform and context alike — access is filtered before anything is retrieved, by people or agents</text>
+
   <!-- DATA band -->
   <rect x="250" y="510" width="730" height="200" rx="8" fill="#f0f2f4" stroke="#8c959f"/>
   <text class="h" x="266" y="534">DATA — the substrate</text>
   <text class="s" x="440" y="534">run end to end by DETERMINISTIC MACHINERY · no model in the data path</text>
 
-  <rect class="box" x="262" y="560" width="74" height="50" rx="5"/><text class="bb" x="299" y="590" text-anchor="middle">Sources</text>
-  <path class="arr" d="M337,585 L348,585"/>
-  <rect class="box" x="350" y="560" width="58" height="50" rx="5"/><text class="bb" x="379" y="590" text-anchor="middle">Raw</text>
-  <path class="arr" d="M409,585 L420,585"/>
-  <rect class="box" x="422" y="560" width="116" height="50" rx="5"/><text class="bb" x="480" y="581" text-anchor="middle">Data Vault</text><text class="s" x="480" y="598" text-anchor="middle">all data, all time</text>
-  <path class="arr" d="M539,585 L550,585"/>
-  <rect class="box" x="552" y="560" width="104" height="50" rx="5"/><text class="bb" x="604" y="581" text-anchor="middle">Dimensional</text><text class="bb" x="604" y="597" text-anchor="middle">marts</text>
-  <path class="arr" d="M657,585 L668,585"/>
+  <rect class="box" x="262" y="552" width="66" height="58" rx="5"/><text class="bb" x="295" y="586" text-anchor="middle">Sources</text>
+  <path class="arr" d="M329,581 L338,581"/>
+  <rect class="box" x="340" y="552" width="50" height="58" rx="5"/><text class="bb" x="365" y="586" text-anchor="middle">Raw</text>
+  <path class="arr" d="M391,581 L400,581"/>
+  <rect class="box" x="402" y="552" width="104" height="58" rx="5"/>
+  <text class="bb" x="454" y="572" text-anchor="middle">Data Vault</text>
+  <text class="s" x="454" y="587" text-anchor="middle">or equivalent</text>
+  <text class="s" x="454" y="602" text-anchor="middle">all data, all time</text>
+  <path class="arr" d="M507,581 L516,581"/>
+  <rect class="box" x="518" y="552" width="92" height="58" rx="5"/>
+  <text class="bb" x="564" y="578" text-anchor="middle">Mart build</text>
+  <text class="s" x="564" y="595" text-anchor="middle">candidate version</text>
+  <path class="arr" d="M611,581 L620,581"/>
   <!-- publication gate -->
-  <rect x="672" y="552" width="26" height="66" rx="3" fill="#ffffff" stroke="#b42318" stroke-width="1.8"/>
-  <line x1="679" y1="558" x2="679" y2="612" stroke="#b42318" stroke-width="2"/>
-  <line x1="691" y1="558" x2="691" y2="612" stroke="#b42318" stroke-width="2"/>
-  <path class="arr" d="M699,585 L712,585"/>
-  <rect class="box" x="714" y="560" width="104" height="50" rx="5"/><text class="bb" x="766" y="581" text-anchor="middle">Semantic</text><text class="bb" x="766" y="597" text-anchor="middle">layer</text>
-  <path class="arr" d="M819,585 L830,585"/>
-  <rect class="box" x="832" y="560" width="132" height="50" rx="5"/><text class="bb" x="898" y="581" text-anchor="middle">Dashboards</text><text class="s" x="898" y="598" text-anchor="middle">self-service, users</text>
+  <rect x="622" y="548" width="26" height="66" rx="3" fill="#ffffff" stroke="#b42318" stroke-width="1.8"/>
+  <line x1="629" y1="554" x2="629" y2="608" stroke="#b42318" stroke-width="2"/>
+  <line x1="641" y1="554" x2="641" y2="608" stroke="#b42318" stroke-width="2"/>
+  <path class="arr" d="M649,581 L658,581"/>
+  <rect class="box" x="660" y="552" width="96" height="58" rx="5"/>
+  <text class="bb" x="708" y="578" text-anchor="middle">Published</text>
+  <text class="bb" x="708" y="594" text-anchor="middle">marts</text>
+  <path class="arr" d="M757,581 L766,581"/>
+  <rect class="box" x="768" y="552" width="88" height="58" rx="5"/>
+  <text class="bb" x="812" y="578" text-anchor="middle">Semantic</text>
+  <text class="bb" x="812" y="594" text-anchor="middle">layer</text>
+  <path class="arr" d="M857,581 L866,581"/>
+  <rect class="box" x="868" y="552" width="100" height="58" rx="5"/>
+  <text class="bb" x="918" y="578" text-anchor="middle">Dashboards</text>
+  <text class="s" x="918" y="595" text-anchor="middle">users</text>
 
-  <text class="s" x="685" y="632" text-anchor="middle" fill="#b42318" style="fill:#b42318">publication gate</text>
-  <text class="b" x="266" y="656">Rule versioning and lineage: any past report can be reproduced.</text>
-  <text class="b" x="266" y="676">Publication gate: a mart is released only when the tests on its data version pass; a failing test blocks it.</text>
-  <text class="b" x="266" y="696">Temporal behaviour and join knowledge are measured here, and tested before anything relies on them.</text>
+  <text class="red" x="635" y="628" text-anchor="middle">publication gate</text>
+  <text class="b" x="266" y="648">Data Vault or a functionally equivalent layer: all data, all history, integrated on business keys.</text>
+  <text class="b" x="266" y="666">Publication gate: a mart version is published only when the tests on that version pass.</text>
+  <text class="b" x="266" y="684">Rule versioning and lineage: any past report can be reproduced.</text>
+  <text class="b" x="266" y="702">Temporal behaviour and join knowledge are measured here, and tested before anything relies on them.</text>
 
-  <!-- agentic <-> data -->
+  <!-- data -> agentic: observation -->
   <path class="arr" d="M320,510 L320,480"/>
-  <text class="al" x="328" y="499">observes</text>
-  <path class="arr" d="M640,480 L640,508"/>
-  <text class="al" x="648" y="499">approved code, templates and tests — executed by machinery</text>
+  <text class="al" x="328" y="494">observes profiles and metadata, not data rows — access-filtered</text>
 
   <!-- CONTEXT column -->
   <rect x="1030" y="90" width="230" height="620" rx="8" fill="#e8f6f3" stroke="#3f9a8a"/>
-  <text class="h" x="1044" y="114">CONTEXT SYSTEM</text>
-  <text class="s" x="1044" y="132">the shared memory, and the catalogue</text>
 
-  <text class="bb" x="1044" y="162">Assertions — the core record</text>
-  <text class="s" x="1044" y="180">every claim is typed: intended,</text>
-  <text class="s" x="1044" y="195">declared, implemented, observed</text>
-  <text class="s" x="1044" y="210">or certified — with its status,</text>
-  <text class="s" x="1044" y="225">owner and evidence</text>
+  <!-- catalogue compartment -->
+  <rect x="1040" y="100" width="210" height="62" rx="5" fill="#ffffff" stroke="#3f9a8a" stroke-width="1.4"/>
+  <text class="bb" x="1052" y="122">Catalogue for people</text>
+  <text class="s" x="1052" y="139">published assertions only;</text>
+  <text class="s" x="1052" y="153">drafts and hypotheses stay out</text>
+  <path class="arr" d="M1145,196 L1145,164"/>
+  <text class="al" x="1153" y="184">publication pipeline</text>
 
-  <text class="bb" x="1044" y="258">Cards — readable views</text>
-  <text class="s" x="1044" y="276">one per business object, generated</text>
-  <text class="s" x="1044" y="291">for people and for agents</text>
+  <text class="h" x="1044" y="220">CONTEXT SYSTEM</text>
+  <text class="s" x="1044" y="237">the shared memory</text>
 
-  <text class="bb" x="1044" y="324">One identity plane</text>
-  <text class="s" x="1044" y="342">permanent identifiers over separate</text>
-  <text class="s" x="1044" y="357">stores; access is filtered before</text>
-  <text class="s" x="1044" y="372">anything is retrieved</text>
+  <text class="bb" x="1044" y="264">Assertions — the core record</text>
+  <text class="s" x="1044" y="282">every claim is typed: intended,</text>
+  <text class="s" x="1044" y="297">declared, implemented, observed</text>
+  <text class="s" x="1044" y="312">or certified — with its status,</text>
+  <text class="s" x="1044" y="327">owner and evidence</text>
 
-  <text class="bb" x="1044" y="405">Kept true by</text>
-  <text class="s" x="1044" y="423">task-shaped retrieval · mandatory</text>
-  <text class="s" x="1044" y="438">write-back · standing gardening</text>
-  <text class="s" x="1044" y="453">(re-check, expire, quarantine)</text>
+  <text class="bb" x="1044" y="358">Cards — readable views</text>
+  <text class="s" x="1044" y="376">one per business object, generated</text>
+  <text class="s" x="1044" y="391">for people and for agents</text>
 
-  <text class="bb" x="1044" y="486">Holds, among much else</text>
-  <text class="s" x="1044" y="504">temporal behaviour per table and</text>
-  <text class="s" x="1044" y="519">attribute · join knowledge ·</text>
-  <text class="s" x="1044" y="534">the adjudication record</text>
+  <text class="bb" x="1044" y="422">Separate stores</text>
+  <text class="s" x="1044" y="440">landscape facts, assertions,</text>
+  <text class="s" x="1044" y="455">workflow state, task journals —</text>
+  <text class="s" x="1044" y="470">inside the one identity plane</text>
 
-  <text class="bb" x="1044" y="567">Catalogue for people</text>
-  <text class="s" x="1044" y="585">reached only through a</text>
-  <text class="s" x="1044" y="600">publication pipeline</text>
+  <text class="bb" x="1044" y="501">Kept true by</text>
+  <text class="s" x="1044" y="519">task-shaped retrieval · mandatory</text>
+  <text class="s" x="1044" y="534">write-back · standing gardening</text>
+  <text class="s" x="1044" y="549">(re-check, expire, quarantine)</text>
 
-  <text class="s" x="1044" y="640">Built to grow very large while</text>
-  <text class="s" x="1044" y="655">agents still find their way by</text>
-  <text class="s" x="1044" y="670">identity, not by search alone.</text>
+  <text class="bb" x="1044" y="580">Holds, among much else</text>
+  <text class="s" x="1044" y="598">temporal behaviour per table and</text>
+  <text class="s" x="1044" y="613">attribute · join knowledge ·</text>
+  <text class="s" x="1044" y="628">the adjudication record</text>
+
+  <text class="s" x="1044" y="660">Built to grow very large while</text>
+  <text class="s" x="1044" y="675">agents still find their way by</text>
+  <text class="s" x="1044" y="690">identity, not by search alone.</text>
 
   <!-- arrows between main area and context -->
-  <path class="arr" d="M1028,140 L983,140"/>
-  <text class="al" x="1005" y="132" text-anchor="middle">catalogue</text>
-  <path class="arr" d="M982,300 L1027,300"/>
-  <text class="al" x="1005" y="292" text-anchor="middle">record</text>
-  <path class="arr2" d="M984,440 L1026,440"/>
-  <text class="al" x="1005" y="418" text-anchor="middle">reads,</text>
-  <text class="al" x="1005" y="431" text-anchor="middle">writes</text>
-  <text class="al" x="1005" y="456" text-anchor="middle">back</text>
-  <path class="arr" d="M982,640 L1027,640"/>
-  <text class="al" x="1005" y="632" text-anchor="middle">facts</text>
+  <path class="arr" d="M1038,131 L983,131"/>
+  <text class="al" x="1002" style="font-size:10px" y="123" text-anchor="middle">catalogue</text>
+  <path class="arr" d="M982,300 L1024,300"/>
+  <text class="al" x="1002" style="font-size:10px" y="292" text-anchor="middle">record</text>
+  <path class="arr2" d="M984,440 L1023,440"/>
+  <text class="al" x="1002" style="font-size:10px" y="418" text-anchor="middle">reads,</text>
+  <text class="al" x="1002" style="font-size:10px" y="431" text-anchor="middle">writes</text>
+  <text class="al" x="1002" style="font-size:10px" y="456" text-anchor="middle">back</text>
+  <path class="arr" d="M982,640 L1024,640"/>
+  <text class="al" x="1002" style="font-size:10px" y="632" text-anchor="middle">facts</text>
 
   <!-- Footer: principles -->
-  <rect x="20" y="740" width="610" height="215" rx="8" fill="#ffffff" stroke="#8c959f"/>
-  <text class="h" x="34" y="764">PRINCIPLES</text>
-  <text class="b" x="34" y="790">• Mandate is separate from capability; models never operate in the data path; autonomy is tiered.</text>
-  <text class="b" x="34" y="812">• Every accepted claim traces to evidence or to a responsible person.</text>
-  <text class="b" x="34" y="834">• Where machines can check the output, the agentic layer scales; where only judgement</text>
-  <text class="b" x="46" y="852">can check it, people remain the bottleneck.</text>
-  <text class="b" x="34" y="874">• Human attention is the scarce resource. Reversibility plus fast detection</text>
-  <text class="b" x="46" y="892">substitute for review; more review is not always less risk.</text>
-  <text class="b" x="34" y="914">• Cost must not simply move elsewhere.</text>
-  <text class="b" x="34" y="936">• Generic: the full design is described; every implementation starts lean and grows in stages.</text>
+  <rect x="20" y="760" width="610" height="225" rx="8" fill="#ffffff" stroke="#8c959f"/>
+  <text class="h" x="34" y="784">PRINCIPLES</text>
+  <text class="b" x="34" y="810">• Mandate is separate from capability; models never operate in the data path; autonomy is tiered.</text>
+  <text class="b" x="34" y="832">• Every accepted claim traces to evidence or to a responsible person.</text>
+  <text class="b" x="34" y="854">• Where machines can check the output, the agentic layer scales; where only judgement</text>
+  <text class="b" x="46" y="872">can check it, people remain the bottleneck.</text>
+  <text class="b" x="34" y="894">• Human attention is the scarce resource. Where damage is bounded, reversibility plus</text>
+  <text class="b" x="46" y="912">fast detection can substitute for review; more review is not always less risk.</text>
+  <text class="b" x="34" y="934">• Cost must not simply move elsewhere.</text>
+  <text class="b" x="34" y="956">• Generic: the full design is described; an implementation starts lean and adopts each</text>
+  <text class="b" x="46" y="974">further stage only once it needs it and its prerequisites work.</text>
 
   <!-- Footer: open -->
-  <rect x="650" y="740" width="610" height="215" rx="8" fill="#ffffff" stroke="#8c959f"/>
-  <text class="h" x="664" y="764">HONESTLY OPEN</text>
-  <text class="b" x="664" y="790">• The central bet: can the agentic layer propose business keys well</text>
-  <text class="b" x="676" y="808">enough to be worth a person's time to check?</text>
-  <text class="b" x="664" y="830">• The economics: cost per proposal, and human minutes of adjudication</text>
-  <text class="b" x="676" y="848">per week. Neither is quantified.</text>
-  <text class="b" x="664" y="870">• What success means for each capability.</text>
-  <text class="b" x="664" y="892">• Nothing is built. Next: sandboxes on open data. There, business owners</text>
-  <text class="b" x="676" y="910">and reviewers are simulated, and results must say so.</text>
+  <rect x="650" y="760" width="610" height="225" rx="8" fill="#ffffff" stroke="#8c959f"/>
+  <text class="h" x="664" y="784">HONESTLY OPEN</text>
+  <text class="b" x="664" y="810">• The central bet: can the agentic layer propose business keys well</text>
+  <text class="b" x="676" y="828">enough to be worth a person's time to check?</text>
+  <text class="b" x="664" y="850">• The economics: cost per proposal, and human minutes of adjudication</text>
+  <text class="b" x="676" y="868">per week. Neither is quantified.</text>
+  <text class="b" x="664" y="890">• What success means for each capability.</text>
+  <text class="b" x="664" y="912">• Nothing is built. Next: sandboxes on open data. There, business owners</text>
+  <text class="b" x="676" y="930">and reviewers are simulated, and results must say so.</text>
 </svg>

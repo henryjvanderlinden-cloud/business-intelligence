@@ -12,10 +12,10 @@ assignment:    one question, adversarial ("assume the points will mislead an exp
                wording fixes, 300 words; praise, assessment and summary forbidden. Declared out of
                scope: density, and the items already listed as open. The schematic went to astra
                in parallel.
-second reader: assignment set by Claude Opus 5.5, which drafted the object. Dispositions pending
-               the author's reaction.
-verdict:       FAILS — nine findings; the overview owes applicability boundaries, autonomy
-               exclusions and a replaceable architecture profile.
+second reader: assignment set by Claude Opus 5.5, which drafted the object. The author accepted
+               every finding except the sixth, ruled the first in ADR-0013, and accepted the fourth
+               in the narrower form proposed below.
+verdict:       FAILS — nine findings; eight integrated 2026-09-25, one rejected.
 ```
 
 Sol's answer, verbatim:
@@ -42,4 +42,29 @@ Sol's answer, verbatim:
 
 ## Dispositions
 
-Pending the author's reaction.
+Integrated into [080](../../00_concept/080_overview-for-discussion.md) and its schematic on
+2026-09-25, after the author's reaction.
+
+1. **Accepted, ruled.** The author: Data Vault is the example, "but I'd be hard pressed to find
+   another". Recorded as [ADR-0013](../../20_decisions/0013-data-vault-or-equivalent.md): Data Vault or
+   a functionally equivalent layer, with a three-property test — all data, all history, integrated on
+   business keys. Point 6 and the schematic say so.
+2. **Accepted.** Point 3: humans set purpose and delegation policy and rule directly on meaning;
+   everything else is decided within that policy.
+3. **Accepted.** Point 5: *governed* work, stages automated where policy allows.
+4. **Accepted in narrower form.** The design already sends irreversible items to a person by hard
+   rule ([155](../../10_architecture/155_adjudication-economy.md)), so the substitution already excludes
+   them; point 10 now adds "where the damage is bounded" rather than sol's full condition.
+5. **Accepted.** Point 8: triage *aims* at loss averted per minute, a way of reasoning until audit
+   history exists; defaults are safe, with an example.
+6. **Rejected.** "Every claim" and "one set of identifiers" state the design of
+   [ADR-0011](../../20_decisions/0011-assertions-identity-plane-publication-gate.md) faithfully; the
+   overview summarises it rather than scoping it down.
+7. **Accepted.** All twelve points are now phrased as what the framework would do, per rule 9 of
+   [AGENTS.md](../../../AGENTS.md), under a line that calls them a proposed design.
+8. **Accepted.** Point 9 names the current value areas again, as the 2026-09-24 draft did.
+9. **Accepted.** Point 11: an implementation adopts each further stage only once it needs it and the
+   prerequisites have been shown to work, as ADR-0012 says.
+
+No second round: apart from ADR-0013, which records a ruling rather than new design, the changes are
+wording.

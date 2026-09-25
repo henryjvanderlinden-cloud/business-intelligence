@@ -12,10 +12,9 @@ assignment:    one question, adversarial ("assume the picture implies something 
                the design facts the picture must respect. Declared out of scope: density, and the
                placement of the adjudication band, which the author accepted. The twelve points
                went to sol in parallel.
-second reader: assignment set by Claude Opus 5.5, which drew the object. Dispositions pending the
-               author's reaction.
-verdict:       FAILS — four findings; publication, execution authorisation and shared access
-               boundaries are drawn as bypassable or ambiguously scoped.
+second reader: assignment set by Claude Opus 5.5, which drew the object. The author accepted all
+               four findings; the second in part, as proposed below.
+verdict:       FAILS — four findings; all integrated 2026-09-25, the second in part.
 ```
 
 Astra's answer, verbatim:
@@ -32,4 +31,19 @@ FAILS + the drawn routes leave publication, execution authorization, and shared 
 
 ## Dispositions
 
-Pending the author's reaction.
+Integrated into [080_overview-schematic.svg](../../00_concept/080_overview-schematic.svg) on
+2026-09-25, after the author's reaction.
+
+1. **Accepted.** The catalogue for people is now its own compartment at the top of the context
+   column, fed by an arrow labelled *publication pipeline*; the arrow to humans starts there.
+2. **Accepted in part.** The agentic layer no longer sends "approved code" straight to machinery;
+   execution now runs from the adjudication band's outcomes to the data band, labelled *accepted
+   work only — executed by machinery*, and the band's subtitle says most proposals never reach a
+   person. Separate drawn outcomes per lane were not added: they would crowd a picture already dense
+   by choice.
+3. **Accepted.** The flow now reads *Mart build (candidate version) → publication gate → Published
+   marts → semantic layer → dashboards*, so every consumer sits downstream of the gate.
+4. **Accepted.** A dashed boundary labelled as the one identity plane now spans the data band and the
+   context column, with access filtered before retrieval by people or agents; the observation arrow
+   reads *observes profiles and metadata, not data rows — access-filtered*, consistent with
+   [ADR-0004](../../20_decisions/0004-models-out-of-the-data-path.md).

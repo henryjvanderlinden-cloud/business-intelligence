@@ -75,38 +75,56 @@ The three bands stack the faculties by mandate: machinery at the bottom running 
 > definitely separate, they are load-bearing. Adjudication economy location is good. It's dense, but
 > it's readable to me. Do as you proposed.
 
-The points below supersede the nine above. Each is marked *unchanged*, *changed* or *new* against the
-2026-09-24 draft.
+*Revised the same day after external review — gpt-5.6-sol on the points, GPT-6 Astra on the
+schematic — recorded in
+[XREV_2026-09-25_overview-points_sol](../30_research/notes/XREV_2026-09-25_overview-points_sol.md) and
+[XREV_2026-09-25_overview-schematic_astra](../30_research/notes/XREV_2026-09-25_overview-schematic_astra.md).
+The author accepted every finding except sol's sixth, and ruled on the first in
+[ADR-0013](../20_decisions/0013-data-vault-or-equivalent.md). The version reviewed is at commit
+`a930af0`.*
 
-1. **The premise** *(unchanged)*. LLMs lower the cost of building and maintaining a data landscape
-   so much that what humans contribute in BI changes.
+The points below supersede the nine above. Each is marked *unchanged*, *changed* or *new* against the
+2026-09-24 draft. They describe a proposed design: nothing is built, and every point says what the
+framework would do, not what has been shown.
+
+1. **The premise** *(unchanged)*. LLMs would lower the cost of building and maintaining a data
+   landscape so much that what humans contribute in BI changes.
 2. **Three faculties, one substrate** *(unchanged)*. Data is what gets worked on; deterministic
-   machinery, the agentic layer and humans do the work.
-3. **Mandate is separate from capability** *(unchanged)*. Models never touch the data path; the
-   agentic layer proposes; humans rule on meaning and set purpose.
-4. **The agentic layer is a system, not a model** *(unchanged)*. A heartbeat, workflows, procedures,
-   memory and LLMs.
-5. **Work is allocated by strength, as a chain** *(changed)*. Every task runs proposes → decides →
-   executes → checks; [070](070_task-allocation.md) now spells this out for 44 tasks.
+   machinery, the agentic layer and humans would do the work.
+3. **Mandate is separate from capability** *(changed)*. Models never touch the data path. The agentic
+   layer proposes. Humans set purpose, set the policy for what may be delegated, and rule directly on
+   meaning; everything else is decided within that policy.
+4. **The agentic layer is a system, not a model** *(unchanged)*. It would be a heartbeat, workflows,
+   procedures, memory and LLMs.
+5. **Work is allocated by strength, as a chain** *(changed)*. Governed work would run proposes →
+   decides → executes → checks, with stages automated where policy allows;
+   [070](070_task-allocation.md) spells this out for 44 tasks.
 6. **The reference architecture is familiar, plus a publication gate** *(changed)*. Sources → raw →
-   Data Vault → marts → semantic layer, with rule versioning. New: a mart is released only when the
-   tests on its data version pass; a failing test blocks it
+   Data Vault or a functionally equivalent layer — all data, all history, integrated on business keys
+   ([ADR-0013](../20_decisions/0013-data-vault-or-equivalent.md)) → marts → semantic layer, with rule
+   versioning. New: a mart version would be published only when the tests on that version pass; a
+   failing test blocks it
    ([ADR-0011](../20_decisions/0011-assertions-identity-plane-publication-gate.md)).
-7. **The context system is the shared memory** *(new)*. Every claim is a typed assertion with a
-   status, an owner and evidence; cards are readable views of them; all stores share one set of
-   permanent identifiers, with access filtered before retrieval. The catalogue for people is fed
-   from it through a publication pipeline, so it is one investment rather than two
+7. **The context system is the shared memory** *(new)*. Every claim would be a typed assertion with a
+   status, an owner and evidence; cards would be readable views of them; all stores would share one
+   set of permanent identifiers, with access filtered before retrieval. The catalogue for people would
+   be fed from it only through a publication pipeline, so that it is one investment rather than two
    ([120](../10_architecture/120_context-layer.md)). Load-bearing.
-8. **The adjudication economy** *(new)*. Human attention is a fixed weekly budget, spent where review
-   prevents the most damage per minute. Four lanes — auto-accept, provisional, human, park; the human
-   lane gets an owner, a deadline and a default if nobody answers; audits check that the lanes work
-   ([155](../10_architecture/155_adjudication-economy.md)). Load-bearing.
-9. **The value areas are separate, and the list is open** *(unchanged)*
+8. **The adjudication economy** *(new)*. Human attention would be a fixed weekly budget, and triage
+   aims to spend it where review prevents the most damage per minute — a way of reasoning at first,
+   and a number only once audit history exists. Four lanes — auto-accept, provisional, human, park;
+   most proposals would never reach a person. The human lane gets an owner, a deadline, and a safe
+   default if nobody answers, such as *stays provisional within its scope*; audits check that the
+   lanes work ([155](../10_architecture/155_adjudication-economy.md)). Load-bearing.
+9. **The value areas are separate, and the list is open** *(unchanged)*. Cheaper building (the
+   vault-to-mart projection); metadata, where human-made catalogues fail today; monitoring,
+   troubleshooting and testing; continuous improvement — and more may be added
    ([ADR-0009](../20_decisions/0009-separate-capabilities-open-value-areas.md)).
 10. **Safeguards** *(changed)*. The three above stand, plus: more review is not automatically less
-    risk — reversibility plus fast detection can substitute for review.
-11. **A generic framework that starts lean** *(new)*. The documents describe the full design; every
-    implementation grows into it in stages
+    risk — where the damage is bounded, reversibility plus fast detection can substitute for review.
+11. **A generic framework that starts lean** *(new)*. The documents describe the full design; an
+    implementation would start lean and adopt each further stage only once it needs it and the
+    prerequisites have been shown to work
     ([ADR-0012](../20_decisions/0012-generic-framework-lean-start.md)).
 12. **Honestly open** *(changed)*. The business-key bet (`EVI-OP-1`); the economics, now two numbers —
     cost per proposal and human minutes of adjudication per week (`CON-OP-2`); what success means per
@@ -118,9 +136,11 @@ The points below supersede the nine above. Each is marked *unchanged*, *changed*
 ![nsdn overview schematic](080_overview-schematic.svg)
 
 [`080_overview-schematic.svg`](080_overview-schematic.svg) keeps the three bands of the sketch above
-and adds three things: a band between humans and the agentic layer for the adjudication economy and
-its four lanes, placed there because it is where proposals meet human attention; a context-system
-column on the right, connected to every band; and the publication gate in the data flow. The value
-areas are on the left, the principles and open questions in the footer. It is dense by choice: its
-main audience is the author, who finds it readable. A stripped version for presenting could be drawn
-later if needed.
+and adds: a band between humans and the agentic layer for the adjudication economy and its four
+lanes, placed there because it is where proposals meet human attention, with accepted work routed
+from it to execution; a context-system column on the right, connected to every band, with the
+catalogue for people as a separate compartment fed only through the publication pipeline; a dashed
+boundary for the one identity plane, spanning the data platform and the context stores; and the
+publication gate between a mart's build and its published version. The value areas are on the left,
+the principles and open questions in the footer. It is dense by choice: its main audience is the
+author, who finds it readable. A stripped version for presenting could be drawn later if needed.
