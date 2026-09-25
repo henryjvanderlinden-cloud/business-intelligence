@@ -13,7 +13,7 @@ assignment:    one question, adversarial ("judge as a practitioner who has run B
                towards a false pass or a false fail; the minimal mechanical fix for each. Ranked, 300
                words; praise, assessment and summary forbidden. Declared out of scope: the file's stated
                limits. The decision rules went to astra in parallel.
-second reader: assignment set by Claude Opus 5.5, which drafted the object. Dispositions pending the author.
+second reader: assignment set by Claude Opus 5.5, which drafted the object. Dispositions by the author, below.
 verdict:       FAILS — endogenous epochs, incomplete refresh exposure, and non-auditable attribution can
                manufacture flat maintenance per source.
 ```
@@ -32,4 +32,9 @@ VERDICT: FAILS + endogenous epochs, incomplete refresh exposure, and non-auditab
 
 ## Dispositions
 
-Pending the author.
+The author, 2026-09-25: "let's not make it too serious yet, we're still putting our feelers out. No budget
+in 8. I'll go with 1-7." Findings 1–4 accepted as recommended: 1 as a checker rule on `trigger` and
+`assets_modified` (the immutability of the first classification left unenforced, visible in git); 2 with
+service levels set by us rather than the publisher's cadence; 3 as charging to stock served and comparing
+closed epochs only; 4 as eligibility after acceptance checks and one refresh, dependencies as burden.
+Integrated into `records/maintenance_baseline.json`.

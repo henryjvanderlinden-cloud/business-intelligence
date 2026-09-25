@@ -207,5 +207,13 @@
   "task_instance_status": {
     "open": "in progress",
     "closed": "finished; role accounting owed (deferred)"
+  },
+  "trigger": {
+    "author": "the author asked",
+    "new-source": "part of adding a source",
+    "refresh": "a scheduled refresh fell due",
+    "check-failure": "a check failed",
+    "review": "a review finding",
+    "other": "anything else"
   }
 }

@@ -272,6 +272,13 @@ def check_records():
             err(where, "duplicate asset id")
         assets[rec.get("id")] = rec
 
+    acq_steps = sorted(r.get("acquired_by") for _, r in _load_jsonl(rel("sources.jsonl")) if r.get("acquired_by"))
+
+    def epoch_start(step_id):
+        """The acquisition step that opened the epoch this step falls in; '' before the first."""
+        starts = [a for a in acq_steps if a <= step_id]
+        return starts[-1] if starts else ""
+
     steps = {}
     by_actor, by_class = {}, {}
     responses, h_words, h_large = set(), [0], [0]
@@ -390,6 +397,16 @@ def check_records():
             elif rec.get("work_reason") is not None:
                 enum(where, "work_reason", rec["work_reason"], vocab["work_reason"])
 
+            # the classification guard of the maintenance baseline (sol 1)
+            if rec.get("trigger") is not None:
+                enum(where, "trigger", rec["trigger"], vocab["trigger"])
+            if rec.get("trigger") in ("refresh", "check-failure") and rec["work_class"] not in ("maintain", "rework"):
+                err(where, "work triggered by %s is maintain, not %s" % (rec["trigger"], rec["work_class"]))
+            for a in rec.get("assets_modified", []):
+                since = assets.get(a, {}).get("since")
+                if since and since < epoch_start(sid) and rec["work_class"] not in ("maintain", "rework"):
+                    err(where, "modifies %s, which predates this epoch: maintain, not %s" % (a, rec["work_class"]))
+
             # data lineage, from the first acquired source on
             if rec["task_type"] in data_types and contemporaneous:
                 if not rec.get("assets"):
@@ -400,7 +417,7 @@ def check_records():
                     for f in ("expected", "observed", "evidence"):
                         if f not in c:
                             err(where, "check needs %s" % f)
-            for a in rec.get("assets", []):
+            for a in rec.get("assets", []) + rec.get("assets_modified", []):
                 if a not in assets:
                     err(where, "asset %s is not in assets.jsonl" % a)
 

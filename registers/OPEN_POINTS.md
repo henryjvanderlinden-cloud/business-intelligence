@@ -1927,6 +1927,12 @@ vigilance owed is this: the next session should close rows or execute residuals,
 treat opening a new one as a cost. The §III rewrite is the natural instrument, because it
 closes five at once.
 
+**The author, 2026-09-25, session 06**, on the step log and the maintenance baseline: "let's not make it
+too serious yet, we're still putting our feelers out. [...] And keep in mind, this whole system also
+suffers from the same things described in Generative Structures, so let's not make it too large." The
+apparatus is itself a growing stack whose upkeep draws on the same budget as the work; its overhead share
+is measured in the step log (`work_class` overhead) and is this row's evidence from now on.
+
 ### PRC-OP-4 — The drafting-to-challenging ratio was about five to one
 **⛔ STATE: OPEN**
 Opened 2026-09-19, session 01, as a finding about the session that produced this

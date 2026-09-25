@@ -1,5 +1,5 @@
 {
-  "_doc": "The baseline for CON-OP-16: maintenance effort per stable unit of landscape, while burden indicators hold steady. Fixed before any comparison is run (docs/50_process/520_record-keeping.md, 'The maintenance baseline comes before the second source'). Every figure below is computable from the files in records/. Drafted by claude-opus-5-5 at S06-048; unreviewed; the numbers in 'tolerances' are proposals for the author to set.",
+  "_doc": "The baseline for CON-OP-16: maintenance effort per stable unit of landscape, while burden indicators hold steady. Fixed before any comparison is run (docs/50_process/520_record-keeping.md, 'The maintenance baseline comes before the second source'). Every figure below is computable from the files in records/. Drafted by claude-opus-5-5 at S06-048; reviewed by sol and astra (XREV_2026-09-25_maintenance-baseline_*); revised at S06-060 with the author's accepted findings 1-7; the numbers in 'tolerances' are proposals for the author to set.",
   "status": "ruled",
   "ruled_by": "S06-052",
   "register_rows": [
@@ -10,17 +10,19 @@
   "epoch": {
     "_doc": "The reporting window. The landscape grows one source at a time, so the natural window is the interval between two source acquisitions, not a calendar period.",
     "definition": "Epoch n runs from the step that acquires the n-th source (sources.jsonl acquired_by) up to, not including, the step that acquires source n+1. The last epoch is open until the post-mortem.",
-    "calendar_companion": "Each epoch also reports its elapsed calendar days, so that a long epoch is not mistaken for a costly one."
+    "calendar_companion": "Each epoch also reports its elapsed calendar days, so that a long epoch is not mistaken for a costly one.",
+    "stock_served": "Each maintenance step is charged to the stock existing at that step, not to the epoch's end stock (sol 3).",
+    "comparable": "Only closed epochs are compared, and only once every refresh that fell due in them has an outcome (sol 3)."
   },
   "service_commitment": {
-    "_doc": "Without this rule there is nothing to maintain and the measure would read zero by construction. A landscape that is never refreshed has no upkeep.",
-    "rule": "At the start of every epoch after the first, each supported source is re-acquired if its publisher has released a newer version since the last acquisition, and every check that ran against it is re-run. Refresh, re-run and any repair that follows are maintenance by definition.",
-    "known_cadences": {
-      "SRC-012 PAR": "annual (peildatum 1 April)",
-      "SRC-014 OpenStreetMap": "daily extracts",
-      "SRC-007 GLEIF": "daily deltas",
+    "_doc": "Replaces the once-per-epoch refresh rule (sol 2). Intervals are ours, not the publisher's, so the sandbox does not drown in refreshes.",
+    "service_levels": {
+      "SRC-012 PAR": "yearly",
+      "SRC-014 OpenStreetMap": "weekly",
+      "SRC-007 GLEIF": "weekly",
       "SRC-005 BAG": "monthly"
-    }
+    },
+    "rule": "Each refresh that falls due is recorded as done or missed. A missed refresh is a broken service commitment and counts as burden. Refresh, check re-runs and repairs are maintenance."
   },
   "stable_units": {
     "_doc": "The denominator. Counted at the start of each epoch from assets.jsonl and sources.jsonl, status supported only. Kept as separate counts, never combined into one index.",
@@ -34,15 +36,13 @@
         "count": "assets with status supported, per kind: source-file, table, model, report, control"
       },
       {
-        "name": "dependencies",
-        "count": "edges in assets.depends_on between supported assets"
-      },
-      {
         "name": "service_commitments",
         "count": "supported sources under the refresh rule above"
       }
     ],
-    "excluded": "Steps, tickets, commits, documents and review notes are not stock; counting them would reward fragmentation (sol, XREV maintenance-share finding 8)."
+    "excluded": "Steps, tickets, commits, documents and review notes are not stock; counting them would reward fragmentation (sol, XREV maintenance-share finding 8).",
+    "eligible": "A source counts as stock only after it has passed its acceptance checks and survived one full refresh (sol 4, astra 2).",
+    "dependencies": "Counted as burden, never as stock: counting them as stock would reward coupling (sol 4)."
   },
   "effort": {
     "_doc": "The numerator, reported as separate measures and never summed. Classification is the step's work_class, decided by the counterfactual: would this be needed merely to keep the existing landscape running?",
@@ -90,11 +90,12 @@
     "pending_on_author": "steps with outcome pending and blocker human-wait at the epoch end"
   },
   "tolerances": {
-    "_doc": "PROPOSED by the model, to be set by the author. With four to six sources the sandbox has little statistical power; these are decision rules for an indicative result, not significance tests.",
-    "effort_per_unit_flat": "Maintenance measures per supported source in every epoch from the third on stay within +10% of the second epoch, for each measure separately. The first epoch has no prior stock and is excluded.",
+    "_doc": "Set provisionally by the author at S06-052; revised after review. Indicative, not significance tests.",
+    "effort_per_unit_flat": "Kept as a separate acceptance check only: from the third epoch on, maintenance per unit of workload stays within +10% of the second epoch.",
     "burden_steady": "Open weighted defects per supported source stay within +25% of the second epoch, and no high or critical defect is older than one epoch.",
-    "hard_fail": "Any epoch in which maintenance steps outnumber build steps, while burden indicators also rise, is reported as the failure the Generative Structures mapping predicts, whatever the per-unit trend.",
-    "no_redefinition": "These definitions may not change after the second source is acquired. A change needs a new baseline file, the old one kept as superseded, and every result reported under both."
+    "hard_fail": "Demoted to a trigger for investigation, not a verdict (astra 3): an epoch in which maintenance steps outnumber build steps while burden rises is examined by hand. No budget is set for collapse; the author ruled none for now.",
+    "no_redefinition": "These definitions may not change after the second source is acquired. A change needs a new baseline file, the old one kept as superseded, and every result reported under both.",
+    "test": "Across successive closed epochs, maintenance effort grows no faster than the workload maintained, while burden stays steady (astra 1). Judged on the trend of effort-to-workload ratios, per effort measure."
   },
   "limits": [
     "The author's effort is a proxy (responses, words, large acts) by his ruling; it is not time.",
@@ -102,5 +103,19 @@
     "Sandbox users and business stakeholders are simulated (ADR-0012), so displaced effort to other people cannot occur and cannot be measured.",
     "Comparison at fixed capacity (XREV maintenance-share finding 7) is approximated by one author and one recording model throughout; a change of model mid-sandbox must be recorded and results split at it."
   ],
-  "ruling": "Provisional. The author: \"let's try it for now. maybe do pass past sol and astra.\" Definitions may still change on review until the second source is acquired; after that, the no_redefinition tolerance applies."
+  "ruling": "Provisional. The author: \"let's try it for now. maybe do pass past sol and astra.\" Definitions may still change on review until the second source is acquired; after that, the no_redefinition tolerance applies. Revised 2026-09-25 after review; the author: \"let's not make it too serious yet, we're still putting our feelers out. No budget in 8. I'll go with 1-7.\"",
+  "workload": {
+    "_doc": "The denominator that matters (astra 1 and 2). Recorded by the machinery at each acquisition and refresh, per source.",
+    "descriptors": [
+      "rows maintained",
+      "rows changed since the previous refresh",
+      "refreshes processed"
+    ],
+    "rule": "Effort is related to workload per source and per refresh, not to a count of sources. Shared maintenance, not attributable to one source, is reported separately."
+  },
+  "classification_guard": {
+    "_doc": "Takes the key judgement out of the recorder's hands (sol 1).",
+    "rule": "A step whose trigger is refresh or check-failure, or which modifies an asset that existed before the current epoch began, is maintain (or rework of maintenance). Enforced by tools/check_repo.py through the step fields trigger and assets_modified.",
+    "unenforced": "That a relabelled step keeps its first classification is not checked mechanically; git history shows relabelling."
+  }
 }

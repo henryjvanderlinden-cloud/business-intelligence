@@ -1,2 +1,3 @@
 {"id": "TI-001", "task_row": 7, "subject": "Acquire the PAR 2024 file (SRC-012)", "allocation_version": "383bff1", "opened_by": "S06-015", "status": "closed", "closed_by": "S06-039"}
 {"id": "TI-002", "task_row": 8, "subject": "Profile the PAR 2022 file (ASSET-002)", "allocation_version": "383bff1", "opened_by": "S06-040", "status": "open"}
+{"id": "TI-003", "task_row": 7, "subject": "Acquire the OpenStreetMap Utrecht extract (SRC-014)", "allocation_version": "383bff1", "opened_by": "S06-061", "status": "open"}

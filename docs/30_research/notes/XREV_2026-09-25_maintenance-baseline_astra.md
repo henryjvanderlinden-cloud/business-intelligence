@@ -15,7 +15,7 @@ assignment:    adversarial ("assume the decision rules cannot discriminate a mai
                praise, assessment and summary forbidden. Practice went to sol in parallel.
 second reader: assignment set by Claude Opus 5.5, which drafted the object; the claim as stated in the
                prompt is the drafter's paraphrase of CON-OP-16 and the Generative Structures mapping.
-               Dispositions pending the author.
+               Dispositions by the author, below.
 verdict:       UNDETERMINED — owed comparable maintenance exposures, composition-adjusted workload, and
                evidence of sustained capacity failure.
 ```
@@ -32,4 +32,8 @@ VERDICT: UNDETERMINED + owed comparable maintenance exposures, composition-adjus
 
 ## Dispositions
 
-Pending the author.
+The author, 2026-09-25: "let's not make it too serious yet, we're still putting our feelers out. No budget
+in 8. I'll go with 1-7." 1 accepted: the test restated as effort growing no faster than workload, the +10%
+kept as a separate acceptance check. 2 accepted: workload descriptors per source and refresh. 3 accepted:
+the hard-fail rule demoted to a trigger for investigation; the budget astra's repair requires was declined
+by the author for now. Integrated into `records/maintenance_baseline.json`.
