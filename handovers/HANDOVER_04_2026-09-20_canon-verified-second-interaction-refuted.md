@@ -1,7 +1,9 @@
 # nsdn — Handover 04: the canon was checked, the author corrected the check, and the capabilities are separate
 ## Written 2026-09-20 at the close of session 04; revised 2026-09-21 after the author's review
 
-> **STATUS: CURRENT.**
+> **STATUS: HISTORICAL (superseded 2026-09-25)**, by
+> [HANDOVER_05_2026-09-25_framework-context-adjudication.md](HANDOVER_05_2026-09-25_framework-context-adjudication.md),
+> which rewrites it whole at the close of session 04.
 
 ---
 

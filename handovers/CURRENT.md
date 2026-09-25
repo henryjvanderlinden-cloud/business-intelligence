@@ -1,5 +1,5 @@
 # Current handover
 
-→ [HANDOVER_04_2026-09-20_canon-verified-second-interaction-refuted.md](HANDOVER_04_2026-09-20_canon-verified-second-interaction-refuted.md)
+→ [HANDOVER_05_2026-09-25_framework-context-adjudication.md](HANDOVER_05_2026-09-25_framework-context-adjudication.md)
 
 This pointer is updated in the same commit as each new handover.
