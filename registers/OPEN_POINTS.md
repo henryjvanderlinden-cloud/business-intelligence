@@ -1647,6 +1647,12 @@ identity to be established by hand for a sample. Dutch public registers are the 
 candidate on structural grounds. The survey needs no code and is the natural first
 substantive task of Mode 1.
 
+**Extended 2026-09-25, session 05.** A second requirement follows from `CON-OP-16`: the sources should
+let a landscape grow one source at a time, with sources that change over time, so that maintenance
+effort per stable unit of landscape — with burden indicators held steady — can be measured as the
+landscape grows. Per [ADR-0012](../docs/20_decisions/0012-generic-framework-lean-start.md), the people
+in such a sandbox are simulated and results must say so.
+
 ### EVI-OP-3 — Query logs as evidence
 **⛔ STATE: OPEN**
 Opened 2026-09-19, session 01.

@@ -1,5 +1,5 @@
 # Current handover
 
-→ [HANDOVER_05_2026-09-25_framework-context-adjudication.md](HANDOVER_05_2026-09-25_framework-context-adjudication.md)
+→ [HANDOVER_06_2026-09-25_overview-and-generative-structures.md](HANDOVER_06_2026-09-25_overview-and-generative-structures.md)
 
 This pointer is updated in the same commit as each new handover.

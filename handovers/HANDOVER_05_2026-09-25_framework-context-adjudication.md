@@ -1,7 +1,9 @@
 # nsdn — Handover 05: the framework took shape — task allocation, the context system, the adjudication economy
 ## Written 2026-09-25 at the close of session 04, which ran from 2026-09-20 to 2026-09-25
 
-> **STATUS: CURRENT.**
+> **STATUS: HISTORICAL (superseded 2026-09-25)**, by
+> [HANDOVER_06_2026-09-25_overview-and-generative-structures.md](HANDOVER_06_2026-09-25_overview-and-generative-structures.md),
+> written at the close of session 05.
 
 ---
 
