@@ -809,6 +809,45 @@ displacing the burden downstream. The author's argument and the reviewer's conce
 consequence for the canon survey is in `ARC-OP-14`. Everything below this line about the
 obstacle classification is retained for provenance and is not a current claim.
 
+### CON-OP-16 — Is the maintenance share the measure of success?
+**⛔ STATE: OPEN**
+Opened 2026-09-25, session 05, from the author's *Generative Structures* paper, mapped onto this
+project in
+[2026-09-25-generative-structures-mapping](../docs/30_research/notes/2026-09-25-generative-structures-mapping.md)
+at his request and accepted by him.
+
+The paper's one distinctive prediction is that in any growing stack of capability the **maintenance
+share** — the fraction of effort spent keeping the existing stock working rather than extending it —
+rises secularly, and approaches exhaustion before breakdown. In a data landscape that is the familiar
+path to the rebuild. The candidate criterion: nsdn succeeds if the maintenance share stays flat or
+falls as the landscape grows, at an unchanged defect rate.
+
+It is a candidate for `CON-OP-15`, where it would give *lower cost at higher quality* a trajectory
+rather than a snapshot, and a second figure for `CON-OP-2` next to the break-even in columns. It is
+measurable in a sandbox: add sources one at a time and log agent-minutes and human-minutes, split
+between maintaining and building. The weekly budget report of
+[155_adjudication-economy.md](../docs/10_architecture/155_adjudication-economy.md) already counts
+human minutes and would need that split. Owed: a definition of *maintaining* versus *building* that a
+log can apply without judgement; whether agent effort and human effort are summed, weighted or kept
+apart; and the author's ruling on whether this is the criterion, a criterion, or a diagnostic.
+
+### CON-OP-17 — Does cheaper building owe a pairing with the maintenance value areas?
+**⛔ STATE: OPEN**
+Opened 2026-09-25, session 05, from the same note as `CON-OP-16`.
+
+In the paper's terms, the *cheaper building* value area raises capability, while *metadata*,
+*monitoring, troubleshooting and testing* and *continuous improvement* raise maintenance efficiency.
+With burden coupled to capability, faster building without better maintenance reaches the point of an
+unmaintainable landscape sooner. If that holds, cheaper building is safe only in company with at
+least one maintenance value area — an interaction between value areas, which
+[ADR-0009](../docs/20_decisions/0009-separate-capabilities-open-value-areas.md) rules is not owed.
+
+This row records the question and deliberately drafts no interaction candidate, per the handover's
+standing instruction. It is the author's to rule whether it reopens ADR-0009, is answered by it — the
+capabilities stay separate as claims while an implementation is advised to adopt them together — or is
+dismissed. `CON-OP-16` would supply the evidence either way: a sandbox that builds cheaply without the
+maintenance capabilities should show the maintenance share rising.
+
 ---
 
 ## §2 — Architecture (`ARC`)

@@ -1,0 +1,123 @@
+# 2026-09-25 — What *Generative Structures* says about nsdn
+
+**Question this note answers.** The author asked, on 2026-09-25, session 05: "Please read the tex
+document in C:\Git\compendium\papers\130_GS. It is part of a series of political papers I am working
+on. But I think it is relevant in this case. Please read it and tell me what you think the relevance
+is for this project." The paper is *Generative Structures: Capability Accumulation, Generated Burden,
+and the Maintenance of Civilizational Viability*, working document v004, by the author, a member of
+his political-theory compendium (GS, folder 130). This note records the mapping the author accepted
+in the same conversation: "Yes, good summary."
+
+Written by Claude Opus 5.5 and **unreviewed** on a different model. Per the conventions in
+[`../README.md`](../README.md) this note is allowed to be wrong and is superseded rather than
+revised. The two register rows it opens are `CON-OP-16` and `CON-OP-17`.
+
+---
+
+## 1. The paper in one paragraph
+
+Durable arrangements — *generative structures* — expand what a society can do, and the same act that
+generates capability generates *burden*: complexity, dependency, concentration, externality,
+epistemic distortion and adaptive lag. Burden is latent in the structure and realised only when
+maintenance lapses. Maintenance, growth and external defence draw on one budget of throughput. If the
+burden produced per unit of capability rises as capability accumulates (the paper's θ > 0), the share
+of throughput consumed by maintenance rises without bound, and at a finite capability level no
+allocation can hold burden below tolerance: the corridor of viability closes from within
+(Propositions 1–3). External pressure lowers that threshold (Proposition 4); maintenance efficiency μ
+and the coupling between capability and burden move it (Proposition 5), and both are largely set by
+architecture — modular, loosely coupled stacks localise failure, centralised ones propagate it (Simon
+1962; Perrow 1984). The paper's one distinctive prediction is that the **maintenance share** — the
+fraction of throughput spent keeping the existing stock working rather than extending it — rises
+secularly and approaches exhaustion before breakdown.
+
+## 2. The mapping onto a data landscape
+
+The transfer is by analogy, not by proof, and it is exact enough to be useful.
+
+A data landscape is a stack of generative structures: sources, integration layer, marts, semantic
+layer and reports each enlarge what an organisation can know and act on. Its burdens are the six
+classes of the paper, in forms every BI practitioner recognises: *complexity*, when nobody understands
+the whole warehouse any more; *dependency*, when everything rests on one nightly load; *concentration*,
+when knowledge sits in two heads or one vendor; *externality*, when costs land on business users;
+*epistemic*, as wrong numbers and stale metadata; *adaptive*, when sources change faster than the
+warehouse follows. The single budget is team capacity, split between building (g), keeping what
+exists working (m) and outside demands such as audits, regulation and source-system migrations (x).
+Corridor closure is the familiar end of a warehouse's life: the maintenance share grows until nothing
+is left for new work, and the landscape is rebuilt. The paper reads that cycle as Tainter's collapse
+rather than as bad management.
+
+The version 0.6 test of [002_mission-statement.md](../../00_concept/002_mission-statement.md) —
+designs whose *total lifecycle burden* exceeds ordinary teams' capacity, with a guard against
+displacing burden downstream — is already stated in the paper's terms. GS supplies the dynamics behind
+it: why that burden grows, and what closes the corridor when it does.
+
+## 3. What follows for nsdn
+
+**Cheaper building on its own accelerates the collapse.** The premise that LLMs lower the cost of
+building raises the generation rate. With burden coupled to capability, faster generation without
+better maintenance only reaches the threshold sooner. The value case therefore rests on the *and
+maintaining* half of the premise, not on the building half. The observation in
+[060_faculty-inventory.md](../../00_concept/060_faculty-inventory.md), dimension 11 — ten times the
+proposals is ten times the adjudication — is the same coupling seen from the review queue.
+
+**The value areas divide into two kinds.** *Cheaper building* raises capability; *metadata*,
+*monitoring, troubleshooting and testing* and *continuous improvement* raise maintenance efficiency μ.
+The paper implies the first is safe only in company with the second. That is an interaction between
+value areas, which [ADR-0009](../../20_decisions/0009-separate-capabilities-open-value-areas.md) says
+is not owed. The question is recorded as `CON-OP-17` and not drafted as an interaction candidate.
+
+**The maintenance share is a candidate success measure.** The paper's falsifiable implication
+transfers directly: in a growing landscape, the share of effort spent on upkeep rather than on new
+capability rises. nsdn succeeds, on this reading, if that share stays flat or falls as the landscape
+grows. It is measurable in a sandbox by adding sources one at a time and logging agent-minutes and
+human-minutes split between maintaining and building; the weekly budget report of
+[155_adjudication-economy.md](../../10_architecture/155_adjudication-economy.md) already counts human
+minutes and would need only that split. Recorded as `CON-OP-16`, as a candidate for `CON-OP-15` and a
+second figure for `CON-OP-2`.
+
+**The adjudication economy is Proposition 1 applied to human attention.** Human attention is the fixed
+budget and review is maintenance. The levers of 155 — precedents that let one ruling cover four
+hundred columns, parking that stops unneeded capability being built, reversibility plus fast detection
+that removes the need for review — each raise μ. The design already optimises the paper's parameter
+without naming it.
+
+**Architecture is a lever, and it cuts both ways.** Data Vault is modular in Simon's sense: adding a
+source inserts new objects rather than altering existing ones, which keeps burden and failure local.
+That is a reason for [ADR-0013](../../20_decisions/0013-data-vault-or-equivalent.md) beyond industry
+practice. The publication gate of
+[ADR-0011](../../20_decisions/0011-assertions-identity-plane-publication-gate.md) turns propagation
+into containment. The other side is the context system and its one identity plane: a hub on which
+nearly everything depends, which the paper would score as high dependency burden by centrality. 155
+already treats a wrong precedent spreading as its largest risk; the paper suggests treating the hub
+itself with the same caution.
+
+**There is a concrete mechanism for burden growing faster than the landscape.** Join knowledge
+([128_join-knowledge.md](../../10_architecture/128_join-knowledge.md)) scales with *pairs* of tables,
+not with tables, so at least one burden class grows quadratically in landscape size — θ > 0 with a
+mechanism attached. Whether aggregate burden in real warehouses behaves this way is an empirical
+question, and one a sandbox could measure.
+
+**nsdn is itself a new generative structure, with burdens of its own.** The paper holds that every
+solution creates a new coordination problem one level up. The agentic layer answers the ceiling that
+human cognition puts on the data stack, and would generate epistemic burden (confident machine error,
+central to [120_context-layer.md](../../10_architecture/120_context-layer.md)), adaptive burden
+(models and tools change underfoot — the loss of `codex mcp-server` in Codex 0.154 is a small
+instance), concentration burden (reliance on model vendors) and dependency burden (it becomes
+infrastructure). The project's honest test is whether the burden it adds is smaller than the burden it
+removes. [ADR-0004](../../20_decisions/0004-models-out-of-the-data-path.md) gives a strong structural
+answer on dependency that is worth stating explicitly: because models never operate in the data path,
+data keeps flowing when the agentic layer stops.
+
+**Viability is not value.** The paper stresses that selection keeps orders alive without certifying
+them as good for those inside. A warehouse can be maintained while serving its users badly; this
+supports the value-weighting already required in `CON-OP-15`.
+
+## 4. Limits
+
+The propositions are elementary algebra on a stock-flow model; what transfers is the framing, the
+maintenance-share measure and the burden classes as a checklist, not any proof. Whether burden per
+unit of capability rises in real data landscapes is unmeasured here. The analogy maps a team's
+capacity onto a society's throughput, which ignores that a team's budget is set from outside by a
+sponsor, whereas a society's is generated by its own stock — so capability in a landscape does not
+feed its own maintenance budget the way the paper's Φ(C) does, except through the sponsor's
+willingness to pay for what the landscape delivers.
