@@ -1688,6 +1688,11 @@ rows against the province's 174,770). The size-class codes are undocumented; two
 reported job total. Consequence: every name must come from another source, matched on location and
 sector, which makes the first join spatial rather than on keys.
 
+**OpenStreetMap acquired 2026-09-25, session 06** (`SRC-014`, epoch 2): 17,279 named business features in
+the province, 70% with a website and 85% with postcode and house number, but only 3 with a KvK tag, so
+OSM supplies names and web presence without an answer key. It covers about a tenth as many places as PAR
+has establishments.
+
 ### EVI-OP-3 — Query logs as evidence
 **⛔ STATE: OPEN**
 Opened 2026-09-19, session 01.
