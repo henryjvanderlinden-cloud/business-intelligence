@@ -10,7 +10,7 @@
 1. `git log --oneline -8` — expect HEAD at the commit recording the author's review, on top
    of `cb8647a`.
 2. `python tools/check_repo.py` — must pass before anything is changed. Expect 55 rows, all
-   live, and 11 ADRs.
+   live, and 12 ADRs.
 3. Read [`../registers/OPEN_POINTS.md`](../registers/OPEN_POINTS.md). It is the authority on
    what is open; this handover is orientation only, and where the two disagree the register
    wins.
@@ -101,7 +101,16 @@ the context system on paper again**; the next test of it is a proof of concept.
 **The adjudication economy was drafted on 2026-09-25**, on the author's question how to keep the
 human review queue to a responsible minimum:
 [155](../docs/10_architecture/155_adjudication-economy.md), with the structured adjudication record
-and monitoring workflows he asked for, row 44 of 070, and `ARC-OP-28`. It is unreviewed.
+and monitoring workflows he asked for, row 44 of 070, and `ARC-OP-28`. It was reviewed the same
+day by astra and sol and revised; it now ends with three implementation stages.
+
+**The framework is generic, and every implementation starts lean —
+[ADR-0012](../docs/20_decisions/0012-generic-framework-lean-start.md).** The author has no specific
+environment in mind; framework documents describe the full design and, where it matters, how an
+implementation grows into it in stages. The framework comes first; the first tests will be sandboxes
+on open data, where people's roles are simulated and the results must say so. The author is
+convinced the agentic layer adds real value in BI; the ADR records that as the premise, not as
+evidence.
 
 ## Why that task and not another
 

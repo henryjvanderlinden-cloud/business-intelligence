@@ -1525,6 +1525,22 @@ is kept proportionate; and an external review. This row is the adjudication half
 weekly budget report is the number that decides whether the economics hold. Related to `ARC-OP-6`,
 `ARC-OP-15`, `ARC-OP-17`, `ARC-OP-18` and `CON-OP-15`, which it draws together.
 
+**Reviewed 2026-09-25** on GPT-6 Astra (the model) and gpt-5.6-sol (organisational practice),
+recorded in [XREV_2026-09-25_adjudication-economy_astra](../docs/30_research/notes/XREV_2026-09-25_adjudication-economy_astra.md)
+and [XREV_2026-09-25_adjudication-economy_sol](../docs/30_research/notes/XREV_2026-09-25_adjudication-economy_sol.md);
+all eleven findings integrated. The problem is now stated as loss averted — loss without review
+minus loss with review, including delay and reviewer-induced error — per human minute, with numeric
+ranges rather than bands and the reviewer's detection recorded, not assumed. Human-lane items carry a
+decision owner, delegate, deadline and explicit default; service classes have objective entry
+criteria and reserved capacity; tightening that would exceed capacity quarantines or throttles
+instead; audits are random within strata, with exploration samples and independent confirmation;
+reviewer data is reported for groups, never individuals. The author ruled that **seeded checks stay,
+blinded and excluded from all estimates**, and that rigour versus a lean start is a question of
+implementation: [ADR-0012](../docs/20_decisions/0012-generic-framework-lean-start.md). 155 now ends
+with three implementation stages. Newly owed: the evidence required to promote a provisional claim,
+the reserved-capacity shares, and how a sandbox with simulated business owners exercises any of
+this.
+
 ---
 
 ## §3 — Evidence and measurement (`EVI`)
