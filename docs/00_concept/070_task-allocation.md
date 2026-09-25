@@ -40,6 +40,10 @@ the author called the most important of that day's points. Row 37 was extended t
 context store. The rows themselves have not been externally reviewed; the documents behind
 them were, on 2026-09-25, and rows 41–43 were updated to match.
 
+Row 44 was added the same day from
+[155_adjudication-economy.md](../10_architecture/155_adjudication-economy.md), on the author's
+question how to keep the human review queue to a responsible minimum. It is unreviewed.
+
 ## How to read the table
 
 Each task is a **chain** rather than a single owner: who **proposes**, who **decides**, who
@@ -123,6 +127,8 @@ below)
 | 41 | Temporal behaviour per table and attribute, on six axes (mutation, delivery, effective dating, arrival latency, correction, deletion), and each source's capture guarantee | D measures change and extract completeness across loads; A classifies and proposes the treatment | H, feeding row 15 | D builds the chosen history | D monitors for drift | 3, 12, 13 |
 | 42 | Join knowledge: joinable pairs, grain and population, key roles, cardinality (declared, observed, asserted), optionality, referential integrity, join risks | D measures overlap, multiplicity both ways and orphans; A proposes intended cardinality and risks | H asserts cardinality where the source does not enforce it | D runs query-level tests before use, then as standing tests behind a publication gate | D; drift to row 43 | 5, 3, 12, 13 |
 | 43 | Maintain the context system: re-check, propagate invalidation, quarantine within limits, rebuild summaries, merge, expire, find contradictions and drift, handle absences, propagate erasure to every copy, improve recipes, reconcile its own coverage | A proposes, on the heartbeat | Routine under H-approved rules; H for anything touching a ruled fact | A and D | D via retrieval measures; H spot checks | 7, 12, 11 |
+| | **Adjudication** | | | | | |
+| 44 | Run the adjudication economy: triage into lanes, audit sampling, lane calibration, escaped-defect tracing, queue health, budget report | D counts and A triages, under approved rules | Tightening automatic; H approves loosening and sets the budget | D and A | H audits samples; D measures escaped defects | 2, 4, 5, 6, 11, 13 |
 
 ⚠ Row 9 is the project's unsettled central bet: that the agentic layer can propose business
 keys accurately enough to be worth a person's time to check.

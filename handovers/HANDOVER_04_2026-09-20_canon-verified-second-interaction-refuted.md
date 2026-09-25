@@ -9,7 +9,7 @@
 
 1. `git log --oneline -8` — expect HEAD at the commit recording the author's review, on top
    of `cb8647a`.
-2. `python tools/check_repo.py` — must pass before anything is changed. Expect 54 rows, all
+2. `python tools/check_repo.py` — must pass before anything is changed. Expect 55 rows, all
    live, and 11 ADRs.
 3. Read [`../registers/OPEN_POINTS.md`](../registers/OPEN_POINTS.md). It is the authority on
    what is open; this handover is orientation only, and where the two disagree the register
@@ -97,6 +97,11 @@ second-round findings became [ADR-0011](../docs/20_decisions/0011-assertions-ide
 assertions are the core record and cards are views; one identity plane over separate stores; a
 publication gate. The author and the reviews agree that returns have diminished: **do not review
 the context system on paper again**; the next test of it is a proof of concept.
+
+**The adjudication economy was drafted on 2026-09-25**, on the author's question how to keep the
+human review queue to a responsible minimum:
+[155](../docs/10_architecture/155_adjudication-economy.md), with the structured adjudication record
+and monitoring workflows he asked for, row 44 of 070, and `ARC-OP-28`. It is unreviewed.
 
 ## Why that task and not another
 

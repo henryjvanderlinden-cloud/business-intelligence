@@ -1207,6 +1207,11 @@ summary is worth what the summary was. Some evidence discipline is owed here —
 instances drawn adversarially rather than favourably, and an explicit record of the
 counterexamples the system found and discounted.
 
+**Placed 2026-09-25** in [155_adjudication-economy.md](../docs/10_architecture/155_adjudication-economy.md):
+ruling on patterns rather than instances is the main lever on review cost, and precedent — later
+cases auto-accepted under an accepted rule, monitored and sampled — is its largest multiplier. Audit
+sampling there is stratified by rule for the reason this row gives.
+
 ### ARC-OP-19 — Design is a fourth kind of claim and the autonomy tiers do not classify it
 **⛔ STATE: OPEN**
 Opened 2026-09-20, session 02, from the author's statement that the second faculty designs
@@ -1502,6 +1507,23 @@ needs a comparable population and a consistent snapshot, else it is *unresolved*
 guarantees state demonstrated coverage, not capability. Joins: per-fact reconciliation with
 attribution cases, uniqueness tested after the join's own transformations, a defined allocation
 origin for bridges, and the publication gate of ADR-0011.
+
+### ARC-OP-28 — The adjudication economy is modelled, not calibrated
+**⛔ STATE: OPEN**
+Opened 2026-09-25, session 04, from the author's question how to keep the human review queue to a
+responsible minimum while limiting the risk of faulty assumptions.
+
+[155_adjudication-economy.md](../docs/10_architecture/155_adjudication-economy.md) states the
+problem as spending a fixed budget of human attention where it averts the most expected loss —
+p × L × (1 − d) × r against review cost h — subject to hard rules for mandate, irreversibility and
+regulation; sorts candidates into four lanes (auto-accept, accept provisionally, human, park);
+names the levers that shrink the queue; and specifies the structured adjudication record and the
+monitoring workflows the author asked for, with tightening automatic and loosening approved by a
+person. Owed: how p, L and d are estimated before any audit history exists; initial thresholds and
+sampling rates; who sets the weekly budget per reviewer role; how data about individual reviewers
+is kept proportionate; and an external review. This row is the adjudication half of `CON-OP-2`: the
+weekly budget report is the number that decides whether the economics hold. Related to `ARC-OP-6`,
+`ARC-OP-15`, `ARC-OP-17`, `ARC-OP-18` and `CON-OP-15`, which it draws together.
 
 ---
 
