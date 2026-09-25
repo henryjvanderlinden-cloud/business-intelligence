@@ -27,3 +27,4 @@ describe options; only an ADR adopts one.
 | [0010](0010-the-agentic-layer.md) | The second faculty is the agentic layer | Accepted |
 | [0011](0011-assertions-identity-plane-publication-gate.md) | Assertions are the core record; one identity plane over separate stores; a publication gate | Accepted |
 | [0012](0012-generic-framework-lean-start.md) | A generic framework; every implementation starts lean | Accepted |
+| [0013](0013-data-vault-or-equivalent.md) | The integration layer is Data Vault or a functionally equivalent layer | Accepted |
