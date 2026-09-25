@@ -1,7 +1,11 @@
 # 520 — Record keeping: a step log for the post-mortem
 
-**Status: working draft, unreviewed.** Built on 2026-09-25, session 06, at the author's request.
-Adopted by [ADR-0014](../20_decisions/0014-step-log.md). External review is owed under `PRC-OP-6`.
+**Status: working draft, amended after review.** Built on 2026-09-25, session 06, at the author's
+request, and adopted by [ADR-0014](../20_decisions/0014-step-log.md). Reviewed the same day by sol and
+astra, both of whom failed it
+([sol](../30_research/notes/XREV_2026-09-25_step-log_sol.md),
+[astra](../30_research/notes/XREV_2026-09-25_step-log_astra.md)); the findings the author accepted are
+integrated below under *Added after review*. The amendments themselves are unreviewed.
 
 ## Why this exists
 
@@ -31,6 +35,9 @@ diffable in git, loadable in one statement by DuckDB (`read_json_auto('records/s
 | `records/steps/<session>.jsonl` | one step | the fact table |
 | `records/sessions.jsonl` | one working session | session dimension |
 | `records/sources.jsonl` | one candidate or acquired data source | source dimension and lineage |
+| `records/task_instances.jsonl` | one piece of work under one row of 070 | task dimension |
+| `records/assets.jsonl` | one data asset: a delivered file, table, model, report or control | asset dimension; the start of the stable-unit inventory |
+| `records/audits.jsonl` | one blind reclassification of a session's sample | audit fact |
 | `records/vocabulary.json` | — | the allowed values of every classified field, and the known agents |
 
 The vocabulary is data, not code, so a new value is added by editing one file. The checker reads it.
@@ -78,7 +85,8 @@ Redoing something because it was wrong is `rework`, and is charged to whichever 
 Looking for options without yet building is `explore`. Coordination, session admin and record keeping are
 `overhead`. The five are exclusive; where a step straddles two, it is split.
 
-**Result.** `outcome` is `done`, `partial`, `failed`, `blocked`, `pending` (waiting on someone) or
+**Result.** `outcome` records completion only — whether the step's own agent finished it — and is
+`done`, `partial`, `failed`, `blocked`, `pending` (waiting on someone) or
 `superseded` (overtaken by a later decision). A blocked or failed step carries a `blocker` with a category
 from the vocabulary and a sentence of detail. `defects` lists anything wrong in the step's output, with
 its type, who found it and which step fixed it. A defect found later is appended to the original step,
@@ -114,6 +122,69 @@ step ids. `notes` is free text.
 `same-session-reconstruction` (written later in the same session from the transcript), or
 `later-reconstruction`. The post-mortem weighs them differently.
 
+## Added after review
+
+The reviews found that the log let the recorder certify its own work, left the step grain to taste, and
+could not compute two of the three hypotheses it exists for. The author accepted the recommended
+dispositions on 2026-09-25: "I'll go with the recommendations." What follows is the amended design. Each
+rule is enforced by `tools/check_repo.py` unless it says otherwise.
+
+**Completion is not validation.** `outcome` says the work was finished. `validation`, when present, says
+whether a check confirmed it: `{"status": "validated" | "failed", "by": <step>}`, where the referenced step
+must have the role `check` and a different agent from the step it validates. No validation means
+unvalidated. The model cannot validate its own output.
+
+**Choosing is deciding.** Selecting among alternatives — a default, a mapping, a threshold, an exclusion,
+a source — is a `decide` step, even in the middle of executing. A decision by A or D carries
+`decision_basis`. Whether hidden decisions were split out is not mechanically checkable; the blind audit
+tests it.
+
+**Grain.** One step has one observable state change or one check result. Steps that belong to one piece
+of work share a `task_instance`, defined in `task_instances.jsonl` with its 070 row, subject, the
+`allocation_version` of 070 it is compared against (a commit hash, frozen per session in
+`sessions.jsonl`), the step that opened it, and its status. Any contemporaneous step with a `task_row`
+must name its instance, and the rows must agree. Accounting for every role of an instance at close —
+proposes, decides, executes, checks, including roles skipped — is deferred to the first real instance.
+
+**Each of the author's messages counts once.** `human_effort.response_id` identifies the message. A
+message that feeds several steps is counted once: only its first step carries `words`, which the checker
+recounts from `verbatim`. Real-world acts (`act`, size large) are counted separately from answers.
+
+**Rework names its cause.** A `rework` step carries `rework_of`, the step it corrects, and a
+`work_reason`: `defect-correction`, `scope-change` or `expected-iteration` (`first-pass` exists for
+completeness).
+
+**Defects carry severity and stage.** Every defect has a `severity` (low, medium, high, critical) and a
+`detected_stage` (self-check, review, author, downstream, audit). The stage a defect escaped to is
+deferred until there are stages to escape to.
+
+**Unknown is not zero.** An effort figure that was not observed is omitted, never written as zero, and an
+analysis treats an absent figure as unknown. *Unenforced:* the checker cannot tell a true zero from a
+guessed one.
+
+**The session-close audit.** Before a session is marked `closed` in `sessions.jsonl`, a different model
+reclassifies a random sample of its steps from their summaries and verbatim text, without seeing the
+recorder's labels, on the fields listed in `vocabulary.audit_fields`, against this document and the
+vocabulary at a named commit (`rubric_version`). The result goes in `audits.jsonl` with every
+disagreement kept. The checker refuses a closed session without one.
+
+**Data lineage, from the first acquired source.** Contemporaneous steps of the data task types
+(`vocabulary.data_task_types`) name the `assets` they touched, from `assets.jsonl`, which records each
+asset's kind, source, location, status (supported, unsupported, retired), the step since which it
+exists, its hash if it is a delivered file, and its `data_as_of`. A `check` step on data records
+`check.type`, `expected`, `observed` and `evidence`.
+
+**The maintenance baseline comes before the second source.** `CON-OP-16` cannot be computed without a
+stable denominator. The asset inventory is its start. Before a second source is acquired,
+`records/maintenance_baseline.json` must define the stable units counted, the denominator rules, the
+reporting window, the burden indicators with their severity weights, and the numerical tolerance for
+"holding steady" — fixed before any comparison is run. The checker refuses a second acquired source
+without it.
+
+**Parked.** Separate activity and subject types; multiple causes and dependencies per step; a planned
+test of whether human attention is the binding constraint rather than merely in demand. Declined:
+deriving `size` rather than recording it, since it is the author's term.
+
 ## Sources
 
 `sources.jsonl` holds every data source considered, whether used or not, with its publisher, URL,
@@ -127,8 +198,9 @@ much as what was used.
 The model appends steps as it works, reading the clock at step boundaries. Records travel in the same
 commit as the work they describe, as register updates do. The author's steps are recorded by the model
 from his messages, with timestamps from those messages, and he corrects them when they are wrong.
-`python tools/check_repo.py` validates every record against the vocabulary, checks that references
-resolve, and prints a count by faculty and by work class.
+`python tools/check_repo.py` validates every record against the vocabulary and the rules above, checks
+that references resolve, and prints counts by faculty and work class and the author's responses, words
+and large acts.
 
 ## What cannot be measured
 

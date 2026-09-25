@@ -2023,7 +2023,11 @@ question, external review, remains open.
 [XREV_2026-09-25_step-log_sol](../docs/30_research/notes/XREV_2026-09-25_step-log_sol.md), FAILS with ten
 findings on practice; astra,
 [XREV_2026-09-25_step-log_astra](../docs/30_research/notes/XREV_2026-09-25_step-log_astra.md), FAILS on all
-three hypotheses and on self-grading. Dispositions pending the author.
+three hypotheses and on self-grading. **The author accepted the recommended dispositions** ("I'll go with
+the recommendations"); integrated the same evening into 520 and the checker, with deferrals recorded in
+both notes. Still owed: a review of the amendments themselves, and the parked design question whether
+human attention is the binding constraint rather than merely in demand — a comparison to be fixed before
+the post-mortem, not a field.
 
 ## §5 — Commercial premises (`BIZ`)
 

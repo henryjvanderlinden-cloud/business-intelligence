@@ -139,5 +139,73 @@
     "answer": "small",
     "approve": "small",
     "act": "large"
+  },
+  "validation_status": {
+    "validated": "a check by a different agent confirmed the output",
+    "failed": "a check by a different agent rejected the output"
+  },
+  "work_reason": {
+    "first-pass": "doing it for the first time",
+    "expected-iteration": "planned refinement",
+    "defect-correction": "fixing something wrong",
+    "scope-change": "redone because the requirement changed"
+  },
+  "defect_severity": {
+    "low": "cosmetic or easily noticed; no wrong conclusion",
+    "medium": "could mislead a reader or waste work",
+    "high": "would produce a wrong result or decision if unnoticed",
+    "critical": "a wrong result or decision was acted on"
+  },
+  "detected_stage": {
+    "self-check": "found by the step's own agent",
+    "review": "found by a cross-model or peer review",
+    "author": "found by the author",
+    "downstream": "found by later work that depended on it",
+    "audit": "found by the blind session-close audit"
+  },
+  "check_type": {
+    "schema": "structure and types",
+    "row-count": "counts",
+    "reconciliation": "agreement with another source or total",
+    "freshness": "age of data",
+    "uniqueness": "keys unique",
+    "referential": "references resolve",
+    "business-rule": "a stated business rule holds",
+    "visual": "inspected by eye",
+    "integrity": "file hash or completeness"
+  },
+  "asset_kind": {
+    "source-file": "a file as delivered by a source",
+    "table": "a stored table",
+    "model": "a data model or vault structure",
+    "report": "a report or analysis output",
+    "control": "a test or control"
+  },
+  "asset_status": {
+    "supported": "kept working",
+    "unsupported": "present but not kept working",
+    "retired": "removed from the landscape"
+  },
+  "data_task_types": [
+    "source-acquisition",
+    "profiling",
+    "matching",
+    "modelling",
+    "generation",
+    "testing",
+    "analysis"
+  ],
+  "audit_fields": [
+    "actor",
+    "agent",
+    "role",
+    "task_type",
+    "tier",
+    "work_class",
+    "outcome"
+  ],
+  "task_instance_status": {
+    "open": "in progress",
+    "closed": "finished; role accounting owed (deferred)"
   }
 }

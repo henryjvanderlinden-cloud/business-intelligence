@@ -14,8 +14,7 @@ assignment:    adversarial ("assume the log cannot test these hypotheses"): for 
                300 words; praise, assessment and summary forbidden. Declared out of scope: 520's
                admitted gaps. Practice went to sol in parallel.
 second reader: assignment set by Claude Opus 5.5, which wrote the object; the three hypotheses as stated
-               in the prompt are the drafter's paraphrase of 070, CON-OP-16 and 155. Dispositions pending
-               the author.
+               in the prompt are the drafter's paraphrase of 070, CON-OP-16 and 155. Dispositions by the author, below.
 verdict:       FAILS — missing allocation baselines, maintenance denominators and burden rules, and a
                bottleneck test.
 ```
@@ -34,4 +33,14 @@ VERDICT: FAILS + missing allocation baselines, maintenance denominators and burd
 
 ## Dispositions
 
-Pending the author.
+The author, 2026-09-25, on the model's recommendation per finding: "I'll go with the recommendations."
+
+1 accepted in part: `task_instance` and a frozen `allocation_version` now; role-by-role accounting at
+instance close deferred to the first real instance. 2 deferred with a mechanical precondition: the asset
+inventory starts with the first source, and `records/maintenance_baseline.json` — stable units,
+denominator rules, window, burden weights, tolerances — must exist before a second source is acquired.
+The rule that missing effort stays unknown is adopted now, unenforced. 3 accepted in part: one
+`response_id` per message, words counted once, large acts counted apart; the bottleneck test is parked
+as a post-mortem design question in `PRC-OP-6`. 4 accepted: a blind reclassification of a random sample
+by a different model before a session is closed, in `audits.jsonl`, enforced by the checker. Integrated
+into [520](../../50_process/520_record-keeping.md) and `tools/check_repo.py`.

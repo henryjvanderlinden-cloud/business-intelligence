@@ -13,7 +13,7 @@ assignment:    one question, adversarial ("judge as a practitioner who has run B
                weight; minimal fix for each. Ranked, 300 words; praise, assessment and summary forbidden.
                Declared out of scope: the admitted gaps in 520 (author's time by ruling, tokens,
                off-conversation work, reconstruction). The hypotheses went to astra in parallel.
-second reader: assignment set by Claude Opus 5.5, which wrote the object. Dispositions pending the author.
+second reader: assignment set by Claude Opus 5.5, which wrote the object. Dispositions by the author, below.
 verdict:       FAILS — self-certified outcomes, unstable grain, and absent data-asset and validation
                lineage.
 ```
@@ -44,4 +44,14 @@ VERDICT: FAILS — self-certified outcomes, unstable grain, and absent data-asse
 
 ## Dispositions
 
-Pending the author.
+The author, 2026-09-25, on the model's recommendation per finding: "I'll go with the recommendations."
+
+1 accepted: `outcome` is completion only; `validation` by a check step of a different agent. 2 accepted:
+choosing is deciding, with `decision_basis`; hidden decisions are tested by the blind audit, since they
+cannot be checked mechanically. 3 accepted as a grain rule and a `task_instance`; multi-output steps are not
+mechanically rejected. 4 accepted: rework carries `rework_of` and `work_reason`. 5 accepted in part:
+`severity` and `detected_stage` now; escaped stage deferred. 6 and 7 deferred to the first acquired
+source, which arrived the same evening, so integrated then: `assets.jsonl` and `check` details. 8 declined
+for now: the 070 row carries the subject. 9 parked. 10 declined: `size` is the author's term and the
+checker enforces its mapping. Integrated into
+[520](../../50_process/520_record-keeping.md) and `tools/check_repo.py`.
