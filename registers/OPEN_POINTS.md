@@ -895,6 +895,15 @@ git discomfort past roughly a hundred thousand files, and history thrashing from
 high-frequency profile updates. The most consequential unmade decision in the
 architecture; it should be settled by an ADR and not by drift.
 
+**A candidate answer, 2026-09-25, not a ruling:** *both, split by kind.*
+[120_context-layer.md](../docs/10_architecture/120_context-layer.md) now distinguishes five
+kinds of context. Knowledge, decisions and know-how would be cards in git, which keeps the audit
+trail where it matters; landscape facts, which are high-volume and volatile, would live in a
+database written by deterministic machinery, with only conclusions promoted to cards; working
+memory would live in an expiring task journal. The derived graph and search index span all of
+them and stay disposable. This meets both of the objections recorded above. It still wants an
+ADR.
+
 ### ARC-OP-8 — What is the unit of agent work?
 **⛔ STATE: OPEN**
 Opened 2026-09-19, session 01. *(from open question 13)*
@@ -1378,6 +1387,55 @@ handoffs cost, which the table's patterns now state as a hypothesis rather than 
 questions the review opened and nobody has examined: whether rows 16, 25 and 26 need the same
 template-versus-agent split as row 17, and how erasure obligations (row 37) bound the
 historisation choices in row 15.
+
+**Rows 41–43 added 2026-09-25**, from the context-system design: temporal behaviour per
+table and attribute, and join knowledge with cardinality in three layers — both the author's —
+and maintaining the context system. Row 37 now reaches the context store. The table has 43
+rows; the three new ones have not been externally reviewed.
+
+### ARC-OP-25 — Context recipes and write-back are proposed, not designed
+**⛔ STATE: OPEN**
+Opened 2026-09-25, session 04, from a brainstorm with the author.
+
+[122_context-retrieval.md](../docs/10_architecture/122_context-retrieval.md) proposes a context
+recipe per task type — anchor, what to load, zoom level, budget, minimum trust — and
+[124_context-write-back.md](../docs/10_architecture/124_context-write-back.md) proposes a
+mandatory write-back sorted by the chain of
+[070_task-allocation.md](../docs/00_concept/070_task-allocation.md), with a promotion ladder
+from note to rule and expiry for anything not promoted. Owed: a recipe format; where recipes
+live; how the after-task measurements are collected; the expiry period; and a first handful of
+recipes written for real task types, which is the only way to learn whether the idea holds. The
+rule rung of the ladder depends on `ARC-OP-16`.
+
+### ARC-OP-26 — One store, two views: agent context and the human metadata catalogue
+**⛔ STATE: OPEN**
+Opened 2026-09-25, session 04, from a brainstorm with the author.
+
+The context store the agents need and the catalogue people use could be one store with two
+views, per [120_context-layer.md](../docs/10_architecture/120_context-layer.md). If so, the
+metadata value area of [ADR-0009](../docs/20_decisions/0009-separate-capabilities-open-value-areas.md)
+and the context system become one investment, and the catalogue stays current because agents
+depend on it rather than because people are asked to maintain it — the failure `ARC-OP-23`
+records. Unexamined: whether what people need from a catalogue and what agents need from
+context are close enough to share a store, and what the human view would look like, which is
+[170_human-interfaces.md](../docs/10_architecture/170_human-interfaces.md)'s territory.
+
+### ARC-OP-27 — Temporal behaviour and join knowledge are rarely enforced, so they must be observed, asserted and monitored
+**⛔ STATE: OPEN**
+Opened 2026-09-25, session 04, from the author's two points recorded verbatim in
+[127_temporal-behaviour.md](../docs/10_architecture/127_temporal-behaviour.md) and
+[128_join-knowledge.md](../docs/10_architecture/128_join-knowledge.md).
+
+Sources seldom declare how their data behaves over time, and seldom enforce cardinality or
+referential integrity; the author singles out cardinality as among the most important and "not
+always implemented 'hard'". Both documents therefore record the knowledge in layers — what is
+declared, what deterministic machinery observes, what a person asserts — and turn assertions
+into standing tests whose violations are drift. Owed: how many loads are needed before a
+temporal class or an observed cardinality can be trusted; the exact front matter for the
+temporal section and for the proposed `relationship` card kind; and how drift is prioritised
+against everything else in the adjudication queue. Related to `ARC-OP-22`, since a `RELY`
+constraint on a mart is an asserted cardinality the engine will not check, and to `ARC-OP-2`
+on what evidence promotes a joinability hypothesis.
 
 ---
 

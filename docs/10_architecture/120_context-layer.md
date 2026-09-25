@@ -1,5 +1,12 @@
 # 120 — The context layer
 
+*Extended 2026-09-25, session 04, after a brainstorm with the author, who called the context
+system "one of the key factors for a successful implementation of this idea". The original text
+stands; the additions are the sections on the five kinds of context, the new card kinds, one
+store with two views, and the pointers to [122](122_context-retrieval.md),
+[124](124_context-write-back.md), [126](126_context-gardening.md),
+[127](127_temporal-behaviour.md) and [128](128_join-knowledge.md).*
+
 The brief's most acute observation is that the system must "grow very large, but with
 enough breadcrumb trails everywhere that LLMs can still find their way without hogging
 the context windows." This document takes that seriously, because it is the engineering
@@ -68,6 +75,27 @@ in the derived store with only their *conclusions* promoted to cards. Both are
 manageable, and both are cheaper than the alternative of losing the audit trail. This
 should nonetheless be decided explicitly rather than by drift — see open question 12.
 
+## Five kinds of context
+
+*Added 2026-09-25.* Not all context behaves the same, and storing it all the same way is the
+mistake to avoid. Five kinds differ in volume, in how fast they change, in who writes them and
+in how far they can be trusted:
+
+| Kind | Example | Written by | Changes | Where it belongs |
+|---|---|---|---|---|
+| **Landscape facts** | tables, columns, profiles, lineage, row counts | Deterministic machinery | constantly | a database, regenerated, never hand-edited |
+| **Knowledge** | what a column means, business keys, entity matches, temporal behaviour ([127](127_temporal-behaviour.md)), join knowledge ([128](128_join-knowledge.md)) | The agentic layer proposes; a person rules | slowly | cards, with the assertion record below |
+| **Decisions and purpose** | KPI definitions, priorities, why something was built | People | rarely | decision cards; the highest trust |
+| **Know-how** | templates, conventions, runbooks, methodology, context recipes ([122](122_context-retrieval.md)) | The agentic layer drafts; a person approves | occasionally | versioned procedure cards — the agentic layer's skills |
+| **Working memory** | what a task tried, what failed, what is still open | The agentic layer | per task | a task journal that expires unless something is promoted ([124](124_context-write-back.md)) |
+
+This sharpens the objection above into a rule rather than a caveat. Cards in git are for
+knowledge, decisions and know-how. Landscape facts are high-volume and volatile, so they live
+in a database written by deterministic machinery, and only their *conclusions* are promoted to
+cards. Working memory lives in a journal. The derived graph and search index span all three
+stores and remain disposable. That is a candidate answer to `ARC-OP-7` — *both, split by kind*
+— and not a ruling.
+
 ## Card kinds
 
 `source`, `dataset` (table, file, topic, endpoint), `field`, `entity` (a business
@@ -80,6 +108,13 @@ where the semantic layer actually lives — the thing that outlives any particul
 [105_autonomy-tiers.md](105_autonomy-tiers.md). `hypothesis` is a first-class card
 rather than a transient, because the system's reasoning must be inspectable and because
 a retired hypothesis is useful evidence that a question was already considered.
+
+*Proposed additions, 2026-09-25, not yet ruled:* `relationship`, for knowledge about a pair
+of objects — joins, cardinality, referential integrity and join risks
+([128](128_join-knowledge.md)); `procedure`, for know-how — templates, conventions, runbooks
+and context recipes ([122](122_context-retrieval.md)); and `rule`, for a claim holding over a
+set of objects, which is `ARC-OP-16`. Temporal behaviour ([127](127_temporal-behaviour.md))
+does not need its own kind; it is a section in dataset and field cards.
 
 ## The assertion record
 
@@ -112,3 +147,27 @@ An agent working on a task should be able to establish, in at most three loads: 
 exists here, what is known about it, what is uncertain about it, and what depends on it.
 If a task requires more than three, the context layer has failed at its job and the fix
 belongs here rather than in the agent's prompt.
+
+## One store, two views
+
+*Added 2026-09-25.* The context store the agents use and the metadata catalogue people use
+could be **the same thing, shown two ways**: a readable catalogue for people, cards and
+recipes for agents. That would make the metadata value area of
+[ADR-0009](../20_decisions/0009-separate-capabilities-open-value-areas.md) and the context
+system one investment rather than two. It also attacks the failure `ARC-OP-23` records —
+human-maintained catalogues decay because nobody's work depends on them — because the agents
+need this catalogue to do their work, so keeping it current is part of every task rather than
+a separate chore. `ARC-OP-26` holds the idea; it is promising and unexamined.
+
+## The rest of the context system
+
+- [122_context-retrieval.md](122_context-retrieval.md) — context recipes per task type, zoom
+  levels, trust labels, and how to measure whether retrieval works.
+- [124_context-write-back.md](124_context-write-back.md) — mandatory write-back, sorted by the
+  chain, and the promotion ladder from note to rule.
+- [126_context-gardening.md](126_context-gardening.md) — the standing upkeep jobs that keep the
+  store true.
+- [127_temporal-behaviour.md](127_temporal-behaviour.md) — how each table and attribute
+  behaves over time, and what history to keep.
+- [128_join-knowledge.md](128_join-knowledge.md) — which tables join, cardinality in three
+  layers, referential integrity and join risks.

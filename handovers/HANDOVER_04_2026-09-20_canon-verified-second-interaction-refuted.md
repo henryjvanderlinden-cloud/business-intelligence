@@ -9,7 +9,7 @@
 
 1. `git log --oneline -8` — expect HEAD at the commit recording the author's review, on top
    of `cb8647a`.
-2. `python tools/check_repo.py` — must pass before anything is changed. Expect 50 rows, all
+2. `python tools/check_repo.py` — must pass before anything is changed. Expect 54 rows, all
    live, and 10 ADRs.
 3. Read [`../registers/OPEN_POINTS.md`](../registers/OPEN_POINTS.md). It is the authority on
    what is open; this handover is orientation only, and where the two disagree the register
@@ -78,9 +78,21 @@ Take the author's row-by-row reaction to
 [070_task-allocation.md](../docs/00_concept/070_task-allocation.md) and revise the table with
 him — slowly, per `ARC-OP-24`.
 
-The draft has 40 tasks as chains (proposes, decides, executes, checks). It has been through two
+The draft has 43 tasks as chains (proposes, decides, executes, checks). It has been through two
 external reviews, sol on 2026-09-21 and GPT-6 Astra on 2026-09-24, and the author accepted every
-finding of both. It added a fourteenth dimension to 060, *creating commitment*.
+finding of both; rows 41–43, added on 2026-09-25, are unreviewed. It added a fourteenth
+dimension to 060, *creating commitment*.
+
+**The context system was designed on 2026-09-25**, and the author called it one of the key
+factors for success. [120](../docs/10_architecture/120_context-layer.md) now distinguishes five
+kinds of context and proposes one store with two views; five new documents follow it —
+[122](../docs/10_architecture/122_context-retrieval.md) retrieval,
+[124](../docs/10_architecture/124_context-write-back.md) write-back,
+[126](../docs/10_architecture/126_context-gardening.md) gardening, which the author singled out,
+[127](../docs/10_architecture/127_temporal-behaviour.md) temporal behaviour and
+[128](../docs/10_architecture/128_join-knowledge.md) join knowledge. `ARC-OP-25` to `ARC-OP-27`
+hold what is open. None of it has been externally reviewed; a review pass on it is a natural
+next step.
 
 ## Why that task and not another
 
