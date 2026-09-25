@@ -179,7 +179,11 @@ stable denominator. The asset inventory is its start. Before a second source is 
 `records/maintenance_baseline.json` must define the stable units counted, the denominator rules, the
 reporting window, the burden indicators with their severity weights, and the numerical tolerance for
 "holding steady" — fixed before any comparison is run. The checker refuses a second acquired source
-without it.
+unless the file exists with `status` set to `ruled` and `ruled_by` naming the author's step. The draft of
+2026-09-25 adds a rule the measure cannot do without: every supported source is refreshed each epoch when
+its publisher has released a newer version, since a landscape that is never refreshed has nothing to
+maintain. Assets may name the assets they are built from in `depends_on`, which the dependency count
+uses.
 
 **Parked.** Separate activity and subject types; multiple causes and dependencies per step; a planned
 test of whether human attention is the binding constraint rather than merely in demand. Declined:

@@ -461,9 +461,26 @@ def check_records():
     for aid, a in assets.items():
         if a.get("source") not in src_ids:
             err("records/assets.jsonl [%s]" % aid, "source %s is not in sources.jsonl" % a.get("source"))
-    if acquired > 1 and not os.path.exists(os.path.join(rdir, "maintenance_baseline.json")):
-        err(RECORDS_DIR, "a second source is acquired but records/maintenance_baseline.json (stable units, "
-                         "denominator rules, tolerances) does not exist — CON-OP-16 precondition")
+    for aid, a in assets.items():
+        for dep in a.get("depends_on", []):
+            if dep not in assets:
+                err("records/assets.jsonl [%s]" % aid, "depends_on %s is not an asset" % dep)
+
+    bpath = os.path.join(rdir, "maintenance_baseline.json")
+    baseline = None
+    if os.path.exists(bpath):
+        baseline = json.loads(read(os.path.join(RECORDS_DIR, "maintenance_baseline.json")))
+        for f in ("status", "epoch", "service_commitment", "stable_units", "effort", "burden_indicators",
+                  "tolerances", "limits"):
+            if f not in baseline:
+                err("records/maintenance_baseline.json", "missing %s" % f)
+        if baseline.get("status") not in ("draft", "ruled"):
+            err("records/maintenance_baseline.json", "status must be draft or ruled")
+        if baseline.get("status") == "ruled" and baseline.get("ruled_by") not in steps:
+            err("records/maintenance_baseline.json", "a ruled baseline needs ruled_by, an existing step")
+    if acquired > 1 and (baseline is None or baseline.get("status") != "ruled"):
+        err(RECORDS_DIR, "a second source is acquired but records/maintenance_baseline.json is missing or "
+                         "not ruled by the author — CON-OP-16 precondition")
 
     # the blind session-close audit
     audited = set()
@@ -486,6 +503,8 @@ def check_records():
     print("records: %d sessions, %d steps (%s; %s), %d sources (%d acquired), %d assets, %d task instances"
           % (len(sessions), len(steps), fmt(by_actor), fmt(by_class), len(src_ids), acquired, len(assets),
              len(instances)))
+    if baseline is not None:
+        print("records: maintenance baseline is %s" % baseline.get("status"))
     print("records: author %d responses, %d words, %d large acts" % (len(responses), h_words[0], h_large[0]))
 
 def main():
