@@ -1,32 +1,49 @@
 {
   "_doc": "The baseline for CON-OP-16: maintenance effort per stable unit of landscape, while burden indicators hold steady. Fixed before any comparison is run (docs/50_process/520_record-keeping.md, 'The maintenance baseline comes before the second source'). Every figure below is computable from the files in records/. Drafted by claude-opus-5-5 at S06-048; unreviewed; the numbers in 'tolerances' are proposals for the author to set.",
-  "status": "draft",
-  "ruled_by": null,
-  "register_rows": ["CON-OP-16", "CON-OP-17", "PRC-OP-2"],
-
+  "status": "ruled",
+  "ruled_by": "S06-052",
+  "register_rows": [
+    "CON-OP-16",
+    "CON-OP-17",
+    "PRC-OP-2"
+  ],
   "epoch": {
     "_doc": "The reporting window. The landscape grows one source at a time, so the natural window is the interval between two source acquisitions, not a calendar period.",
     "definition": "Epoch n runs from the step that acquires the n-th source (sources.jsonl acquired_by) up to, not including, the step that acquires source n+1. The last epoch is open until the post-mortem.",
     "calendar_companion": "Each epoch also reports its elapsed calendar days, so that a long epoch is not mistaken for a costly one."
   },
-
   "service_commitment": {
     "_doc": "Without this rule there is nothing to maintain and the measure would read zero by construction. A landscape that is never refreshed has no upkeep.",
     "rule": "At the start of every epoch after the first, each supported source is re-acquired if its publisher has released a newer version since the last acquisition, and every check that ran against it is re-run. Refresh, re-run and any repair that follows are maintenance by definition.",
-    "known_cadences": {"SRC-012 PAR": "annual (peildatum 1 April)", "SRC-014 OpenStreetMap": "daily extracts", "SRC-007 GLEIF": "daily deltas", "SRC-005 BAG": "monthly"}
+    "known_cadences": {
+      "SRC-012 PAR": "annual (peildatum 1 April)",
+      "SRC-014 OpenStreetMap": "daily extracts",
+      "SRC-007 GLEIF": "daily deltas",
+      "SRC-005 BAG": "monthly"
+    }
   },
-
   "stable_units": {
     "_doc": "The denominator. Counted at the start of each epoch from assets.jsonl and sources.jsonl, status supported only. Kept as separate counts, never combined into one index.",
-    "primary": {"name": "supported_sources", "count": "sources with status acquired whose assets include at least one supported source-file"},
+    "primary": {
+      "name": "supported_sources",
+      "count": "sources with status acquired whose assets include at least one supported source-file"
+    },
     "secondary": [
-      {"name": "supported_assets_by_kind", "count": "assets with status supported, per kind: source-file, table, model, report, control"},
-      {"name": "dependencies", "count": "edges in assets.depends_on between supported assets"},
-      {"name": "service_commitments", "count": "supported sources under the refresh rule above"}
+      {
+        "name": "supported_assets_by_kind",
+        "count": "assets with status supported, per kind: source-file, table, model, report, control"
+      },
+      {
+        "name": "dependencies",
+        "count": "edges in assets.depends_on between supported assets"
+      },
+      {
+        "name": "service_commitments",
+        "count": "supported sources under the refresh rule above"
+      }
     ],
     "excluded": "Steps, tickets, commits, documents and review notes are not stock; counting them would reward fragmentation (sol, XREV maintenance-share finding 8)."
   },
-
   "effort": {
     "_doc": "The numerator, reported as separate measures and never summed. Classification is the step's work_class, decided by the counterfactual: would this be needed merely to keep the existing landscape running?",
     "classes_counted": {
@@ -38,24 +55,40 @@
     },
     "rebuilds": "Replacing an existing asset is maintenance unless it delivers a capability that is separately valued and recorded (XREV maintenance-share finding 2).",
     "measures": {
-      "author": ["responses (unique response_id)", "words", "large acts"],
-      "agent": ["steps", "tool calls", "external model calls"],
-      "machinery": ["steps"],
+      "author": [
+        "responses (unique response_id)",
+        "words",
+        "large acts"
+      ],
+      "agent": [
+        "steps",
+        "tool calls",
+        "external model calls"
+      ],
+      "machinery": [
+        "steps"
+      ],
       "elapsed": "sum of ts_end minus ts where both are exact; otherwise unknown, never zero"
     },
     "displaced_effort": "Work the author does outside the conversation for the landscape is recorded as an H act step or it does not exist; the refresh rule makes such acts visible when they are needed."
   },
-
   "burden_indicators": {
     "_doc": "What must hold steady while effort per unit is judged. Absolute values and per-unit values are both reported (XREV maintenance-share finding 5).",
-    "open_defects_weighted": {"source": "steps.defects without fixed_by", "weights": {"low": 1, "medium": 3, "high": 9, "critical": 27}},
+    "open_defects_weighted": {
+      "source": "steps.defects without fixed_by",
+      "weights": {
+        "low": 1,
+        "medium": 3,
+        "high": 9,
+        "critical": 27
+      }
+    },
     "defect_backlog_age_days": "age of the oldest open defect and median age of open defects at the end of each epoch",
     "unsupported_assets": "assets with status unsupported",
     "failed_or_unresolved_checks": "check steps whose last run on an asset failed or ended partial, not superseded by a later passing check on the same asset",
     "stale_assets": "supported source-files whose data_as_of is older than their publisher's cadence allows at the epoch start",
     "pending_on_author": "steps with outcome pending and blocker human-wait at the epoch end"
   },
-
   "tolerances": {
     "_doc": "PROPOSED by the model, to be set by the author. With four to six sources the sandbox has little statistical power; these are decision rules for an indicative result, not significance tests.",
     "effort_per_unit_flat": "Maintenance measures per supported source in every epoch from the third on stay within +10% of the second epoch, for each measure separately. The first epoch has no prior stock and is excluded.",
@@ -63,11 +96,11 @@
     "hard_fail": "Any epoch in which maintenance steps outnumber build steps, while burden indicators also rise, is reported as the failure the Generative Structures mapping predicts, whatever the per-unit trend.",
     "no_redefinition": "These definitions may not change after the second source is acquired. A change needs a new baseline file, the old one kept as superseded, and every result reported under both."
   },
-
   "limits": [
     "The author's effort is a proxy (responses, words, large acts) by his ruling; it is not time.",
     "The agent's token use is not observable; tool calls stand in for it.",
     "Sandbox users and business stakeholders are simulated (ADR-0012), so displaced effort to other people cannot occur and cannot be measured.",
     "Comparison at fixed capacity (XREV maintenance-share finding 7) is approximated by one author and one recording model throughout; a change of model mid-sandbox must be recorded and results split at it."
-  ]
+  ],
+  "ruling": "Provisional. The author: \"let's try it for now. maybe do pass past sol and astra.\" Definitions may still change on review until the second source is acquired; after that, the no_redefinition tolerance applies."
 }
