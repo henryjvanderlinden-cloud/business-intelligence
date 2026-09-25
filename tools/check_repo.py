@@ -13,9 +13,11 @@ Run from the repository root:
 Exits nonzero if any check fails. Warnings do not fail the run.
 """
 
+import json
 import os
 import re
 import sys
+from datetime import datetime
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -23,6 +25,8 @@ REGISTER = "registers/OPEN_POINTS.md"
 ADR_DIR = "docs/20_decisions"
 ADR_INDEX = "docs/20_decisions/README.md"
 HANDOVER_DIR = "handovers"
+RECORDS_DIR = "records"
+TASK_TABLE = "docs/00_concept/070_task-allocation.md"
 
 SCOPES = {"CON", "ARC", "EVI", "PRC", "BIZ", "X"}
 CLOSING = {"EXECUTED", "ARCHIVED"}
@@ -186,12 +190,163 @@ def check_superseded():
             warn(rel, "contains struck-through text but never says 'superseded'")
 
 
+def _load_jsonl(rel):
+    """Parse a JSON Lines file; report and skip bad lines."""
+    out = []
+    for n, line in enumerate(read(rel).splitlines(), 1):
+        if not line.strip():
+            continue
+        try:
+            out.append((n, json.loads(line)))
+        except ValueError as exc:
+            err(rel, "line %d: not valid JSON (%s)" % (n, exc))
+    return out
+
+
+def _ts(value):
+    try:
+        t = datetime.fromisoformat(value)
+    except (TypeError, ValueError):
+        return None
+    return t if t.tzinfo else None
+
+
+STEP_REQUIRED = ("id", "session", "ts", "ts_precision", "actor", "agent", "role", "task_type",
+                 "tier", "work_class", "summary", "outcome", "recorded")
+SOURCE_REQUIRED = ("id", "name", "publisher", "status", "found_by")
+SESSION_REQUIRED = ("id", "logged")
+
+
+def check_records():
+    """The step log of ADR-0014: vocabulary, required fields, and references that resolve."""
+    rdir = os.path.join(ROOT, RECORDS_DIR)
+    if not os.path.isdir(rdir):
+        return
+    vocab = json.loads(read(os.path.join(RECORDS_DIR, "vocabulary.json")))
+    register_ids = set(m.group(1) for m in map(ROW_RE.match, read(REGISTER).splitlines()) if m)
+    task_rows = set(int(n) for n in re.findall(r"^\| (\d+) \|", read(TASK_TABLE), re.M))
+
+    def enum(where, field, value, allowed):
+        if value not in allowed:
+            err(where, "%s %r not in vocabulary" % (field, value))
+
+    sessions = {}
+    for n, rec in _load_jsonl(os.path.join(RECORDS_DIR, "sessions.jsonl")):
+        where = "records/sessions.jsonl line %d" % n
+        for f in SESSION_REQUIRED:
+            if f not in rec:
+                err(where, "missing %s" % f)
+        sessions[rec.get("id")] = rec
+
+    steps = {}
+    by_actor, by_class, overhead = {}, {}, 0
+    step_files = sorted(f for f in os.listdir(os.path.join(rdir, "steps")) if f.endswith(".jsonl"))
+    for fname in step_files:
+        rel = "%s/steps/%s" % (RECORDS_DIR, fname)
+        session = fname[:-len(".jsonl")]
+        if session not in sessions:
+            err(rel, "session %s is not in sessions.jsonl" % session)
+        expect, last_ts = 1, None
+        for n, rec in _load_jsonl(rel):
+            where = "%s line %d [%s]" % (rel, n, rec.get("id"))
+            missing = [f for f in STEP_REQUIRED if f not in rec]
+            if missing:
+                err(where, "missing %s" % ", ".join(missing))
+                continue
+            sid = rec["id"]
+            if rec["session"] != session:
+                err(where, "session %r does not match file %s" % (rec["session"], fname))
+            if sid != "%s-%03d" % (session, expect):
+                err(where, "id out of sequence; expected %s-%03d" % (session, expect))
+            expect += 1
+            if sid in steps:
+                err(where, "duplicate step id")
+            steps[sid] = rec
+            t = _ts(rec["ts"])
+            if t is None:
+                err(where, "ts %r is not ISO 8601 with a UTC offset" % rec["ts"])
+            elif last_ts and t < last_ts:
+                warn(where, "ts earlier than the previous step")
+            last_ts = t or last_ts
+            if "ts_end" in rec and _ts(rec["ts_end"]) is None:
+                err(where, "ts_end is not ISO 8601 with a UTC offset")
+            for field, key in (("actor", "actor"), ("role", "role"), ("tier", "tier"),
+                               ("work_class", "work_class"), ("task_type", "task_type"),
+                               ("outcome", "outcome"), ("ts_precision", "ts_precision"),
+                               ("recorded", "recorded")):
+                enum(where, field, rec[field], vocab[key])
+            faculty = vocab["agents"].get(rec["agent"])
+            if faculty is None:
+                err(where, "agent %r is not in vocabulary.agents" % rec["agent"])
+            elif faculty != rec["actor"]:
+                err(where, "agent %r is %s, but actor is %s" % (rec["agent"], faculty, rec["actor"]))
+            if rec["actor"] == "H" and rec["role"] in ("request", "decide") and not rec.get("verbatim"):
+                err(where, "a person's request or decision needs the verbatim field")
+            if rec.get("task_row") is not None and rec["task_row"] not in task_rows:
+                err(where, "task_row %r is not a row of 070" % rec["task_row"])
+            for rid in rec.get("register_rows", []):
+                if rid not in register_ids:
+                    err(where, "register row %s does not exist" % rid)
+            ref = rec.get("initiated_by")
+            if ref is not None and ref not in steps:
+                err(where, "initiated_by %s is not an earlier step" % ref)
+            if rec["outcome"] in ("blocked", "failed"):
+                b = rec.get("blocker") or {}
+                if not b.get("detail"):
+                    err(where, "a %s step needs blocker.detail" % rec["outcome"])
+            if rec.get("blocker"):
+                enum(where, "blocker.category", rec["blocker"].get("category"), vocab["blocker"])
+            for d in rec.get("defects", []):
+                enum(where, "defect.type", d.get("type"), vocab["defect"])
+                if not d.get("detail"):
+                    err(where, "defect without detail")
+            eff = rec.get("effort", {})
+            if "human_basis" in eff:
+                enum(where, "effort.human_basis", eff["human_basis"], vocab["human_basis"])
+            for tool in eff.get("tool_calls", {}):
+                enum(where, "instrument", tool, vocab["instruments"])
+            by_actor[rec["actor"]] = by_actor.get(rec["actor"], 0) + 1
+            by_class[rec["work_class"]] = by_class.get(rec["work_class"], 0) + 1
+
+    # defect fix references and sources can point forward, so resolve them once all steps are read
+    for sid, rec in steps.items():
+        for d in rec.get("defects", []):
+            for key in ("found_by", "fixed_by"):
+                if d.get(key) and d[key] not in steps:
+                    err("records step %s" % sid, "defect.%s %s is not a step" % (key, d[key]))
+
+    src_ids = set()
+    for n, rec in _load_jsonl(os.path.join(RECORDS_DIR, "sources.jsonl")):
+        where = "records/sources.jsonl line %d [%s]" % (n, rec.get("id"))
+        for f in SOURCE_REQUIRED:
+            if f not in rec:
+                err(where, "missing %s" % f)
+        if rec.get("id") in src_ids:
+            err(where, "duplicate source id")
+        src_ids.add(rec.get("id"))
+        enum(where, "status", rec.get("status"), vocab["source_status"])
+        if rec.get("status") in ("rejected", "blocked") and not rec.get("reason"):
+            err(where, "a %s source needs a reason" % rec.get("status"))
+        if rec.get("status") == "acquired":
+            for f in ("local_path", "retrieved_at", "sha256"):
+                if not rec.get(f):
+                    err(where, "an acquired source needs %s" % f)
+        for key in ("found_by", "acquired_by"):
+            if rec.get(key) and rec[key] not in steps:
+                err(where, "%s %s is not a step" % (key, rec[key]))
+
+    fmt = lambda d: ", ".join("%s %d" % kv for kv in sorted(d.items())) or "none"
+    print("records: %d sessions, %d steps (%s; %s), %d sources"
+          % (len(sessions), len(steps), fmt(by_actor), fmt(by_class), len(src_ids)))
+
+
 def main():
     check_register()
     check_adr_index()
     check_handovers()
     check_links()
     check_superseded()
+    check_records()
 
     if warnings:
         print("\n%d warning(s):" % len(warnings))

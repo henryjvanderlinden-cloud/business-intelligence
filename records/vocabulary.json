@@ -1,0 +1,114 @@
+{
+  "_doc": "Allowed values for classified fields in records/. Specification: docs/50_process/520_record-keeping.md. Add a value here, with a one-line meaning, before using it.",
+  "actor": {
+    "H": "a person",
+    "A": "the agentic layer: a language model choosing and composing (ADR-0010)",
+    "D": "deterministic machinery: output fully determined by a program given its inputs"
+  },
+  "agents": {
+    "rick": "H",
+    "claude-opus-5-5": "A",
+    "gpt-5.6-sol": "A",
+    "gpt-6-astra": "A",
+    "check_repo.py": "D",
+    "git": "D",
+    "shell": "D",
+    "python": "D"
+  },
+  "role": {
+    "request": "a person asks for something",
+    "propose": "offers options, findings or drafts for someone else to decide",
+    "decide": "settles something",
+    "execute": "does the work",
+    "check": "verifies work done by a step",
+    "inform": "reports without proposing"
+  },
+  "tier": {
+    "structural": "computable from data and catalogue (ADR-0005)",
+    "semantic": "meaning, identity, authority (ADR-0005)",
+    "teleological": "what is worth knowing; purpose (ADR-0005)",
+    "none": "makes no claim"
+  },
+  "work_class": {
+    "build": "adds capability",
+    "maintain": "needed merely to keep the existing landscape or apparatus working (CON-OP-16 counterfactual)",
+    "rework": "redoes something because it was wrong",
+    "explore": "looks for options without yet building",
+    "overhead": "coordination, session admin, record keeping"
+  },
+  "task_type": {
+    "session-admin": "opening, orienting, closing a session",
+    "repo-maintenance": "keeping the repository and its tooling working",
+    "record-keeping": "this log and its apparatus",
+    "planning": "setting direction, scope or sequence",
+    "research": "reading outside material to answer a question",
+    "source-discovery": "finding and assessing candidate data sources",
+    "source-acquisition": "obtaining a source's data",
+    "profiling": "measuring the content of data",
+    "matching": "proposing or testing identity and keys across sources",
+    "modelling": "designing structures: vault, marts, context",
+    "generation": "producing code or artefacts from designs",
+    "testing": "writing or running tests",
+    "review": "cross-model or human review of drafted material",
+    "adjudication": "a person ruling on a proposed claim",
+    "analysis": "answering a business question from data",
+    "documentation": "writing design documents, ADRs, register rows",
+    "communication": "reporting to or asking the author"
+  },
+  "outcome": {
+    "done": "completed as intended",
+    "partial": "completed in part",
+    "failed": "attempted and did not work",
+    "blocked": "could not proceed; see blocker",
+    "pending": "waiting on someone",
+    "superseded": "overtaken by a later decision"
+  },
+  "blocker": {
+    "access": "permission or credentials missing",
+    "licence": "terms forbid the use",
+    "robots": "robots.txt or equivalent disallows automated access",
+    "rate-limit": "provider rate limit",
+    "session-limit": "the tool environment's own usage limit",
+    "cost": "requires spending money",
+    "network": "network path not available from this environment",
+    "tool-missing": "no tool can do it here",
+    "information-missing": "a fact needed is not available",
+    "human-wait": "needs a person's action"
+  },
+  "defect": {
+    "wrong-link": "a reference points at the wrong target",
+    "factual-error": "a statement is false",
+    "unflagged-assumption": "a claim stated as fact without a source or an unverified flag",
+    "overreach": "goes beyond what the evidence or mandate supports",
+    "omission": "something needed was left out",
+    "process-breach": "a repository convention was not followed",
+    "tool-error": "a tool returned a wrong or misleading result"
+  },
+  "ts_precision": {
+    "exact": "from a clock or a message timestamp",
+    "approx": "estimated to within a few minutes",
+    "bound": "only an earlier-or-later bound is known"
+  },
+  "recorded": {
+    "contemporaneous": "written at or just after the step",
+    "same-session-reconstruction": "written later in the same session, from the transcript",
+    "later-reconstruction": "written in a later session"
+  },
+  "human_basis": {
+    "measured": "timed",
+    "stated": "stated by the person",
+    "estimated": "estimated by the recorder",
+    "unknown": "not known"
+  },
+  "source_status": {
+    "candidate": "under consideration",
+    "acquired": "data obtained and stored under data/",
+    "rejected": "considered and ruled out; reason given",
+    "blocked": "wanted but not obtainable yet; reason given"
+  },
+  "instruments": [
+    "device_bash", "device_request_delete_permission", "device_stage_files", "device_commit_files",
+    "WebSearch", "WebFetch", "memory_read", "current_time", "codex", "Read", "Write", "Edit", "Bash",
+    "Artifact", "SendUserFile", "python", "git"
+  ]
+}

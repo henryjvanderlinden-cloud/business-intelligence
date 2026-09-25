@@ -1653,6 +1653,32 @@ effort per stable unit of landscape — with burden indicators held steady — c
 landscape grows. Per [ADR-0012](../docs/20_decisions/0012-generic-framework-lean-start.md), the people
 in such a sandbox are simulated and results must say so.
 
+**Re-themed 2026-09-25, session 06, by the author.** The sandbox is to be a landscape of businesses in
+the Netherlands, if needed restricted to the wider Utrecht region, serving a question he actually has.
+In his words:
+
+> I've always been interested in exploring the types of business there are and their turnover and
+> revenue. It's kind of dual purpose. If I find large enough businesses in underserved
+> BI/Analytics/AI markets, I might have an interesting proposal. [...] Also I am interested in Dutch
+> businesses that are for sale. Interested in their earnings potential, but also in what gains they
+> could have by properly implementing the aforementioned. Maybe throw in e-commerce opportunities for
+> existing businesses in the mix.
+
+He accepted the proposed "Utrecht business landscape" ("15: yes"), ruled out spending on it ("I don't
+want to spend money on this use case"), set no size floor ("I don't really have a floor"), and endorsed
+detecting web-shop and analytics technology from company websites ("is a good one!"). The paid KVK API
+is therefore out; names come from free sources matched on address, name and domain, which is itself the
+matching the falsifiable core is about. Candidate and rejected sources are recorded in
+[`../records/sources.jsonl`](../records/sources.jsonl). The province's jobs register (PAR) is the
+intended backbone and is blocked until downloaded by hand; whether its open file names establishments
+is unsettled.
+
+Two guards were proposed by the model and are **not yet ruled**: never match anonymised business-for-sale
+listings to named register entries; and name no individuals — prospect lists name only legal entities
+or establishments with at least two jobs. Also noted: turnover is largely not public for small and
+medium companies, so it is estimated from headcount and sector ratios and labelled as an estimate; the
+legal basis for that statement is from the model's knowledge and unverified.
+
 ### EVI-OP-3 — Query logs as evidence
 **⛔ STATE: OPEN**
 Opened 2026-09-19, session 01.
@@ -1971,6 +1997,21 @@ objects get reviewed, on what cadence, and how disagreement is recorded.
 compendium's XREV convention; it has not been exercised once.
 
 ---
+
+### PRC-OP-6 — Is the step log sound, and how are the author's minutes to be recorded?
+**⛔ STATE: OPEN**
+Opened 2026-09-25, session 06, with [ADR-0014](../docs/20_decisions/0014-step-log.md).
+
+The step log of [520_record-keeping.md](../docs/50_process/520_record-keeping.md) was designed and built by
+the model in one pass at the author's request and is unreviewed by construction. Owed: an external
+review of the classification — whether the A/D line (who determined the content of the result), the
+five work classes and the step grain will support the post-mortem the author asked for, and what they
+will fail to capture.
+
+Second question: the deciding number of [155](../docs/10_architecture/155_adjudication-economy.md) and
+`CON-OP-16` is human minutes, and the log cannot observe them. Whether the author states his time per
+step, per session, or not at all is his to decide; until then the log records elapsed upper bounds and
+marks human effort `unknown`.
 
 ## §5 — Commercial premises (`BIZ`)
 

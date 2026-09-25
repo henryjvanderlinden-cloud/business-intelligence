@@ -28,3 +28,4 @@ describe options; only an ADR adopts one.
 | [0011](0011-assertions-identity-plane-publication-gate.md) | Assertions are the core record; one identity plane over separate stores; a publication gate | Accepted |
 | [0012](0012-generic-framework-lean-start.md) | A generic framework; every implementation starts lean | Accepted |
 | [0013](0013-data-vault-or-equivalent.md) | The integration layer is Data Vault or a functionally equivalent layer | Accepted |
+| [0014](0014-step-log.md) | Record every step of the work in a classified step log | Accepted |
