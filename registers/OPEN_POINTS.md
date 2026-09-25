@@ -1679,6 +1679,15 @@ or establishments with at least two jobs. Also noted: turnover is largely not pu
 medium companies, so it is estimated from headcount and sector ratios and labelled as an estimate; the
 legal basis for that statement is from the model's knowledge and unverified.
 
+**PAR acquired 2026-09-25, session 06**, by the author's hand download; recorded as `SRC-012` and assets
+`ASSET-001`–`003` in [`../records/`](../records/README.md). It settles the contradiction: the open file is
+establishment-level but **anonymous** — a point location, size-class code, SBI hierarchy, start date,
+municipality, business-park code and, for 2,554 establishments, the parent company's country, with no
+name, KVK number or address. It is titled 2024 but reconciles to the **1 April 2022** register (174,766
+rows against the province's 174,770). The size-class codes are undocumented; two mappings fit the
+reported job total. Consequence: every name must come from another source, matched on location and
+sector, which makes the first join spatial rather than on keys.
+
 ### EVI-OP-3 — Query logs as evidence
 **⛔ STATE: OPEN**
 Opened 2026-09-19, session 01.
