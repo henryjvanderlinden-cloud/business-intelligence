@@ -2019,6 +2019,12 @@ Answering is Small. If I have to download stuff, or am otherwise your hands in t
 size large." Implemented in [520](../docs/50_process/520_record-keeping.md) as `human_effort`. The first
 question, external review, remains open.
 
+**Reviewed 2026-09-25, session 06**, at commit b4003c6: sol,
+[XREV_2026-09-25_step-log_sol](../docs/30_research/notes/XREV_2026-09-25_step-log_sol.md), FAILS with ten
+findings on practice; astra,
+[XREV_2026-09-25_step-log_astra](../docs/30_research/notes/XREV_2026-09-25_step-log_astra.md), FAILS on all
+three hypotheses and on self-grading. Dispositions pending the author.
+
 ## §5 — Commercial premises (`BIZ`)
 
 ### BIZ-OP-1 — The adjudication hedge may not be priced
