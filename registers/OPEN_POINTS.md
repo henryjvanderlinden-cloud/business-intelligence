@@ -855,6 +855,10 @@ separately, never as one effort total, consistent with
 [155](../docs/10_architecture/155_adjudication-economy.md); and compare at fixed capacity, so that a
 sponsor's budget cut or expansion does not move the measure.
 
+**Not yet computable, 2026-09-26, session 06.** Two sources and then three more at once were acquired;
+none has been refreshed, so none counts as stock and no epoch can be compared. The blind audit found work
+class reliable in only 7 of 15 steps, so the numerator cannot yet be trusted either (`PRC-OP-6`).
+
 ### CON-OP-17 — Does cheaper building owe a pairing with the maintenance value areas?
 **⛔ STATE: OPEN**
 Opened 2026-09-25, session 05, from the same note as `CON-OP-16`.
@@ -1494,6 +1498,12 @@ table and attribute, and join knowledge with cardinality in three layers — bot
 and maintaining the context system. Row 37 now reaches the context store. The table has 43
 rows; the three new ones have not been externally reviewed.
 
+**First observation against real work, 2026-09-26, session 06**, from the step log. For row 9 the model
+decided every matching choice (seven decide steps) and the author decided none, executing lookups
+instead; for row 7 the author executed every acquisition by hand, because neither environment could reach
+a Dutch data source. The allocation was bypassed rather than tested: no matching choice was put to the
+author as a decision. See [2026-09-26-session-06-post-mortem](../docs/30_research/notes/2026-09-26-session-06-post-mortem.md), lesson 3.
+
 ### ARC-OP-25 — Context recipes and write-back are proposed, not designed
 **⛔ STATE: OPEN**
 Opened 2026-09-25, session 04, from a brainstorm with the author.
@@ -2056,6 +2066,14 @@ the recommendations"); integrated the same evening into 520 and the checker, wit
 both notes. Still owed: a review of the amendments themselves, and the parked design question whether
 human attention is the binding constraint rather than merely in demand — a comparison to be fixed before
 the post-mortem, not a field.
+
+**First blind audit, 2026-09-26, session 06** (`AUD-S06-1` in [`../records/audits.jsonl`](../records/audits.jsonl)):
+gpt-6-astra reclassified 15 random steps without the recorder's labels. Agreement: actor 15/15, outcome
+15/15, role 14/15, tier 12/15, **work class 7/15, task type 5/15**. The two fields the post-mortem most needs
+are the unreliable ones. Owed before the log is used for `CON-OP-16`: task type split into activity and
+subject (sol's finding 8 on the step log, declined on 2026-09-25, now supported by evidence), a work-class
+rule for coordination steps, and a second audit. See
+[2026-09-26-session-06-post-mortem](../docs/30_research/notes/2026-09-26-session-06-post-mortem.md).
 
 ## §5 — Commercial premises (`BIZ`)
 

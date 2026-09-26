@@ -1,7 +1,7 @@
 # nsdn — Handover 06: the overview was drawn, and the author's political theory turned out to describe warehouse decay
 ## Written 2026-09-25 at the close of session 05
 
-> **STATUS: CURRENT.**
+> **STATUS: HISTORICAL (superseded 2026-09-26 by [HANDOVER_07](HANDOVER_07_2026-09-26_first-sandbox-steps.md)).**
 
 ---
 
