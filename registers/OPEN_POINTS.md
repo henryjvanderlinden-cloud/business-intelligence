@@ -1693,6 +1693,14 @@ the province, 70% with a website and 85% with postcode and house number, but onl
 OSM supplies names and web presence without an answer key. It covers about a tenth as many places as PAR
 has establishments.
 
+**First measurement of the falsifiable core, 2026-09-26, session 06** (step S06-108 in the log). A blind
+answer key of 12 OSM businesses, filled by the author from the free KvK search and translated into PAR
+sector classes before the proposals were read, against proposals made from location (30 m) and sector:
+unique proposals 3 of 3 correct, ambiguous 1 of 4, abstentions 5 of 5 correct. Only 5 of the 12 have an
+acceptable PAR establishment within 30 m at all, most plausibly because the register is from 2022 and
+OSM from 2026. Indicative only at n = 12, and none of it yet tests what a model adds beyond distance and
+rule tables — the class rules are model-written, but applied deterministically.
+
 ### EVI-OP-3 — Query logs as evidence
 **⛔ STATE: OPEN**
 Opened 2026-09-19, session 01.
