@@ -1833,13 +1833,22 @@ not), and it should not be simulated by the same model that will be tested on it
 designed by the tested party flatters it ([410](../docs/40_roadmap/410_first-vertical-slice.md)). Candidates
 are in [`../records/sources.jsonl`](../records/sources.jsonl) from `SRC-018`.
 
-**Chosen 2026-09-26, session 07, by the author:** "I think the Wide World is a good case. I'd have to install
+**Preferred, tentatively, 2026-09-26, session 07, by the author:** "I think the Wide World is a good case. I'd have to install
 the free SQL server instance, which is no problem." Wide World Importers (`SRC-018`) on SQL Server Developer
 edition on his machine. Not to be ported: porting would mean the model rewriting the simulator, which is
 the property the choice rests on. Access is the open question: the model's shell on his computer is an
 isolated Linux environment that cannot reach services on the Windows host, so the proposed route is a
 scheduled export on his side — advance the simulation, write changed rows into `data/` — to be tested once
 the server is installed.
+
+**Qualified the same day by the author:** "let's not move too quickly here with installing SQL server and
+first think through the entire setup. I want to avoid manual work from my side as much as possible, this is
+the goal of the entire excercise. With regards to point 4, updates are not a hard requirement. If it's
+insert only that is also fine. Don't jump to conclusions, just because I said something, everything
+tentative still, always keep in mind the big picture and the small steps to get there." Wide World
+Importers is a preference, not a decision. Insert-only is acceptable. The criterion that now leads is the
+author's manual work: the whole setup is to be designed before anything is installed, and judged by how
+often it needs his hands.
 
 ## §4 — Process (`PRC`)
 

@@ -1,4 +1,4 @@
-# nsdn — Handover 07: the first sandbox was run and parked; the next one is Wide World Importers
+# nsdn — Handover 07: the first sandbox was run and parked; the next one is to be thought through before anything is installed
 ## Written 2026-09-26 at the close of session 06, revised at the pause of session 07
 
 > **STATUS: CURRENT.**
@@ -13,7 +13,7 @@
    session 06 committed once with a failing check because `| tail` hid the exit status.
 3. Read register rows `EVI-OP-7` (the next sandbox) and `PRC-OP-6` (the log's reliability), then
    [the session 06 post-mortem](../docs/30_research/notes/2026-09-26-session-06-post-mortem.md).
-4. **Continue session S07** in `records/steps/S07.jsonl` from S07-010; it was paused, not closed. From S07 every
+4. **Continue session S07** in `records/steps/S07.jsonl` from S07-012; it was paused, not closed. From S07 every
    step carries an `activity` as well as a `task_type` — see *Changed after the first audit* in
    [520](../docs/50_process/520_record-keeping.md). Closing S07 needs a blind audit (the checker enforces it).
 
@@ -21,47 +21,62 @@
 
 **Push.** Commits since `53e0815`'s predecessor are local only.
 
-**Install SQL Server Developer edition and the Wide World Importers sample** (`SRC-018`). A large act, and he
-has agreed to it.
+**Nothing to install yet.** He has said SQL Server is no problem to install, but asked that the whole setup be
+thought through first. Do not ask him to install anything until the design says what, why, and what it saves him.
 
 **Rule the two guards** from session 06 if they are to stand: no de-anonymising business-for-sale listings;
 no named individuals.
 
 ## Task for the next session, in one sentence
 
-Get Wide World Importers running as a simulated internal system the model can read: verify what its daily
-simulation actually changes, settle the access route, and capture the first change feed.
+Think through the entire setup for the next sandbox — source, simulation, capture, landing, the loads the
+agent runs, and every point where the author would otherwise have to act — before anything is installed.
 
-## The plan for Wide World Importers, as proposed and not yet tried
+## The author's standing instruction for this, verbatim
 
-**Why this dataset.** The author parked the Utrecht sandbox because it was scraping, not a company's internal
+> let's not move too quickly here with installing SQL server and first think through the entire setup. I
+> want to avoid manual work from my side as much as possible, this is the goal of the entire excercise.
+> With regards to point 4, updates are not a hard requirement. If it's insert only that is also fine. Don't
+> jump to conclusions, just because I said something, everything tentative still, always keep in mind the
+> big picture and the small steps to get there.
+
+Read it as three rules. **Minimising his manual work is the goal of the exercise, not a convenience:** a
+design that needs his hands at every refresh fails the thesis, whatever else it shows — and session 06
+found him acting as the system's hands five times. **Nothing he says is settled until he rules it:** Wide
+World Importers is his current preference, not a decision. **Big picture, then small steps:** design the
+whole path end to end, then take the smallest step that tests it.
+
+## Wide World Importers: the leading candidate, tentatively
+
+**Why it leads.** The author parked the Utrecht sandbox because it was scraping, not a company's internal
 data: "There are no regularly updating records, or a regular creation of new records." He set the next use
-case as a simple financial administration or ERP "with regular inserts and updates" (`EVI-OP-7`), and chose
-Wide World Importers: a wholesale company's database — sales, purchasing, warehouse, customer and supplier
-transactions — with Microsoft's own day-by-day simulator, `DataLoadSimulation.PopulateDataToCurrentDate`
-(parameters: orders per day, Saturday and Sunday share). The simulator being Microsoft's and not the model's
-is the point: a landscape simulated by the tested party flatters it (410).
+case as a simple financial administration or ERP "with regular inserts and updates" (`EVI-OP-7`), and said
+of Wide World Importers "I think the Wide World is a good case" — a wholesale company's database with
+Microsoft's own day-by-day simulator (`DataLoadSimulation.PopulateDataToCurrentDate`; parameters: orders per
+day, Saturday and Sunday share). A simulator not written by the model is the property that matters (410).
+**Updates are not required; insert-only is acceptable** (his ruling above), so whether the simulator also
+advances existing orders or keeps temporal history is a nice-to-have to check, not a criterion.
 
-**Verify first; these are from the model's knowledge, not checked:** that the simulation also advances
-existing orders (picking, invoicing, payments), not only inserts; and that master tables (customers,
-suppliers, stock items, people) are system-versioned temporal tables with history. The answers decide how
-much real update behaviour the sandbox has.
+**What the design has to settle, in the order it matters to his manual work:**
 
-**Do not port it.** The author asked whether to port to Postgres. Porting means the model rewriting the
-simulator and the temporal tables, which undoes the reason for the choice.
+1. *Where the source runs.* Options so far: SQL Server Developer edition on his Windows machine (he is
+   willing); something that runs without him, if any exists — a database the agent can start and advance
+   itself, in the cloud workspace or the Linux shell on his computer. The cloud workspace is reclaimed
+   overnight and cannot reach most sites; the Linux shell has no network and cannot see Windows services.
+   Both limits shape this choice.
+2. *How new data reaches the agent.* If the source is on Windows, the agent cannot read it directly; a
+   scheduled export into `data/` is one route, the Codex MCP server on his machine another (another model
+   as executor; its sandbox so far read-only). Every route should be judged by how often it needs him.
+3. *Who advances the simulation.* Ideally a schedule, not a person.
+4. *What happens when it breaks.* Who notices, who repairs, and whether that is him.
 
-**Access.** The model's shell on the author's computer is an isolated Linux environment: it cannot reach
-services on the Windows host (localhost) and has no network of its own. Test that once the server is
-installed, but expect it to fail. The proposed route is a **scheduled export on his side**: a small script
-(PowerShell with `sqlcmd` or `bcp`, run by Task Scheduler) that advances the simulation a few days and writes
-changed rows — by `ValidFrom`/`LastEditedWhen` or the temporal history — into `data/raw/WWI/<date>/`. Setting
-it up is one large act; after that each refresh arrives without his hands, which is what the maintenance
-baseline's refresh rule needs. A second, untried route: the Codex MCP server runs on his Windows machine and
-could run `sqlcmd` there — but that makes another model the executor, and its sandbox has so far been
-read-only.
+**Do not port it without cause.** He asked whether to port to Postgres. The case against: the model would be
+rewriting the simulator, which undoes the reason for choosing it. The case for, not yet weighed: a source
+the agent can run itself might remove his manual work entirely. That trade-off belongs in the design, and
+the decision is his.
 
-**Measure from the start.** One source, refreshed on a schedule, is exactly what `CON-OP-16`'s epochs assume.
-Put matching and modelling choices to the author as decisions (lesson 3 of the post-mortem).
+**Measure from the start.** One source, refreshed on a schedule, is what `CON-OP-16`'s epochs assume. Put
+design and modelling choices to him as decisions (lesson 3 of the post-mortem).
 
 ## How to work with the author
 
@@ -79,6 +94,9 @@ lookups.
 
 **He will say when a session is long.** Wrap up when he does.
 
+**Do not jump to conclusions from what he says.** Everything is tentative until he rules it; keep the big
+picture and the small steps to it in view.
+
 ## What sessions 06 and 07 did
 
 Session 06 (25–26 September) built the step log ([ADR-0014](../docs/20_decisions/0014-step-log.md),
@@ -94,7 +112,8 @@ checker earned their keep; the environment shaped the work; the maintenance meas
 
 Session 07 (26 September, straight after) made the classification fix the author accepted, parked the
 Utrecht use case (`EVI-OP-2`), opened `EVI-OP-7`, surveyed candidates (`SRC-018`–`SRC-022`) and recorded his
-choice of Wide World Importers.
+current preference for Wide World Importers, which he then asked to be treated as tentative until the
+whole setup has been thought through.
 
 ## Traps and warnings
 
@@ -118,11 +137,11 @@ Everything in handover 06's list, plus:
 - The author's effort is recorded as answers, words and small or large acts, never as time.
 - A blind audit by another model gates each session's close.
 - Task type is the subject, activity what was done (from S07).
-- The Utrecht landscape is parked; the next sandbox is a simulated internal system, Wide World Importers, not
-  ported.
+- The Utrecht landscape is parked; the next sandbox is a simulated internal system with regular inserts
+  (updates welcome, not required). Which system, and how it runs, is **not** settled.
 
 ## What was not done
 
 No source of the Utrecht sandbox was refreshed; `CON-OP-16` was never computable there. What a model adds
-beyond rule tables was not isolated. Wide World Importers is not installed, its simulator's behaviour is
-unverified, and the access route is untested.
+beyond rule tables was not isolated. The setup for the next sandbox has not been designed; nothing is
+installed; Wide World Importers' simulator is unverified.
