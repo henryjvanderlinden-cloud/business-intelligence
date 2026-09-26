@@ -1,0 +1,428 @@
+{
+ "_doc": "Version 3 (S06-110): v1 plus bakery shops compatible with manufacturing (C). Which PAR SBI sections an OSM business category is compatible with. Proposed by claude-opus-5-5 (S06-075) as rules for deterministic machinery to apply (070 row 17 pattern; ADR-0004). A category mapped to ANY is compatible with every section and is flagged as a weak match. A category mapped to [] is excluded from matching. Value rules override key defaults.",
+ "defaults": {
+  "shop": [
+   "G"
+  ],
+  "office": [
+   "ANY"
+  ],
+  "craft": [
+   "F",
+   "C",
+   "S",
+   "G"
+  ],
+  "healthcare": [
+   "Q",
+   "G"
+  ],
+  "amenity": [
+   "ANY"
+  ],
+  "tourism": [
+   "I",
+   "R"
+  ],
+  "leisure": [
+   "R",
+   "S"
+  ],
+  "industrial": [
+   "C",
+   "E",
+   "F",
+   "H"
+  ],
+  "company": [
+   "ANY"
+  ]
+ },
+ "values": {
+  "shop=hairdresser": [
+   "S"
+  ],
+  "shop=beauty": [
+   "S"
+  ],
+  "shop=massage": [
+   "S",
+   "Q"
+  ],
+  "shop=tattoo": [
+   "S"
+  ],
+  "shop=laundry": [
+   "S"
+  ],
+  "shop=dry_cleaning": [
+   "S"
+  ],
+  "shop=funeral_directors": [
+   "S"
+  ],
+  "shop=travel_agency": [
+   "N"
+  ],
+  "shop=optician": [
+   "G",
+   "Q"
+  ],
+  "shop=hearing_aids": [
+   "G",
+   "Q"
+  ],
+  "shop=copyshop": [
+   "N",
+   "C"
+  ],
+  "shop=photo": [
+   "M",
+   "G"
+  ],
+  "shop=bookmaker": [
+   "R"
+  ],
+  "shop=lottery": [
+   "R",
+   "G"
+  ],
+  "shop=pawnbroker": [
+   "K",
+   "G"
+  ],
+  "shop=money_lender": [
+   "K"
+  ],
+  "shop=estate_agent": [
+   "L"
+  ],
+  "shop=rental": [
+   "N"
+  ],
+  "shop=storage_rental": [
+   "L",
+   "N"
+  ],
+  "shop=pet_grooming": [
+   "S"
+  ],
+  "shop=car_repair": [
+   "G"
+  ],
+  "shop=tailor": [
+   "S",
+   "C"
+  ],
+  "office=company": [
+   "ANY"
+  ],
+  "office=yes": [
+   "ANY"
+  ],
+  "office=government": [
+   "O"
+  ],
+  "office=lawyer": [
+   "M"
+  ],
+  "office=notary": [
+   "M"
+  ],
+  "office=accountant": [
+   "M"
+  ],
+  "office=tax_advisor": [
+   "M"
+  ],
+  "office=consulting": [
+   "M"
+  ],
+  "office=architect": [
+   "M"
+  ],
+  "office=engineer": [
+   "M"
+  ],
+  "office=advertising_agency": [
+   "M"
+  ],
+  "office=research": [
+   "M"
+  ],
+  "office=estate_agent": [
+   "L"
+  ],
+  "office=insurance": [
+   "K"
+  ],
+  "office=financial": [
+   "K"
+  ],
+  "office=financial_advisor": [
+   "K"
+  ],
+  "office=it": [
+   "J"
+  ],
+  "office=telecommunication": [
+   "J"
+  ],
+  "office=employment_agency": [
+   "N"
+  ],
+  "office=travel_agent": [
+   "N"
+  ],
+  "office=association": [
+   "S"
+  ],
+  "office=ngo": [
+   "S"
+  ],
+  "office=foundation": [
+   "S"
+  ],
+  "office=political_party": [
+   "S"
+  ],
+  "office=religion": [
+   "S"
+  ],
+  "office=educational_institution": [
+   "P"
+  ],
+  "office=coworking": [
+   "L",
+   "N"
+  ],
+  "office=therapist": [
+   "Q"
+  ],
+  "office=newspaper": [
+   "J"
+  ],
+  "office=logistics": [
+   "H"
+  ],
+  "office=construction_company": [
+   "F"
+  ],
+  "amenity=restaurant": [
+   "I"
+  ],
+  "amenity=cafe": [
+   "I"
+  ],
+  "amenity=fast_food": [
+   "I"
+  ],
+  "amenity=bar": [
+   "I"
+  ],
+  "amenity=pub": [
+   "I"
+  ],
+  "amenity=biergarten": [
+   "I"
+  ],
+  "amenity=ice_cream": [
+   "I",
+   "G"
+  ],
+  "amenity=food_court": [
+   "I"
+  ],
+  "amenity=nightclub": [
+   "I",
+   "R"
+  ],
+  "amenity=school": [
+   "P"
+  ],
+  "amenity=kindergarten": [
+   "P",
+   "Q"
+  ],
+  "amenity=college": [
+   "P"
+  ],
+  "amenity=university": [
+   "P"
+  ],
+  "amenity=language_school": [
+   "P"
+  ],
+  "amenity=music_school": [
+   "P"
+  ],
+  "amenity=driving_school": [
+   "P"
+  ],
+  "amenity=training": [
+   "P"
+  ],
+  "amenity=childcare": [
+   "Q",
+   "P"
+  ],
+  "amenity=doctors": [
+   "Q"
+  ],
+  "amenity=dentist": [
+   "Q"
+  ],
+  "amenity=clinic": [
+   "Q"
+  ],
+  "amenity=hospital": [
+   "Q"
+  ],
+  "amenity=pharmacy": [
+   "G",
+   "Q"
+  ],
+  "amenity=veterinary": [
+   "M"
+  ],
+  "amenity=nursing_home": [
+   "Q"
+  ],
+  "amenity=social_facility": [
+   "Q"
+  ],
+  "amenity=place_of_worship": [
+   "S"
+  ],
+  "amenity=community_centre": [
+   "S",
+   "R",
+   "Q"
+  ],
+  "amenity=library": [
+   "R"
+  ],
+  "amenity=theatre": [
+   "R"
+  ],
+  "amenity=cinema": [
+   "R",
+   "J"
+  ],
+  "amenity=arts_centre": [
+   "R"
+  ],
+  "amenity=casino": [
+   "R"
+  ],
+  "amenity=bank": [
+   "K"
+  ],
+  "amenity=bureau_de_change": [
+   "K"
+  ],
+  "amenity=fuel": [
+   "G"
+  ],
+  "amenity=car_wash": [
+   "S",
+   "G"
+  ],
+  "amenity=car_rental": [
+   "N"
+  ],
+  "amenity=police": [
+   "O"
+  ],
+  "amenity=fire_station": [
+   "O"
+  ],
+  "amenity=townhall": [
+   "O"
+  ],
+  "amenity=courthouse": [
+   "O"
+  ],
+  "amenity=post_office": [
+   "H",
+   "G"
+  ],
+  "amenity=prison": [
+   "O"
+  ],
+  "amenity=marketplace": [
+   "G"
+  ],
+  "amenity=studio": [
+   "J",
+   "M"
+  ],
+  "amenity=events_venue": [
+   "R",
+   "I",
+   "N"
+  ],
+  "amenity=funeral_hall": [
+   "S"
+  ],
+  "amenity=animal_boarding": [
+   "S",
+   "M"
+  ],
+  "amenity=conference_centre": [
+   "N",
+   "I"
+  ],
+  "tourism=hotel": [
+   "I"
+  ],
+  "tourism=hostel": [
+   "I"
+  ],
+  "tourism=guest_house": [
+   "I"
+  ],
+  "tourism=motel": [
+   "I"
+  ],
+  "tourism=apartment": [
+   "I",
+   "L"
+  ],
+  "tourism=chalet": [
+   "I"
+  ],
+  "tourism=camp_site": [
+   "I"
+  ],
+  "tourism=museum": [
+   "R"
+  ],
+  "tourism=gallery": [
+   "R",
+   "G"
+  ],
+  "tourism=zoo": [
+   "R"
+  ],
+  "tourism=theme_park": [
+   "R"
+  ],
+  "tourism=attraction": [
+   "R"
+  ],
+  "tourism=information": [],
+  "healthcare=pharmacy": [
+   "G",
+   "Q"
+  ],
+  "shop=bakery": [
+   "G",
+   "C"
+  ],
+  "shop=confectionery": [
+   "G",
+   "C"
+  ]
+ }
+}

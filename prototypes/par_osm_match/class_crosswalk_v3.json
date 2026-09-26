@@ -1,0 +1,300 @@
+{
+ "_doc": "Version 3 (S06-110): v2 plus the gaps found at S06-100 and S06-108. Which PAR SBI class descriptions (SBI_KLASS2, exact text) an OSM category points to. A tie-breaker among the 30 m, section-compatible candidates of crosswalk.json: where exactly one candidate has a listed class, it is proposed. Proposed by claude-opus-5-5 (S06-095) as rules for deterministic application. Covers the most frequent OSM categories only.",
+ "amenity=restaurant": [
+  "Restaurants, cafetaria's e.d. en ijssalons",
+  "Eventcatering",
+  "Cafés"
+ ],
+ "amenity=fast_food": [
+  "Restaurants, cafetaria's e.d. en ijssalons",
+  "Eventcatering"
+ ],
+ "amenity=ice_cream": [
+  "Restaurants, cafetaria's e.d. en ijssalons"
+ ],
+ "amenity=cafe": [
+  "Cafés",
+  "Restaurants, cafetaria's e.d. en ijssalons"
+ ],
+ "amenity=pub": [
+  "Cafés",
+  "Restaurants, cafetaria's e.d. en ijssalons"
+ ],
+ "amenity=bar": [
+  "Cafés"
+ ],
+ "amenity=biergarten": [
+  "Cafés"
+ ],
+ "amenity=nightclub": [
+  "Cafés"
+ ],
+ "tourism=hotel": [
+  "Hotels e.d."
+ ],
+ "tourism=motel": [
+  "Hotels e.d."
+ ],
+ "tourism=guest_house": [
+  "Hotels e.d.",
+  "Overige logiesverstrekking",
+  "Verhuur van vakantiehuisjes en appartementen; jeugdherbergen"
+ ],
+ "tourism=hostel": [
+  "Verhuur van vakantiehuisjes en appartementen; jeugdherbergen",
+  "Overige logiesverstrekking"
+ ],
+ "tourism=camp_site": [
+  "Kampeerterreinen"
+ ],
+ "tourism=museum": [
+  "Musea, kunstgalerieën en -expositieruimten"
+ ],
+ "tourism=gallery": [
+  "Musea, kunstgalerieën en -expositieruimten"
+ ],
+ "tourism=zoo": [
+  "Dieren- en plantentuinen; natuurbehoud"
+ ],
+ "tourism=theme_park": [
+  "Pret- en themaparken; kermisattracties"
+ ],
+ "amenity=school": [
+  "Primair en speciaal onderwijs",
+  "Algemeen vormend voortgezet onderwijs"
+ ],
+ "amenity=college": [
+  "Middelbaar beroepsonderwijs en educatie",
+  "Niet-universitair hoger onderwijs"
+ ],
+ "amenity=university": [
+  "Universitair hoger onderwijs",
+  "Niet-universitair hoger onderwijs"
+ ],
+ "amenity=driving_school": [
+  "Auto- en motorrijscholen"
+ ],
+ "amenity=music_school": [
+  "Cultureel onderwijs"
+ ],
+ "amenity=kindergarten": [
+  "Kinderopvang en peuterspeelzaalwerk",
+  "Primair en speciaal onderwijs"
+ ],
+ "amenity=childcare": [
+  "Kinderopvang en peuterspeelzaalwerk"
+ ],
+ "amenity=doctors": [
+  "Praktijken van huisartsen",
+  "Praktijken van medisch specialisten, med. dagbehandelcentra"
+ ],
+ "healthcare=doctor": [
+  "Praktijken van huisartsen",
+  "Praktijken van medisch specialisten, med. dagbehandelcentra"
+ ],
+ "amenity=dentist": [
+  "Tandartspraktijken"
+ ],
+ "healthcare=dentist": [
+  "Tandartspraktijken"
+ ],
+ "healthcare=physiotherapist": [
+  "Praktijken van verloskundigen en paramedici"
+ ],
+ "healthcare=midwife": [
+  "Praktijken van verloskundigen en paramedici"
+ ],
+ "amenity=hospital": [
+  "Ziekenhuizen"
+ ],
+ "amenity=nursing_home": [
+  "Verpleeghuizen"
+ ],
+ "amenity=pharmacy": [
+  "Apotheken"
+ ],
+ "healthcare=pharmacy": [
+  "Apotheken"
+ ],
+ "amenity=fuel": [
+  "Benzinestations",
+  "Handel in en reparatie van personenauto's"
+ ],
+ "amenity=theatre": [
+  "Theaters, schouwburgen en evenementenhallen",
+  "Podiumkunst en -vermaak"
+ ],
+ "amenity=place_of_worship": [
+  "Levensbeschouwelijke organisaties"
+ ],
+ "amenity=funeral_hall": [
+  "Uitvaartverzorging, crematoria, mortuaria en begraafplaatsen"
+ ],
+ "shop=funeral_directors": [
+  "Uitvaartverzorging, crematoria, mortuaria en begraafplaatsen"
+ ],
+ "leisure=fitness_centre": [
+  "Fitnesscentra"
+ ],
+ "leisure=sports_centre": [
+  "Binnensport",
+  "Sportaccommodaties",
+  "Fitnesscentra",
+  "Buitensport"
+ ],
+ "leisure=sauna": [
+  "Sauna's, solaria, baden e.d."
+ ],
+ "shop=supermarket": [
+  "Supermarkten e.d. winkels met een algemeen assort. (v&g)"
+ ],
+ "shop=convenience": [
+  "Supermarkten e.d. winkels met een algemeen assort. (v&g)",
+  "Gespecialiseerde winkels in overige voedings- en genotmid.",
+  "Benzinestations"
+ ],
+ "shop=bakery": [
+  "Winkels in brood, banket, chocolade en suikerwerk",
+  "Vervaardiging van brood en vers banketbakkerswerk"
+ ],
+ "shop=confectionery": [
+  "Winkels in brood, banket, chocolade en suikerwerk",
+  "Vervaardiging van brood en vers banketbakkerswerk"
+ ],
+ "shop=butcher": [
+  "Winkels in vlees en vleeswaren, wild en gevogelte"
+ ],
+ "shop=seafood": [
+  "Winkels in vis"
+ ],
+ "shop=greengrocer": [
+  "Winkels in aardappelen, groenten en fruit"
+ ],
+ "shop=alcohol": [
+  "Winkels in dranken"
+ ],
+ "shop=wine": [
+  "Winkels in dranken"
+ ],
+ "shop=tobacco": [
+  "Winkels in tabaksproducten"
+ ],
+ "shop=clothes": [
+  "Winkels in kleding en mode-artikelen; textielsupermarkten"
+ ],
+ "shop=shoes": [
+  "Winkels in schoenen en lederwaren"
+ ],
+ "shop=jewelry": [
+  "Winkels in juweliersartikelen en uurwerken"
+ ],
+ "shop=books": [
+  "Winkels in boeken"
+ ],
+ "shop=toys": [
+  "Winkels in speelgoed"
+ ],
+ "shop=florist": [
+  "Winkels in bloemen, planten, zaden, tuinbenodigdheden"
+ ],
+ "shop=garden_centre": [
+  "Winkels in bloemen, planten, zaden, tuinbenodigdheden"
+ ],
+ "shop=doityourself": [
+  "Winkels in doe-het-zelfartikelen"
+ ],
+ "shop=hardware": [
+  "Winkels in doe-het-zelfartikelen"
+ ],
+ "shop=furniture": [
+  "Winkels in meubels, verlichting en overige huish. art."
+ ],
+ "shop=bicycle": [
+  "Winkels in fietsen, bromfietsen, sport- en kampeerartikelen"
+ ],
+ "shop=sports": [
+  "Winkels in fietsen, bromfietsen, sport- en kampeerartikelen"
+ ],
+ "shop=chemist": [
+  "Winkels in drogisterij-, medische en orthopedische artikelen"
+ ],
+ "shop=optician": [
+  "Winkels in drogisterij-, medische en orthopedische artikelen"
+ ],
+ "shop=cosmetics": [
+  "Winkels in parfums en cosmetica"
+ ],
+ "shop=perfumery": [
+  "Winkels in parfums en cosmetica"
+ ],
+ "shop=mobile_phone": [
+  "Winkels in telecommunicatieapparatuur"
+ ],
+ "shop=computer": [
+  "Winkels in computers, randapparatuur en software"
+ ],
+ "shop=electronics": [
+  "Winkels in audio- en videoapparatuur of in algemeen assort.",
+  "Winkels in elektrische huish. apparatuur en onderdelen"
+ ],
+ "shop=newsagent": [
+  "Winkels in kranten, tijdschriften en kantoorbehoeften"
+ ],
+ "shop=stationery": [
+  "Winkels in kranten, tijdschriften en kantoorbehoeften"
+ ],
+ "shop=second_hand": [
+  "Winkels in antiek en tweedehands goederen"
+ ],
+ "shop=antiques": [
+  "Winkels in antiek en tweedehands goederen"
+ ],
+ "shop=variety_store": [
+  "Warenhuizen e.d. winkels met een algemeen assort. (nonfood)"
+ ],
+ "shop=department_store": [
+  "Warenhuizen e.d. winkels met een algemeen assort. (nonfood)"
+ ],
+ "shop=car": [
+  "Handel in en reparatie van personenauto's"
+ ],
+ "shop=car_repair": [
+  "Handel in en reparatie van personenauto's",
+  "Gespecialiseerde reparatie van auto's"
+ ],
+ "shop=car_parts": [
+  "Detailhandel in auto-onderdelen en -accessoires"
+ ],
+ "shop=tyres": [
+  "Detailhandel in auto-onderdelen en -accessoires",
+  "Gespecialiseerde reparatie van auto's"
+ ],
+ "shop=motorcycle": [
+  "Handel in en reparatie v. motorfietsen en onderdelen daarvan"
+ ],
+ "shop=hairdresser": [
+  "Haar- en schoonheidsverzorging"
+ ],
+ "shop=beauty": [
+  "Haar- en schoonheidsverzorging"
+ ],
+ "shop=dry_cleaning": [
+  "Reinigen van kleding en textiel"
+ ],
+ "shop=laundry": [
+  "Reinigen van kleding en textiel"
+ ],
+ "office=insurance": [
+  "Assurantietussenpersonen",
+  "Schadeverzekeringen (geen herverzekering)"
+ ],
+ "amenity=bank": [
+  "Overige geldscheppende financiële instellingen"
+ ],
+ "amenity=cinema": [
+  "Bioscopen"
+ ],
+ "amenity=courthouse": [
+  "Justitie"
+ ]
+}

@@ -3,3 +3,5 @@
 {"id": "TI-003", "task_row": 7, "subject": "Acquire the OpenStreetMap Utrecht extract (SRC-014)", "allocation_version": "383bff1", "opened_by": "S06-061", "status": "closed", "closed_by": "S06-069"}
 {"id": "TI-004", "task_row": 8, "subject": "Profile the OSM business extract (ASSET-005)", "allocation_version": "383bff1", "opened_by": "S06-070", "status": "open"}
 {"id": "TI-005", "task_row": 9, "subject": "Propose PAR establishments for OSM businesses by location and sector, and build a blind answer key", "allocation_version": "383bff1", "opened_by": "S06-073", "status": "open"}
+{"id": "TI-006", "task_row": 9, "subject": "Check PAR-OSM proposals against the DUO, LRK and RDW registers", "allocation_version": "383bff1", "opened_by": "S06-112", "status": "open"}
+{"id": "TI-007", "task_row": 7, "subject": "Acquire the DUO, LRK and RDW registers (SRC-006, SRC-009, SRC-010)", "allocation_version": "383bff1", "opened_by": "S06-114", "status": "closed", "closed_by": "S06-114"}
