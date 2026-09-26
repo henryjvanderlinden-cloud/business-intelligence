@@ -1,5 +1,5 @@
-# nsdn — Handover 07: the sandbox started, every step was logged, and the log says where it cannot be trusted
-## Written 2026-09-26 at the close of session 06
+# nsdn — Handover 07: the first sandbox was run and parked; the next one is Wide World Importers
+## Written 2026-09-26 at the close of session 06, revised at the pause of session 07
 
 > **STATUS: CURRENT.**
 
@@ -7,105 +7,122 @@
 
 ## First actions
 
-1. `git log --oneline -15` — expect HEAD at the commit that wrote this handover, on top of `f5c983d`.
-2. `python tools/check_repo.py` — must pass. Expect 58 register rows, 14 ADRs, 6 sessions (S06 closed and
-   audited), 124 steps, 17 sources (5 acquired), 17 assets. **Run it on its own, never piped:** session 06
-   committed once with a failing check because `| tail` hid the exit status.
-3. Read [the session 06 post-mortem](../docs/30_research/notes/2026-09-26-session-06-post-mortem.md) — eight
-   lessons, all computed from the log — then register rows `PRC-OP-6`, `EVI-OP-2`, `CON-OP-16` and `ARC-OP-24`.
-4. **Open a new step file**, `records/steps/S07.jsonl`, add S07 to `records/sessions.jsonl` with
-   `allocation_version` set to the current commit of 070, and log from the first step. The spec is
-   [520](../docs/50_process/520_record-keeping.md); read its *Added after review* section.
+1. `git log --oneline -15` — expect HEAD at the commit that last revised this handover, on top of `ec901e6`.
+2. `python tools/check_repo.py` — must pass. Expect 59 register rows, 14 ADRs, 7 sessions (S06 closed and
+   audited, **S07 open**), 133 steps, 22 sources (5 acquired), 17 assets. **Run it on its own, never piped:**
+   session 06 committed once with a failing check because `| tail` hid the exit status.
+3. Read register rows `EVI-OP-7` (the next sandbox) and `PRC-OP-6` (the log's reliability), then
+   [the session 06 post-mortem](../docs/30_research/notes/2026-09-26-session-06-post-mortem.md).
+4. **Continue session S07** in `records/steps/S07.jsonl` from S07-010; it was paused, not closed. From S07 every
+   step carries an `activity` as well as a `task_type` — see *Changed after the first audit* in
+   [520](../docs/50_process/520_record-keeping.md). Closing S07 needs a blind audit (the checker enforces it).
 
 ## Outstanding actions for the author, not the model
 
-**Push.** About thirty commits of session 06 are local only.
+**Push.** Commits since `53e0815`'s predecessor are local only.
 
-**Rule the two open classification fixes** (lesson 2 of the post-mortem): split task type into activity and
-subject; and decide how coordination steps — his approvals, the model's reports — are classed.
+**Install SQL Server Developer edition and the Wide World Importers sample** (`SRC-018`). A large act, and he
+has agreed to it.
 
-## How to work with the author
-
-Unchanged from handover 06, and confirmed again: **plain English, numbered**; propose, let him react, write
-what he settles; quote him verbatim; external review on sol and astra in parallel. Two additions from this
-session:
-
-**Keep the apparatus small.** His words: "let's not make it too serious yet, we're still putting our feelers
-out" and "this whole system also suffers from the same things described in Generative Structures, so let's
-not make it too large." When a review returns many findings, integrate lightly and enforce only the one
-that matters most.
-
-**Put decisions to him as decisions.** In session 06 the model made every matching choice and the author
-only did lookups (lesson 3). If a choice is his by 070 — meaning, identity, what counts — ask.
-
-**Sheets for him are .xlsx with an unmistakable name.** A CSV next to another CSV invited his entries into
-the wrong file, and Dutch-locale Excel rewrote its coordinates. **Ask before overwriting any file he has just
-touched** — he stopped the model once for not asking.
-
-## What session 06 did
-
-Re-themed the sandbox to businesses in the Utrecht region, at the author's request: his interest in firm
-types and turnover, underserved BI/analytics/AI markets, businesses for sale and e-commerce opportunities
-(`EVI-OP-2`). No money is to be spent on it. Built the step log ([ADR-0014](../docs/20_decisions/0014-step-log.md))
-and the maintenance baseline (`records/maintenance_baseline.json`, ruled provisionally), each failed on first
-review and repaired. Acquired PAR, OSM, DUO, LRK and RDW; matched OSM businesses to PAR establishments in three
-versions ([`../prototypes/par_osm_match/`](../prototypes/par_osm_match/README.md)); measured them against a
-blind answer key and the three registers
-([`../prototypes/register_check/check.py`](../prototypes/register_check/check.py)); closed with a blind audit.
-
-**The data, briefly.** PAR (`SRC-012`) is anonymous — location, sector class, size code, start date; no
-name, KvK number or address — and in substance the 1 April 2022 register despite its 2024 title; its size
-codes are undocumented and the author declined to ask the province. OSM (`SRC-014`) gives 17,279 named
-businesses, 70% with a website. The free KvK search gives neither SBI code nor start date. All raw data sits
-under the git-ignored `data/`, every file hashed in `records/assets.jsonl`.
+**Rule the two guards** from session 06 if they are to stand: no de-anonymising business-for-sale listings;
+no named individuals.
 
 ## Task for the next session, in one sentence
 
-Deal with the time gap: treat businesses that demonstrably started after 1 April 2022 as absent from PAR,
-and re-measure — after first making the two classification fixes if the author has ruled them.
+Get Wide World Importers running as a simulated internal system the model can read: verify what its daily
+simulation actually changes, settle the access route, and capture the first change feed.
 
-## Why that task and not another
+## The plan for Wide World Importers, as proposed and not yet tried
 
-Data age is the dominant error in every measurement so far (lesson 5), and it is cheap to address with what is
-already on disk (LRK registration dates; possibly KvK number ranges, unverified). The alternatives, in the
-author's order of interest if he prefers: move towards his prospect list (the ~6,800 unique matches carry PAR
-size class and sector, most with a website — but website checks need network access neither environment
-has); or design the comparison that isolates what the model adds beyond rule tables (`EVI-OP-1`).
+**Why this dataset.** The author parked the Utrecht sandbox because it was scraping, not a company's internal
+data: "There are no regularly updating records, or a regular creation of new records." He set the next use
+case as a simple financial administration or ERP "with regular inserts and updates" (`EVI-OP-7`), and chose
+Wide World Importers: a wholesale company's database — sales, purchasing, warehouse, customer and supplier
+transactions — with Microsoft's own day-by-day simulator, `DataLoadSimulation.PopulateDataToCurrentDate`
+(parameters: orders per day, Saturday and Sunday share). The simulator being Microsoft's and not the model's
+is the point: a landscape simulated by the tested party flatters it (410).
+
+**Verify first; these are from the model's knowledge, not checked:** that the simulation also advances
+existing orders (picking, invoicing, payments), not only inserts; and that master tables (customers,
+suppliers, stock items, people) are system-versioned temporal tables with history. The answers decide how
+much real update behaviour the sandbox has.
+
+**Do not port it.** The author asked whether to port to Postgres. Porting means the model rewriting the
+simulator and the temporal tables, which undoes the reason for the choice.
+
+**Access.** The model's shell on the author's computer is an isolated Linux environment: it cannot reach
+services on the Windows host (localhost) and has no network of its own. Test that once the server is
+installed, but expect it to fail. The proposed route is a **scheduled export on his side**: a small script
+(PowerShell with `sqlcmd` or `bcp`, run by Task Scheduler) that advances the simulation a few days and writes
+changed rows — by `ValidFrom`/`LastEditedWhen` or the temporal history — into `data/raw/WWI/<date>/`. Setting
+it up is one large act; after that each refresh arrives without his hands, which is what the maintenance
+baseline's refresh rule needs. A second, untried route: the Codex MCP server runs on his Windows machine and
+could run `sqlcmd` there — but that makes another model the executor, and its sandbox has so far been
+read-only.
+
+**Measure from the start.** One source, refreshed on a schedule, is exactly what `CON-OP-16`'s epochs assume.
+Put matching and modelling choices to the author as decisions (lesson 3 of the post-mortem).
+
+## How to work with the author
+
+**Plain English, numbered**; propose, let him react, write what he settles; quote him verbatim; external
+review on sol and astra in parallel. From session 06:
+
+**Keep the apparatus small.** "let's not make it too serious yet, we're still putting our feelers out";
+"this whole system also suffers from the same things described in Generative Structures, so let's not make it
+too large." Integrate review findings lightly; enforce only what matters most.
+
+**Put decisions to him as decisions.** In session 06 the model made every matching choice and he only did
+lookups.
+
+**Sheets for him are .xlsx with an unmistakable name**, and **ask before overwriting a file he has touched.**
+
+**He will say when a session is long.** Wrap up when he does.
+
+## What sessions 06 and 07 did
+
+Session 06 (25–26 September) built the step log ([ADR-0014](../docs/20_decisions/0014-step-log.md),
+[520](../docs/50_process/520_record-keeping.md)) and the maintenance baseline, each failed on first review and
+repaired; ran the first sandbox on the Utrecht business landscape — PAR, OSM, DUO, LRK, RDW acquired, OSM
+businesses matched to PAR establishments in three versions, measured against a blind answer key and three
+registers; and closed with a blind audit and a
+[post-mortem](../docs/30_research/notes/2026-09-26-session-06-post-mortem.md). Its eight lessons in one line
+each: the apparatus was costly to set up and cheap to run; the log is reliable on who and what, not on work
+class (7/15) or task type (5/15); the model decided and the author was its hands; his effort was small in
+words, large in acts; matching worked (88–99% right kind) and data age was the main error; review and the
+checker earned their keep; the environment shaped the work; the maintenance measure was never computable.
+
+Session 07 (26 September, straight after) made the classification fix the author accepted, parked the
+Utrecht use case (`EVI-OP-2`), opened `EVI-OP-7`, surveyed candidates (`SRC-018`–`SRC-022`) and recorded his
+choice of Wide World Importers.
 
 ## Traps and warnings
 
-**No Dutch data source is reachable from either environment.** Geofabrik, DUO, LRK, RDW, KvK, the province —
-all blocked from the cloud workspace and the computer's shell. Every acquisition is a large act for the
-author. Batch requests for downloads.
+**No Dutch data portal, 4TU, Kaggle or Microsoft Learn is reachable from either environment; GitHub and PyPI
+are.** Prefer sources that are.
 
-**The cloud workspace is reclaimed overnight.** Anything processed there must be written back to the computer
-the same session. osmium and pyproj install there, not on the computer.
+**The cloud workspace is reclaimed overnight.** Write results back to the computer the same day.
 
-**The checker forces `maintain` for work triggered by a refresh or a failed check.** The auditor disagreed
-once (a restore it called rework). That rule stays until the author changes it.
+**The checker forces `maintain` for work triggered by a refresh or a failed check**; **`validation` needs a
+check by a different agent**; **from S07, `communication`, `documentation` and `review` are activities, not
+task types.**
 
-**`validation` needs a check step by a different agent.** A matcher run cannot be validated by a check the same
-program ran; the checker refuses it.
-
-**Do not de-anonymise business-for-sale listings; name no individuals.** Both guards proposed in session 06 and
-not formally ruled; the LRK file contains childminders' home addresses and contact persons, which are not to
-be read.
-
-**"Right kind" in the register check is partly circular for schools.** The class rule selects the class the
-check expects; the informative figures are wrong-kind proposals, post-2022 cases and dates.
+**The Utrecht data stays on disk, parked.** Do not delete it; the LRK file contains home addresses and contact
+persons, which are never to be read.
 
 ## Do not reopen
 
 Everything in handover 06's list, plus:
 
 - Every step is logged, classified, and validated by the checker — [ADR-0014](../docs/20_decisions/0014-step-log.md).
-- The author's effort is recorded as answers, words and small or large acts, never as time — his ruling in
-  [520](../docs/50_process/520_record-keeping.md).
-- The sandbox is the Utrecht business landscape, and costs no money — `EVI-OP-2`.
-- A blind audit by another model gates each session's close — 520, enforced.
+- The author's effort is recorded as answers, words and small or large acts, never as time.
+- A blind audit by another model gates each session's close.
+- Task type is the subject, activity what was done (from S07).
+- The Utrecht landscape is parked; the next sandbox is a simulated internal system, Wide World Importers, not
+  ported.
 
-## What session 06 did not do
+## What was not done
 
-Did not refresh any source, so no epoch is comparable and `CON-OP-16` is not computable. Did not isolate what
-the model adds. Did not check websites, estimate turnover, or produce any prospect list. Did not rule the
-two guards or the classification fixes. Did not resolve PAR's size codes.
+No source of the Utrecht sandbox was refreshed; `CON-OP-16` was never computable there. What a model adds
+beyond rule tables was not isolated. Wide World Importers is not installed, its simulator's behaviour is
+unverified, and the access route is untested.

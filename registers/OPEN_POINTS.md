@@ -1833,6 +1833,14 @@ not), and it should not be simulated by the same model that will be tested on it
 designed by the tested party flatters it ([410](../docs/40_roadmap/410_first-vertical-slice.md)). Candidates
 are in [`../records/sources.jsonl`](../records/sources.jsonl) from `SRC-018`.
 
+**Chosen 2026-09-26, session 07, by the author:** "I think the Wide World is a good case. I'd have to install
+the free SQL server instance, which is no problem." Wide World Importers (`SRC-018`) on SQL Server Developer
+edition on his machine. Not to be ported: porting would mean the model rewriting the simulator, which is
+the property the choice rests on. Access is the open question: the model's shell on his computer is an
+isolated Linux environment that cannot reach services on the Windows host, so the proposed route is a
+scheduled export on his side — advance the simulation, write changed rows into `data/` — to be tested once
+the server is installed.
+
 ## §4 — Process (`PRC`)
 
 ### PRC-OP-1 — PARTLY DISCHARGED — external review of the repository
