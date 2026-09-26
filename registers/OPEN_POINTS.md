@@ -1711,6 +1711,13 @@ acceptable PAR establishment within 30 m at all, most plausibly because the regi
 OSM from 2026. Indicative only at n = 12, and none of it yet tests what a model adds beyond distance and
 rule tables — the class rules are model-written, but applied deterministically.
 
+**Utrecht business landscape parked, 2026-09-26, session 07, by the author:** "I think we'll leave it at
+this for now for this use case. The problem is that it's not representative of a companies internal data.
+We ran into a lot of issues, because this is an atypical use case, this is more about data scraping. There
+are no regularly updating records, or a regular creation of new records." Its results stand in the
+[session 06 post-mortem](../docs/30_research/notes/2026-09-26-session-06-post-mortem.md) and the data stays
+on disk. The next sandbox is `EVI-OP-7`.
+
 ### EVI-OP-3 — Query logs as evidence
 **⛔ STATE: OPEN**
 Opened 2026-09-19, session 01.
@@ -1808,6 +1815,23 @@ does not ask. If run at all it should measure the mart layer. Not a candidate fo
 session.
 
 ---
+
+### EVI-OP-7 — A simulated internal system for the next sandbox
+**⛔ STATE: OPEN**
+Opened 2026-09-26, session 07, by the author:
+
+> A next use case should have a simple financial administration with regular updates at its core, or a
+> very simple ERP system, with regular inserts and updates. I think we need to find a dataset that we can
+> simulate this with.
+
+What the Utrecht sandbox lacked, and what the framework's claims need: records created and changed on a
+regular rhythm inside one organisation's system, so that capture, historisation, business keys across
+modules, refresh and maintenance (`CON-OP-16`) are exercised as they would be in a client's landscape. Two
+lessons of session 06 become requirements: the source must be reachable from the working environment
+without the author's hands (GitHub and PyPI are; Dutch data portals, 4TU, Kaggle and Microsoft's sites are
+not), and it should not be simulated by the same model that will be tested on it, since a landscape
+designed by the tested party flatters it ([410](../docs/40_roadmap/410_first-vertical-slice.md)). Candidates
+are in [`../records/sources.jsonl`](../records/sources.jsonl) from `SRC-018`.
 
 ## §4 — Process (`PRC`)
 
@@ -2074,6 +2098,11 @@ are the unreliable ones. Owed before the log is used for `CON-OP-16`: task type 
 subject (sol's finding 8 on the step log, declined on 2026-09-25, now supported by evidence), a work-class
 rule for coordination steps, and a second audit. See
 [2026-09-26-session-06-post-mortem](../docs/30_research/notes/2026-09-26-session-06-post-mortem.md).
+
+**Classification fix ruled 2026-09-26, session 07:** the author accepted the recommendation ("I'll go along
+with the recommendation on 2"). Task type is now the subject and a new field, activity, what was done;
+coordination takes the work class of what it coordinates. In [520](../docs/50_process/520_record-keeping.md),
+enforced from S07 where mechanical. A second audit is still owed.
 
 ## §5 — Commercial premises (`BIZ`)
 

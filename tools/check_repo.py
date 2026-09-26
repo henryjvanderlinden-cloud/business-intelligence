@@ -323,6 +323,12 @@ def check_records():
             elif faculty != rec["actor"]:
                 err(where, "agent %r is %s, but actor is %s" % (rec["agent"], faculty, rec["actor"]))
 
+            # from S07: task_type is the subject, activity what was done (PRC-OP-6, S07-001)
+            if session >= "S07":
+                enum(where, "activity", rec.get("activity"), vocab["activity"])
+                if rec["task_type"] in vocab["_task_type_as_activity"]:
+                    err(where, "task_type %r is an activity from S07 on; use activity" % rec["task_type"])
+
             # people: verbatim, and effort by proxy, counted once per response
             if rec["actor"] == "H" and rec["role"] in ("request", "decide") and not rec.get("verbatim"):
                 err(where, "a person's request or decision needs the verbatim field")

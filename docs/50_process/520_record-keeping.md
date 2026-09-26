@@ -189,7 +189,22 @@ uses.
 test of whether human attention is the binding constraint rather than merely in demand. Declined:
 deriving `size` rather than recording it, since it is the author's term.
 
-## Sources
+## Changed after the first audit
+
+The blind audit of session 06 (`AUD-S06-1`) agreed with the recorder on work class in 7 of 15 steps and on
+task type in 5 of 15. The author accepted the recommended fix on 2026-09-26. From session S07:
+
+**Activity is separate from subject.** `task_type` names what the work is *about* (matching, profiling,
+record keeping, planning …); the new field `activity` names what was *done* (communicate, document,
+review, research, code, run, acquire, look-up, check, decide, other). `communication`, `documentation` and
+`review` are no longer task types. Enforced by the checker for S07 onwards.
+
+**Coordination takes the class of what it coordinates.** A report, a question, an approval or a ruling
+carries the work class of the work it is about: approving a matcher fix is build, reporting a restore is
+maintain. Only coordination about the session itself or about this log is overhead. *Unenforced:* the
+checker cannot tell what a message is about; the next audit tests it.
+
+
 
 `sources.jsonl` holds every data source considered, whether used or not, with its publisher, URL,
 licence, access route, status (`candidate`, `acquired`, `rejected`, `blocked`), the step that found or

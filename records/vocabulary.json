@@ -1,5 +1,5 @@
 {
-  "_doc": "Allowed values for classified fields in records/. Specification: docs/50_process/520_record-keeping.md. Add a value here, with a one-line meaning, before using it.",
+  "_doc": "Allowed values for classified fields in records/. Specification: docs/50_process/520_record-keeping.md. Add a value here, with a one-line meaning, before using it. From session S07, task_type is the subject of the work and activity is what was done (author's ruling, S07-001); the three task types listed in _task_type_as_activity are activities and may not be used as task_type from S07 on.",
   "actor": {
     "H": "a person",
     "A": "the agentic layer: a language model choosing and composing (ADR-0010)",
@@ -215,5 +215,23 @@
     "check-failure": "a check failed",
     "review": "a review finding",
     "other": "anything else"
-  }
+  },
+  "activity": {
+    "communicate": "reporting to or asking someone",
+    "document": "writing design documents, ADRs, register rows, notes",
+    "review": "reviewing drafted material",
+    "research": "reading outside material",
+    "code": "writing code or rule files",
+    "run": "running a program",
+    "acquire": "obtaining data, by download or copy",
+    "look-up": "looking something up by hand",
+    "check": "verifying a result",
+    "decide": "settling a choice",
+    "other": "anything else"
+  },
+  "_task_type_as_activity": [
+    "communication",
+    "documentation",
+    "review"
+  ]
 }
