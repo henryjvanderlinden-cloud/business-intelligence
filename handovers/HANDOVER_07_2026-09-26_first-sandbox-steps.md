@@ -11,9 +11,10 @@
 2. `python tools/check_repo.py` — must pass. Expect 59 register rows, 14 ADRs, 7 sessions (S06 closed and
    audited, **S07 open**), 133 steps, 22 sources (5 acquired), 17 assets. **Run it on its own, never piped:**
    session 06 committed once with a failing check because `| tail` hid the exit status.
-3. Read register rows `EVI-OP-7` (the next sandbox) and `PRC-OP-6` (the log's reliability), then
+3. Read register rows `EVI-OP-7` (the next sandbox), `ARC-OP-29` (the data model) and `PRC-OP-6` (the log's
+   reliability), then
    [the session 06 post-mortem](../docs/30_research/notes/2026-09-26-session-06-post-mortem.md).
-4. **Continue session S07** in `records/steps/S07.jsonl` from S07-012; it was paused, not closed. From S07 every
+4. **Continue session S07** in `records/steps/S07.jsonl` from S07-021; it was paused, not closed. From S07 every
    step carries an `activity` as well as a `task_type` — see *Changed after the first audit* in
    [520](../docs/50_process/520_record-keeping.md). Closing S07 needs a blind audit (the checker enforces it).
 
@@ -45,6 +46,18 @@ design that needs his hands at every refresh fails the thesis, whatever else it 
 found him acting as the system's hands five times. **Nothing he says is settled until he rules it:** Wide
 World Importers is his current preference, not a decision. **Big picture, then small steps:** design the
 whole path end to end, then take the smallest step that tests it.
+
+## The data model, raised in a parallel conversation
+
+On the same afternoon a second conversation on this repository took up the author's observation that the
+first sandbox did no visible data modelling (steps S07-012 to S07-018). It drafted
+[142_the-data-model.md](../docs/10_architecture/142_the-data-model.md), unreviewed, and opened `ARC-OP-29`:
+the model held as text declarations, one file per object, navigated along dimensions — at least conceptual
+to concrete and raw to refined — with a generated HTML site for people and the files themselves for agents.
+His rulings there, verbatim in the step log: navigation is along dimensions but "not in one visual"; the
+HTML view is preferred; the graphical representation "does not need to be machine readable, just optimized
+for human consumption". He asked for the note, **not** for a hand-modelled trial case. The next sandbox's
+design should say where the data model sits in it; whether it is adopted is still open.
 
 ## Wide World Importers: the leading candidate, tentatively
 
@@ -110,10 +123,10 @@ class (7/15) or task type (5/15); the model decided and the author was its hands
 words, large in acts; matching worked (88–99% right kind) and data age was the main error; review and the
 checker earned their keep; the environment shaped the work; the maintenance measure was never computable.
 
-Session 07 (26 September, straight after) made the classification fix the author accepted, parked the
+Session 07 (26 September, straight after, in two parallel conversations) made the classification fix the author accepted, parked the
 Utrecht use case (`EVI-OP-2`), opened `EVI-OP-7`, surveyed candidates (`SRC-018`–`SRC-022`) and recorded his
 current preference for Wide World Importers, which he then asked to be treated as tentative until the
-whole setup has been thought through.
+whole setup has been thought through; the parallel conversation drafted 142 on the data model.
 
 ## Traps and warnings
 

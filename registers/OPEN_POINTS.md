@@ -1626,6 +1626,29 @@ this.
 
 ---
 
+### ARC-OP-29 — Is the data model a first-class, navigable part of the context layer?
+**⛔ STATE: OPEN**
+Opened 2026-09-26, session 07, from the author's observation that the first sandbox did no visible data
+modelling.
+
+The author wants a data model — conceptual, logical, technical — that people use to communicate and keep the
+big picture, that drives warehouse automation through templates with deterministic loading patterns, that is
+connected to metadata for meaning and loading patterns, and that both people and the agentic layer can
+navigate. His reference is SAP PowerDesigner: full code generation, but hard to navigate and heavy with
+ballast. He prefers open source or parts built here.
+
+[142_the-data-model.md](../docs/10_architecture/142_the-data-model.md) drafts an answer: the model is text
+declarations, one file per object, under the context layer's identifiers; only the meaningful part is
+declared and everything mechanical is generated; objects are navigated along dimensions — at least
+conceptual to concrete and raw to refined, with subject area, source, time and status as candidates; people
+see a generated static HTML site, agents read the files and a derived index. The author ruled on 2026-09-26
+that the graphical representation is for human consumption only and need not be machine-readable.
+
+Open: whether to adopt this shape at all; which further dimensions are real; the declaration language, which
+falls under `ARC-OP-20`; and how this relates to `ARC-OP-15` and `ARC-OP-26`, for which the HTML site is a
+candidate surface. Closes with an ADR, after a hand-written model of one real case has been generated into
+the HTML view. The draft is unreviewed.
+
 ## §3 — Evidence and measurement (`EVI`)
 
 ### EVI-OP-1 — Ground truth for the falsifiable core

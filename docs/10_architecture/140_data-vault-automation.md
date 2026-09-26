@@ -74,3 +74,6 @@ The raw vault is mechanical. The business vault — derived satellites, point-in
 bridge structures, applied business rules — is not, because it encodes interpretation.
 It belongs at Tier 2 with full adjudication, and each object should cite the decision or
 metric that motivates it. Marts are Tier 3 and must cite a decision in the register.
+
+How the declarations themselves would be held, generated from and navigated is drafted in
+[142_the-data-model.md](142_the-data-model.md).
