@@ -1,11 +1,14 @@
 """Propose PAR establishments for OSM businesses by distance and sector (S06-076).
 
 Deterministic: the only judgement is in crosswalk.json and the radius, both logged as decisions.
-Usage: python match.py <par.csv> <osm.csv> <crosswalk.json> <radius_m> <out.csv>
+Usage: python match.py <par.csv> <osm.csv> <crosswalk.json> <radius_m> <out.csv> [class_crosswalk.json]
+With the optional class crosswalk (S06-095), ties among section-compatible candidates are broken by
+PAR's detailed SBI class description; without it the output is that of the first run (S06-077).
 """
 import csv, json, math, sys, collections
 par_path, osm_path, cw_path, radius, out_path = sys.argv[1], sys.argv[2], sys.argv[3], float(sys.argv[4]), sys.argv[5]
 cw = json.load(open(cw_path, encoding="utf-8"))
+ccw = json.load(open(sys.argv[6], encoding="utf-8")) if len(sys.argv) > 6 else None
 par = []
 for r in csv.DictReader(open(par_path, encoding="utf-8")):
     x, y = r["SHAPE"][7:-1].split()
@@ -18,6 +21,8 @@ def allowed(key, value):
 FIELDS = ["osm_type", "osm_id", "name", "cat_key", "cat_value", "addr_street", "addr_housenumber", "addr_postcode",
           "addr_city", "website", "match_class", "weak_sector", "n_within", "n_compatible", "par_fid", "distance_m",
           "second_distance_m", "par_sbi_section", "par_sbi_class", "par_size_code", "par_start", "par_place"]
+if ccw is not None:
+    FIELDS += ["n_class_compatible", "class_rule"]
 stats = collections.Counter(); par_hits = collections.Counter()
 with open(out_path, "w", newline="", encoding="utf-8") as fh:
     w = csv.writer(fh); w.writerow(FIELDS)
@@ -40,6 +45,11 @@ with open(out_path, "w", newline="", encoding="utf-8") as fh:
         elif not comp: cls = "sector-mismatch"
         elif len(comp) == 1: cls = "unique"
         else: cls = "ambiguous"
+        classes = ccw.get("%s=%s" % (o["cat_key"], o["cat_value"])) if ccw is not None else None
+        ccomp = [(d, i) for d, i in comp if classes and par[i][2]["SBI_KLASS2"] in classes]
+        if classes and ccomp:
+            cls = "unique-by-class" if len(ccomp) == 1 else "ambiguous-by-class"
+            comp = ccomp
         stats[cls + ("-weak" if weak and comp else "")] += 1
         best = comp[0] if comp else (near[0] if near else None)
         row = base + [cls, int(weak), len(near), len(comp)]
@@ -50,6 +60,8 @@ with open(out_path, "w", newline="", encoding="utf-8") as fh:
                     p["SBI_KLASS2"], p["GRTKLASN"], p["DATUMSTART"][:10], p["PLAATSLANG"]]
         else:
             row += [""] * 8
+        if ccw is not None:
+            row += [len(ccomp), int(bool(classes))]
         w.writerow(row)
 stats["par_claimed_by_more_than_one_osm"] = sum(1 for v in par_hits.values() if v > 1)
 stats["distinct_par_proposed"] = len(par_hits)
