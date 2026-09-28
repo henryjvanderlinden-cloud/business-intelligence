@@ -1,5 +1,5 @@
 # nsdn — Handover 07: the first sandbox was run and parked; the next one is to be thought through before anything is installed
-## Written 2026-09-26 at the close of session 06, revised at the pause of session 07
+## Written 2026-09-26 at the close of session 06, revised at the pauses of session 07 (26 and 28 September)
 
 > **STATUS: CURRENT.**
 
@@ -7,20 +7,23 @@
 
 ## First actions
 
-1. `git log --oneline -15` — expect HEAD at the commit that last revised this handover, on top of `ec901e6`.
-2. `python tools/check_repo.py` — must pass. Expect 59 register rows, 14 ADRs, 7 sessions (S06 closed and
-   audited, **S07 open**), 133 steps, 22 sources (5 acquired), 17 assets. **Run it on its own, never piped:**
+1. `git status`, then `git log --oneline -15`. The revision of 2026-09-28 was written back to the computer without a
+   shell and may be uncommitted: if `git status` shows it, commit it first. Otherwise expect HEAD at the commit that
+   last revised this handover, on top of `3acd477`.
+2. `python tools/check_repo.py` — must pass. Expect 61 register rows, 14 ADRs, 7 sessions (S06 closed and
+   audited, **S07 open**), 151 steps, 22 sources (5 acquired), 17 assets. **Run it on its own, never piped:**
    session 06 committed once with a failing check because `| tail` hid the exit status.
 3. Read register rows `EVI-OP-7` (the next sandbox), `ARC-OP-29` (the data model) and `PRC-OP-6` (the log's
    reliability), then
    [the session 06 post-mortem](../docs/30_research/notes/2026-09-26-session-06-post-mortem.md).
-4. **Continue session S07** in `records/steps/S07.jsonl` from S07-021; it was paused, not closed. From S07 every
+4. **Continue session S07** in `records/steps/S07.jsonl` from S07-028; it was paused, not closed. From S07 every
    step carries an `activity` as well as a `task_type` — see *Changed after the first audit* in
    [520](../docs/50_process/520_record-keeping.md). Closing S07 needs a blind audit (the checker enforces it).
 
 ## Outstanding actions for the author, not the model
 
-**Push.** Commits since `53e0815`'s predecessor are local only.
+**Commit and push** the revision of 2026-09-28 (160, 110, `ARC-OP-30`, this handover, the records) if a shell was not
+available to do it; that conversation had none.
 
 **Nothing to install yet.** He has said SQL Server is no problem to install, but asked that the whole setup be
 thought through first. Do not ask him to install anything until the design says what, why, and what it saves him.
@@ -82,6 +85,8 @@ advances existing orders or keeps temporal history is a nice-to-have to check, n
    as executor; its sandbox so far read-only). Every route should be judged by how often it needs him.
 3. *Who advances the simulation.* Ideally a schedule, not a person.
 4. *What happens when it breaks.* Who notices, who repairs, and whether that is him.
+5. *Where the frozen regression copy comes from* (`ARC-OP-30`): a copy of the source data and one reference date
+   per quarter, beside the live feed, so that code changes can be tested on data that stands still.
 
 **Do not port it without cause.** He asked whether to port to Postgres. The case against: the model would be
 rewriting the simulator, which undoes the reason for choosing it. The case for, not yet weighed: a source
@@ -90,6 +95,18 @@ the decision is his.
 
 **Measure from the start.** One source, refreshed on a schedule, is what `CON-OP-16`'s epochs assume. Put
 design and modelling choices to him as decisions (lesson 3 of the post-mortem).
+
+## Release regression, raised 2026-09-28
+
+In a new conversation the author asked whether release notes are needed for regression testing and described
+his employer's method: frozen data for a quarter with one reference date, a daily snapshot with the current
+code diffed against the previous day's, and every difference attributed to a release note or treated as a
+regression; the developer checks the intended consequence, a dedicated tester the regression; nothing is
+deployed on the quarter turn, and the two reference dates get a plausibility check. At his request it is now in
+[160](../docs/10_architecture/160_evaluation-and-regression.md) under *Release regression*, with `ARC-OP-30`
+open. The model's two adaptations — context changes as a second source of attribution, and an agent-run loop
+leaving him only the residue — are marked there as proposals, not rulings. Unreviewed. Nothing to build before
+there is code to release.
 
 ## How to work with the author
 

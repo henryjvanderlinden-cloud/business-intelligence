@@ -1649,6 +1649,50 @@ falls under `ARC-OP-20`; and how this relates to `ARC-OP-15` and `ARC-OP-26`, fo
 candidate surface. Closes with an ADR, after a hand-written model of one real case has been generated into
 the HTML view. The draft is unreviewed.
 
+### ARC-OP-30 — Release regression: every output change attributed to a release note, on frozen data
+**⛔ STATE: OPEN**
+Opened 2026-09-28, session 07, by the author:
+
+> For proper regression testing after every update of the codebase, you would need release notes that
+> explain what changes were made, why and what the intended impact is. Do you think this also needs to
+> documented somewhere? And do you agree with this claim? The way we do regression testing at my current
+> employer is that the same set of data is used for three months at a time, but every day a new snapshot is
+> made with the then current codebase, and it is compared to previous day's snapshot. Any changes must be
+> attributed either to one of the release notes, or it is proper regression that must be solved.
+
+Nothing in the design covered this. [160](../docs/10_architecture/160_evaluation-and-regression.md) tested
+data changing under fixed code — determinism, quality contracts, semantic regression — and never code
+changing under fixed data, and no document or record said what a change was expected to do to the output:
+ADRs say why a design was chosen, the step log what work was done, commit messages why a change was made.
+
+The same day, answering the proposed refinements, the author added from his practice:
+
+> 6. the developer checks that the change has the intended consequence. The team's dedicated tester checks
+> for regression (by others)
+> 7. yes, freeze the clock, one reference date per quarter year
+> 8. True that's what we do. And then a plausibility check between the two dates (usually a quarter year
+> apart)
+>
+> Document all of this somewhere (probably 160 then) + register row as you proposed.
+
+The method is now recorded in 160 under *Release regression — frozen data, moving code*: frozen data and one
+reference date per quarter; a daily snapshot with the current code, diffed against the previous day's; every
+difference attributed to a release note or treated as a regression; the developer checks the intended
+consequence, a separate tester the regression; no code deployed on the quarter turn, and a plausibility check
+between the two reference dates.
+
+Proposed by the model and **not ruled**: that release notes state their intended impact in a form a diff can
+be matched against, including "no change expected"; that in nsdn context changes — adjudicated assertions,
+rule versions, metric definitions — are a second legitimate source of attribution beside code release notes,
+which bears on `ARC-OP-13`; and that most of the loop is run by agents and deterministic machinery, the author
+seeing only the unattributed residue and the quarterly plausibility check.
+
+Open: whether the method is adopted, by ADR; the form and location of release notes (one per release, tied to
+a commit, machine-readable, distinct from ADRs and the step log); what counts as an output for the snapshot;
+how the diff and its residue are summarised; and where the frozen copy and its reference date come from in the
+next sandbox (`EVI-OP-7`). Nothing is to be built before code exists to release. The section of 160 is
+unreviewed and owes a cross-model review.
+
 ## §3 — Evidence and measurement (`EVI`)
 
 ### EVI-OP-1 — Ground truth for the falsifiable core

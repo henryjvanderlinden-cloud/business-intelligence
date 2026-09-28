@@ -109,6 +109,8 @@
   },
   "instruments": [
     "device_bash",
+    "device_list_dir",
+    "get_device_info",
     "device_request_delete_permission",
     "device_stage_files",
     "device_commit_files",

@@ -2,7 +2,8 @@
 
 The brief asks for "a test framework that constantly monitors for regression." That
 sentence contains three different guarantees, of sharply increasing difficulty, and they
-need separating before anything can be built.
+need separating before anything can be built. A fourth guarantee, about the code rather than
+the data, was added on 2026-09-28 and is set out under *Release regression* below.
 
 ## Level 1 — Determinism
 
@@ -55,6 +56,89 @@ technical debt.
 a migration, a merged subsidiary — without any schema change. Detectable as a
 distributional break that no upstream change explains, which is weak evidence but
 better than none, and should raise a question rather than an alert.
+
+## Release regression — frozen data, moving code
+
+*Added 2026-09-28, session 07, from the author's working practice. Unreviewed, and open as
+`ARC-OP-30` in the [register](../../registers/OPEN_POINTS.md).*
+
+The three levels above watch the data change while the code stands still. The opposite
+question is just as necessary, and in most BI teams it is the one actually tested: when the
+code changes, does the output change only where the change said it would? The author
+described the method used at his current employer, and it is recorded here as the working
+answer.
+
+**The method as practised.** A fixed set of source data is used for a quarter at a time,
+with one reference date per quarter standing in for *today*, so that the clock is frozen
+along with the data. Every day a snapshot of all outputs is made with the codebase as it
+stands that day, and it is compared with the previous day's snapshot. Because data and
+clock are both held still, the only thing that can have changed between two snapshots is
+the code. Every difference must therefore be attributed to one of the release notes for the
+changes deployed since the previous snapshot; a difference that cannot be attributed is a
+regression, and must be solved.
+
+**Release notes are the expected side of the test.** A note says what was changed, why,
+and what the intended impact is. Without it a diff is a list of differences with no way of
+telling which were meant. For attribution to be mechanical rather than a matter of
+goodwill, the intended impact would have to name what it touches — objects, columns or
+measures, which rows, and the direction and rough size of the change — and a change meant
+to leave the output untouched, such as a refactor, would say so explicitly. That last kind
+is the strongest test there is, because any difference at all refutes it.
+
+**Two checks, by two people.** In the author's words: "the developer checks that the
+change has the intended consequence. The team's dedicated tester checks for regression (by
+others)." The division matters. The developer confirms that the predicted differences
+appeared, which catches a change that did not work. The tester examines everything else,
+which catches a change that did more than it said, and the collisions between one
+developer's change and another's that no single developer is placed to see. It is the same
+separation that [520](../50_process/520_record-keeping.md) enforces for the step log:
+whoever made the work does not validate it.
+
+**The quarter turn.** When the frozen data set is replaced, the reference date moves with
+it, and no code change is deployed that day, so that the new baseline is produced by code
+already verified against the old one. The differences between the two reference dates,
+usually a quarter apart, are then expected to be large and cannot be attributed row by row.
+Instead a plausibility check is made between them: volumes, totals and distributions judged
+for whether the movement is credible over that interval.
+
+**Preconditions here.** The method depends on determinism. If the same code on the same
+data could produce different output, the daily diff would be noise; that is Level 1 above,
+and it is why [ADR-0004](../20_decisions/0004-models-out-of-the-data-path.md), which keeps
+models out of the data path, is a precondition for this method rather than merely
+compatible with it. It also depends on every output being regenerable from versioned
+definitions, which [150](150_trust-and-blast-radius.md) already requires.
+
+**What nsdn would add.** Two adaptations, proposed on 2026-09-28 and not yet ruled by the
+author.
+
+*Code is not the only thing that changes the output.* In this system a newly adjudicated
+assertion — a business-key ruling, say — a new rule version or a changed metric definition
+would change the marts as surely as a code release, and none of them is code. Attribution
+would therefore have two legitimate sources: release notes for code, and the logged history
+of context changes, which already carries who, when and on whose authority
+([120](120_context-layer.md), and *Assertions* under Level 3 above). Whatever neither
+explains is a regression. Whether rule versions form their own time axis is `ARC-OP-13`,
+and the answer bears on how attribution would be computed.
+
+*Most of the loop need not be human.* The agentic layer would write the change and its
+release note; deterministic machinery would take the snapshot, compute the diff and match
+differences against the declared impacts; a different agent from the author of the change
+would review the attribution, as the tester does; and the author would see only the residue
+that nothing explains, together with the quarterly plausibility check. That is the shape the
+author's aim of minimal manual work asks for (`EVI-OP-7`).
+
+**Relation to the levels above.** A frozen data set cannot show what new data would do,
+which is why Levels 2 and 3 run on the live feed. The two regimes are complementary:
+release regression on frozen data tests the code, and the levels above, on live data, test
+the landscape. A simulated source of the kind sought under `EVI-OP-7` could supply both —
+its live feed for the one, and a frozen copy, replaced each quarter, for the other.
+
+**Not decided.** The form and location of release notes: one per release, tied to a
+commit, machine-readable so that attribution can be checked, and distinct from ADRs, which
+record why a design was chosen, and from the step log, which records what work was done.
+What counts as an output for the snapshot. How the diff is summarised so that its residue
+is readable. And whether the method is adopted at all, which needs an ADR. All of this is
+held in `ARC-OP-30`.
 
 ## Evaluating the agents themselves
 

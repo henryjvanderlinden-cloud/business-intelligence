@@ -65,9 +65,10 @@ a decision).*
 
 ## Evaluation
 
-Three distinct guarantees, elaborated in
+Four distinct guarantees, elaborated in
 [160_evaluation-and-regression.md](160_evaluation-and-regression.md): determinism,
-quality contracts, semantic stability.
+quality contracts, semantic stability, and release regression on frozen data (added
+2026-09-28).
 
 *Tier 1 mechanically, Tier 2 in interpretation.*
 *Risk: alert fatigue, which is indistinguishable in practice from having no tests.*
