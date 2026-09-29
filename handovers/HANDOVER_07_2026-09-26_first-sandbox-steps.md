@@ -1,5 +1,5 @@
 # nsdn — Handover 07: the first sandbox was run and parked; the next one is to be thought through before anything is installed
-## Written 2026-09-26 at the close of session 06, revised at the pauses of session 07 (26 and 28 September)
+## Written 2026-09-26 at the close of session 06, revised at the pauses of session 07 (26, 28 and 29 September)
 
 > **STATUS: CURRENT.**
 
@@ -9,22 +9,22 @@
 
 1. `git status`, then `git log --oneline -15`. The revision of 2026-09-28 was written back to the computer without a
    shell and may be uncommitted: if `git status` shows it, commit it first. Otherwise expect HEAD at the commit that
-   last revised this handover, on top of `11011a7`.
+   last revised this handover, on top of `4278865`.
 2. `python tools/check_repo.py` — must pass. Expect 61 register rows, 14 ADRs, 7 sessions (S06 closed and
-   audited, **S07 open**), 158 steps, 22 sources (5 acquired), 17 assets. **Run it on its own, never piped:**
+   audited, **S07 open**), 162 steps, 22 sources (5 acquired), 17 assets. **Run it on its own, never piped:**
    session 06 committed once with a failing check because `| tail` hid the exit status.
 3. Read register rows `EVI-OP-7` (the next sandbox), `ARC-OP-29` (the data model) and `PRC-OP-6` (the log's
    reliability), then
    [the session 06 post-mortem](../docs/30_research/notes/2026-09-26-session-06-post-mortem.md).
-4. **Continue session S07** in `records/steps/S07.jsonl` from S07-035; it was paused, not closed. From S07 every
+4. **Continue session S07** in `records/steps/S07.jsonl` from S07-039; it was paused, not closed. From S07 every
    step carries an `activity` as well as a `task_type` — see *Changed after the first audit* in
    [520](../docs/50_process/520_record-keeping.md). Closing S07 needs a blind audit (the checker enforces it).
 
 ## Outstanding actions for the author, not the model
 
-**Commit and push** the second revision of 2026-09-28 (the two review notes, 160's status line, `ARC-OP-30`, this
-handover, the records) if a shell was not available to do it; that conversation had none. The first revision is
-`11011a7`, pushed.
+**Commit and push** the revision of 2026-09-29 (160's amendment, `ARC-OP-30`, the two review notes' dispositions,
+this handover, the records) if a shell was not available to do it; that conversation had no shell on the computer,
+although earlier ones did. The revisions of 2026-09-28 are `11011a7` and `4278865`, both pushed.
 
 **Nothing to install yet.** He has said SQL Server is no problem to install, but asked that the whole setup be
 thought through first. Do not ask him to install anything until the design says what, why, and what it saves him.
@@ -108,7 +108,9 @@ deployed on the quarter turn, and the two reference dates get a plausibility che
 open. The model's two adaptations — context changes as a second source of attribution, and an agent-run loop
 leaving him only the residue — are marked there as proposals, not rulings. Reviewed the same evening by sol and
 astra, both FAIL on one finding — attribution is not acceptance: a difference inside a declared impact can still
-be wrong. Five recommended changes are in `ARC-OP-30`; **his ruling on them is owed** before 160 is amended.
+be wrong. He accepted all five recommended changes on 2026-09-29 — the per-change snapshot only with proper CI/CD, which
+he judged unworkable for people but possibly an option for an agentic layer — and 160 now carries them under
+*Amended after review* (unreviewed). Adoption of the method still needs an ADR.
 Nothing to build before there is code to release. The Codex bridge times out after 60 seconds: have the reviewer
 write its answer to the ignored `scratch/` folder and read it from there.
 

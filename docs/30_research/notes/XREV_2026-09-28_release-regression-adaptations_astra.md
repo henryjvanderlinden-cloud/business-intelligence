@@ -36,4 +36,11 @@ VERDICT: FAILS + shared attribution error hides customer B's change; a valid tax
 
 ## Dispositions
 
-Owed: the author's ruling on each finding. The recommendations put to him on 2026-09-28 are in `ARC-OP-30`.
+The author, 2026-09-29, on the recommendations recorded in `ARC-OP-30`, numbered as put to him in the conversation:
+"4. yes 5. yes"
+
+1 accepted (his 4): the reviewing agent validates each attributed difference against the stated expectation and the
+actual outputs, not the change author's explanation; what it cannot confirm stays residue for a person. 2 accepted
+(his 5): a context change carries the same executable expectation as a code release, and each snapshot records the
+context version it ran with. Integrated into [160](../../10_architecture/160_evaluation-and-regression.md) under
+*Amended after review*. The adaptations themselves remain unadopted until an ADR adopts the method.

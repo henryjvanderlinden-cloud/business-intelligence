@@ -1702,13 +1702,29 @@ reviewing agent that shares the author's mistaken premise. Sol adds two more: tw
 effects interact cannot be attributed separately, and a correct root change leaves its downstream consequences
 looking like regressions unless they are derived through lineage.
 
-Recommended to the author, not yet ruled: (1) an expected impact is stated as executable expected deltas plus
+Recommended to the author on 2026-09-28: (1) an expected impact is stated as executable expected deltas plus
 invariants that must not move (row counts, cardinality, reconciliation totals), checked independently against
 the actual before and after outputs; (2) changes deployed together are snapshotted one at a time in a fixed
 order, or carry one joint expectation; (3) a note declares the root impact and its downstream closure is derived
 through versioned lineage; (4) context changes carry the same executable expectation as code, and each snapshot
 is pinned to the context version it ran with; (5) a reviewing agent validates against the stated expectation and
 the actual outputs, not the author's explanation, and anything it cannot confirm stays residue for a person.
+
+**Ruled 2026-09-29 by the author** on the five recommendations, numbered as they were put to him in the
+conversation, where 4 was the reviewing agent and 5 the context changes:
+
+> 1. agree, expected impact is usually in the release notes (which entitities / tables etc)
+> 2. maybe that is workable if CI/CD is properly implemented, and a regression test can be run after every
+> integration. For humans this is unworkable, but for an agentic layer this might be an option. Maybe put this
+> remark in, also.
+> 3. okay
+> 4. yes
+> 5. yes
+
+All five accepted; the second with his qualification, that snapshotting after every change is workable only
+with proper CI/CD and a regression run per integration — unworkable for people, possibly an option for an
+agentic layer. Integrated into 160 under *Amended after review*, with his remark verbatim. The amendment is
+unreviewed. The row stays open on adoption, which needs an ADR, and on the items listed above as open.
 
 ## §3 — Evidence and measurement (`EVI`)
 

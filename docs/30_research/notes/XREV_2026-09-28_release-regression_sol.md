@@ -33,4 +33,14 @@ VERDICT: FAILS + an unintended duplicate inside a declared impact footprint can 
 
 ## Dispositions
 
-Owed: the author's ruling on each finding. The recommendations put to him on 2026-09-28 are in `ARC-OP-30`.
+The author, 2026-09-29, on the recommendations recorded in `ARC-OP-30`: "1. agree, expected impact is usually in
+the release notes (which entitities / tables etc) 2. maybe that is workable if CI/CD is properly implemented, and a
+regression test can be run after every integration. For humans this is unworkable, but for an agentic layer this
+might be an option. Maybe put this remark in, also. 3. okay"
+
+1 accepted: the expected impact is stated as computable expected differences plus invariants that must not move,
+checked by someone other than the change's author against the actual outputs. 2 accepted with his qualification:
+snapshot after each change in a fixed order, or one joint expectation — workable only with proper CI/CD and a
+regression run per integration, unworkable for people, possibly an option for an agentic layer. 3 accepted: a note
+declares the root change and its downstream closure is derived through versioned column-level lineage. Integrated
+into [160](../../10_architecture/160_evaluation-and-regression.md) under *Amended after review*.

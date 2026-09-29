@@ -63,9 +63,9 @@ better than none, and should raise a question rather than an alert.
 the [register](../../registers/OPEN_POINTS.md). Reviewed the same day and failed by both
 reviewers — [sol](../30_research/notes/XREV_2026-09-28_release-regression_sol.md) on the
 method, [astra](../30_research/notes/XREV_2026-09-28_release-regression-adaptations_astra.md)
-on the nsdn adaptations — on one common finding, that attribution is not acceptance. The text
-below is as reviewed; the findings and the recommended changes are in `ARC-OP-30`, awaiting
-the author's ruling.*
+on the nsdn adaptations — on one common finding, that attribution is not acceptance. The
+author ruled on the recommended changes on 2026-09-29; they are integrated under *Amended
+after review* at the end of this section, and the text before it is as reviewed.*
 
 The three levels above watch the data change while the code stands still. The opposite
 question is just as necessary, and in most BI teams it is the one actually tested: when the
@@ -137,6 +137,50 @@ which is why Levels 2 and 3 run on the live feed. The two regimes are complement
 release regression on frozen data tests the code, and the levels above, on live data, test
 the landscape. A simulated source of the kind sought under `EVI-OP-7` could supply both —
 its live feed for the one, and a frozen copy, replaced each quarter, for the other.
+
+**Amended after review.** Both reviews found the same hole: a difference that falls inside
+what a release note or a context change declared can still be wrong, and nothing above
+catches it. A duplicated invoice inside a declared revenue change, an extra exclusion inside
+a genuine definition change, and a second customer accepted by a reviewer that shares the
+author's mistaken premise all pass as attributed. The author ruled on the five recommended
+changes on 2026-09-29, and they apply as follows.
+
+*The expected impact is executable, and checked by someone else.* A release note states,
+beside the entities and tables it touches — which, in the author's words, is what release
+notes "usually" already give — the expected differences in a form that can be computed, and
+the invariants that must not move: row counts, key cardinality, reconciliation totals. The
+check compares the actual before and after outputs against both, and is made by someone
+other than the author of the change. Matching a difference to a note is attribution;
+confirming it against the stated expectation is acceptance, and only acceptance clears it.
+
+*Changes deployed together are tested one at a time.* When two changes land in the same
+interval, their effects can interact so that neither note predicts the combined result.
+The remedy is to snapshot after each change in a fixed order, or, where changes cannot be
+separated, to state one joint expectation. The author's remark on it, verbatim: "maybe that
+is workable if CI/CD is properly implemented, and a regression test can be run after every
+integration. For humans this is unworkable, but for an agentic layer this might be an
+option." A daily cycle, as practised, bundles a day's changes; a snapshot after every
+integration is only affordable when snapshot, diff and check cost nobody's time, which is the
+condition an agentic layer would have to meet.
+
+*A note declares the root; the consequences are derived.* Correcting one customer's segment
+legitimately changes every mart, subtotal and percentage built on it, and listing all of them
+by hand is brittle. The note declares the root change; its downstream closure is derived
+through versioned column-level lineage ([190](190_machine-authored-design-canon.md)), and
+only differences outside that closure, or breaking an invariant within it, are flagged.
+
+*The reviewing agent checks outputs, not explanations.* In the agent-run loop, the reviewer
+validates each attributed difference against the stated expectation and the actual outputs,
+not against the change author's account of it. A second agent that shares the author's
+premise adds nothing; what it cannot confirm stays residue, for a person.
+
+*Context changes carry the same expectation as code.* An adjudicated assertion, a rule
+version or a metric definition that changes output states its expected impact executably,
+exactly as a release note does, and each snapshot records the context version it ran with, so
+that a later adjudication cannot retrospectively explain an earlier difference.
+
+These rulings settle how the method would work. Whether it is adopted — and with it the two
+nsdn adaptations above — still waits for an ADR.
 
 **Not decided.** The form and location of release notes: one per release, tied to a
 commit, machine-readable so that attribution can be checked, and distinct from ADRs, which
