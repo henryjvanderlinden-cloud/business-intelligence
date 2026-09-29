@@ -59,8 +59,13 @@ better than none, and should raise a question rather than an alert.
 
 ## Release regression — frozen data, moving code
 
-*Added 2026-09-28, session 07, from the author's working practice. Unreviewed, and open as
-`ARC-OP-30` in the [register](../../registers/OPEN_POINTS.md).*
+*Added 2026-09-28, session 07, from the author's working practice, and open as `ARC-OP-30` in
+the [register](../../registers/OPEN_POINTS.md). Reviewed the same day and failed by both
+reviewers — [sol](../30_research/notes/XREV_2026-09-28_release-regression_sol.md) on the
+method, [astra](../30_research/notes/XREV_2026-09-28_release-regression-adaptations_astra.md)
+on the nsdn adaptations — on one common finding, that attribution is not acceptance. The text
+below is as reviewed; the findings and the recommended changes are in `ARC-OP-30`, awaiting
+the author's ruling.*
 
 The three levels above watch the data change while the code stands still. The opposite
 question is just as necessary, and in most BI teams it is the one actually tested: when the

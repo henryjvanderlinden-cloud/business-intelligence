@@ -1690,8 +1690,25 @@ seeing only the unattributed residue and the quarterly plausibility check.
 Open: whether the method is adopted, by ADR; the form and location of release notes (one per release, tied to
 a commit, machine-readable, distinct from ADRs and the step log); what counts as an output for the snapshot;
 how the diff and its residue are summarised; and where the frozen copy and its reference date come from in the
-next sandbox (`EVI-OP-7`). Nothing is to be built before code exists to release. The section of 160 is
-unreviewed and owes a cross-model review.
+next sandbox (`EVI-OP-7`). Nothing is to be built before code exists to release.
+
+**Reviewed 2026-09-28, session 07, and failed by both reviewers**:
+[sol](../docs/30_research/notes/XREV_2026-09-28_release-regression_sol.md) on the base method,
+[astra](../docs/30_research/notes/XREV_2026-09-28_release-regression-adaptations_astra.md) on the nsdn
+adaptations. The common finding: **attribution is not acceptance.** A difference that falls inside what a
+release note or a logged context change declared can still be wrong — a duplicated invoice inside a declared
+revenue change, an extra exclusion inside a genuine definition change, a second customer wrongly accepted by a
+reviewing agent that shares the author's mistaken premise. Sol adds two more: two releases on one day whose
+effects interact cannot be attributed separately, and a correct root change leaves its downstream consequences
+looking like regressions unless they are derived through lineage.
+
+Recommended to the author, not yet ruled: (1) an expected impact is stated as executable expected deltas plus
+invariants that must not move (row counts, cardinality, reconciliation totals), checked independently against
+the actual before and after outputs; (2) changes deployed together are snapshotted one at a time in a fixed
+order, or carry one joint expectation; (3) a note declares the root impact and its downstream closure is derived
+through versioned lineage; (4) context changes carry the same executable expectation as code, and each snapshot
+is pinned to the context version it ran with; (5) a reviewing agent validates against the stated expectation and
+the actual outputs, not the author's explanation, and anything it cannot confirm stays residue for a person.
 
 ## §3 — Evidence and measurement (`EVI`)
 
