@@ -1726,7 +1726,7 @@ with proper CI/CD and a regression run per integration — unworkable for people
 agentic layer. Integrated into 160 under *Amended after review*, with his remark verbatim. The amendment is
 unreviewed. The row stays open on adoption, which needs an ADR, and on the items listed above as open.
 
-### ARC-OP-31 — Plausibility testing: sanity checks on published outputs, every load and every baseline change
+### ARC-OP-31 — Plausibility as back-of-the-envelope checks, and the test framework by root cause
 **⛔ STATE: OPEN**
 Opened 2026-10-06, session 07, by the author:
 
@@ -1745,6 +1745,64 @@ of [127](../docs/10_architecture/127_temporal-behaviour.md) (duplicates, replays
 in 160 on a plausibility check between the two reference dates at the quarter turn. Missing were checks on
 the published outputs themselves, a rule that a new frozen data set passes the suite on its own before it
 becomes the baseline, and any statement of what a failure does. The author asked for the gaps to be drafted.
+
+**Redefined 2026-10-06 by the author**, after the first draft below had been reviewed twice and amended once:
+
+> Wait a second. Let's discuss plausibility. Plausibility means that by and large, the data is plausible. It
+> doesn't state that it's 100% correct. It is a first line of defense against grave errors, load failures
+> etcetera. It doesn't need to catch all errors. It is a quick survey of what comes in, and how it is
+> transformed, to do a sanity check to catch a wide range of (unexpected) errors. Let's not over engineer this.
+> We also have unit tests (not sure if that's already in the documentation) that should cover design flaws. So
+> let's take if from the root causes, some examples: A data load has not arrived: should be covered by the
+> plausibility tests. A batch was loaded twice: plausibility test. Debit equals credit is a different type of
+> test, not a plausibility test, although it should be in the test framework and it is a very simple sanity
+> check. Okay, so maybe part of ongoing plausibility testing. Uniqueness issues, also part of plausibility, but
+> more of the "regular" test framework. Let's work from the angle of plausibility tests, unit tests, whatever
+> other tests there are, and root causes, such as loading issues, modelling issues, unexpected edge cases, data
+> quality issues. The reviewers are applying insanely strict expectations, on plausibility checks, which should
+> be more like back of the envelope sanity checks, to quickly and regularly check for issues on those parts of
+> the data where a 'hard' check is difficult (like changing daily amounts).
+
+The model agreed that its draft, and the review assignments it wrote, had held plausibility to a standard of
+completeness; found that unit tests were not documented anywhere; and put two questions to him — whether to
+keep the admission check on a new frozen set (ruling 2 below), and whether debits-equal-credits belongs in data
+tests or in plausibility. **Ruled the same day:**
+
+> A over-engineering for now. B agreed, in data tests. Please proceed with documenting the rest.
+
+**Current state.** Plausibility is a set of soft, back-of-the-envelope checks on every load and at the quarter
+turn — did each load arrive, are counts and totals roughly as usual, does roughly the expected volume pass
+through each layer — that warn and ask rather than block: 160, *Plausibility*. The kinds of test (unit tests,
+data tests, plausibility checks, release regression, semantic regression and agent evaluation) and which root
+cause each is meant to catch first are in the new [162](../docs/10_architecture/162_test-framework.md). Of the
+earlier rulings, the reconciliation against a verified report within a bandwidth and the scoped domain equations,
+debits equal credits among them, are data tests in 162; the admission check on a new frozen set is dropped for
+now; the recommendations numbered 8 to 11 lapse unruled. The first draft and everything that followed from it
+is moved verbatim to
+[2026-10-06-plausibility-first-draft](../docs/30_research/notes/2026-10-06-plausibility-first-draft.md). The
+redraft and 162 are unreviewed.
+
+Open: adoption, by ADR; which loads and totals are watched first, and how wide the bands are; the tooling for
+unit and data tests and where each is declared. Nothing is to be built before there is a sandbox to run it on.
+
+**Redraft reviewed 2026-10-06** by [sol](../docs/30_research/notes/XREV_2026-10-06_test-framework_sol.md), this time
+under the author's framing — rough soft checks against gross errors, not completeness — and **failed** on one
+common gross cause: a file loaded into the wrong tenant or partition, with the expected schema and a similar
+volume, passes every kind of test described. Its other findings: data tests cannot catch valid-looking bad values
+such as a source switching from euros to cents, so plausibility is the first line there; comparisons with the
+previous load, weekday or trend will fire on public holidays and month-ends; and having the agentic layer diagnose
+every warning before it is shown is over-engineered.
+
+Recommended to the author on 2026-10-06, not ruled: (12) a data test owns **delivery identity** — each load is
+checked against what it claims to be: source, tenant, business date, partition, and a manifest or control total
+where the source supplies one; (13) in 162's table, *data quality at the source* gets plausibility as first line
+for gross shifts such as a change of unit, with data tests first for structural faults; (14) plausibility compares
+like with like on a business calendar — same weekday, holiday or month-end status — and the arrival schedule lists
+the days on which no load is expected; (15) a warning shows the observed value, the usual range, the difference
+and the load concerned, and the agentic layer diagnoses only when someone opens it.
+
+*Everything from here to the end of this row is superseded by the redefinition above, and kept for provenance.*
+
 
 Drafted the same day in 160 under *Plausibility — does the output still make sense?*, unreviewed. Proposed by
 the model and **not ruled**: seven families of deterministic checks on published outputs — reconciliation

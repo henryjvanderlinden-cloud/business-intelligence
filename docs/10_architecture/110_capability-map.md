@@ -68,7 +68,8 @@ a decision).*
 Four distinct guarantees, elaborated in
 [160_evaluation-and-regression.md](160_evaluation-and-regression.md): determinism,
 quality contracts, semantic stability, and release regression on frozen data (added
-2026-09-28).
+2026-09-28). Plausibility checks were added on 2026-10-06, and the kinds of test are mapped to the
+root causes they catch in [162_test-framework.md](162_test-framework.md).
 
 *Tier 1 mechanically, Tier 2 in interpretation.*
 *Risk: alert fatigue, which is indistinguishable in practice from having no tests.*

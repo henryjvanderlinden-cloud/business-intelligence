@@ -34,4 +34,4 @@ VERDICT: FAILS + a differently identified duplicate publishes daily before the p
 
 ## Dispositions
 
-Owed to the author. Recommended to him on 2026-10-06, as recorded in `ARC-OP-31`.
+Lapsed unruled. The author redefined plausibility the same day as back-of-the-envelope sanity checks, not a correctness guarantee, and said the review had applied "insanely strict expectations"; the amended section was superseded and moved to [2026-10-06-plausibility-first-draft](2026-10-06-plausibility-first-draft.md). The model owns the framing: its assignment asked the reviewer to assume a real double count would reach users. Recorded in `ARC-OP-31`.
