@@ -2169,6 +2169,12 @@ Importers is a preference, not a decision. Insert-only is acceptable. The criter
 author's manual work: the whole setup is to be designed before anything is installed, and judged by how
 often it needs his hands.
 
+**Setup drafted 2026-10-06, session 07, at the author's request:** [420](../docs/40_roadmap/420_next-sandbox-setup.md),
+unreviewed. Checked the same day: the backups are reachable from GitHub; the simulator advances on any date range,
+inserts, updates and keeps its own history; neither working environment can run SQL Server, so Wide World
+Importers would run on his Windows machine and export into the repository folder on a schedule. Four decisions
+are put to him there: route, pace, extract shape, and who repairs the Windows side.
+
 ## §4 — Process (`PRC`)
 
 ### PRC-OP-1 — PARTLY DISCHARGED — external review of the repository
