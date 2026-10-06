@@ -32,4 +32,4 @@ VERDICT: FAILS + a plausible wrong-tenant file can pass every described kind of 
 
 ## Dispositions
 
-Owed to the author. Recommended to him on 2026-10-06, as recorded in `ARC-OP-31`.
+The author, 2026-10-06, on the four recommendations recorded in `ARC-OP-31` as 12 to 15: "yes, looks good, please process" All accepted, and integrated into 162 and into 160, *Plausibility*.

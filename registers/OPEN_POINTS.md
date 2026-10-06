@@ -1801,6 +1801,12 @@ like with like on a business calendar — same weekday, holiday or month-end sta
 the days on which no load is expected; (15) a warning shows the observed value, the usual range, the difference
 and the load concerned, and the agentic layer diagnoses only when someone opens it.
 
+**Ruled 2026-10-06 by the author** on 12 to 15: "yes, looks good, please process" All four accepted and integrated: delivery
+identity is a data test, and *data quality at the source* is split by kind of fault, with a row added for a load
+routed to the wrong tenant or partition, in [162](../docs/10_architecture/162_test-framework.md); like-for-like
+comparison on a business calendar, the arrival schedule and the shape of a warning in 160, *Plausibility*. The
+amendment is unreviewed.
+
 *Everything from here to the end of this row is superseded by the redefinition above, and kept for provenance.*
 
 

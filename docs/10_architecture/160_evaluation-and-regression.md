@@ -201,7 +201,7 @@ held in `ARC-OP-30`.
 author's rulings on it and their review are superseded and kept, verbatim, in
 [2026-10-06-plausibility-first-draft](../30_research/notes/2026-10-06-plausibility-first-draft.md). Where the
 other kinds of test sit, and which root cause each is meant to catch, is in
-[162](162_test-framework.md).*
+[162](162_test-framework.md).* *Amended 2026-10-06 after [sol's review](../30_research/notes/XREV_2026-10-06_test-framework_sol.md), on the author's ruling (`ARC-OP-31`, recommendations 12 to 15); the amendment is unreviewed.*
 
 The author's request:
 
@@ -221,7 +221,9 @@ row count and its main totals roughly in line with the previous load, the same w
 recent trend? And does roughly the expected volume pass through each layer — source, staging, vault, marts —
 so that a sudden change in the ratio between two layers shows where something went wrong in the
 transformation? These are the questions an experienced analyst asks of a morning's figures before trusting
-them, written down so that they are asked every time.
+them, written down so that they are asked every time. "Usual" is judged like with like on a business
+calendar — the same weekday, and the same holiday or month-end status — and the arrival schedule lists the days
+on which no load is expected, so that a public holiday or a month-end does not raise a warning by itself.
 
 **What it catches.** Gross errors, and above all unexpected ones: a load that did not arrive or arrived
 partly, a batch loaded twice, a join that suddenly multiplies rows, a source that changed what it sends.
@@ -231,8 +233,9 @@ data tests ([162](162_test-framework.md)).
 **How it reports.** Softly. A figure outside its usual range raises a warning and a question; it does not
 block publication. "Usual" is deliberately rough — a band around recent history, wide enough that a normal
 day does not fire — because a check that fires every day is ignored, which is the alert-fatigue argument of
-Level 2 above. The agentic layer looks first and says what it thinks happened; the author sees the warnings
-that remain, never the passes.
+Level 2 above. A warning shows the observed value, the usual range, the difference and the load concerned;
+the agentic layer is asked to diagnose it only when someone opens it. The author sees the warnings, never the
+passes.
 
 **When it runs.** On every load, in production. And at the quarter turn, when the frozen data set and its
 reference date are replaced: the plausibility check between the two reference dates already described under

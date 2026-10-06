@@ -1,7 +1,7 @@
 # 162 — The test framework, by root cause
 
 *Drafted 2026-10-06, session 07, from the author's direction, and held in `ARC-OP-31` in the
-[register](../../registers/OPEN_POINTS.md). Unreviewed. Nothing here is adopted; that needs an ADR.*
+[register](../../registers/OPEN_POINTS.md). Nothing here is adopted; that needs an ADR.* *Amended 2026-10-06 after [sol's review](../30_research/notes/XREV_2026-10-06_test-framework_sol.md), on the author's ruling (`ARC-OP-31`, recommendations 12 to 15); the amendment is unreviewed.*
 
 [160](160_evaluation-and-regression.md) describes the guarantees one at a time. This file is the overview
 the author asked for: which kinds of test there are, what each is for, and which test is expected to catch
@@ -43,7 +43,10 @@ of [128](128_join-knowledge.md). Simple domain rules belong here too: debits equ
 to the header, within a stated rounding. So does reconciliation of a financial measure against a verified
 report — external reporting, an approved balance sheet or profit and loss statement — within a stated
 bandwidth, whenever such a report exists; the author ruled on that on 2026-10-06, and it is a periodic data
-test, not a daily one.
+test, not a daily one. And **delivery identity**: each load is checked against what it claims to be — its
+source, tenant, business date and partition, and the source's own manifest or control total where it supplies
+one — so that a file routed to the wrong tenant or partition, with the right schema and a similar volume, is
+caught at the door.
 
 **Plausibility checks** are back-of-the-envelope sanity checks on what comes in and how it is transformed:
 quick, cheap, run on every load, and soft — they warn and ask, they do not block. They are for the parts of
@@ -67,7 +70,9 @@ themselves*.
 | A load arrived late or out of order | data test: freshness; [127](127_temporal-behaviour.md)'s monitoring of the order of time | plausibility |
 | Modelling flaw: wrong join, wrong grain, fan-out | unit tests; the join tests of 128 | plausibility: ratios between layers shift |
 | Unexpected edge case | plausibility, if it is large enough to move a total | a unit test, once the case is known |
-| Data quality at the source | data tests | plausibility, for gross shifts |
+| Data quality at the source: structural faults (nulls, broken keys, invalid codes) | data tests | plausibility |
+| Data quality at the source: gross shifts in valid-looking values, such as amounts switching from euros to cents | plausibility: totals far outside the usual range | — |
+| A load routed to the wrong tenant or partition | data test: delivery identity | plausibility, if volumes differ |
 | A code change does more than it said | release regression | plausibility |
 | A definition or assertion changes meaning | semantic regression (160, Level 3) | release regression, which attributes the change |
 | Figures disagree with the books | data test against a verified report, when one exists | plausibility, for gross gaps |
