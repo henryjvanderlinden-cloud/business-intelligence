@@ -32,4 +32,13 @@ VERDICT: FAILS + a cross-system duplicate with new document IDs passes every che
 
 ## Dispositions
 
-Owed to the author. Recommended to him on 2026-10-06, as recorded in `ARC-OP-31`.
+The author, 2026-10-06, on the three recommendations recorded in `ARC-OP-31`, all accepted:
+
+> 1. agreed with the check on the additive financial measures. This can be done when there is a verified
+> report, like external reporting or an approved balance sheet or profit and loss statement. We can then
+> verify that it should be within a certain bandwith of this externally verified number. Agree with the
+> overlap.
+> 2. okay
+> 3. yes, see also my remarks regarding rule 1.
+
+Integrated into 160 under *Amended after review* in the Plausibility section.

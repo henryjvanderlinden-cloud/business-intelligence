@@ -300,6 +300,45 @@ hard failure blocks only the affected outputs or the whole publication; who may 
 whether an accepted one expires; where the checks are declared, and in what format; and whether the method
 is adopted at all, which needs an ADR. All of this is held in `ARC-OP-31`.
 
+**Amended after review.** Sol's review found that reconciliation through the chain being tested is not
+independent evidence, and gave three counterexamples, recorded in `ARC-OP-31`. The author ruled on the three
+recommended changes on 2026-10-06, in these words:
+
+> 1. agreed with the check on the additive financial measures. This can be done when there is a verified
+> report, like external reporting or an approved balance sheet or profit and loss statement. We can then
+> verify that it should be within a certain bandwith of this externally verified number. Agree with the
+> overlap.
+> 2. okay
+> 3. yes, see also my remarks regarding rule 1.
+
+They apply as follows.
+
+*An independent figure for every additive financial measure.* Where a verified report exists — external
+reporting, an approved balance sheet, an approved profit and loss statement — each additive financial measure
+is checked against it, at the population and period that report covers, and must fall within a stated
+bandwidth of that externally verified number. The figure comes from outside the chain being tested, which is
+what makes it evidence: a week of invoices delivered by both an old and a new system under different document
+numbers passes every check of the seven families, but not this one. Sources that could carry the same business
+event also carry a tested assertion that their populations do not overlap, or a canonical identity for the
+business event.
+
+*A new frozen set is admitted on its integrity, not its plausibility.* Before the plausibility suite runs on a
+new frozen set, every input is verified against the declared reference date — source version, high-water mark,
+effective cut, row count and checksum — and the production run at that date is reproduced under the same code
+and assertion versions. Only a set that passes this is tested for plausibility, and only then compared with the
+previous reference date. A set whose facts were cut on 30 June and whose dimensions were extracted on 2 July
+fails here, where it would have passed every plausibility check.
+
+*Hard checks are scoped, and carry their tolerances.* A domain equation is hard only for a stated accounting
+state, with its reconciling components — tax, freight, rounding — and its tolerance written into it; in line
+with the first change, the tolerance is a bandwidth, not an exact equality. Expected exceptions, such as late
+postings to a period closed in finance but not legally locked, are dated exceptions with an owner and an
+expiry. Every new rule starts soft and is promoted to hard only once its observed false-alarm rate justifies
+it.
+
+These rulings settle how the checks would work. Whether plausibility testing is adopted still waits for an ADR,
+and the bandwidths themselves are not set. The amendment is unreviewed.
+
 ## Evaluating the agents themselves
 
 Distinct from evaluating the data, and equally necessary: the system's own semantic

@@ -1779,6 +1779,21 @@ of a baseline's integrity; (3) a domain equation is hard only for a stated accou
 reconciling components and tolerances written into it, expected late postings are effective-dated exceptions with
 an owner and an expiry, and every new rule starts soft and is promoted on its observed false-alarm rate.
 
+**Ruled 2026-10-06 by the author** on the three recommendations:
+
+> 1. agreed with the check on the additive financial measures. This can be done when there is a verified
+> report, like external reporting or an approved balance sheet or profit and loss statement. We can then
+> verify that it should be within a certain bandwith of this externally verified number. Agree with the
+> overlap.
+> 2. okay
+> 3. yes, see also my remarks regarding rule 1.
+
+All three accepted. The first with his qualification: the independent figure is a **verified report** —
+external reporting, an approved balance sheet or profit and loss statement — and the check is that the measure
+falls **within a stated bandwidth** of that externally verified number; the third with tolerances taken the same
+way. Integrated into 160 under *Amended after review* in the Plausibility section; the amendment is unreviewed.
+The row stays open on adoption, which needs an ADR, on the bandwidths, and on the items listed above as open.
+
 ### ARC-OP-32 — Should context cards conform to the Open Knowledge Format?
 **⛔ STATE: OPEN**
 Opened 2026-10-06, session 07, from an article the author asked to be assessed for relevance:
@@ -1829,6 +1844,23 @@ been checked against the specification, and paths in the projection are kept sta
 path is published with it; (7) Attested Computation is used only for computations that meet its stricter rule
 that an agent supplies parameters and never the computation. Any adoption waits for a second pass with the
 specification supplied.
+
+**Ruled 2026-10-06 by the author** on the four recommendations, numbered as they were put to him, where 4 to 7
+are those above:
+
+> 4. okay.
+> 5. okay.
+> 6. let's keep it the way we designed it, you have convinced me it is superior.
+> 7. okay.
+
+Accepted: an OKF bundle, if there is one, is a publication-gated projection generated from the assertion store
+and never the canonical record (4); `verified` is written only when the recorded verification covers every claim
+on the projected card (5); Attested Computation is used only for computations meeting its stricter rule (7). On
+the sixth he chose to keep nsdn's design: identity stays by URN with alias history and card kinds stay as 120
+and ADR-0011 define them, so it is the projection that adapts to nsdn, not the cards that adapt to OKF. The
+earlier proposal in this row to adopt OKF's field names in the cards themselves is therefore not taken up; field
+names are matched, where at all, in the projection. The row stays open on whether a projection is built, by
+ADR, which waits for a second review pass with the specification supplied.
 
 ## §3 — Evidence and measurement (`EVI`)
 

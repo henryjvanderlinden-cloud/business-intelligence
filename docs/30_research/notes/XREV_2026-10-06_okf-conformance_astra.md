@@ -34,4 +34,11 @@ VERDICT: UNDETERMINED + normative OKF constraints and an explicit trust, type, i
 
 ## Dispositions
 
-Owed to the author. Recommended to him on 2026-10-06, as recorded in `ARC-OP-32`.
+The author, 2026-10-06, on the four recommendations recorded in `ARC-OP-32`, numbered 4 to 7 there:
+
+> 4. okay.
+> 5. okay.
+> 6. let's keep it the way we designed it, you have convinced me it is superior.
+> 7. okay.
+
+Accepted 4, 5 and 7. On 6 he kept nsdn's design: URN identity and card kinds unchanged, any OKF projection adapts to them. Recorded in `ARC-OP-32`; no design document changed.

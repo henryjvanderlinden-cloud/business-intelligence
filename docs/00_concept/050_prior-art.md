@@ -27,6 +27,8 @@ one-line verdict — *adopt*, *learn from*, or *distinguish from*.
   <https://cloud.google.com/blog/products/data-analytics/how-the-open-knowledge-format-can-improve-data-sharing>;
   `okf/SPEC.md`, version 0.2, in <https://github.com/GoogleCloudPlatform/knowledge-catalog>, read at commit
   `85a2be8` on 2026-10-06.
+  *Ruled 2026-10-06 (`ARC-OP-32`): the cards keep nsdn's own design — URN identity, card kinds, per-assertion
+  trust — and OKF would be at most a publication-gated projection generated from the assertion store.*
 
 ## The limits of codification
 
