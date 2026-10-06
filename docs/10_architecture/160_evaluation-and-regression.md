@@ -337,7 +337,13 @@ expiry. Every new rule starts soft and is promoted to hard only once its observe
 it.
 
 These rulings settle how the checks would work. Whether plausibility testing is adopted still waits for an ADR,
-and the bandwidths themselves are not set. The amendment is unreviewed.
+and the bandwidths themselves are not set. *Reviewed the same day and failed by
+[sol](../30_research/notes/XREV_2026-10-06_plausibility-amendment_sol.md): verified reports are periodic, so a
+duplicate published daily is not caught until the report arrives; new rules starting soft let a known
+accounting identity publish broken; raw-file checksums would reject a reordered export; and a bandwidth on an
+exact accounting identity lets a real imbalance through. The last follows from a sentence above that extends
+the author's ruling further than he said. Recommended changes await his ruling in `ARC-OP-31`; the text above
+is as reviewed.*
 
 ## Evaluating the agents themselves
 

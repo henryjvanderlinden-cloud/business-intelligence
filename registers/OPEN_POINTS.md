@@ -1794,6 +1794,25 @@ falls **within a stated bandwidth** of that externally verified number; the thir
 way. Integrated into 160 under *Amended after review* in the Plausibility section; the amendment is unreviewed.
 The row stays open on adoption, which needs an ADR, on the bandwidths, and on the items listed above as open.
 
+**Amendment reviewed 2026-10-06 and failed** by
+[sol](../docs/30_research/notes/XREV_2026-10-06_plausibility-amendment_sol.md). The mixed-cut frozen set and the
+routine hard-check failures are now caught; the cross-system duplicate is not, because a verified report is
+periodic and arrives after the daily figures are published. Two new holes: a new debit-equals-credit rule that
+starts soft publishes a one-sided journal with only a question; and a bandwidth on an exact identity lets a real
+imbalance inside the band pass. The second comes from the model's sentence in 160 that every hard tolerance is a
+bandwidth "in line with the first change" — an extension of the author's remark on rule 3, not his words.
+
+Recommended to the author on 2026-10-06, not ruled: (8) the verified-report check is retrospective — when the
+report arrives, already published figures for that period are reconciled to it and flagged if outside the band —
+and during a known overlap, such as a migration or a new source carrying events another already carries,
+publication of the affected measures waits on a canonical business-event identity or an independent control at
+the publication grain, or the overlapping feed is held back until the periodic control exists; (9) a new rule is
+calibrated on replayed or shadow data before it goes live, and an invariant the source guarantees by construction
+— debits equal credits — may start hard; (10) admission compares keyed, order-insensitive content hashes and the
+source's snapshot and as-of metadata, not raw-file checksums; (11) two kinds of tolerance are kept apart: an exact
+accounting identity allows only a justified rounding amount, and the bandwidth applies to a measure compared with
+an externally verified report.
+
 ### ARC-OP-32 — Should context cards conform to the Open Knowledge Format?
 **⛔ STATE: OPEN**
 Opened 2026-10-06, session 07, from an article the author asked to be assessed for relevance:
