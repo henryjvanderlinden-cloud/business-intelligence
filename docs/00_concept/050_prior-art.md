@@ -12,6 +12,21 @@ one-line verdict — *adopt*, *learn from*, or *distinguish from*.
 - OpenMetadata, DataHub, Amundsen — open-source catalogues with crawler/ingestion
   frameworks. The connector layer is likely worth adopting outright rather than rebuilt.
 - Apache Atlas; Collibra, Alation, Microsoft Purview on the commercial side.
+- **Open Knowledge Format (OKF)** — an open specification for knowledge about data, published by Google
+  Cloud's data analytics team: a bundle is a directory of markdown files with YAML front matter, one concept
+  per file, `type` the only required field, concepts linked by ordinary markdown links into a graph, with
+  optional `index.md` and `log.md` files. Version 0.2 adds provenance (`sources`), trust (`generated` kept
+  apart from `verified`, giving tiers of unverified, machine-confirmed and human-reviewed), lifecycle
+  (`status`, `stale_after`) and an *Attested Computation* type whose computation an agent may parameterise
+  but not author, checked by deterministic code. Apache 2.0. The same design as
+  [120](../10_architecture/120_context-layer.md)'s cards in git, arrived at independently; it differs in
+  taking the file path as identity where 120 uses URNs, in untyped links, and in keeping trust per concept
+  rather than per assertion. *Verdict: learn from, and align field names; keep URN identity.* Whether to
+  conform is `ARC-OP-32`. Sources: S. McVeety and A. Hormati, "Introducing the Open Knowledge Format,"
+  Google Cloud blog, 12 June 2026,
+  <https://cloud.google.com/blog/products/data-analytics/how-the-open-knowledge-format-can-improve-data-sharing>;
+  `okf/SPEC.md`, version 0.2, in <https://github.com/GoogleCloudPlatform/knowledge-catalog>, read at commit
+  `85a2be8` on 2026-10-06.
 
 ## The limits of codification
 

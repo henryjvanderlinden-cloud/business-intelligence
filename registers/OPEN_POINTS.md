@@ -1726,6 +1726,110 @@ with proper CI/CD and a regression run per integration — unworkable for people
 agentic layer. Integrated into 160 under *Amended after review*, with his remark verbatim. The amendment is
 unreviewed. The row stays open on adoption, which needs an ADR, and on the items listed above as open.
 
+### ARC-OP-31 — Plausibility testing: sanity checks on published outputs, every load and every baseline change
+**⛔ STATE: OPEN**
+Opened 2026-10-06, session 07, by the author:
+
+> Secondly, next to regression testing we also need (constant) plausibility testing as a means of sanity
+> checks, probably on production, where data can change daily, to make sure that we don’t get weird double
+> counting, etc. Also for every transition of the fixed reference date / fixed data set, when the test data
+> set is updated. Can you check if that’s already documented in the appropriate place?
+
+The check found it about half documented and scattered: Level 2 of
+[160](../docs/10_architecture/160_evaluation-and-regression.md) (expectations generated from profiles), the
+standing join tests of [128](../docs/10_architecture/128_join-knowledge.md) (fan-out, aggregate and per-fact
+reconciliation, behind the publication gate of
+[ADR-0011](../docs/20_decisions/0011-assertions-identity-plane-publication-gate.md)), the temporal monitoring
+of [127](../docs/10_architecture/127_temporal-behaviour.md) (duplicates, replays, closed periods), row 23 of
+[070](../docs/00_concept/070_task-allocation.md) (reconciliation, with no design behind it), and one sentence
+in 160 on a plausibility check between the two reference dates at the quarter turn. Missing were checks on
+the published outputs themselves, a rule that a new frozen data set passes the suite on its own before it
+becomes the baseline, and any statement of what a failure does. The author asked for the gaps to be drafted.
+
+Drafted the same day in 160 under *Plausibility — does the output still make sense?*, unreviewed. Proposed by
+the model and **not ruled**: seven families of deterministic checks on published outputs — reconciliation
+along the chain, uniqueness at the declared grain, conservation rules from the domain, consistency across
+outputs, completeness, closed periods, and movement within bands — the first six hard and the seventh soft;
+their invariants declared as adjudicated assertions and shared with the invariants release notes must name
+(`ARC-OP-30`); one suite run on every production load, at every baseline change (the new frozen set first on
+its own, then the comparison between reference dates), and after a release; a hard failure blocking
+publication of the affected outputs, extending ADR-0011 from relationships to outputs; and the suite itself
+tested by injecting known defects into the simulated source of `EVI-OP-7`.
+
+Open: whether it is adopted, by ADR; which outputs are in scope first; thresholds and how bands are derived;
+whether a hard failure blocks the affected outputs or the whole publication; who may accept a discrepancy and
+whether acceptance expires; where and in what format checks are declared. Nothing is to be built before there
+is a sandbox to run it on.
+
+**Reviewed 2026-10-06, session 07, and failed** by
+[sol](../docs/30_research/notes/XREV_2026-10-06_plausibility_sol.md): reconciliation through the chain is not
+independent evidence. Its counterexamples: during a migration a week's invoices arrive from both the old and the
+new system under different document numbers, and every one of the seven families passes; a quarter copy with
+facts to 30 June and dimensions extracted on 2 July passes both baseline steps, though the baseline never existed
+at one cut; and an invoice header that includes tax, freight and rounding, or a late posting to a period closed
+in finance but not legally locked, fails a hard check routinely until discrepancies are accepted mechanically.
+
+Recommended to the author on 2026-10-06, not ruled: (1) every additive financial measure is also checked against
+an independently sourced control total at business-population and period grain — a figure from outside the
+chain being tested — and sources that may carry the same business event carry a tested assertion that their
+populations are exclusive, or a canonical business-event identity; (2) admitting a new frozen set first verifies
+every input's source version, high-water mark, effective cut, row count and checksum against the declared cut,
+and reproduces the production run under the same code and assertion versions, because plausibility is not proof
+of a baseline's integrity; (3) a domain equation is hard only for a stated accounting state and with its
+reconciling components and tolerances written into it, expected late postings are effective-dated exceptions with
+an owner and an expiry, and every new rule starts soft and is promoted on its observed false-alarm rate.
+
+### ARC-OP-32 — Should context cards conform to the Open Knowledge Format?
+**⛔ STATE: OPEN**
+Opened 2026-10-06, session 07, from an article the author asked to be assessed for relevance:
+*How the Open Knowledge Format can improve data sharing*, Google Cloud blog, 12 June 2026, and the
+specification it announces, read at version 0.2 (see [050](../docs/00_concept/050_prior-art.md)).
+
+OKF is the same design as the context layer of [120](../docs/10_architecture/120_context-layer.md), arrived
+at independently: markdown files with YAML front matter, one concept per file, links forming a graph, git
+recommended as the carrier. Its version 0.2 goes further towards 120 than the announcement did — `generated`
+and `verified` kept apart so that who wrote a concept is not who confirmed it, trust tiers of unverified,
+machine-confirmed and human-reviewed, `status` and `stale_after`, sources with provenance, and an *Attested
+Computation* type whose computation an agent may parameterise but not author, checked by deterministic code.
+
+The differences that matter: OKF's identity is the file path, where 120 deliberately uses URNs with an alias
+history so that an assertion made in 2026 still resolves in 2029; OKF's links are untyped, where 120 and
+[ADR-0011](../docs/20_decisions/0011-assertions-identity-plane-publication-gate.md) type relationships as
+assertions; and OKF keeps trust per concept, where 120 keeps it per assertion, with adjudication, retired
+hypotheses and falsifiers that OKF has no place for.
+
+Proposed by the model and **not ruled**: that cards adopt OKF's field names where they coincide — `type` for
+the card kind, `title`, `description`, `resource`, `tags`, `generated`, `verified`, `status`, `stale_after`,
+`sources` — and keep nsdn's own fields (URN, aliases, assertions) as permitted extensions, so that the context
+layer is a conformant bundle at almost no cost and can be read by other tools and agents, while identity stays
+by URN. Bears on `ARC-OP-26`, the human view of the same store, for which OKF's reference visualizer is a
+ready candidate.
+
+Open: whether to conform, by ADR; whether URN identity can be carried inside an OKF bundle without breaking its
+path-as-identity rule; and whether OKF's Attested Computation is the right form for the metric definitions and
+plausibility invariants of 160. OKF is at version 0.2 and changed incompatibly between 0.1 and 0.2, so nothing
+should depend on it before it settles.
+
+**Reviewed 2026-10-06, session 07, UNDETERMINED** by
+[astra](../docs/30_research/notes/XREV_2026-10-06_okf-conformance_astra.md), which was not given the specification
+itself and asks for its normative constraints. Its findings: card-level `verified` would tell an OKF consumer that
+a whole card is human-reviewed when only some of its assertions were adjudicated — a metric whose definition is
+ruled but whose implementation claim is only proposed; "the same design" overstates the match, since
+[ADR-0011](../docs/20_decisions/0011-assertions-identity-plane-publication-gate.md) made assertions the core record
+and cards views of them; a URN extension cannot make an ordinary OKF consumer recognise a moved file as the same
+concept; nothing shows that card kinds are acceptable `type` values with the same meaning; and Attested
+Computation is stricter than [ADR-0004](../docs/20_decisions/0004-models-out-of-the-data-path.md), which lets
+models write code that deterministic machinery runs.
+
+Recommended to the author on 2026-10-06, not ruled: (4) an OKF bundle, if adopted, is a publication-gated
+projection generated from the assertion store, never the canonical record; (5) the projection writes `verified`
+only when the recorded verification covers every claim the projected card makes, and otherwise omits it or
+projects only the covered claims; (6) the card kind is kept in its own field beside `type` until the mapping has
+been checked against the specification, and paths in the projection are kept stable, or a translation from URN to
+path is published with it; (7) Attested Computation is used only for computations that meet its stricter rule
+that an agent supplies parameters and never the computation. Any adoption waits for a second pass with the
+specification supplied.
+
 ## §3 — Evidence and measurement (`EVI`)
 
 ### EVI-OP-1 — Ground truth for the falsifiable core

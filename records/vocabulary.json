@@ -126,7 +126,10 @@
     "Artifact",
     "SendUserFile",
     "python",
-    "git"
+    "git",
+    "list_repos",
+    "ToolSearch",
+    "device_request_folder_access"
   ],
   "human_activity": {
     "answer": "replies in the conversation; size small",
