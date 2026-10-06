@@ -2440,6 +2440,26 @@ with the recommendation on 2"). Task type is now the subject and a new field, ac
 coordination takes the work class of what it coordinates. In [520](../docs/50_process/520_record-keeping.md),
 enforced from S07 where mechanical. A second audit is still owed.
 
+### PRC-OP-7 — A review assignment states the standard the object is meant to meet
+**⛔ STATE: OPEN**
+Opened 2026-10-06, session 07, by the model, from the author's remark on the plausibility reviews:
+
+> The reviewers are applying insanely strict expectations, on plausibility checks, which should be more like back
+> of the envelope sanity checks
+
+[510](../docs/50_process/510_external-review.md) asks for adversarial framing — *assume the claim is wrong and try to
+show it* — and it has paid off. But on 2026-10-06 the model's assignments for the first plausibility draft told the
+reviewer to assume "a real double count or other implausible published number" would reach users. That set a
+correctness standard for something meant as a quick sanity check, and two rounds of findings and recommendations
+followed that the author then rejected as over-engineering (`ARC-OP-31`). Part of the cause was the draft itself,
+which had claimed more than a sanity check should; the assignment then tested that claim faithfully. When the third
+assignment stated the author's standard, the findings were proportionate and he accepted all four.
+
+Proposed by the model and **not ruled**: add to 510's *Assignment design* that an assignment states the standard
+the object is meant to meet — what it is for and what it is explicitly not for — and asks the reviewer to refute it
+against that standard, not against completeness. Closes when the author rules and 510 is amended or the proposal is
+declined.
+
 ## §5 — Commercial premises (`BIZ`)
 
 ### BIZ-OP-1 — The adjudication hedge may not be priced
