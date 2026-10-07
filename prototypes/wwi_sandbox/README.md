@@ -4,7 +4,7 @@
 with no act from the author per day? (`EVI-OP-7`; route A of
 [420](../../docs/40_roadmap/420_next-sandbox-setup.md), ruled 2026-10-07.)
 
-**Answer.** Not yet known. Nothing here has run.
+**Answer, first evidence (2026-10-07).** Yes for one day: after setup (three runs by the author, two defects fixed), the agent advanced 2016-06-01 and received its full extract with no act by him. Whether it holds over many days is not yet known.
 
 ## The pieces
 

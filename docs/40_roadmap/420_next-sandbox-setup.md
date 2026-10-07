@@ -263,7 +263,14 @@ the agent cannot change what runs on Windows without the author re-running setup
 one day" shortcut on his desktop, and tests the path end to end. Reviewed statically by
 [sol](../30_research/notes/XREV_2026-10-07_wwi-sandbox-scripts_sol.md) (PASS in the third round) and
 [astra](../30_research/notes/XREV_2026-10-07_wwi-sandbox-scripts_astra.md) (FAILS in four rounds, every finding fixed, the
-last fix not re-reviewed). Not yet run.
+last fix not re-reviewed).
+
+**Run 2026-10-07.** Setup took the author three runs (two script defects, both fixed: file permissions on the pinned
+copy, and a summary line PowerShell 5.1 cannot compute). Then the first day was advanced by the agent alone, through a
+request file: 2016-06-01, 58 new orders, 50 seconds, extract written. Between the two extracts 15 of 48 tables changed,
+by inserts and updates (orders, invoices, customer transactions, purchase orders, stock holdings, a person), with no
+deletes except the four current cold-room readings, which are replaced each day. The source therefore exercises inserts
+and updates from the first day.
 
 ## Sources
 
