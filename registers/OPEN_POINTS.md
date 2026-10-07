@@ -2366,6 +2366,10 @@ watched by a fixed-action Windows job, the extract full to start; both proposed 
 ("Yes"). Details in [420](../docs/40_roadmap/420_next-sandbox-setup.md) §11. Next: he installs SQL Server; the model
 writes the setup script, reviewed before he runs it.
 
+**Installed and scripted 2026-10-07:** SQL Server 2025 Developer edition installed by the author; the setup script and
+the request-folder job are in [`prototypes/wwi_sandbox/`](../prototypes/wwi_sandbox/README.md), reviewed by sol and
+astra (420 §11). Not yet run.
+
 ## §4 — Process (`PRC`)
 
 ### PRC-OP-1 — PARTLY DISCHARGED — external review of the repository

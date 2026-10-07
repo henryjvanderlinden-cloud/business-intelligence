@@ -252,6 +252,19 @@ closed while Codex stays sandboxed; the request-folder job, which runs as the au
 affected. Free space on C: was 9.8 GB, against the release page's 10 GB for both databases; only the OLTP database is
 needed, but the margin is small.
 
+**Space, ruled 2026-10-07 by the author.** He has no second drive; a USB drive was offered and declined by the model
+(a database on removable storage is marked damaged when the drive goes away). He agreed to keep everything on C:: "Disk
+Clean up couldn't free up much. Let's see where we end up. Go ahead." Setup checks the space against the backup's own
+file list; extracts are compressed and only the newest three are kept.
+
+**The setup script, written 2026-10-07:** [`prototypes/wwi_sandbox/`](../../prototypes/wwi_sandbox/README.md). It restores
+the backup, adds the simulation clock and the read-only user, writes an inventory, installs a pinned copy of the job (so
+the agent cannot change what runs on Windows without the author re-running setup), registers the task, puts the "advance
+one day" shortcut on his desktop, and tests the path end to end. Reviewed statically by
+[sol](../30_research/notes/XREV_2026-10-07_wwi-sandbox-scripts_sol.md) (PASS in the third round) and
+[astra](../30_research/notes/XREV_2026-10-07_wwi-sandbox-scripts_astra.md) (FAILS in four rounds, every finding fixed, the
+last fix not re-reviewed). Not yet run.
+
 ## Sources
 
 - Microsoft, `sql-server-samples`, `samples/databases/wide-world-importers/wwi-ssdt/wwi-ssdt/DataLoadSimulation`,
