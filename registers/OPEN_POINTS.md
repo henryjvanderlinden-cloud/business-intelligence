@@ -1357,6 +1357,19 @@ is a stack chosen by familiarity and a principle written afterwards to justify i
 Depends on `ARC-OP-19` for who rules a design claim at all, and on `ARC-OP-11` for the
 SQL-dialect question any declaration language must answer.
 
+**The author's statement, 2026-10-06, session 07:**
+
+> Yes. And I’d like the code base for the data warehouse to sit in git. So rather to have ascii files than proprietary binaries. And rather more small files than a few large ones (easier diffing)
+
+This makes the fourth of 180's candidate properties, small files with stable identity, a stated wish of the author
+rather than only the model's preference, though not yet a ratified principle. It widens to the whole warehouse
+codebase what [142](../docs/10_architecture/142_the-data-model.md) proposes for the data model: text files in git,
+no proprietary binaries, many small files rather than a few large ones, so that every change shows as a readable
+diff and can be attributed to a release note (`ARC-OP-30`). It also works as a filter on tools: a tool whose
+artefacts are binary files would be inadmissible unless it has a text format. Examples, from the model's general
+knowledge and not checked here: classic SSIS packages and Power BI `.pbix` files fail it; dbt-style SQL and YAML,
+and Power BI's newer PBIP/TMDL text format, would pass.
+
 ### ARC-OP-21 — No faculty self-reports incompetence, so out-of-depth detection has no home
 **⛔ STATE: OPEN**
 Opened 2026-09-20, session 03, from [XREV_2026-09-20_faculty-inventory_sol](../docs/30_research/notes/XREV_2026-09-20_faculty-inventory_sol.md) Q1.
@@ -1944,6 +1957,76 @@ and ADR-0011 define them, so it is the projection that adapts to nsdn, not the c
 earlier proposal in this row to adopt OKF's field names in the cards themselves is therefore not taken up; field
 names are matched, where at all, in the projection. The row stays open on whether a projection is built, by
 ADR, which waits for a second review pass with the specification supplied.
+
+### ARC-OP-33 — Quality gates: which gates, where they sit, and which of them block
+**⛔ STATE: OPEN**
+Opened 2026-10-07, session 07, from the author's statement on the evening of 2026-10-06:
+
+> We need quality gates. Partly we have them. But we might have to determine them more precisely. I know that this session cannot reach the PC, so just store it for now.
+
+Some gates exist or are drafted, but no document lists them together.
+[ADR-0011](../docs/20_decisions/0011-assertions-identity-plane-publication-gate.md) made the publication gate: a
+failing join test stops publication. [162](../docs/10_architecture/162_test-framework.md) (draft) sorts the tests by
+root cause, and [160](../docs/10_architecture/160_evaluation-and-regression.md) (draft) holds release regression and
+plausibility (`ARC-OP-30`, `ARC-OP-31`). For this repository itself, `tools/check_repo.py` gates every commit. What is
+not written anywhere is the whole set: which gates there are; at which point in the life of a change or a load each
+one sits — commit, merge or deployment, each load, publication, the quarter turn of the frozen data; which of them
+block and which only warn; and who may override a blocking gate, and how the override is recorded.
+
+Proposed by the model and **not ruled**: one short gate catalogue, one entry per gate, naming its point, its checks
+(by reference to 162, not restated), whether it blocks or warns, and who may override it. Two constraints follow
+from what is already settled. Gates are deterministic and run without the agentic layer
+([ADR-0004](../docs/20_decisions/0004-models-out-of-the-data-path.md), and the author's statement recorded in
+[420](../docs/40_roadmap/420_next-sandbox-setup.md) §5). Plausibility checks are soft by his ruling in `ARC-OP-31`,
+so they warn rather than block unless he rules otherwise. Changes made by agents pass the same gates as any other
+change; that is what would make it safe to let the agent team of `ARC-OP-34` work without him watching.
+
+Closes when the catalogue is written and adopted by ADR, with or after the adoption of 162.
+
+### ARC-OP-34 — An agent team for the first build: roles, governing documents, and how agents confer and agree
+**⛔ STATE: OPEN**
+Opened 2026-10-07, session 07, from the author's question on the evening of 2026-10-06:
+
+> Do you think we can work with an agent swarm when we first want to build the initial data warehouse? Which roles are there? Will it be self organizing under a mission, a vision, a constitution, a manifesto, a training program or something else? How do you envision the cooperation? The “overleg” and the making of “afspraken”?
+
+The model's answer in that conversation, recorded here as a proposal and **not ruled**.
+
+*A team, not a swarm.* A small set of roles with a lead, rather than a self-organising swarm. Agents left to organise
+themselves tend to drift from the goal, duplicate work and agree with each other too easily, the more so when both
+sides are the same model. Proposed roles: a lead who keeps the plan, hands out work, guards scope and keeps the
+decision log; a source analyst who profiles sources, finds business keys, assesses historisation and writes metadata;
+a modeller who proposes hubs, links and satellites from that; an engineer who writes the loads and marts as small
+text files; a tester who builds the regression and plausibility tests and runs the gates of `ARC-OP-33`, preferably
+on a different model, as [510](../docs/50_process/510_external-review.md) already does for review; and the author as
+product owner, who rules on business meaning and on anything that changes the rules. Start with three or four roles
+and split one only when it becomes a bottleneck.
+
+*Governing documents in layers, not one.* A **constitution**: a handful of fixed principles that only the author
+changes — for example models out of the data path (ADR-0004), text files in git (`ARC-OP-20`), no merge without
+passing the gates, history never deleted. A **mission brief** per build: the sandbox, its scope, and what done means.
+**Playbooks** per role: naming conventions, Data Vault patterns, test patterns, examples. The playbooks are the
+training programme, because agents do not learn between sessions: what they know of the house rules is what is in
+the repository. Agents may propose changes to them; the author accepts or not. A vision or manifesto serves people
+more than agents and adds little beyond the mission brief.
+
+*Overleg and afspraken.* Conferring happens in files, not in chat between agents: a proposal is written as a file,
+the other roles comment on it, the lead decides or escalates. Agreements are decision records in git — what was
+decided, why, what it replaces — binding until superseded, which is the release-note discipline of `ARC-OP-30`
+applied to design. Mandate in three levels: within the conventions an agent decides alone; structural choices need a
+second role's review; business meaning and changes to the constitution go to the author. Hand-offs are artefacts —
+source profile, model proposal, code, tests — each consumed by the next role, so the chain stays traceable. Disputes
+are settled by evidence first: a failing test outranks an argument, and only what evidence cannot settle reaches the
+author.
+
+This repository's own apparatus — [AGENTS.md](../AGENTS.md) as constitution, ADRs as agreements, this register, the
+handovers, cross-model review — is already this pattern for design work, and is the obvious first draft of it for
+build work.
+
+Bears on `ARC-OP-8` (the unit of agent work), [070](../docs/00_concept/070_task-allocation.md) (the team would divide
+its A column among roles), [130](../docs/10_architecture/130_agent-loop.md), `ARC-OP-20` (the constitution's
+content) and `ARC-OP-33` (the gates). Open, and the model's addition rather than the author's: whether a team does
+better than a single agent with the same playbooks on a build as small as the next sandbox. The first build could
+be used to find out.
 
 ## §3 — Evidence and measurement (`EVI`)
 

@@ -127,6 +127,16 @@ The alternative is to let the Codex server on his machine run `sqlcmd` with a sa
 read-only one. Then another model could diagnose and restart without him, at the price of giving an agent
 write access on Windows. That is his decision; it is not needed on day one.
 
+**Added 2026-10-07: noticing must not depend on the agentic layer.** On the evening of 2026-10-06 the author
+asked whether "the entire machinery (data pipelines, data warehouse) should keep in working, even if the agentia
+layer is down", and the model agreed. [ADR-0004](../20_decisions/0004-models-out-of-the-data-path.md) already keeps
+models out of the data path, for reproducibility; this adds availability. Read against this section, it would mean
+that the arrival, delivery-identity and plausibility checks above are deterministic and run on the schedule whether
+or not an agent runs, and that a failure raises a plain alert by itself — a file in the repository or a message —
+which an agent picks up when it next runs, and which reaches the author only if no agent has dealt with it within an
+agreed time. Where an agent does work at run time, the load does not wait for it: the work is queued and done when
+the agent is back. Proposed, not ruled; the gates themselves are `ARC-OP-33`.
+
 ## 6. The frozen regression copy
 
 The frozen copy for release regression (`ARC-OP-30`, [160](../10_architecture/160_evaluation-and-regression.md))

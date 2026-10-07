@@ -1,5 +1,5 @@
 # nsdn — Handover 07: the first sandbox was run and parked; the next one is to be thought through before anything is installed
-## Written 2026-09-26 at the close of session 06, revised at the pauses of session 07 (26, 28 and 29 September, 6 October)
+## Written 2026-09-26 at the close of session 06, revised at the pauses of session 07 (26, 28 and 29 September, 6 and 7 October)
 
 > **STATUS: CURRENT.**
 
@@ -141,6 +141,17 @@ needs an ADR; the last amendment is unreviewed.
 **The lesson for the model** is `PRC-OP-7`: the review assignments asked the reviewer to assume a real double count
 would reach users, which tested a sanity check against a correctness standard. Frame a review against the
 standard the object is meant to meet.
+
+## Quality gates, a text-only codebase, the runtime without agents, and an agent team; raised 2026-10-06 evening
+
+In a conversation without the repository the author raised four points, recorded on 2026-10-07 as proposals, none
+ruled. **Quality gates** partly exist but are not listed together (`ARC-OP-33`). **The warehouse codebase in git**,
+as text files rather than proprietary binaries and as many small files rather than a few large ones, is added to
+`ARC-OP-20` as his statement. **The machinery should keep working when the agentic layer is down**: ADR-0004
+already covers the data path; what it adds — deterministic checks that alert by themselves — is in
+[420](../docs/40_roadmap/420_next-sandbox-setup.md) §5. **An agent team for the first build** — roles, governing
+documents in layers, conferring in files and agreements as decision records — is `ARC-OP-34`. None of the four has
+been reviewed on another model.
 
 ## How to work with the author
 
