@@ -1370,6 +1370,24 @@ artefacts are binary files would be inadmissible unless it has a text format. Ex
 knowledge and not checked here: classic SSIS packages and Power BI `.pbix` files fail it; dbt-style SQL and YAML,
 and Power BI's newer PBIP/TMDL text format, would pass.
 
+**Reviewed 2026-10-07, session 07:** [sol](../docs/30_research/notes/XREV_2026-10-07_text-file-codebase_sol.md) and [astra](../docs/30_research/notes/XREV_2026-10-07_text-file-codebase_astra.md) both FAIL the
+paragraph above. Its SSIS example is wrong: ordinary `.dtsx` packages are XML text, though with noisy diffs (the
+`.ispac` deployment file is a zip container). And it claims more than the author said: his "rather" became
+"inadmissible", stable identity and readable diffs for every change were added, and release-note attribution was
+presented as following from diffs, where `ARC-OP-30` concerns output differences. Small files are also 180's third
+property, not its fourth. Both reviewers found no conflict with 142, 180 or an ADR.
+
+Recommended to the author, not ruled:
+
+5. Correct the SSIS example and the property number.
+6. Apply the preference to hand-authored source; allow generated or atomic files (dependency lock files, generated
+   manifests) and keep runtime artefacts (databases, data files) out of its scope; read "ASCII" as UTF-8 text.
+7. Grain is one coherent concept per file, not the smallest possible file: too fine a split scatters one change over
+   many files and costs agents more reads.
+8. Reword the paragraph to his own strength — binaries strongly disfavoured, not banned — and mark the link to
+   release-note attribution as the model's proposal.
+
+
 ### ARC-OP-21 — No faculty self-reports incompetence, so out-of-depth detection has no home
 **⛔ STATE: OPEN**
 Opened 2026-09-20, session 03, from [XREV_2026-09-20_faculty-inventory_sol](../docs/30_research/notes/XREV_2026-09-20_faculty-inventory_sol.md) Q1.
@@ -1983,6 +2001,25 @@ change; that is what would make it safe to let the agent team of `ARC-OP-34` wor
 
 Closes when the catalogue is written and adopted by ADR, with or after the adoption of 162.
 
+**Reviewed 2026-10-07, session 07:** [sol](../docs/30_research/notes/XREV_2026-10-07_quality-gates_sol.md) FAILS — a switch from euros to cents only warns while a
+mart 100 times too large is published; [astra](../docs/30_research/notes/XREV_2026-10-07_quality-gates_astra.md) HOLDS UNDER warnings being an accepted residual risk,
+existing hard blockers staying hard, and passing gates not being taken as proof that unattended work is safe. Both
+found the same gross case; they differ on whether to accept it. Sol also found a missing gate point: an assertion
+being approved and starting to feed marts, which ADR-0011's publication pipeline implies. Both found that the row
+overstated its footing: agent-independence of the gates is proposed in 420, not settled, and passing gates is
+necessary for safe agent work but not sufficient.
+
+Recommended to the author, not ruled:
+
+1. Plausibility stays a warning in general, with one narrow exception: a deviation of an order of magnitude or more
+   against like-for-like blocks publication until someone looks. (Alternative: accept the risk, as astra allows.)
+2. Add *semantic admission* — an assertion becoming approved and eligible to feed marts — as a gate point.
+3. Correct the row: agent-independent gates are proposed (420 §5), not settled; gates are necessary, not sufficient,
+   for letting agents work unattended.
+4. Keep it small: one change gate, one load-and-publication gate, semantic admission, and the author as the only
+   override authority, with overrides recorded.
+
+
 ### ARC-OP-34 — An agent team for the first build: roles, governing documents, and how agents confer and agree
 **⛔ STATE: OPEN**
 Opened 2026-10-07, session 07, from the author's question on the evening of 2026-10-06:
@@ -2027,6 +2064,26 @@ its A column among roles), [130](../docs/10_architecture/130_agent-loop.md), `AR
 content) and `ARC-OP-33` (the gates). Open, and the model's addition rather than the author's: whether a team does
 better than a single agent with the same playbooks on a build as small as the next sandbox. The first build could
 be used to find out.
+
+**Reviewed 2026-10-07, session 07:** [sol](../docs/30_research/notes/XREV_2026-10-07_agent-team_sol.md) FAILS — when the source analyst gets a key's grain wrong,
+modeller, engineer and tester all build on the same false premise, every internally derived gate passes, and the
+author finds it at review; [astra](../docs/30_research/notes/XREV_2026-10-07_agent-team_astra.md) HOLDS UNDER faculty mandates being preserved and acceptance being
+bound to a revision, with the team's superiority unproved. Both found that *lead* collides with 070, where the lead is
+whoever decides a task, often the author, and that a standing agent who "decides" exceeds the agentic layer's mandate;
+and that the tester should design tests while deterministic machinery runs the gates. Astra added stale approval: a
+test report for one model revision carried over to the next. Both judged that a single builder agent is likely as
+good for one serial source, with independent review kept separate.
+
+Recommended to the author, not ruled:
+
+9. Rename *lead* to *coordinator*: it routes work and proposes; 070's allocation of who decides stands.
+10. The tester designs and reviews tests; deterministic machinery runs the gates (`ARC-OP-33`).
+11. Bind acceptance to a commit: a change in any input voids earlier approvals, and the gates rerun after integration.
+12. Key and grain decisions are re-derived independently from the data by a second agent on another model before
+    anything is built on them.
+13. Start the first build with one builder agent plus independent cross-model review, and use the step log (ADR-0014)
+    to see whether splitting roles would pay; add roles only on that evidence.
+
 
 ## §3 — Evidence and measurement (`EVI`)
 

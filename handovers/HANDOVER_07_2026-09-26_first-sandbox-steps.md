@@ -150,8 +150,9 @@ as text files rather than proprietary binaries and as many small files rather th
 `ARC-OP-20` as his statement. **The machinery should keep working when the agentic layer is down**: ADR-0004
 already covers the data path; what it adds — deterministic checks that alert by themselves — is in
 [420](../docs/40_roadmap/420_next-sandbox-setup.md) §5. **An agent team for the first build** — roles, governing
-documents in layers, conferring in files and agreements as decision records — is `ARC-OP-34`. None of the four has
-been reviewed on another model.
+documents in layers, conferring in files and agreements as decision records — is `ARC-OP-34`. All four were reviewed on
+2026-10-07 by sol and astra, one object per pass: six FAIL and two HOLD UNDER conditions, and seventeen
+numbered recommendations await his ruling in those rows and in 420 §5.
 
 ## How to work with the author
 

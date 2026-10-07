@@ -137,6 +137,18 @@ which an agent picks up when it next runs, and which reaches the author only if 
 agreed time. Where an agent does work at run time, the load does not wait for it: the work is queued and done when
 the agent is back. Proposed, not ruled; the gates themselves are `ARC-OP-33`.
 
+**Reviewed 2026-10-07:** [sol](../30_research/notes/XREV_2026-10-07_machinery-without-agents_sol.md) and [astra](../30_research/notes/XREV_2026-10-07_machinery-without-agents_astra.md) both FAIL the paragraph above. As 420 stands, the checks would
+run when an agent runs, so with no agent nothing checks; and if the Windows scheduler stops or the computer stays
+asleep, no job runs and no alert is raised, because a job that never started writes nothing. A timer that escalates to
+the author would also turn ordinary overnight shutdowns into messages for him. Both found queued agent work consistent
+with ADR-0004 as long as it is diagnosis and reporting; row processing still needs its own enrichment ADR. Recommended to
+the author, not ruled, continuing the numbering in `ARC-OP-33`, `ARC-OP-20` and `ARC-OP-34`: (14) the checks run on
+their own schedule, independent of agents and of the export, and catch up after the computer wakes; (15) either accept
+that a machine that is off is noticed only when it wakes, or add one external missed-heartbeat notifier — his choice;
+(16) no escalation timer in this sandbox: re-check before notifying, merge repeats, and tell him only of what is still
+unresolved after the computer is back and an agent has run; (17) queued agent work is diagnosis and reporting, never
+row processing.
+
 ## 6. The frozen regression copy
 
 The frozen copy for release regression (`ARC-OP-30`, [160](../10_architecture/160_evaluation-and-regression.md))
