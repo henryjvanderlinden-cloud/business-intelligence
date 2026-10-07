@@ -160,9 +160,9 @@ Accepted: the checks run on their own schedule, independent of agents and of the
 computer wakes (14); no escalation timer — re-check before notifying, merge repeats, report only what is still
 unresolved (16); queued agent work is diagnosis and reporting, never row processing (17). On 15 he chose neither
 option but set the frame: the target is a production environment on servers that are always on except for
-maintenance windows. Read by the model, not confirmed: an external heartbeat is not needed for the design, and in
+maintenance windows. Read by the model, and confirmed below: an external heartbeat is not needed for the design, and in
 this sandbox, which runs on his own computer, a machine that is off is noticed when it wakes — a limitation of the
-sandbox, not of the design.
+sandbox, not of the design. Confirmed by the author on 2026-10-07: "Your interpretation is correct."
 
 ## 6. The frozen regression copy
 

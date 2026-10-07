@@ -2124,9 +2124,10 @@ Accepted: *lead* becomes *coordinator*, which routes work and proposes, while 07
 commit and voided by any change in its inputs (11); key and grain decisions are re-derived independently by a second
 agent on another model before anything is built on them (12); the first build starts with one builder agent plus
 independent cross-model review, and roles are added only when the step log shows it pays (13). On 9 he added
-"maybe add orchestrator, planner". Read by the model, not confirmed: *orchestrator* and *planner* are candidate
+"maybe add orchestrator, planner". Read by the model, and confirmed below: *orchestrator* and *planner* are candidate
 roles or names to consider when roles are added under 13 — a planner who breaks the build into steps, an
 orchestrator who sequences and dispatches them, possibly the same function as the coordinator. Left open.
+Confirmed by the author on 2026-10-07: "Your interpretation is correct."
 
 ## §3 — Evidence and measurement (`EVI`)
 
