@@ -215,6 +215,34 @@ restore the backup, create the export job and the schedule, and write the first 
 reviewed before he runs it. The first extract would answer findings 5 and 6, which cannot be settled before
 then.
 
+## 11. Ruled 2026-10-07 by the author
+
+On the four decisions of section 10, verbatim:
+
+> Yes, let's do 420. I suspect that Route A would work best. I am for it, if you can access a local database. How
+> fast the simulation advances, we don't need to put it on a timer, we can just advance one day at a mouseclick, if
+> you know what i mean. We could advance the days at will, advance a day, analyse what happened, then next day. Not
+> sure about c. With regards, I'll do d.
+
+The model read "c" and "d" as decisions 3 and 4 and proposed what follows; he confirmed: "Yes."
+
+1. **Route A**, on the condition that the agent can reach the local database. Checked the same morning: Codex on his
+   Windows machine runs commands in its read-only sandbox (`hostname`, `where.exe`, `Test-NetConnection`); no SQL
+   Server, no `sqlcmd`, nothing on port 1433 yet. The agent's own route is a **request folder**: a small Windows job
+   watches a folder in the repository, runs only a fixed list of actions (advance one simulated day; export; run a
+   query under a read-only login), and writes the result back. Codex with `sqlcmd` is a second, read-only route,
+   unverified until a server exists.
+2. **Pace: on demand, one simulated day per request**, not on a timer: advance a day, analyse what happened, then the
+   next. The request is normally the agent's, so stepping does not need his hands; a desktop shortcut lets him step
+   it himself. Section 4's Task Scheduler cadence is replaced by this; the checks of section 5 still run on their own
+   schedule (recommendation 14).
+3. **Extract: full every day to start**, measured after the first extract; changed rows only if the size calls for it.
+4. **Repairs on the Windows side: by the author.** Codex's sandbox stays read-only.
+
+**Next:** he installs SQL Server Developer edition and `sqlcmd` (an overview was given in the conversation); the model
+writes the one setup script — restore the backup, a read-only login, the request-folder job, the first extract —
+which goes to sol and astra before he runs it.
+
 ## Sources
 
 - Microsoft, `sql-server-samples`, `samples/databases/wide-world-importers/wwi-ssdt/wwi-ssdt/DataLoadSimulation`,

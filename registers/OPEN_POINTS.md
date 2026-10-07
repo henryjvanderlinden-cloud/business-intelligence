@@ -2359,6 +2359,13 @@ inserts, updates and keeps its own history; neither working environment can run 
 Importers would run on his Windows machine and export into the repository folder on a schedule. Four decisions
 are put to him there: route, pace, extract shape, and who repairs the Windows side.
 
+**Ruled 2026-10-07, session 07, by the author:** route A (Wide World Importers on SQL Server Developer edition on his
+machine), "if you can access a local database"; the simulation advanced "one day at a mouseclick … advance a day,
+analyse what happened, then next day"; repairs on the Windows side by him. The agent's access is a request folder
+watched by a fixed-action Windows job, the extract full to start; both proposed by the model and confirmed by him
+("Yes"). Details in [420](../docs/40_roadmap/420_next-sandbox-setup.md) §11. Next: he installs SQL Server; the model
+writes the setup script, reviewed before he runs it.
+
 ## §4 — Process (`PRC`)
 
 ### PRC-OP-1 — PARTLY DISCHARGED — external review of the repository
