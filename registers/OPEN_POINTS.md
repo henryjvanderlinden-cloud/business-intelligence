@@ -1387,6 +1387,20 @@ Recommended to the author, not ruled:
 8. Reword the paragraph to his own strength — binaries strongly disfavoured, not banned — and mark the link to
    release-note attribution as the model's proposal.
 
+**Ruled 2026-10-07 by the author** on recommendations 5 to 8:
+
+> 5. agree
+> 6. okay
+> 7. okay
+> 8. agree
+
+Accepted, and correcting the paragraph above: ordinary SSIS `.dtsx` packages are XML text and are not an example of a
+binary format, and small files are 180's third property, not its fourth (5); the preference applies to hand-authored
+source, with generated or atomic files such as lock files and manifests allowed, runtime artefacts such as databases
+and data files out of its scope, and "ASCII" read as UTF-8 text (6); the grain is one coherent concept per file, not
+the smallest possible file (7); binaries are strongly disfavoured, not banned, and the link to release-note
+attribution is the model's proposal (8). This is a ruling on how his statement is read, not yet the ratification of
+180's principles that the row asks for.
 
 ### ARC-OP-21 — No faculty self-reports incompetence, so out-of-depth detection has no home
 **⛔ STATE: OPEN**
@@ -2019,6 +2033,19 @@ Recommended to the author, not ruled:
 4. Keep it small: one change gate, one load-and-publication gate, semantic admission, and the author as the only
    override authority, with overrides recorded.
 
+**Ruled 2026-10-07 by the author** on recommendations 1 to 4:
+
+> 1. agree
+> 2. agree
+> 3. agree
+> 4. agree
+
+Accepted: plausibility warns, except that a deviation of an order of magnitude or more against like-for-like blocks
+publication until someone looks (1); semantic admission is a gate point (2); agent-independent gates are proposed in
+420, not settled, and passing gates is necessary but not sufficient for unattended agent work, which corrects the
+row above (3); the catalogue stays small — a change gate, a load-and-publication gate, semantic admission, and the
+author as the only override authority, with overrides recorded (4). The row stays open until the catalogue is written
+and adopted by ADR.
 
 ### ARC-OP-34 — An agent team for the first build: roles, governing documents, and how agents confer and agree
 **⛔ STATE: OPEN**
@@ -2084,6 +2111,22 @@ Recommended to the author, not ruled:
 13. Start the first build with one builder agent plus independent cross-model review, and use the step log (ADR-0014)
     to see whether splitting roles would pay; add roles only on that evidence.
 
+**Ruled 2026-10-07 by the author** on recommendations 9 to 13:
+
+> 9. agree, maybe add orchestrator, planner
+> 10. agree
+> 11. agree
+> 12. agree
+> 13. agree
+
+Accepted: *lead* becomes *coordinator*, which routes work and proposes, while 070's allocation of who decides stands
+(9); the tester designs and reviews tests and deterministic machinery runs the gates (10); acceptance is bound to a
+commit and voided by any change in its inputs (11); key and grain decisions are re-derived independently by a second
+agent on another model before anything is built on them (12); the first build starts with one builder agent plus
+independent cross-model review, and roles are added only when the step log shows it pays (13). On 9 he added
+"maybe add orchestrator, planner". Read by the model, not confirmed: *orchestrator* and *planner* are candidate
+roles or names to consider when roles are added under 13 — a planner who breaks the build into steps, an
+orchestrator who sequences and dispatches them, possibly the same function as the coordinator. Left open.
 
 ## §3 — Evidence and measurement (`EVI`)
 

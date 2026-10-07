@@ -152,7 +152,9 @@ already covers the data path; what it adds — deterministic checks that alert b
 [420](../docs/40_roadmap/420_next-sandbox-setup.md) §5. **An agent team for the first build** — roles, governing
 documents in layers, conferring in files and agreements as decision records — is `ARC-OP-34`. All four were reviewed on
 2026-10-07 by sol and astra, one object per pass: six FAIL and two HOLD UNDER conditions, and seventeen
-numbered recommendations await his ruling in those rows and in 420 §5.
+numbered recommendations were made, and he accepted all seventeen the same morning, with two remarks: on 9,
+"maybe add orchestrator, planner"; on 15, that production runs on always-on servers. Recorded in those rows and in
+420 §5; adoption of gates, team and principles still needs ADRs.
 
 ## How to work with the author
 

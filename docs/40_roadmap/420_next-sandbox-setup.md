@@ -149,6 +149,21 @@ that a machine that is off is noticed only when it wakes, or add one external mi
 unresolved after the computer is back and an agent has run; (17) queued agent work is diagnosis and reporting, never
 row processing.
 
+**Ruled 2026-10-07 by the author** on recommendations 14 to 17:
+
+> 14. agree
+> 15. under normal circumstances, like a production environment, we would work with servers, which are always on except for maintenance windows.
+> 16. okay
+> 17. yes
+
+Accepted: the checks run on their own schedule, independent of agents and of the export, and catch up after the
+computer wakes (14); no escalation timer — re-check before notifying, merge repeats, report only what is still
+unresolved (16); queued agent work is diagnosis and reporting, never row processing (17). On 15 he chose neither
+option but set the frame: the target is a production environment on servers that are always on except for
+maintenance windows. Read by the model, not confirmed: an external heartbeat is not needed for the design, and in
+this sandbox, which runs on his own computer, a machine that is off is noticed when it wakes — a limitation of the
+sandbox, not of the design.
+
 ## 6. The frozen regression copy
 
 The frozen copy for release regression (`ARC-OP-30`, [160](../10_architecture/160_evaluation-and-regression.md))
