@@ -243,6 +243,15 @@ The model read "c" and "d" as decisions 3 and 4 and proposed what follows; he co
 writes the one setup script — restore the backup, a read-only login, the request-folder job, the first extract —
 which goes to sol and astra before he runs it.
 
+**Installed 2026-10-07 by the author; checked the same evening through Codex.** SQL Server 2025 runs as the default
+instance `MSSQLSERVER` (automatic start), with the full-text launcher. `sqlcmd` is at `C:\Program Files\SqlCmd\` (go)
+and in the ODBC 18 client tools, but not on the Codex server's `PATH`. Codex **cannot connect from its sandbox**: both
+clients fail on Windows authentication ("AcquireCredentialsHandle failed 8009030e"; "Geen referenties beschikbaar in het
+beveiligingspakket"), so the sandboxed process has no credentials to present. The second route of point 1 is therefore
+closed while Codex stays sandboxed; the request-folder job, which runs as the author under Task Scheduler, is not
+affected. Free space on C: was 9.8 GB, against the release page's 10 GB for both databases; only the OLTP database is
+needed, but the margin is small.
+
 ## Sources
 
 - Microsoft, `sql-server-samples`, `samples/databases/wide-world-importers/wwi-ssdt/wwi-ssdt/DataLoadSimulation`,
