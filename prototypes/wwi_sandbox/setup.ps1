@@ -198,9 +198,17 @@ if ($readerCustomers -ne $ownerCustomers) {
 }
 
 # ------------------------------------------------------------------ 5. pinned job, task, shortcut
-New-Item -ItemType Directory -Force -Path $PinDir | Out-Null
+# The folder is created afresh with its permissions set first; the copied files inherit them
+# (administrators and SYSTEM full control, users read and execute). A folder left by an earlier
+# run is first reset to ordinary permissions, which its owner (Administrators) may always do.
+if (Test-Path $PinDir) {
+    & icacls.exe $PinDir /reset /T /C /Q | Out-Null
+    Remove-Item -Recurse -Force $PinDir
+}
+New-Item -ItemType Directory -Path $PinDir | Out-Null
+& icacls.exe $PinDir /inheritance:r /grant:r '*S-1-5-32-544:(OI)(CI)F' '*S-1-5-18:(OI)(CI)F' '*S-1-5-32-545:(OI)(CI)RX' /Q | Out-Null
+if ($LASTEXITCODE -ne 0) { Fail "could not set permissions on $PinDir (icacls exit code $LASTEXITCODE)." }
 foreach ($f in @('job.ps1', 'request.ps1')) { Copy-Item -Force (Join-Path $PSScriptRoot $f) (Join-Path $PinDir $f) }
-& icacls.exe $PinDir /inheritance:r /grant:r '*S-1-5-32-544:(OI)(CI)F' '*S-1-5-18:(OI)(CI)F' '*S-1-5-32-545:(OI)(CI)RX' /T /Q | Out-Null
 $pins = @(Get-ChildItem $PinDir -Filter *.ps1 | ForEach-Object { "$($_.Name) $((Get-FileHash -Algorithm SHA256 $_.FullName).Hash.ToLowerInvariant())" })
 [System.IO.File]::WriteAllText((Join-Path $invDir 'pinned.txt'), ($pins -join "`r`n") + "`r`n", $Utf8)
 Say "pinned copies installed in $PinDir."
