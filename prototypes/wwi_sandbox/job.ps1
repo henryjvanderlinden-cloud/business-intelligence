@@ -284,8 +284,10 @@ WHERE i.object_id = $oid AND i.is_primary_key = 1 ORDER BY ic.key_ordinal;
     $dated = @(Get-ChildItem -Directory $ExtractRoot | Where-Object { $_.Name -match '^\d{4}-\d{2}-\d{2}$' } | Sort-Object Name -Descending)
     if ($dated.Count -gt $KeepExtracts) { $dated[$KeepExtracts..($dated.Count - 1)] | ForEach-Object { Remove-Item -Recurse -Force $_.FullName } }
 
+    # Summed by hand: Measure-Object -Property does not read hashtable keys in PowerShell 5.1.
+    $totalBytes = [long]0; foreach ($x in $files) { $totalBytes += [long]$x.bytes }
     return @{ simulated_date = $sim; folder = "data/raw/wwi/$sim"; tables = $files.Count
-              total_bytes = ($files | Measure-Object -Property bytes -Sum).Sum; free_gb = Get-FreeGB }
+              total_bytes = $totalBytes; free_gb = Get-FreeGB }
 }
 
 function Do-Advance($conn, $req) {
