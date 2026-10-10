@@ -144,3 +144,41 @@ boundary for the one identity plane, spanning the data platform and the context 
 publication gate between a mart's build and its published version. The value areas are on the left,
 the principles and open questions in the footer. It is dense by choice: its main audience is the
 author, who finds it readable. A stripped version for presenting could be drawn later if needed.
+
+### Updated 2026-10-08, session 07
+
+The author asked whether the schematic was still up to date before showing it to a potential client, and named
+quality gates and a repository of the architectural guidelines as possible new concepts. Checked against what was
+settled after 2026-09-25, it was accurate but incomplete. On his ruling, verbatim:
+
+> I'm quite close to the client, so he can see my version. So let's do one version. all the points can be in there.
+> "Honestly open" should have a header that says "what a pilot will prove".
+
+there is still one version, redrawn in place, which adds:
+
+1. **Three quality gates** as ruled in `ARC-OP-33` — a change gate between the repository and the machinery, the
+   load-and-publication gate (the former publication gate), and semantic admission between the context system and
+   the mart build — with the author as the only override authority.
+2. **A repository** in git, as text: the rulebook (constitution, mission brief per build, playbooks per role,
+   decision records) proposed in `ARC-OP-34`, and the warehouse code and data model as small text files with
+   release notes (`ARC-OP-20`, `ARC-OP-30`, [142](../10_architecture/142_the-data-model.md)). Accepted work now
+   passes through it and the change gate to the machinery. The context column says how the two differ.
+3. **The machinery keeps running without agents**, its checks raising their own alerts
+   ([420](../40_roadmap/420_next-sandbox-setup.md) §5), and one line on testing by root cause and release
+   regression ([160](../10_architecture/160_evaluation-and-regression.md), [162](../10_architecture/162_test-framework.md)).
+4. **The first build** as ruled in `ARC-OP-34`: one builder agent, independent re-derivation of keys and grain on
+   another model, approval bound to a commit, roles added only on the step log's evidence.
+5. **Status**: the footer *Honestly open* is renamed *What a pilot will prove*, "nothing is built" is replaced by
+   the Wide World Importers sandbox under way (`EVI-OP-7`), and a team-versus-single-agent question is added.
+
+A dashed outline marks what is accepted but not yet adopted by ADR, explained in a new *How to read it* panel, so
+that the picture does not present proposals as decided. The redraw is unreviewed on another model.
+
+**Print version, 2026-10-08.** At the author's request — "Can you make a version that will translate well to a
+printed A4? This one has a too small font and too light, so the text is not very readable. Maybe also high
+contrast. Make it a separate, printable one." — a separate print version is in
+[`080_overview-schematic-print.html`](080_overview-schematic-print.html), with the PDF generated from it beside it.
+It is two A4 landscape pages in black on white, no text under 8 pt: page 1 the schematic, page 2 the notes that do not
+fit on it at that size (the data platform, the gates, testing, principles, what a pilot will prove). Its content is
+that of the SVG; when one changes, the other is to be brought in line. Edit the HTML, not the PDF.
+

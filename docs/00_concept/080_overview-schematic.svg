@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 1000" width="1280" height="1000" font-family="Segoe UI, Helvetica, Arial, sans-serif">
-  <title>nsdn — overview schematic (draft)</title>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 1440" width="1280" height="1440" font-family="Segoe UI, Helvetica, Arial, sans-serif" xmlns:c2pa="http://c2pa.org/manifest"><metadata><c2pa:manifest>AAAWgmp1bWIAAAAeanVtZGMycGEAEQAQgAAAqgA4m3EDYzJwYQAAABZcanVtYgAAAEdqdW1kYzJtYQARABCAAACqADibcQN1cm46YzJwYTo2ZWEyNTM3Yi1mMmQxLTQzODAtYjE4ZS1hOWE4MjA3ZGUxNWEAAAADl2p1bWIAAAApanVtZGMyYXMAEQAQgAAAqgA4m3EDYzJwYS5hc3NlcnRpb25zAAAAALxqdW1iAAAARGp1bWRjYm9yABEAEIAAAKoAOJtxE2MycGEuaW5ncmVkaWVudC52MwAAAAAYYzJzaAlN8uyYEiwIUQenX3HUgBkAAABwY2JvcqNpZGM6Zm9ybWF0bWltYWdlL3N2Zyt4bWxqaW5zdGFuY2VJRHgseG1wOmlpZDo5YmIxOWQyZS0yZWIyLTRjNmMtYjY1ZS0yYzU1YjE0ZjM3NjBscmVsYXRpb25zaGlwaHBhcmVudE9mAAAB4mp1bWIAAABBanVtZGNib3IAEQAQgAAAqgA4m3ETYzJwYS5hY3Rpb25zLnYyAAAAABhjMnNo6bRHY6p/AdDJSCp41lPRfgAAAZljYm9yomdhY3Rpb25zgqJmYWN0aW9ua2MycGEub3BlbmVkanBhcmFtZXRlcnOha2luZ3JlZGllbnRzgaJjdXJseC1zZWxmI2p1bWJmPWMycGEuYXNzZXJ0aW9ucy9jMnBhLmluZ3JlZGllbnQudjNkaGFzaFggYoMAxYIHGEvKQyDtGEKc5vjFNK5AWHce+33PCDYINl+kZmFjdGlvbngdY29tLmFudGhyb3BpYy5jbGF1ZGUucHJvdmlkZWRqcGFyYW1ldGVyc6F4H2NvbS5hbnRocm9waWMub3JpZ2luLWNvbmZpZGVuY2VndW5rbm93bmtkZXNjcmlwdGlvbnhmQ2xhdWRlIHByb3ZpZGVkIHRoaXMgZmlsZSBhdCB0aGUgcmVxdWVzdCBvZiBhIHVzZXIgYW5kIG1heSBoYXZlIGNyZWF0ZWQgb3IgbW9kaWZpZWQgdGhlIGZpbGUgY29udGVudHMubXNvZnR3YXJlQWdlbnShZG5hbWVmQ2xhdWRlcmFsbEFjdGlvbnNJbmNsdWRlZPUAAADIanVtYgAAAEBqdW1kY2JvcgARABCAAACqADibcRNjMnBhLmhhc2guZGF0YQAAAAAYYzJzaEMAfwnQfDZ2ZXIHG81x8xgAAACAY2JvcqVjYWxnZnNoYTI1NmNwYWRNAAAAAAAAAAAAAAAAAGRoYXNoWCBcZbh/rjTwZaLwqAZk7PKdBNS+Ulkg0n+c5/ASKpEFHWRuYW1lbmp1bWJmIG1hbmlmZXN0amV4Y2x1c2lvbnOBomVzdGFydBjPZmxlbmd0aBkeBAAAAj5qdW1iAAAAJ2p1bWRjMmNsABEAEIAAAKoAOJtxA2MycGEuY2xhaW0udjIAAAACD2Nib3KlY2FsZ2ZzaGEyNTZpc2lnbmF0dXJleE1zZWxmI2p1bWJmPS9jMnBhL3VybjpjMnBhOjZlYTI1MzdiLWYyZDEtNDM4MC1iMThlLWE5YTgyMDdkZTE1YS9jMnBhLnNpZ25hdHVyZWppbnN0YW5jZUlEeCx4bXA6aWlkOmUzODMwZmZmLTE1NGItNDRkYS1hMGU4LTc2ZTU3NDk3NGQ5OHJjcmVhdGVkX2Fzc2VydGlvbnODomN1cmx4LXNlbGYjanVtYmY9YzJwYS5hc3NlcnRpb25zL2MycGEuaW5ncmVkaWVudC52M2RoYXNoWCBigwDFggcYS8pDIO0YQpzm+MU0rkBYdx77fc8INgg2X6JjdXJseCpzZWxmI2p1bWJmPWMycGEuYXNzZXJ0aW9ucy9jMnBhLmFjdGlvbnMudjJkaGFzaFggmCEfULT30/XRQCyfhtaH1qWBdwKg0pkykp7EnWLnczuiY3VybHgpc2VsZiNqdW1iZj1jMnBhLmFzc2VydGlvbnMvYzJwYS5oYXNoLmRhdGFkaGFzaFggdya48FGh+XthvhYyqyXQWCFYnzjaSrqDcEqMjVlyOJ50Y2xhaW1fZ2VuZXJhdG9yX2luZm+jZG5hbWVvQW50aHJvcGljIEZpbGVzZ3ZlcnNpb25lMS4wLjBrc3BlY1ZlcnNpb25lMi40LjAAABA4anVtYgAAAChqdW1kYzJjcwARABCAAACqADibcQNjMnBhLnNpZ25hdHVyZQAAABAIY2JvctKEWQISogEmGCFZAgowggIGMIIBjaADAgECAhRA5aAK7sI50L64g/oGQgU9Z1UTADAKBggqhkjOPQQDAzBJMRcwFQYDVQQKEw5BbnRocm9waWMsIFBCQzEuMCwGA1UEAxMlQW50aHJvcGljIENvbnRlbnQgQ3JlZGVudGlhbHMgUm9vdCBDQTAeFw0yNjA4MDcxODQzNTZaFw0yODA4MDYxOTQzNTZaMEQxFzAVBgNVBAoTDkFudGhyb3BpYywgUEJDMSkwJwYDVQQDEyBBbnRocm9waWMgQ2xhdWRlIENvbnRlbnQgU2lnbmluZzBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABJh6CmvLUBgFFNU0vUKlOVtE6djd17L5SuwX0LemFisBM3dkd/3cyjxFA3Qo5S46fX0/ihY0VZ7mfb9KF703t5OjWDBWMA4GA1UdDwEB/wQEAwIHgDAVBgNVHSUEDjAMBgorBgEEAYPoXgIBMAwGA1UdEwEB/wQCMAAwHwYDVR0jBBgwFoAUzlHiBIFOZFsj+OPEz5o+nMHXXMIwCgYIKoZIzj0EAwMDZwAwZAIwMXMdFJ4BetLLVY7ORuE9noqbbAZOZn/aArXyTwFAZfKrPzxF2vPoJNf1+UCdg1XGAjBwX1zd9WGqYkqmL5SFqw1QySjr1zJfpJM9+1rdDwSPLMOPOjKuiXjoU/pUUeG9RwmhY3BhZFkNngAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPZYQEWKhG+EN8X7HBMVjDOOp7JcZKzu+jMqTNsF0aUo2vJeVY+ipXt6JKN3lWAndRT6eIiDqPr6/y8dC0VP4w1/abE=</c2pa:manifest></metadata>
+  <title>nsdn — overview schematic</title>
   <style>
     .t   { font-size: 22px; font-weight: 700; fill: #1f2328; }
     .st  { font-size: 13px; fill: #57606a; }
@@ -8,26 +8,31 @@
     .b   { font-size: 12.5px; fill: #1f2328; }
     .bb  { font-size: 12.5px; font-weight: 700; fill: #1f2328; }
     .s   { font-size: 11px; fill: #57606a; }
+    .sd  { font-size: 11px; fill: #1f2328; }
     .sb  { font-size: 12px; font-weight: 700; fill: #1f2328; }
     .al  { font-size: 10.5px; fill: #57606a; font-style: italic; }
     .red { font-size: 11px; fill: #b42318; }
+    .redb{ font-size: 11px; font-weight: 700; fill: #b42318; }
     .arr { stroke: #57606a; stroke-width: 1.6; fill: none; marker-end: url(#a); }
     .arr2{ stroke: #57606a; stroke-width: 1.6; fill: none; marker-end: url(#a); marker-start: url(#as); }
     .box { fill: #ffffff; stroke: #8c959f; stroke-width: 1; }
+    .prop{ fill: none; stroke: #6e7781; stroke-width: 1.3; stroke-dasharray: 5 3; }
+    .gate{ fill: #ffffff; stroke: #b42318; stroke-width: 1.8; }
+    .gl  { stroke: #b42318; stroke-width: 2; }
   </style>
   <defs>
     <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#57606a"/></marker>
     <marker id="as" viewBox="0 0 10 10" refX="1" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M10,0 L0,5 L10,10 z" fill="#57606a"/></marker>
   </defs>
 
-  <rect width="1280" height="1000" fill="#ffffff"/>
+  <rect width="1280" height="1440" fill="#ffffff"/>
 
   <!-- Title -->
   <text class="t" x="20" y="38">nsdn — a generic framework for BI with an agentic layer</text>
-  <text class="st" x="20" y="62">A proposed design; nothing is built. Governed work runs as a chain — proposes → decides → executes → checks — with stages automated where policy allows. Draft, 2026-09-25.</text>
+  <text class="st" x="20" y="62">A proposed design, now being tried in a sandbox. Governed work runs as a chain — proposes → decides → executes → checks — with stages automated where policy allows. Updated 2026-10-08.</text>
 
   <!-- Left panel: value areas -->
-  <rect x="20" y="90" width="210" height="620" rx="8" fill="#f6f8fa" stroke="#8c959f"/>
+  <rect x="20" y="90" width="210" height="560" rx="8" fill="#f6f8fa" stroke="#8c959f"/>
   <text class="h" x="34" y="114">VALUE AREAS</text>
   <text class="s" x="34" y="132">separate; the list is open</text>
   <rect class="box" x="34" y="150" width="182" height="54" rx="5"/>
@@ -49,112 +54,190 @@
   <text class="s" x="34" y="516">its own; none owes a link</text>
   <text class="s" x="34" y="532">to another.</text>
 
+  <!-- Left panel: how to read -->
+  <rect x="20" y="672" width="210" height="300" rx="8" fill="#ffffff" stroke="#8c959f"/>
+  <text class="h" x="34" y="696">HOW TO READ IT</text>
+  <rect class="box" x="34" y="712" width="34" height="20" rx="4"/>
+  <text class="s" x="78" y="721">solid outline: part of the</text>
+  <text class="s" x="78" y="735">design, decided</text>
+  <rect class="prop" x="34" y="752" width="34" height="20" rx="4"/>
+  <text class="s" x="78" y="761">dashed outline: worked out</text>
+  <text class="s" x="78" y="775">and accepted, not yet</text>
+  <text class="s" x="78" y="789">formally decided</text>
+  <rect class="gate" x="38" y="806" width="26" height="40" rx="3"/>
+  <line class="gl" x1="45" y1="811" x2="45" y2="841"/>
+  <line class="gl" x1="57" y1="811" x2="57" y2="841"/>
+  <text class="s" x="78" y="821">red bars: a gate — nothing</text>
+  <text class="s" x="78" y="835">passes until its checks pass</text>
+  <line x1="34" y1="872" x2="68" y2="872" stroke="#3f9a8a" stroke-width="1.4" stroke-dasharray="6 4"/>
+  <text class="s" x="78" y="868">dashed green: one identity</text>
+  <text class="s" x="78" y="882">plane — see the note below</text>
+  <text class="s" x="78" y="896">the data band</text>
+  <path class="arr" d="M34,926 L68,926"/>
+  <text class="s" x="78" y="922">arrows: what flows, and</text>
+  <text class="s" x="78" y="936">in which direction</text>
+
   <!-- HUMANS band -->
-  <rect x="250" y="90" width="730" height="100" rx="8" fill="#fff4e5" stroke="#d4a15a"/>
+  <rect x="250" y="90" width="730" height="112" rx="8" fill="#fff4e5" stroke="#d4a15a"/>
   <text class="h" x="266" y="114">HUMANS</text>
   <text class="hs" x="266" y="140">set purpose and delegation policy · rule on meaning, disputes and consequences · act on insight</text>
-  <text class="s" x="266" y="164">Directly, by mandate: meaning, KPI definitions, priorities, anything irreversible or regulatory.</text>
-  <text class="s" x="266" y="180">Everything else is decided within the policy they set. Attention is a fixed weekly budget per role.</text>
+  <text class="s" x="266" y="162">Directly, by mandate: meaning, KPI definitions, priorities, anything irreversible or regulatory.</text>
+  <text class="s" x="266" y="177">Everything else is decided within the policy they set. Attention is a fixed weekly budget per role.</text>
+  <text class="s" x="266" y="192">They alone change the constitution, and only they may override a gate; every override is recorded.</text>
 
   <!-- ADJUDICATION band -->
-  <rect x="250" y="222" width="730" height="114" rx="8" fill="#fdf8e1" stroke="#c9a227"/>
-  <text class="h" x="266" y="246">ADJUDICATION ECONOMY</text>
-  <text class="s" x="476" y="246">aims at the most loss averted per minute · most proposals never reach a person</text>
-  <rect class="box" x="266" y="260" width="166" height="62" rx="5"/>
-  <text class="sb" x="276" y="279">Auto-accept</text>
-  <text class="s" x="276" y="296">machine-verified, reversible</text>
-  <text class="s" x="276" y="311">audited by sample</text>
-  <rect class="box" x="444" y="260" width="166" height="62" rx="5"/>
-  <text class="sb" x="454" y="279">Accept provisionally</text>
-  <text class="s" x="454" y="296">used only within an</text>
-  <text class="s" x="454" y="311">enforced scope</text>
-  <rect x="622" y="260" width="166" height="62" rx="5" fill="#ffffff" stroke="#d4a15a" stroke-width="1.8"/>
-  <text class="sb" x="632" y="279">Human</text>
-  <text class="s" x="632" y="296">decision owner, deadline,</text>
-  <text class="s" x="632" y="311">a safe default if silent</text>
-  <rect class="box" x="800" y="260" width="166" height="62" rx="5"/>
-  <text class="sb" x="810" y="279">Park</text>
-  <text class="s" x="810" y="296">nothing depends on it yet;</text>
-  <text class="s" x="810" y="311">visible, with an expiry</text>
+  <rect x="250" y="234" width="730" height="114" rx="8" fill="#fdf8e1" stroke="#c9a227"/>
+  <text class="h" x="266" y="258">ADJUDICATION ECONOMY</text>
+  <text class="s" x="476" y="258">aims at the most loss averted per minute · most proposals never reach a person</text>
+  <rect class="box" x="266" y="272" width="166" height="62" rx="5"/>
+  <text class="sb" x="276" y="291">Auto-accept</text>
+  <text class="s" x="276" y="308">machine-verified, reversible</text>
+  <text class="s" x="276" y="323">audited by sample</text>
+  <rect class="box" x="444" y="272" width="166" height="62" rx="5"/>
+  <text class="sb" x="454" y="291">Accept provisionally</text>
+  <text class="s" x="454" y="308">used only within an</text>
+  <text class="s" x="454" y="323">enforced scope</text>
+  <rect x="622" y="272" width="166" height="62" rx="5" fill="#ffffff" stroke="#d4a15a" stroke-width="1.8"/>
+  <text class="sb" x="632" y="291">Human</text>
+  <text class="s" x="632" y="308">decision owner, deadline,</text>
+  <text class="s" x="632" y="323">a safe default if silent</text>
+  <rect class="box" x="800" y="272" width="166" height="62" rx="5"/>
+  <text class="sb" x="810" y="291">Park</text>
+  <text class="s" x="810" y="308">nothing depends on it yet;</text>
+  <text class="s" x="810" y="323">visible, with an expiry</text>
 
   <!-- arrows humans <-> queue -->
-  <path class="arr" d="M705,222 L705,192"/>
-  <text class="al" x="713" y="211">only what needs a person</text>
-  <path class="arr" d="M300,190 L300,220"/>
-  <text class="al" x="308" y="211">rulings; a ruling on a pattern becomes a precedent</text>
+  <path class="arr" d="M705,234 L705,204"/>
+  <text class="al" x="713" y="223">only what needs a person</text>
+  <path class="arr" d="M300,202 L300,232"/>
+  <text class="al" x="308" y="223">rulings; a ruling on a pattern becomes a precedent</text>
 
   <!-- AGENTIC band -->
-  <rect x="250" y="368" width="730" height="110" rx="8" fill="#eef1fd" stroke="#7b8fd8"/>
-  <text class="h" x="266" y="392">AGENTIC LAYER</text>
-  <text class="s" x="392" y="392">a system, not a model</text>
-  <rect class="box" x="266" y="404" width="104" height="28" rx="5"/><text class="b" x="318" y="423" text-anchor="middle">heartbeat</text>
-  <rect class="box" x="380" y="404" width="104" height="28" rx="5"/><text class="b" x="432" y="423" text-anchor="middle">workflows</text>
-  <rect class="box" x="494" y="404" width="104" height="28" rx="5"/><text class="b" x="546" y="423" text-anchor="middle">procedures</text>
-  <rect class="box" x="608" y="404" width="104" height="28" rx="5"/><text class="b" x="660" y="423" text-anchor="middle">memory</text>
-  <rect class="box" x="722" y="404" width="104" height="28" rx="5"/><text class="b" x="774" y="423" text-anchor="middle">LLMs</text>
-  <text class="hs" x="266" y="458">writes and explains: code, templates, metadata, tests, diagnoses — and triages its own proposals</text>
+  <rect x="250" y="380" width="730" height="160" rx="8" fill="#eef1fd" stroke="#7b8fd8"/>
+  <text class="h" x="266" y="404">AGENTIC LAYER</text>
+  <text class="s" x="392" y="404">a system, not a model</text>
+  <rect class="box" x="266" y="416" width="104" height="28" rx="5"/><text class="b" x="318" y="435" text-anchor="middle">heartbeat</text>
+  <rect class="box" x="380" y="416" width="104" height="28" rx="5"/><text class="b" x="432" y="435" text-anchor="middle">workflows</text>
+  <rect class="box" x="494" y="416" width="104" height="28" rx="5"/><text class="b" x="546" y="435" text-anchor="middle">procedures</text>
+  <rect class="box" x="608" y="416" width="104" height="28" rx="5"/><text class="b" x="660" y="435" text-anchor="middle">memory</text>
+  <rect class="box" x="722" y="416" width="104" height="28" rx="5"/><text class="b" x="774" y="435" text-anchor="middle">LLMs</text>
+  <text class="hs" x="266" y="466">writes and explains: code, templates, metadata, tests, diagnoses — and triages its own proposals</text>
+  <rect class="prop" x="262" y="478" width="660" height="54" rx="5"/>
+  <text class="sd" x="272" y="494">First build: one builder agent, checked by a second model that works out keys and grain again on its own.</text>
+  <text class="sd" x="272" y="509">Approval is tied to one commit: any change to its inputs voids it, and the gates run again.</text>
+  <text class="sd" x="272" y="524">More roles (coordinator, planner, tester …) are added only when the step log shows they pay.</text>
 
   <!-- agentic -> queue -->
-  <path class="arr" d="M520,368 L520,338"/>
-  <text class="al" x="528" y="357">proposes</text>
+  <path class="arr" d="M520,380 L520,350"/>
+  <text class="al" x="528" y="369">proposes</text>
 
-  <!-- accepted work: from adjudication outcomes, down past the agentic layer, to machinery -->
-  <path d="M945,322 L945,506" stroke="#ffffff" stroke-width="7" fill="none"/>
-  <path class="arr" d="M945,322 L945,506"/>
-  <circle cx="945" cy="322" r="3.5" fill="#57606a"/>
-  <text class="al" x="937" y="494" text-anchor="end">accepted work only — executed by machinery</text>
+  <!-- accepted work: from adjudication outcomes, down past the agentic layer, to the repository -->
+  <path d="M955,334 L955,570" stroke="#eef1fd" stroke-width="7" fill="none"/>
+  <path class="arr" d="M955,334 L955,570"/>
+  <circle cx="955" cy="334" r="3.5" fill="#57606a"/>
+  <text class="al" x="947" y="562" text-anchor="end">accepted work only</text>
+
+  <!-- REPOSITORY -->
+  <rect x="420" y="572" width="560" height="146" rx="8" fill="#f7f3fb" stroke="#8a6fb0" stroke-dasharray="5 3" stroke-width="1.4"/>
+  <text class="h" x="436" y="596">REPOSITORY</text>
+  <text class="s" x="538" y="596">in git, as text · the rulebook and the code</text>
+  <text class="bb" x="436" y="620">The rulebook</text>
+  <text class="s" x="436" y="637">constitution: fixed principles, changed only by people</text>
+  <text class="s" x="436" y="652">mission brief per build · playbooks per role</text>
+  <text class="s" x="436" y="667">decision records: the agreements, binding</text>
+  <text class="s" x="436" y="682">until replaced</text>
+  <text class="bb" x="740" y="620">The code</text>
+  <text class="s" x="740" y="637">warehouse code and data model as</text>
+  <text class="s" x="740" y="652">many small text files</text>
+  <text class="s" x="740" y="667">each release with a note: what changed,</text>
+  <text class="s" x="740" y="682">why, and its expected effect on output</text>
+  <text class="sd" x="436" y="704">Agents work only from the rules written here; they may propose changes, people decide.</text>
+
+  <!-- agentic <-> repository -->
+  <path class="arr" d="M600,542 L600,570"/>
+  <text class="al" x="608" y="561">writes code, tests, release notes</text>
+  <path class="arr" d="M470,570 L470,542"/>
+  <text class="al" x="478" y="561">reads the rules</text>
+
+  <!-- repository -> machinery through the change gate -->
+  <path class="arr" d="M900,720 L900,776"/>
+  <rect class="gate" x="880" y="734" width="40" height="22" rx="3"/>
+  <line class="gl" x1="885" y1="741" x2="915" y2="741"/>
+  <line class="gl" x1="885" y1="749" x2="915" y2="749"/>
+  <text class="redb" x="872" y="749" text-anchor="end">change gate</text>
+  <text class="al" x="928" y="749">deployed</text>
+
+  <!-- observation: data -> agentic -->
+  <path class="arr" d="M300,776 L300,542"/>
+  <text class="al" x="308" y="610">observes profiles</text>
+  <text class="al" x="308" y="624">and metadata, not</text>
+  <text class="al" x="308" y="638">data rows —</text>
+  <text class="al" x="308" y="652">access-filtered</text>
 
   <!-- identity plane: dashed boundary around data platform and context stores -->
-  <path d="M242,503 L1026,503 L1026,82 L1268,82 L1268,718 L242,718 Z" fill="none" stroke="#3f9a8a" stroke-width="1.4" stroke-dasharray="6 4"/>
-  <text class="al" x="250" y="735" style="fill:#2f7a6d">dashed: one identity plane over every store, data platform and context alike — access is filtered before anything is retrieved, by people or agents</text>
+  <path d="M242,770 L1022,770 L1022,82 L1268,82 L1268,1136 L242,1136 Z" fill="none" stroke="#3f9a8a" stroke-width="1.4" stroke-dasharray="6 4"/>
+  <text class="al" x="250" y="1153" style="fill:#2f7a6d">dashed green: one identity plane over every store, data platform and context alike — access is filtered before anything is retrieved, by people or agents</text>
 
   <!-- DATA band -->
-  <rect x="250" y="510" width="730" height="200" rx="8" fill="#f0f2f4" stroke="#8c959f"/>
-  <text class="h" x="266" y="534">DATA — the substrate</text>
-  <text class="s" x="440" y="534">run end to end by DETERMINISTIC MACHINERY · no model in the data path</text>
+  <rect x="250" y="778" width="730" height="350" rx="8" fill="#f0f2f4" stroke="#8c959f"/>
+  <text class="h" x="266" y="802">DATA — the substrate</text>
+  <text class="s" x="440" y="802">run end to end by DETERMINISTIC MACHINERY · no model in the data path</text>
 
-  <rect class="box" x="262" y="552" width="66" height="58" rx="5"/><text class="bb" x="295" y="586" text-anchor="middle">Sources</text>
-  <path class="arr" d="M329,581 L338,581"/>
-  <rect class="box" x="340" y="552" width="50" height="58" rx="5"/><text class="bb" x="365" y="586" text-anchor="middle">Raw</text>
-  <path class="arr" d="M391,581 L400,581"/>
-  <rect class="box" x="402" y="552" width="104" height="58" rx="5"/>
-  <text class="bb" x="454" y="572" text-anchor="middle">Data Vault</text>
-  <text class="s" x="454" y="587" text-anchor="middle">or equivalent</text>
-  <text class="s" x="454" y="602" text-anchor="middle">all data, all time</text>
-  <path class="arr" d="M507,581 L516,581"/>
-  <rect class="box" x="518" y="552" width="92" height="58" rx="5"/>
-  <text class="bb" x="564" y="578" text-anchor="middle">Mart build</text>
-  <text class="s" x="564" y="595" text-anchor="middle">candidate version</text>
-  <path class="arr" d="M611,581 L620,581"/>
-  <!-- publication gate -->
-  <rect x="622" y="548" width="26" height="66" rx="3" fill="#ffffff" stroke="#b42318" stroke-width="1.8"/>
-  <line x1="629" y1="554" x2="629" y2="608" stroke="#b42318" stroke-width="2"/>
-  <line x1="641" y1="554" x2="641" y2="608" stroke="#b42318" stroke-width="2"/>
-  <path class="arr" d="M649,581 L658,581"/>
-  <rect class="box" x="660" y="552" width="96" height="58" rx="5"/>
-  <text class="bb" x="708" y="578" text-anchor="middle">Published</text>
-  <text class="bb" x="708" y="594" text-anchor="middle">marts</text>
-  <path class="arr" d="M757,581 L766,581"/>
-  <rect class="box" x="768" y="552" width="88" height="58" rx="5"/>
-  <text class="bb" x="812" y="578" text-anchor="middle">Semantic</text>
-  <text class="bb" x="812" y="594" text-anchor="middle">layer</text>
-  <path class="arr" d="M857,581 L866,581"/>
-  <rect class="box" x="868" y="552" width="100" height="58" rx="5"/>
-  <text class="bb" x="918" y="578" text-anchor="middle">Dashboards</text>
-  <text class="s" x="918" y="595" text-anchor="middle">users</text>
+  <rect class="box" x="262" y="820" width="66" height="58" rx="5"/><text class="bb" x="295" y="854" text-anchor="middle">Sources</text>
+  <path class="arr" d="M329,849 L338,849"/>
+  <rect class="box" x="340" y="820" width="50" height="58" rx="5"/><text class="bb" x="365" y="854" text-anchor="middle">Raw</text>
+  <path class="arr" d="M391,849 L400,849"/>
+  <rect class="box" x="402" y="820" width="104" height="58" rx="5"/>
+  <text class="bb" x="454" y="840" text-anchor="middle">Data Vault</text>
+  <text class="s" x="454" y="855" text-anchor="middle">or equivalent</text>
+  <text class="s" x="454" y="870" text-anchor="middle">all data, all time</text>
+  <path class="arr" d="M507,849 L516,849"/>
+  <rect class="box" x="518" y="820" width="92" height="58" rx="5"/>
+  <text class="bb" x="564" y="846" text-anchor="middle">Mart build</text>
+  <text class="s" x="564" y="863" text-anchor="middle">candidate version</text>
+  <path class="arr" d="M611,849 L620,849"/>
+  <!-- load and publication gate -->
+  <rect class="gate" x="622" y="816" width="26" height="66" rx="3"/>
+  <line class="gl" x1="629" y1="822" x2="629" y2="876"/>
+  <line class="gl" x1="641" y1="822" x2="641" y2="876"/>
+  <path class="arr" d="M649,849 L658,849"/>
+  <rect class="box" x="660" y="820" width="96" height="58" rx="5"/>
+  <text class="bb" x="708" y="846" text-anchor="middle">Published</text>
+  <text class="bb" x="708" y="862" text-anchor="middle">marts</text>
+  <path class="arr" d="M757,849 L766,849"/>
+  <rect class="box" x="768" y="820" width="88" height="58" rx="5"/>
+  <text class="bb" x="812" y="846" text-anchor="middle">Semantic</text>
+  <text class="bb" x="812" y="862" text-anchor="middle">layer</text>
+  <path class="arr" d="M857,849 L866,849"/>
+  <rect class="box" x="868" y="820" width="100" height="58" rx="5"/>
+  <text class="bb" x="918" y="846" text-anchor="middle">Dashboards</text>
+  <text class="s" x="918" y="863" text-anchor="middle">users</text>
 
-  <text class="red" x="635" y="628" text-anchor="middle">publication gate</text>
-  <text class="b" x="266" y="648">Data Vault or a functionally equivalent layer: all data, all history, integrated on business keys.</text>
-  <text class="b" x="266" y="666">Publication gate: a mart version is published only when the tests on that version pass.</text>
-  <text class="b" x="266" y="684">Rule versioning and lineage: any past report can be reproduced.</text>
-  <text class="b" x="266" y="702">Temporal behaviour and join knowledge are measured here, and tested before anything relies on them.</text>
+  <text class="redb" x="635" y="896" text-anchor="middle">load &amp; publication gate</text>
 
-  <!-- data -> agentic: observation -->
-  <path class="arr" d="M320,510 L320,480"/>
-  <text class="al" x="328" y="494">observes profiles and metadata, not data rows — access-filtered</text>
+  <!-- semantic admission: context -> mart build -->
+  <path class="arr" d="M1028,924 L564,924 L564,880"/>
+  <rect class="gate" x="990" y="904" width="26" height="40" rx="3"/>
+  <line class="gl" x1="997" y1="909" x2="997" y2="939"/>
+  <line class="gl" x1="1009" y1="909" x2="1009" y2="939"/>
+  <text class="redb" x="975" y="917" text-anchor="end">semantic admission</text>
+  <text class="al" x="574" y="917">approved rules and definitions feed the mart build</text>
+
+  <text class="b" x="266" y="954">Data Vault or a functionally equivalent layer: all data, all history, integrated on business keys.</text>
+  <text class="b" x="266" y="972">Rule versioning and lineage: any past report can be reproduced.</text>
+  <text class="b" x="266" y="990">Temporal behaviour and join knowledge are measured here, and tested before anything relies on them.</text>
+
+  <rect class="prop" x="262" y="1002" width="706" height="118" rx="5"/>
+  <text class="sb" x="272" y="1020">Three gates, run by the machinery, not by agents</text>
+  <text class="sd" x="272" y="1037"><tspan font-weight="700">Change gate:</tspan> code reaches the machinery only when its tests pass.</text>
+  <text class="sd" x="272" y="1052"><tspan font-weight="700">Load &amp; publication gate:</tspan> a mart version is published only when its tests pass. Plausibility checks warn;</text>
+  <text class="sd" x="272" y="1067">an error of ten times or more against like-for-like blocks publication until someone looks.</text>
+  <text class="sd" x="272" y="1082"><tspan font-weight="700">Semantic admission:</tspan> an approved rule or definition starts feeding marts only through this gate.</text>
+  <text class="sd" x="272" y="1097">Tests are sorted by root cause. Release regression on frozen data: every change in the output must match a release note.</text>
+  <text class="sd" x="272" y="1112">Keeps running when the agentic layer is down: the checks run on their own schedule and raise their own alerts.</text>
 
   <!-- CONTEXT column -->
-  <rect x="1030" y="90" width="230" height="620" rx="8" fill="#e8f6f3" stroke="#3f9a8a"/>
+  <rect x="1030" y="90" width="230" height="1038" rx="8" fill="#e8f6f3" stroke="#3f9a8a"/>
 
   <!-- catalogue compartment -->
   <rect x="1040" y="100" width="210" height="62" rx="5" fill="#ffffff" stroke="#3f9a8a" stroke-width="1.4"/>
@@ -167,68 +250,82 @@
   <text class="h" x="1044" y="220">CONTEXT SYSTEM</text>
   <text class="s" x="1044" y="237">the shared memory</text>
 
-  <text class="bb" x="1044" y="264">Assertions — the core record</text>
-  <text class="s" x="1044" y="282">every claim is typed: intended,</text>
-  <text class="s" x="1044" y="297">declared, implemented, observed</text>
-  <text class="s" x="1044" y="312">or certified — with its status,</text>
-  <text class="s" x="1044" y="327">owner and evidence</text>
+  <text class="bb" x="1044" y="270">Assertions — the core record</text>
+  <text class="s" x="1044" y="288">every claim is typed: intended,</text>
+  <text class="s" x="1044" y="303">declared, implemented, observed</text>
+  <text class="s" x="1044" y="318">or certified — with its status,</text>
+  <text class="s" x="1044" y="333">owner and evidence</text>
 
-  <text class="bb" x="1044" y="358">Cards — readable views</text>
-  <text class="s" x="1044" y="376">one per business object, generated</text>
-  <text class="s" x="1044" y="391">for people and for agents</text>
+  <text class="bb" x="1044" y="372">Cards — readable views</text>
+  <text class="s" x="1044" y="390">one per business object, generated</text>
+  <text class="s" x="1044" y="405">for people and for agents</text>
 
-  <text class="bb" x="1044" y="422">Separate stores</text>
-  <text class="s" x="1044" y="440">landscape facts, assertions,</text>
-  <text class="s" x="1044" y="455">workflow state, task journals —</text>
-  <text class="s" x="1044" y="470">inside the one identity plane</text>
+  <text class="bb" x="1044" y="444">Separate stores</text>
+  <text class="s" x="1044" y="462">landscape facts, assertions,</text>
+  <text class="s" x="1044" y="477">workflow state, task journals —</text>
+  <text class="s" x="1044" y="492">inside the one identity plane</text>
 
-  <text class="bb" x="1044" y="501">Kept true by</text>
-  <text class="s" x="1044" y="519">task-shaped retrieval · mandatory</text>
-  <text class="s" x="1044" y="534">write-back · standing gardening</text>
-  <text class="s" x="1044" y="549">(re-check, expire, quarantine)</text>
+  <text class="bb" x="1044" y="531">Kept true by</text>
+  <text class="s" x="1044" y="549">task-shaped retrieval · mandatory</text>
+  <text class="s" x="1044" y="564">write-back · standing gardening</text>
+  <text class="s" x="1044" y="579">(re-check, expire, quarantine)</text>
 
-  <text class="bb" x="1044" y="580">Holds, among much else</text>
-  <text class="s" x="1044" y="598">temporal behaviour per table and</text>
-  <text class="s" x="1044" y="613">attribute · join knowledge ·</text>
-  <text class="s" x="1044" y="628">the adjudication record</text>
+  <text class="bb" x="1044" y="618">Holds, among much else</text>
+  <text class="s" x="1044" y="636">temporal behaviour per table and</text>
+  <text class="s" x="1044" y="651">attribute · join knowledge ·</text>
+  <text class="s" x="1044" y="666">the adjudication record</text>
 
-  <text class="s" x="1044" y="660">Built to grow very large while</text>
-  <text class="s" x="1044" y="675">agents still find their way by</text>
-  <text class="s" x="1044" y="690">identity, not by search alone.</text>
+  <text class="bb" x="1044" y="705">Not the rulebook</text>
+  <text class="s" x="1044" y="723">the context system records what is</text>
+  <text class="s" x="1044" y="738">true about the data; the repository</text>
+  <text class="s" x="1044" y="753">holds how to build</text>
+
+  <text class="bb" x="1044" y="890">Feeds the build</text>
+  <text class="s" x="1044" y="908">approved assertions only, through</text>
+  <text class="s" x="1044" y="923">semantic admission</text>
+  <text class="bb" x="1044" y="990">Receives facts</text>
+  <text class="s" x="1044" y="1008">measured by the machinery</text>
+
+  <text class="s" x="1044" y="1066">Built to grow very large while</text>
+  <text class="s" x="1044" y="1081">agents still find their way by</text>
+  <text class="s" x="1044" y="1096">identity, not by search alone.</text>
 
   <!-- arrows between main area and context -->
   <path class="arr" d="M1038,131 L983,131"/>
   <text class="al" x="1002" style="font-size:10px" y="123" text-anchor="middle">catalogue</text>
   <path class="arr" d="M982,300 L1024,300"/>
   <text class="al" x="1002" style="font-size:10px" y="292" text-anchor="middle">record</text>
-  <path class="arr2" d="M984,440 L1023,440"/>
-  <text class="al" x="1002" style="font-size:10px" y="418" text-anchor="middle">reads,</text>
-  <text class="al" x="1002" style="font-size:10px" y="431" text-anchor="middle">writes</text>
-  <text class="al" x="1002" style="font-size:10px" y="456" text-anchor="middle">back</text>
-  <path class="arr" d="M982,640 L1024,640"/>
-  <text class="al" x="1002" style="font-size:10px" y="632" text-anchor="middle">facts</text>
+  <path class="arr2" d="M984,460 L1023,460"/>
+  <text class="al" x="1002" style="font-size:10px" y="438" text-anchor="middle">reads,</text>
+  <text class="al" x="1002" style="font-size:10px" y="451" text-anchor="middle">writes</text>
+  <text class="al" x="1002" style="font-size:10px" y="476" text-anchor="middle">back</text>
+  <path class="arr" d="M982,1000 L1024,1000"/>
+  <text class="al" x="1002" style="font-size:10px" y="992" text-anchor="middle">facts</text>
 
   <!-- Footer: principles -->
-  <rect x="20" y="760" width="610" height="225" rx="8" fill="#ffffff" stroke="#8c959f"/>
-  <text class="h" x="34" y="784">PRINCIPLES</text>
-  <text class="b" x="34" y="810">• Mandate is separate from capability; models never operate in the data path; autonomy is tiered.</text>
-  <text class="b" x="34" y="832">• Every accepted claim traces to evidence or to a responsible person.</text>
-  <text class="b" x="34" y="854">• Where machines can check the output, the agentic layer scales; where only judgement</text>
-  <text class="b" x="46" y="872">can check it, people remain the bottleneck.</text>
-  <text class="b" x="34" y="894">• Human attention is the scarce resource. Where damage is bounded, reversibility plus</text>
-  <text class="b" x="46" y="912">fast detection can substitute for review; more review is not always less risk.</text>
-  <text class="b" x="34" y="934">• Cost must not simply move elsewhere.</text>
-  <text class="b" x="34" y="956">• Generic: the full design is described; an implementation starts lean and adopts each</text>
-  <text class="b" x="46" y="974">further stage only once it needs it and its prerequisites work.</text>
+  <rect x="20" y="1180" width="610" height="246" rx="8" fill="#ffffff" stroke="#8c959f"/>
+  <text class="h" x="34" y="1204">PRINCIPLES</text>
+  <text class="b" x="34" y="1230">• Mandate is separate from capability; models never operate in the data path; autonomy is tiered.</text>
+  <text class="b" x="34" y="1252">• Every accepted claim traces to evidence or to a responsible person.</text>
+  <text class="b" x="34" y="1274">• Where machines can check the output, the agentic layer scales; where only judgement</text>
+  <text class="b" x="46" y="1292">can check it, people remain the bottleneck.</text>
+  <text class="b" x="34" y="1314">• Human attention is the scarce resource. Where damage is bounded, reversibility plus</text>
+  <text class="b" x="46" y="1332">fast detection can substitute for review; more review is not always less risk.</text>
+  <text class="b" x="34" y="1354">• Cost must not simply move elsewhere. Passing the gates is necessary, not sufficient,</text>
+  <text class="b" x="46" y="1372">before agents work unattended.</text>
+  <text class="b" x="34" y="1394">• Generic: the full design is described; an implementation starts lean and adopts each</text>
+  <text class="b" x="46" y="1412">further stage only once it needs it and its prerequisites work.</text>
 
-  <!-- Footer: open -->
-  <rect x="650" y="760" width="610" height="225" rx="8" fill="#ffffff" stroke="#8c959f"/>
-  <text class="h" x="664" y="784">HONESTLY OPEN</text>
-  <text class="b" x="664" y="810">• The central bet: can the agentic layer propose business keys well</text>
-  <text class="b" x="676" y="828">enough to be worth a person's time to check?</text>
-  <text class="b" x="664" y="850">• The economics: cost per proposal, and human minutes of adjudication</text>
-  <text class="b" x="676" y="868">per week. Neither is quantified.</text>
-  <text class="b" x="664" y="890">• What success means for each capability.</text>
-  <text class="b" x="664" y="912">• Nothing is built. Next: sandboxes on open data. There, business owners</text>
-  <text class="b" x="676" y="930">and reviewers are simulated, and results must say so.</text>
+  <!-- Footer: what a pilot will prove -->
+  <rect x="650" y="1180" width="610" height="246" rx="8" fill="#ffffff" stroke="#8c959f"/>
+  <text class="h" x="664" y="1204">WHAT A PILOT WILL PROVE</text>
+  <text class="b" x="664" y="1230">• The central bet: can the agentic layer propose business keys well</text>
+  <text class="b" x="676" y="1248">enough to be worth a person's time to check?</text>
+  <text class="b" x="664" y="1270">• The economics: cost per proposal, and human minutes of adjudication</text>
+  <text class="b" x="676" y="1288">per week. Neither is quantified yet.</text>
+  <text class="b" x="664" y="1310">• What success means for each capability.</text>
+  <text class="b" x="664" y="1332">• Whether a team of agents does better than one builder agent.</text>
+  <text class="b" x="664" y="1354">• Under way: a sandbox on a simulated order system (Wide World</text>
+  <text class="b" x="676" y="1372">Importers), advanced one simulated day at a time. Business owners</text>
+  <text class="b" x="676" y="1390">and reviewers are simulated there, and results must say so.</text>
 </svg>
