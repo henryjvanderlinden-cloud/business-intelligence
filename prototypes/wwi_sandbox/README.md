@@ -50,6 +50,42 @@ so this can be checked before the first `advance`.
 
 The people, customers and suppliers in the data are Microsoft's fictitious sample records.
 
+## The warehouse runner (added 2026-10-11, ADR-0015)
+
+`runner.py` is the second scheduled task, `nsdn-wwi-runner`, every minute as the author, from a pinned copy with its own
+Python environment in `C:\ProgramData\nsdn-wwi\` (Python 3.12.15 installed by uv 0.13.0; dbt-core 1.12.5, dbt-duckdb
+1.11.0 and DuckDB 1.5.6 from `requirements.txt`, which carries hashes). Nothing goes on the PATH or into the registry.
+
+Each run it looks for complete extracts newer than the last date loaded. For each, oldest first, it checks that the
+date is the next one expected and that every file matches the manifest (SHA-256 and row count), lands the files as
+text into the schema `landing` of `data/warehouse/wwi.duckdb` (one table per source table, `schema__table` in lower
+case, with `_nsdn_load_date`), and runs `dbt build` on the project in `dbt/` **as it stands in the repository**. Every
+attempt goes into `nsdn_meta.load_log`. After a successful load it copies the warehouse to
+`data/warehouse/published/wwi.duckdb`, which is the copy to read. If the dbt project changes and no new extract is
+waiting, it rebuilds the latest date with the new project, so new SQL goes live within a minute.
+
+It writes `data/warehouse/status.json` on every run and `data/warehouse/alerts/<time>-<kind>.json` on every failure.
+A failed date is retried only when the dbt project or the extract changes, and a later date is never loaded past a
+failed or missing one ("expected 2016-06-02 next, found 2016-06-03").
+
+**Confinement.** Only the runner's landing step reads files. dbt connects through the pinned `profiles/profiles.yml`,
+which opens DuckDB with file-system access off and the configuration locked, so the project's SQL can read and write
+only tables in the warehouse: `read_csv`, `COPY`, `ATTACH`, `INSTALL` and switching the setting back all fail (tested
+2026-10-11). The runner refuses a project containing any `.py` file, `packages.yml`, `dependencies.yml` or
+`profiles.yml`, because those would run code or change the connection outside that confinement. There is no change
+gate (the author's ruling of 2026-10-11).
+
+**Tested 2026-10-11** in the agent's Linux shell on copies of the two real extracts, under Python 3.12: both days
+loaded (4.7 million rows landed per day, about 30 to 45 seconds each, warehouse about 390 MB), and the idle run, the
+rebuild after a project change, a broken model, a model reading a file, a Python model and a missing day each behaved
+as described. Not yet run on Windows.
+
+**Disk.** The environment takes about 0.5 GB and each warehouse copy about 0.4 GB, about 1.3 GB in all; setup refuses
+to install it with less than 3.5 GB free, so that the job's 2 GB floor for extracts still holds afterwards.
+
+**Known limit, postponed by the author (420 §12, G).** The job keeps only the newest three extracts. Advance one day at
+a time, so that no extract is pruned before the runner has loaded it.
+
 ## When a day fails
 
 Before it runs a day the job writes `data/wwi/advance-in-flight.txt`, and it removes the file only once the day has

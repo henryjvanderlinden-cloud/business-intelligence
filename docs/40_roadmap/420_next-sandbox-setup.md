@@ -354,6 +354,12 @@ the disk ruling the dated folders are not kept, and nothing writes to `data/froz
 large); dbt-core, dbt-duckdb and DuckDB on Windows, installed by that same setup; then the first dbt project on the two
 extracts. Each step is put to him before it is taken.
 
+**Built 2026-10-11, at the author's request** ("walk me through the setup of the runner, duckdb etc."): `runner.py`, the
+pinned dbt profile, the pinned package list and a smoke dbt project in [`prototypes/wwi_sandbox/`](../../prototypes/wwi_sandbox/README.md),
+and setup extended to install the runner's environment and its task. Tested end to end in the agent's Linux shell on
+copies of the two extracts; both scripts parse on Windows PowerShell 5.1. Not yet run on Windows: that needs the author
+to rerun setup once.
+
 ## Sources
 
 - Microsoft, `sql-server-samples`, `samples/databases/wide-world-importers/wwi-ssdt/wwi-ssdt/DataLoadSimulation`,

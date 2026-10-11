@@ -14,12 +14,17 @@
        restores it, and sets the recovery model to SIMPLE so the log stays small;
     3. creates schema nsdn with the simulation clock, and the read-only user nsdn_reader;
     4. writes an inventory of what was restored to data\wwi\inventory\;
-    5. installs a pinned copy of job.ps1 and request.ps1 in C:\ProgramData\nsdn-wwi\
+    5. installs a pinned copy of job.ps1, request.ps1 and runner.py in C:\ProgramData\nsdn-wwi\
        (writable by administrators only), registers the task "nsdn-wwi-job" (every minute,
        as you, without a window and without storing your password), and puts a shortcut
        "WWI - advance one day" on your desktop;
-    6. tests the whole path: asks the job for its status and then for the first full
-       extract, and waits for both answers (the extract may take several minutes).
+    6. installs the runner's own Python environment in the same folder (uv, Python 3.12,
+       dbt-core, dbt-duckdb and DuckDB, all at pinned versions, nothing on your PATH or in
+       the registry) and registers the task "nsdn-wwi-runner" (every minute, as you), which
+       loads each new extract into the DuckDB warehouse in data\warehouse\ (ADR-0015);
+    7. tests the whole path: asks the job for its status and then for the first full
+       extract, waits for both answers (the extract may take several minutes), then starts
+       the runner and waits for it to load the extracts and build the dbt project.
 #>
 param(
     [string]$RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path,
@@ -33,6 +38,11 @@ Set-StrictMode -Version 2.0
 $BackupUrl   = 'https://github.com/Microsoft/sql-server-samples/releases/download/wide-world-importers-v1.0/WideWorldImporters-Full.bak'
 $PinDir      = Join-Path $env:ProgramData 'nsdn-wwi'
 $TaskName    = 'nsdn-wwi-job'
+$RunnerTask  = 'nsdn-wwi-runner'
+$UvUrl       = 'https://github.com/astral-sh/uv/releases/download/0.13.0/uv-x86_64-pc-windows-msvc.zip'
+$UvSha256    = '088962f9e7b7bd9ea740c04c650b2a21c8928c345bd99ac24350dc924dba656c'
+$PythonVer   = '3.12.15'
+$RunnerNeedGB = 3.5   # the runner environment and two warehouse copies (about 1.5 GB) on top of the job's 2 GB floor
 $ReaderUser  = 'nsdn_reader'
 $MarginGB    = 2
 # Named after both server and database, so a note is only ever honoured for the same target.
@@ -201,6 +211,16 @@ if ($readerCustomers -ne $ownerCustomers) {
 # The folder is created afresh with its permissions set first; the copied files inherit them
 # (administrators and SYSTEM full control, users read and execute). A folder left by an earlier
 # run is first reset to ordinary permissions, which its owner (Administrators) may always do.
+# Both tasks are stopped and disabled first, so nothing holds a file in the folder that is replaced below;
+# registering them again further down enables them.
+foreach ($t in @($TaskName, $RunnerTask)) {
+    if (Get-ScheduledTask -TaskName $t -ErrorAction SilentlyContinue) {
+        Stop-ScheduledTask -TaskName $t -ErrorAction SilentlyContinue
+        Disable-ScheduledTask -TaskName $t | Out-Null
+    }
+}
+Start-Sleep -Seconds 3
+Remove-Item -Force -ErrorAction SilentlyContinue (Join-Path $RepoRoot 'data\warehouse\runner.lock')
 if (Test-Path $PinDir) {
     & icacls.exe $PinDir /reset /T /C /Q | Out-Null
     Remove-Item -Recurse -Force $PinDir
@@ -208,8 +228,10 @@ if (Test-Path $PinDir) {
 New-Item -ItemType Directory -Path $PinDir | Out-Null
 & icacls.exe $PinDir /inheritance:r /grant:r '*S-1-5-32-544:(OI)(CI)F' '*S-1-5-18:(OI)(CI)F' '*S-1-5-32-545:(OI)(CI)RX' /Q | Out-Null
 if ($LASTEXITCODE -ne 0) { Fail "could not set permissions on $PinDir (icacls exit code $LASTEXITCODE)." }
-foreach ($f in @('job.ps1', 'request.ps1')) { Copy-Item -Force (Join-Path $PSScriptRoot $f) (Join-Path $PinDir $f) }
-$pins = @(Get-ChildItem $PinDir -Filter *.ps1 | ForEach-Object { "$($_.Name) $((Get-FileHash -Algorithm SHA256 $_.FullName).Hash.ToLowerInvariant())" })
+foreach ($f in @('job.ps1', 'request.ps1', 'runner.py', 'requirements.txt')) { Copy-Item -Force (Join-Path $PSScriptRoot $f) (Join-Path $PinDir $f) }
+New-Item -ItemType Directory -Path (Join-Path $PinDir 'profiles') | Out-Null
+Copy-Item -Force (Join-Path $PSScriptRoot 'profiles\profiles.yml') (Join-Path $PinDir 'profiles\profiles.yml')
+$pins = @(Get-ChildItem $PinDir -File -Recurse | Sort-Object FullName | ForEach-Object { "$($_.FullName.Substring($PinDir.Length + 1)) $((Get-FileHash -Algorithm SHA256 $_.FullName).Hash.ToLowerInvariant())" })
 [System.IO.File]::WriteAllText((Join-Path $invDir 'pinned.txt'), ($pins -join "`r`n") + "`r`n", $Utf8)
 Say "pinned copies installed in $PinDir."
 
@@ -225,6 +247,48 @@ $dur = (Get-ScheduledTask -TaskName $TaskName).Triggers[0].Repetition.Duration
 if ($dur) { Say "WARNING: the task repeats only for $dur, not indefinitely." }
 Say "scheduled task '$TaskName' registered: every minute, as $me, no window, no stored password."
 
+# ------------------------------------------------------------------ 6. runner environment and task
+$freeNow = [math]::Round((New-Object System.IO.DriveInfo([System.IO.Path]::GetPathRoot($PinDir))).AvailableFreeSpace / 1GB, 2)
+if ($freeNow -lt $RunnerNeedGB) { Fail "the runner needs about 1.5 GB on top of the job's 2 GB floor: $RunnerNeedGB GB free required, $freeNow GB free." }
+Say "installing the runner's Python environment in $PinDir (a few minutes; about 0.5 GB) ..."
+$uvZip = Join-Path $PinDir 'uv.zip'
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+$ProgressPreference = 'SilentlyContinue'
+Invoke-WebRequest -UseBasicParsing -Uri $UvUrl -OutFile $uvZip
+if ((Get-FileHash -Algorithm SHA256 $uvZip).Hash.ToLowerInvariant() -ne $UvSha256) { Remove-Item $uvZip; Fail 'the uv download does not match its pinned SHA-256.' }
+Expand-Archive -Path $uvZip -DestinationPath (Join-Path $PinDir 'uv') -Force
+Remove-Item $uvZip
+$uv = Join-Path $PinDir 'uv\uv.exe'
+$venv = Join-Path $PinDir 'venv'
+$py = Join-Path $venv 'Scripts\python.exe'
+$env:UV_PYTHON_INSTALL_DIR = Join-Path $PinDir 'python'
+$env:UV_CACHE_DIR = Join-Path $PinDir 'uv-cache'
+$env:UV_NO_CONFIG = '1'
+# uv reports progress on stderr, which Windows PowerShell 5.1 would treat as an error under 'Stop'.
+$ErrorActionPreference = 'Continue'
+& $uv python install $PythonVer --no-bin --no-registry --quiet;                                   $rc1 = $LASTEXITCODE
+& $uv venv $venv --python $PythonVer --managed-python --no-python-downloads --quiet;              $rc2 = $LASTEXITCODE
+& $uv pip sync --python $py --require-hashes --quiet (Join-Path $PinDir 'requirements.txt');      $rc3 = $LASTEXITCODE
+& $uv cache clean --quiet
+$ErrorActionPreference = 'Stop'
+Remove-Item -Recurse -Force -ErrorAction SilentlyContinue $env:UV_CACHE_DIR
+if ($rc1 -ne 0) { Fail "uv could not install Python $PythonVer (exit code $rc1)." }
+if ($rc2 -ne 0) { Fail "uv could not create the runner's environment (exit code $rc2)." }
+if ($rc3 -ne 0) { Fail "uv could not install dbt-core, dbt-duckdb and DuckDB (exit code $rc3)." }
+$versions = & $py -c "import duckdb, importlib.metadata as m; print('duckdb', duckdb.__version__, '| dbt-core', m.version('dbt-core'), '| dbt-duckdb', m.version('dbt-duckdb'))"
+if ($LASTEXITCODE -ne 0) { Fail 'the runner environment does not start.' }
+Say "runner environment ready: Python $PythonVer, $versions."
+
+$raction = New-ScheduledTaskAction -Execute $py -Argument ("`"$PinDir\runner.py`" --repo-root `"$RepoRoot`" --profiles-dir `"$PinDir\profiles`"")
+$rtrigger = New-ScheduledTaskTrigger -Once -At (Get-Date).AddMinutes(1) -RepetitionInterval (New-TimeSpan -Minutes 1)
+$rtrigger.Repetition.Duration = ''
+$rsettings = New-ScheduledTaskSettingsSet -MultipleInstances IgnoreNew -StartWhenAvailable -AllowStartIfOnBatteries `
+    -DontStopIfGoingOnBatteries -ExecutionTimeLimit (New-TimeSpan -Hours 3)
+Register-ScheduledTask -TaskName $RunnerTask -Action $raction -Trigger $rtrigger -Settings $rsettings -Principal $taskPrincipal -Force | Out-Null
+# Held disabled until the test below has its extract, so the runner never reads a folder the job is replacing.
+Disable-ScheduledTask -TaskName $RunnerTask | Out-Null
+Say "scheduled task '$RunnerTask' registered: every minute, as $me, no window, no stored password (switched on at the end)."
+
 $desktop = [Environment]::GetFolderPath('Desktop')
 $lnk = (New-Object -ComObject WScript.Shell).CreateShortcut((Join-Path $desktop 'WWI - advance one day.lnk'))
 $lnk.TargetPath = 'powershell.exe'
@@ -232,7 +296,7 @@ $lnk.Arguments = "-NoProfile -ExecutionPolicy Bypass -File `"$PinDir\request.ps1
 $lnk.Save()
 Say 'desktop shortcut "WWI - advance one day" created.'
 
-# ------------------------------------------------------------------ 6. end-to-end test
+# ------------------------------------------------------------------ 7. end-to-end test
 $reqDir = Join-Path $RepoRoot 'data\wwi\requests'; $respDir = Join-Path $RepoRoot 'data\wwi\responses'
 New-Item -ItemType Directory -Force -Path $reqDir, $respDir | Out-Null
 $stamp = (Get-Date).ToString('yyyyMMddTHHmmss', $Inv)
@@ -266,4 +330,23 @@ if (-not (Test-Path $eresp)) {
     if ($eanswer.status -ne 'ok') { Fail "the first extract failed: $($eanswer.error)" }
     Say ("first extract written: {0} tables, {1:N0} MB, in data\raw\wwi\{2}; {3} GB free." -f $eanswer.result.tables, ($eanswer.result.total_bytes / 1MB), $eanswer.result.simulated_date, $eanswer.result.free_gb)
 }
+$status = Join-Path $RepoRoot 'data\warehouse\status.json'
+$before = $(if (Test-Path $status) { (Get-Item $status).LastWriteTimeUtc } else { [datetime]::MinValue })
+Enable-ScheduledTask -TaskName $RunnerTask | Out-Null
+Start-ScheduledTask -TaskName $RunnerTask
+Say 'started the runner: it loads the extracts into the warehouse and builds the dbt project; waiting up to twenty minutes ...'
+$deadline = (Get-Date).AddMinutes(20); $st = $null
+while ((Get-Date) -lt $deadline) {
+    Start-Sleep -Seconds 10
+    if ((Test-Path $status) -and (Get-Item $status).LastWriteTimeUtc -gt $before) {
+        $st = [System.IO.File]::ReadAllText($status, $Utf8) | ConvertFrom-Json
+        if ($st.result -ne 'idle' -or $st.last_ok_date) { break }
+    }
+}
+if (-not $st) { Fail 'the runner has not reported within twenty minutes. It may still be running; tell the agent, which will check data\warehouse\.' }
+if ($st.result -eq 'failed' -or -not $st.last_ok_date) {
+    $why = $(if ($st.blocked) { $st.blocked.message } else { $st.result })
+    Fail "the runner did not load the extracts: $why (details in data\warehouse\alerts\)."
+}
+Say ("warehouse loaded up to {0}: {1} MB; {2} GB free." -f $st.last_ok_date, $st.warehouse_mb, $st.free_gb)
 Say 'DONE. Nothing else is needed from you; you can close this window.'

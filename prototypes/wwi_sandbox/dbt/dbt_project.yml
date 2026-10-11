@@ -1,0 +1,19 @@
+# nsdn - Wide World Importers sandbox: the dbt project the runner builds after every load (ADR-0015).
+# Run only by runner.py, which supplies the pinned profile, the target and log paths, and the variable load_date.
+name: nsdn_wwi
+version: "0.1.0"
+config-version: 2
+profile: nsdn_wwi
+
+model-paths: ["models"]
+test-paths: ["tests"]
+macro-paths: ["macros"]
+
+vars:
+  load_date: null   # the simulated date just landed, set by the runner
+
+models:
+  nsdn_wwi:
+    staging:
+      +materialized: view
+      +schema: staging

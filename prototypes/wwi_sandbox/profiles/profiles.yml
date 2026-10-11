@@ -1,0 +1,16 @@
+# Pinned by setup.ps1 next to runner.py; the runner always passes this directory to dbt, so a profiles.yml in the
+# repository's dbt project is never used (and the runner refuses one). The DuckDB connection is opened with file-system
+# access switched off and the configuration locked: the project's SQL can read and write only tables in the warehouse
+# (ADR-0015). Extensions are neither installed nor loaded.
+nsdn_wwi:
+  target: sandbox
+  outputs:
+    sandbox:
+      type: duckdb
+      path: "{{ env_var('NSDN_WAREHOUSE') }}"
+      threads: 1
+      config_options:
+        enable_external_access: false
+        autoinstall_known_extensions: false
+        autoload_known_extensions: false
+        lock_configuration: true
