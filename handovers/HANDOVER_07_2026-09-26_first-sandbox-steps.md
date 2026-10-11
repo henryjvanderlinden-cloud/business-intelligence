@@ -1,7 +1,7 @@
 # nsdn — Handover 07: the first sandbox was run and parked; the next one is to be thought through before anything is installed
 ## Written 2026-09-26 at the close of session 06, revised at the pauses of session 07 (26, 28 and 29 September, 6 and 7 October)
 
-> **STATUS: CURRENT.**
+> **STATUS: HISTORICAL (superseded 2026-10-11)** by [handover 08](HANDOVER_08_2026-10-11_wwi-sandbox-running.md).
 
 ---
 
