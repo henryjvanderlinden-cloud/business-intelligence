@@ -1402,6 +1402,8 @@ the smallest possible file (7); binaries are strongly disfavoured, not banned, a
 attribution is the model's proposal (8). This is a ruling on how his statement is read, not yet the ratification of
 180's principles that the row asks for.
 
+**Sandbox engine ruled 2026-10-11, session 08:** for the Wide World Importers sandbox only, the author chose a DuckDB file as warehouse and dbt-core with dbt-duckdb for transformations ([ADR-0015](../docs/20_decisions/0015-sandbox-warehouse-dbt-duckdb.md), [420 §12](../docs/40_roadmap/420_next-sandbox-setup.md)): "let's go with dbt-core and dbt-duckdb". It is a lean-start choice for one implementation under ADR-0012, made before the principles were ratified; the framework's constitution, which this row asks for, stays open.
+
 ### ARC-OP-21 — No faculty self-reports incompetence, so out-of-depth detection has no home
 **⛔ STATE: OPEN**
 Opened 2026-09-20, session 03, from [XREV_2026-09-20_faculty-inventory_sol](../docs/30_research/notes/XREV_2026-09-20_faculty-inventory_sol.md) Q1.
@@ -1771,6 +1773,8 @@ with proper CI/CD and a regression run per integration — unworkable for people
 agentic layer. Integrated into 160 under *Amended after review*, with his remark verbatim. The amendment is
 unreviewed. The row stays open on adoption, which needs an ADR, and on the items listed above as open.
 
+**Postponed 2026-10-11, session 08.** The frozen copy that 420 §6 expected to come free does not exist: since the disk ruling the job keeps only the newest three extracts, and nothing writes to `data/frozen/`. The author postponed fixing it ([420 §12](../docs/40_roadmap/420_next-sandbox-setup.md), G): "let's postpone for now." The quarter turn on 2016-06-30 is the natural moment to raise it again.
+
 ### ARC-OP-31 — Plausibility as back-of-the-envelope checks, and the test framework by root cause
 **⛔ STATE: OPEN**
 Opened 2026-10-06, session 07, by the author:
@@ -2046,6 +2050,8 @@ publication until someone looks (1); semantic admission is a gate point (2); age
 row above (3); the catalogue stays small — a change gate, a load-and-publication gate, semantic admission, and the
 author as the only override authority, with overrides recorded (4). The row stays open until the catalogue is written
 and adopted by ADR.
+
+**Change gate postponed in the sandbox, 2026-10-11, session 08.** On the author's ruling, "maybe postpone for now, just push all new SQL without gates", new SQL reaches the Wide World Importers warehouse without a change gate ([ADR-0015](../docs/20_decisions/0015-sandbox-warehouse-dbt-duckdb.md)). Read by the model, and confirmed by the author the same evening ("Correct."): the checks within a load and the runner's confinement to the warehouse stand. The row stays open; the gate returns before any use outside a sandbox.
 
 ### ARC-OP-34 — An agent team for the first build: roles, governing documents, and how agents confer and agree
 **⛔ STATE: OPEN**
@@ -2369,6 +2375,8 @@ writes the setup script, reviewed before he runs it.
 **Installed and scripted 2026-10-07:** SQL Server 2025 Developer edition installed by the author; the setup script and
 the request-folder job are in [`prototypes/wwi_sandbox/`](../prototypes/wwi_sandbox/README.md), reviewed by sol and
 astra (420 §11). Not yet run.
+
+**Loads, scheduling and change capture ruled 2026-10-11, session 08:** a DuckDB warehouse transformed with dbt-core and dbt-duckdb, run by a pinned runner under Task Scheduler that polls for new extracts; change capture by comparing each full extract with the vault; no change gate in the sandbox; the retention problem and the frozen copy postponed, so the agent advances one day at a time. Proposal and rulings in [420 §12](../docs/40_roadmap/420_next-sandbox-setup.md); adoption in [ADR-0015](../docs/20_decisions/0015-sandbox-warehouse-dbt-duckdb.md). Nothing built yet.
 
 ## §4 — Process (`PRC`)
 

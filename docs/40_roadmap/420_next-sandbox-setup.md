@@ -272,6 +272,88 @@ by inserts and updates (orders, invoices, customer transactions, purchase orders
 deletes except the four current cold-room readings, which are replaced each day. The source therefore exercises inserts
 and updates from the first day.
 
+## 12. Loads, scheduling and change capture: proposed 2026-10-10, ruled 2026-10-11
+
+On 2026-10-10, in a conversation running alongside the close of session 07, the author asked: "how do you plan to do
+the data manipulation? The DDLs, the load scripts? How will the scheduling work? How will you do triggers on Changed
+Data Capture, of when new files arrive?" The model answered with a proposal in seven parts, A to G, and four decisions.
+It is summarised here as he ruled on it. Nothing is built yet; the adoption is
+[ADR-0015](../20_decisions/0015-sandbox-warehouse-dbt-duckdb.md).
+
+**What the repository already forced (A).** The agent's Linux shell on his computer exists only while a session runs,
+and he ruled on 2026-10-07 (recommendation 14, §5) that loads and checks keep running without agents. So the machinery
+runs on the Windows side under Task Scheduler, like the request-folder job. Because that job is a pinned copy, load code
+pinned the same way would need his hands for every change, which fails the aim of the exercise; part C resolves that.
+Disk is tight: about 4 GB free on C: on 2026-10-10.
+
+**Engine and DDL (B).** The warehouse would be a DuckDB file in the repository's ignored data folder, run on Windows and
+readable by the agent from its Linux shell. Transformations would be dbt-core with dbt-duckdb, with the Data Vault
+patterns as small macros of our own (datavault4dbt to be looked at, not assumed). DDL is generated from declarations
+([142](../10_architecture/142_the-data-model.md)) and templates, one SQL file per object, committed so every change shows
+as a diff (`ARC-OP-20`). Staging is views over each day's extract; the raw vault is insert-only and only grows (a new
+attribute gets a new satellite, not an `ALTER`); the business vault and marts are rebuilt from scratch on each run.
+
+**From git to the machine (C).** Only a small generic runner is pinned by setup. It runs whatever dbt project is in the
+repository; the agent changes the SQL, never the runner. The runner opens only the warehouse file, may read only
+`data/raw/wwi/`, loads no extensions and has no route to SQL Server, so the worst a bad change can do is spoil a
+warehouse that can be rebuilt ([150](../10_architecture/150_trust-and-blast-radius.md)). Which DuckDB settings enforce
+this is to be verified when it is built.
+
+**One load (D).** An arrival check: the manifest is present, every file's hash and row count match, and the simulated
+date is the next one expected. Then staging, tagged with the simulated date as load date, the source, and the wall-clock
+load time (the two timestamps of [127](../10_architecture/127_temporal-behaviour.md)); new hub and link keys; satellite
+rows only where the hash of the values differs from the latest stored version, so a day loaded twice adds nothing; keys
+absent from an extract the manifest proved complete recorded as deletions; a load-log row; data tests and plausibility
+checks; marts rebuilt; and the result copied to a published copy in one move, which is the one the agent reads.
+
+**Change capture (E).** To start, change capture is the comparison of each day's full extract with the vault, which
+works for any source. Under 127's terms that gives history sampled at daily grain for most tables, and complete history
+for the system-versioned tables through their archive tables. Later options, if the extract grows too large or daily
+grain is not enough: incremental extracts on `LastEditedWhen` with a periodic full extract to reconcile (whether the
+simulator fills it in simulated time is unverified), or SQL Server's own change data capture, which needs SQL Server
+Agent and a change to setup.
+
+**Scheduling and arrival (F).** Windows Task Scheduler is the only clock that is always there. A second pinned task, the
+runner, would look every minute or so for complete extract folders newer than the last load in the load log, and load
+them oldest first: polling against a watermark rather than file events, so it catches up after sleep without help.
+Ordering within a run comes from dbt's dependency graph; no Airflow or Dagster ([180](../10_architecture/180_technology-posture.md)).
+The loop stays as ruled in §11: the agent requests a day, the job advances and exports it, the runner loads and checks
+it and writes a status file and any alerts, and the agent reads them and analyses.
+
+**Two problems found (G).** The job keeps only the newest three extracts and prunes after each day, so an `advance` of
+more than three days deletes days before any loader sees them. And §6's frozen regression copy does not exist: since
+the disk ruling the dated folders are not kept, and nothing writes to `data/frozen/`.
+
+**Ruled 2026-10-11 by the author**, verbatim:
+
+> With regards to B, let's go with dbt-core and dbt-duckdb.
+> C: I don't completely get it, but it sounds good
+> D: sounds good.
+> E: agree
+> F: agree
+> G: let's postpone for now.
+> decisions:
+>
+> 1. agree with proposal
+> 2. dbt-core
+> 3. maybe postpone for now, just push all new SQL without gates
+> 4. postpone for now
+
+1. **Engine: a DuckDB file**, run on Windows (decision 1).
+2. **Transformation: dbt-core with dbt-duckdb** (B, decision 2).
+3. **No change gate in this sandbox** (decision 3). New SQL reaches the runner as soon as it is in the repository. Read
+   by the model, and to be confirmed: this postpones the change gate of `ARC-OP-33` only; the checks inside a load (D),
+   which he accepted, still run, and the runner's confinement to the warehouse (C) stays, because it is a limit on what
+   a change can damage, not a gate a change must pass. C was explained again in plain words in the conversation.
+   Confirmed by the author on 2026-10-11: "Correct."
+4. **G postponed** (decision 4): neither the retention problem nor the frozen copy is fixed now. Until it is, the agent
+   requests at most one simulated day at a time, which is also the pace ruled in §11, so no extract is pruned before it
+   is loaded. `ARC-OP-30` keeps the frozen copy open.
+
+**Next**, not yet asked for: the runner and its task, added to setup so that he reruns it once (an act of his, size
+large); dbt-core, dbt-duckdb and DuckDB on Windows, installed by that same setup; then the first dbt project on the two
+extracts. Each step is put to him before it is taken.
+
 ## Sources
 
 - Microsoft, `sql-server-samples`, `samples/databases/wide-world-importers/wwi-ssdt/wwi-ssdt/DataLoadSimulation`,
