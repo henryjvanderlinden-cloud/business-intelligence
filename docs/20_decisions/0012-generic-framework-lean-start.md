@@ -4,6 +4,7 @@
 - **Date:** 2026-09-25
 - **Supersedes:** —
 - **Superseded by:** —
+- **Qualified by:** [ADR-0016](0016-regulatory-requirements-from-production.md) (2026-10-15): regulatory requirements are kept in mind from the start and apply from production
 
 ## Context
 

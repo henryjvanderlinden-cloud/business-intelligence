@@ -2135,6 +2135,37 @@ roles or names to consider when roles are added under 13 — a planner who break
 orchestrator who sequences and dispatches them, possibly the same function as the coordinator. Left open.
 Confirmed by the author on 2026-10-07: "Your interpretation is correct."
 
+### ARC-OP-35 — PARTLY RULED — BCBS 239 for banks in production; which of its consequences are adopted is open
+**⛔ STATE: OPEN**
+Opened 2026-10-15, session 08, on the author's instruction, verbatim:
+
+> I’d like to make a note somewhere that the principles of BCBS 239 must be followed when working for a financial institution.
+
+The principles, and what they would mean for the design, are in [152](../docs/10_architecture/152_bcbs-239.md).
+
+**Ruled the same day**, in [ADR-0016](../docs/20_decisions/0016-regulatory-requirements-from-production.md): BCBS 239
+binds banks and is a reference for other financial institutions; regulatory requirements are kept in mind from the
+start, need not be met in a proof of concept or pilot, and apply in production (152 item 15); in an emergency a report
+goes out despite a failed gate, *nood breekt wet*, released and recorded by a named person (152 item 16).
+
+What is open:
+
+1. **Which of the other consequences are adopted.** 152 §4 items 1 to 7 confirm the design. Items 8 to 14 would
+   tighten it for in-scope data in production: Tier 2 evidence-only assertions barred (ADR-0005), the provisional lane
+   closed to claims that reach a risk report (155), mandatory reconciliation and dispositioned plausibility warnings
+   (160, 162), an inventory of manual steps, the institution's dictionary as authoritative, and pruning that keeps what
+   was reported reproducible. Those that change an accepted ADR need an ADR. Item 17 is a possible value area (ADR-0009).
+2. **What counts as production.** ADR-0016 works with "from the moment a real decision or report relies on the
+   system's output"; not yet confirmed by the author.
+3. **Verification.** The ECB guide's expectation of attribute-level lineage is known only second-hand, from a vendor;
+   it is to be checked against the guide. The BCBS text was read through a summarising fetch, not end to end.
+4. **Review.** 152 is unreviewed; external review on sol and astra per
+   [510](../docs/50_process/510_external-review.md), against the standard of whether it states BCBS 239 correctly and
+   draws only consequences that follow from it.
+
+Bears on `CON-OP-2`: at a bank, mandatory review could take most of the human budget (152 item 9). Nothing here can be
+exercised in the Wide World Importers sandbox (`EVI-OP-7`), which has no risk data.
+
 ## §3 — Evidence and measurement (`EVI`)
 
 ### EVI-OP-1 — Ground truth for the falsifiable core

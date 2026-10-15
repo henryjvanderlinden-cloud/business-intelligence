@@ -87,7 +87,8 @@ Three cautions about the terms:
 **The hard rules sit outside the optimisation.** Some claims go to a person by mandate, not by risk:
 meaning, KPI definitions, priorities and purpose (060, dimension 13; the teleological tier of
 [ADR-0005](../20_decisions/0005-three-autonomy-tiers.md)); anything irreversible; anything
-regulatory. **Whether a hard rule applies is itself checked independently**, not left to the triage
+regulatory — for a financial institution, BCBS 239, whose effect on the lanes is set out in
+[152](152_bcbs-239.md) item 9. **Whether a hard rule applies is itself checked independently**, not left to the triage
 that benefits from answering no. This is the allocation rule already proposed in 060 — minimise
 expected lifecycle cost *subject to explicit limits on irreversible downside* — applied to the queue.
 

@@ -76,3 +76,9 @@ three questions have answers at any moment without special tooling: what does th
 believe, when did it come to believe it, and on whose authority. For an autonomous
 system operating on corporate data, the ability to answer those three is not a
 compliance nicety — it is the precondition for being allowed to operate at all.
+
+## Regulatory floors
+
+*Added 2026-10-15, session 08.* Where an implementation is for a financial institution, the author has ruled that the
+BCBS 239 principles must be followed. What they ask, and what they would change in this design — source contracts,
+lineage and the blast radius among it — is in [152](152_bcbs-239.md), open as `ARC-OP-35`.

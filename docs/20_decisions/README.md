@@ -30,3 +30,4 @@ describe options; only an ADR adopts one.
 | [0013](0013-data-vault-or-equivalent.md) | The integration layer is Data Vault or a functionally equivalent layer | Accepted |
 | [0014](0014-step-log.md) | Record every step of the work in a classified step log | Accepted |
 | [0015](0015-sandbox-warehouse-dbt-duckdb.md) | The Wide World Importers sandbox's warehouse is DuckDB, transformed with dbt-core | Accepted |
+| [0016](0016-regulatory-requirements-from-production.md) | Regulatory requirements are kept in mind from the start and apply from production | Accepted |
