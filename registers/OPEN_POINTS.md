@@ -2210,6 +2210,12 @@ What is open:
    implementation would need (ADR-0016). Not yet carried into the item files. The order-count and reporting-date
    questions he asked to have explained first; and he asked whether every column's business meaning is analysed, against
    which documentation, and in what structure (answered in conversation; awaiting his reaction).
+
+   **Ruled 2026-10-18, 22:27**, in [ADR-0020](../docs/20_decisions/0020-analysis-describes-the-as-is.md): while in the
+   analysis stage, the analysis describes the as-is and does not look ahead; the order-count and reporting-date
+   questions belong to a later stage and were retracted from the dossiers, with design advice removed from their
+   claims; that "order" means two things is recorded as a peculiarity of `Sales.Orders` (27, C12). He asked for the
+   column meanings (item 2) for every column, and for sol's review to be tried again.
 3. **Review.** Astra on the record layout (below, R1-R11, ruled in ADR-0018). Sol on 129's inventory: the first,
    large pass never wrote an answer; re-sent in two parts, both returned.
    [Gaps and minimum](../docs/30_research/notes/XREV_2026-10-18_information-analysis-inventory-gaps_sol.md):

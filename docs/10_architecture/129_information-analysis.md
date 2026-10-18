@@ -25,6 +25,10 @@ they are not an analysis of the sandbox.
 
 ## What the phase is
 
+*Ruled 2026-10-18, [ADR-0020](../20_decisions/0020-analysis-describes-the-as-is.md):* while in the analysis stage, the
+analysis describes the as-is. It records facts and warns about their consequences; it does not decide or propose
+measures, reporting dates, designs or loading.
+
 *Ruled 2026-10-18, [ADR-0019](../20_decisions/0019-information-analysis-in-two-rounds.md): the analysis runs in two
 rounds.* Round 1 is per table and per column: items 1 to 3, 5 to 23, 27 and 28, with a table's declared foreign keys
 under item 6. Round 2 is across tables: item 4, the cross-table part of item 16, and items 24 to 26 — how tables

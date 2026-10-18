@@ -195,6 +195,9 @@ was read, and the excerpt relied on.
 6. Log the work in the step log (`task_type: profiling` for measuring, `modelling` for proposing meaning).
 7. "What must be rechecked if this changes" is a question for a generated dependency index, not for grep; none
    exists yet.
+8. Describe the as-is ([ADR-0020](../docs/20_decisions/0020-analysis-describes-the-as-is.md)): record what the data and
+   the source show and do, and warn where a fact has consequences; do not propose measures, reporting dates, designs
+   or loading, and put no such question to a person. Not enforced by the checker.
 
 ## 9. Round 2: across tables (ruled 2026-10-18, ADR-0019)
 

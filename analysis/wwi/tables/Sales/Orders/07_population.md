@@ -8,14 +8,14 @@ summary: All 73,653 orders of 2013-01-01 to 2016-06-01 for 663 customers, backor
 confidence: unknown
 claims: 11
 written_by: claude-opus-5-5
-written_at: 2026-10-18T13:22:00Z
-step: S08-054
+written_at: 2026-10-18T20:30:00Z
+step: S08-061
 method: reading of evidence written by prototypes/information_analysis/evidence_orders.py (blob 5b39164821d92e89109688e68c204752d9edeff5) and of catalogue queries through the sandbox request folder
 input_source: wwi
 input_extract: 2016-06-01
 input_manifest_sha256: 35b71b2e3ff4bb9ef4e24afc9c56f914e8386df4060a794b862e7f5a00d2774f
 input_schema_sha256: df493a1a20d890a2e0931a1a6e6ddd9510bec9c2a6d09162f4d0a907b0bebca6
-last_checked_at: 2026-10-18T13:22:00Z
+last_checked_at: 2026-10-18T20:30:00Z
 last_checked_by: claude-opus-5-5
 last_checked_against: 2016-06-01
 reviewed_by: none
@@ -51,4 +51,4 @@ C6: cancellations. C7: the meaning of the never-picked orders. C11: whether a se
 
 ## For a person
 
-Should never-picked orders older than some age count as open orders in reports, or be excluded?
+None for the as-is analysis.
