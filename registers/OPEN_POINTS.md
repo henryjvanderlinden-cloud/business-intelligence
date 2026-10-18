@@ -2166,6 +2166,36 @@ What is open:
 Bears on `CON-OP-2`: at a bank, mandatory review could take most of the human budget (152 item 9). Nothing here can be
 exercised in the Wide World Importers sandbox (`EVI-OP-7`), which has no risk data.
 
+### ARC-OP-36 — Information analysis before building: what is inventoried per table, and is it a gate?
+**⛔ STATE: OPEN**
+Opened 2026-10-18, session 08, on the author's point, verbatim:
+
+> So I was thinking, before anything gets built, there should be a business analysis phase, or rather an information
+> analysis, to determine what's in the tables. Things to look out for are: granularity, meaning, temporal
+> characteristics, relation to other tables. Can you store this somewhere? And also think of other things that should
+> be inventoried before building anything? In terms of analysing the tables that are to be imported?
+
+Recorded in [129](../docs/10_architecture/129_information-analysis.md): his four items, and 22 further items proposed
+by the model in reply (role, keys, population, measures, derived columns, codes and special values, types and
+formats, values copied at the time, hierarchies, provenance, quality, reconciliation anchors, volume, existing
+documentation, sensitivity, ownership, demand, structural stability, extraction, and, across tables, processes and
+lifecycles, synonyms and homonyms, entities). Nothing is ruled. What is open:
+
+1. **The list.** Which of items 5 to 26 the author keeps, and what is missing.
+2. **Phase or minimum.** Whether every table is fully analysed before the first build, or a minimum dossier (129
+   proposes items 1, 3, 5, 6, 7 and 19) is required per table with the rest completed as the build reaches it; and
+   whether that minimum is a quality gate, and blocking (`ARC-OP-33`).
+3. **The record.** The sections of the `dataset` and `field` cards that hold the findings; shares the owed front
+   matter of `ARC-OP-27`.
+4. **A first trial.** Whether the agent's first work on the Wide World Importers extracts (`EVI-OP-7`) is this
+   inventory, which needs no act of the author's on the Windows side and would test whether the list is complete.
+5. **Review.** 129 is unreviewed; review on sol and astra per [510](../docs/50_process/510_external-review.md),
+   against the standard of whether it covers what an experienced information analyst would inventory before a build,
+   and whether it duplicates or contradicts 127 and 128. The prior-art paragraph owes citations.
+
+Related to `EVI-OP-4` (the minimum profiling pass), `ARC-OP-24` (the task allocation it follows) and `ARC-OP-34` (the
+builder agent, for which this would be the input).
+
 ## §3 — Evidence and measurement (`EVI`)
 
 ### EVI-OP-1 — Ground truth for the falsifiable core

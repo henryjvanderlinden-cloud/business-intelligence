@@ -270,3 +270,5 @@ owner, and freshness and contradiction coverage are measured separately from tas
   behaves over time, and what history to keep.
 - [128_join-knowledge.md](128_join-knowledge.md) — which tables join, cardinality in three
   layers, referential integrity and join risks.
+- [129_information-analysis.md](129_information-analysis.md) — the information analysis of each
+  table before anything is built on it, and what it inventories (proposed, not ruled).
