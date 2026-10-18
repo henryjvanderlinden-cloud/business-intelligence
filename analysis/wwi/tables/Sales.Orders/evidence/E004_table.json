@@ -1,0 +1,20 @@
+{
+ "id": "E004",
+ "written_at": "2026-10-18T09:51:50+00:00",
+ "kind": "catalogue query",
+ "tool": "sandbox request folder, query as nsdn_reader",
+ "request": "20261018T0950-agent-ia-orders-misc",
+ "query": "SELECT t.temporal_type_desc, (SELECT COUNT(*) FROM sys.triggers tr WHERE tr.parent_id=OBJECT_ID('Sales.Orders')) AS triggers, (SELECT COUNT(*) FROM sys.check_constraints cc WHERE cc.parent_object_id=OBJECT_ID('Sales.Orders')) AS checks, (SELECT CAST(ep.value AS nvarchar(4000)) FROM sys.extended_properties ep WHERE ep.class=1 AND ep.major_id=OBJECT_ID('Sales.Orders') AND ep.minor_id=0 AND ep.name='Description') AS table_description FROM sys.tables t WHERE t.object_id=OBJECT_ID('Sales.Orders')",
+ "result": [
+  {
+   "temporal_type_desc": "NON_TEMPORAL_TABLE",
+   "triggers": "0",
+   "checks": "0",
+   "table_description": "Detail of customer orders"
+  }
+ ],
+ "as_of": {
+  "source": "wwi",
+  "database": "WideWorldImporters, live, 2026-10-18"
+ }
+}

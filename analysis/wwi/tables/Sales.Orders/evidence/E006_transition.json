@@ -1,0 +1,38 @@
+{
+ "id": "E006",
+ "written_at": "2026-10-18T09:51:50+00:00",
+ "kind": "comparison of two extracts",
+ "tool": "prototypes/information_analysis/evidence_orders.py",
+ "as_of": {
+  "from": {
+   "source": "wwi",
+   "extract": "2016-05-31",
+   "manifest_sha256": "e1997891e919ac1a4f9af533db9a0e938ce53588406814e2119af0b164641ca2"
+  },
+  "to": {
+   "source": "wwi",
+   "extract": "2016-06-01",
+   "manifest_sha256": "35b71b2e3ff4bb9ef4e24afc9c56f914e8386df4060a794b862e7f5a00d2774f"
+  }
+ },
+ "result": {
+  "rows_from": 73595,
+  "rows_to": 73653,
+  "inserted": 58,
+  "deleted": 0,
+  "updated": 6,
+  "updated_columns": {
+   "PickedByPersonID": 6,
+   "PickingCompletedWhen": 6,
+   "LastEditedBy": 5,
+   "LastEditedWhen": 6
+  },
+  "inserted_OrderDate": {
+   "2016-06-01": 58
+  },
+  "updated_OrderDate_min": "2015-12-29T00:00:00.0000000",
+  "updated_kind": {
+   "picked": 6
+  }
+ }
+}

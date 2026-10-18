@@ -2166,7 +2166,7 @@ What is open:
 Bears on `CON-OP-2`: at a bank, mandatory review could take most of the human budget (152 item 9). Nothing here can be
 exercised in the Wide World Importers sandbox (`EVI-OP-7`), which has no risk data.
 
-### ARC-OP-36 — Information analysis before building: what is inventoried per table, and is it a gate?
+### ARC-OP-36 — PARTLY RULED — Information analysis before building; how it is recorded is open
 **⛔ STATE: OPEN**
 Opened 2026-10-18, session 08, on the author's point, verbatim:
 
@@ -2175,11 +2175,33 @@ Opened 2026-10-18, session 08, on the author's point, verbatim:
 > characteristics, relation to other tables. Can you store this somewhere? And also think of other things that should
 > be inventoried before building anything? In terms of analysing the tables that are to be imported?
 
-Recorded in [129](../docs/10_architecture/129_information-analysis.md): his four items, and 22 further items proposed
-by the model in reply (role, keys, population, measures, derived columns, codes and special values, types and
-formats, values copied at the time, hierarchies, provenance, quality, reconciliation anchors, volume, existing
-documentation, sensitivity, ownership, demand, structural stability, extraction, and, across tables, processes and
-lifecycles, synonyms and homonyms, entities). Nothing is ruled. What is open:
+Recorded in [129](../docs/10_architecture/129_information-analysis.md): his four items and 22 further items proposed
+by the model in reply.
+
+**Ruled the same day** in [ADR-0017](../docs/20_decisions/0017-information-analysis-before-building.md): all 26 items
+stay; the minimum (items 1, 3, 5, 6, 7, 19) with hard effort and no guessing, uncertainties stated clearly; the rest
+best effort; a confidence level, reasoning and evidence where possible for every item; never a hard gate; the first
+trial on the Wide World Importers sandbox as a proof of concept; review on sol and astra.
+
+What is open:
+
+1. **How it is recorded.** The author asked for a structure usable primarily by agents — folders, small text files,
+   gitable, safe for several agents at once, searchable, predictable. Proposed in
+   [`analysis/README.md`](../analysis/README.md): a folder per source and per table, a file per item and per column
+   (not a folder per column, and no topic folders except for the four cross-table items), evidence as JSON
+   aggregates, a confidence scale. Not ruled; unenforced by the checker until it is.
+2. **The trial.** Started on `Sales.Orders`, minimum items only
+   ([`analysis/wwi/tables/Sales.Orders/`](../analysis/wwi/tables/Sales.Orders/),
+   [`prototypes/information_analysis/`](../prototypes/information_analysis/)). Owed: the other tables, the best-effort
+   items, the cross-table items, and what it cost.
+3. **Review.** Sent 2026-10-18: sol on 129's inventory, astra on the record layout; per
+   [510](../docs/50_process/510_external-review.md). Results owed.
+4. **The citations** of 129's prior-art paragraph.
+
+Related to `EVI-OP-4` (the minimum profiling pass), `ARC-OP-24` (the task allocation it follows) and `ARC-OP-34` (the
+builder agent, for which this would be the input).
+
+The list of open questions as opened, superseded by the ruling of 2026-10-18 and kept for provenance:
 
 1. **The list.** Which of items 5 to 26 the author keeps, and what is missing.
 2. **Phase or minimum.** Whether every table is fully analysed before the first build, or a minimum dossier (129
@@ -2192,9 +2214,6 @@ lifecycles, synonyms and homonyms, entities). Nothing is ruled. What is open:
 5. **Review.** 129 is unreviewed; review on sol and astra per [510](../docs/50_process/510_external-review.md),
    against the standard of whether it covers what an experienced information analyst would inventory before a build,
    and whether it duplicates or contradicts 127 and 128. The prior-art paragraph owes citations.
-
-Related to `EVI-OP-4` (the minimum profiling pass), `ARC-OP-24` (the task allocation it follows) and `ARC-OP-34` (the
-builder agent, for which this would be the input).
 
 ## §3 — Evidence and measurement (`EVI`)
 

@@ -9,11 +9,14 @@ Part of the context system described in [120_context-layer.md](120_context-layer
 > somewhere? And also think of other things that should be inventoried before building anything?
 > In terms of analysing the tables that are to be imported?
 
-The four points are the author's. Items 5 to 26 below are the model's proposal in reply and are
-**not ruled**; the author's point is itself tentative until he rules it. The open questions are in
-`ARC-OP-36`. The document is **unreviewed** ([510](../50_process/510_external-review.md)). The
-author's point is practitioner input and unsourced under [AGENTS.md](../../AGENTS.md) rule 8.
-Nothing here is built.
+The four points are the author's. Items 5 to 26 were the model's proposal in reply. **Ruled 2026-10-18 in
+[ADR-0017](../20_decisions/0017-information-analysis-before-building.md):** all 26 items stay; the minimum is done
+with hard effort and no guessing; every item carries a confidence level, reasoning and evidence where possible; the
+analysis is never a hard gate; the first trial is the Wide World Importers sandbox. How the analysis is recorded is
+proposed in [`analysis/README.md`](../../analysis/README.md) and not ruled; the open questions are in `ARC-OP-36`.
+The document is **under review** ([510](../50_process/510_external-review.md)). The author's point is practitioner
+input and unsourced under [AGENTS.md](../../AGENTS.md) rule 8. Apart from the first trial on `Sales.Orders`, nothing
+here is built.
 
 The Wide World Importers examples are **observed**: read on 2026-10-18 from the header and first
 data row of each named file in the extract `data/raw/wwi/2016-06-01/`, from its `manifest.json`,
@@ -214,12 +217,24 @@ A person would rule where the item is meaning, authority or purpose: meaning and
 
 ## When the analysis of a table is done
 
-Open, and the author's to rule (`ARC-OP-36`). One shape would be a **minimum dossier** — grain,
-keys, role, population, temporal class and sensitivity (items 1, 3, 5, 6, 7, 19) — without which
-nothing is built on a table, with the other items completed as the build reaches them. Whether
-that minimum is a quality gate, and whether it blocks, is `ARC-OP-33`'s question. The other shape
-is a full inventory of every table before the first build, which is more thorough and slower to
-first result.
+*Ruled 2026-10-18, [ADR-0017](../20_decisions/0017-information-analysis-before-building.md).* The **minimum** —
+granularity, temporal characteristics, role, keys, population and sensitivity (items 1, 3, 5, 6, 7, 19) — is done
+with hard effort and no guessing: what cannot be established is written down as an uncertainty, with what would
+settle it. The other items are best effort. Every item states a confidence level and its reasoning, with evidence
+wherever there is any. The analysis is **never a hard gate**: an uncertain or incomplete analysis travels with the
+build as a known uncertainty. Whether a build on an uncertain minimum is flagged by a quality gate is `ARC-OP-33`'s
+question.
+
+~~One shape would be a minimum dossier without which nothing is built on a table … The other shape is a full
+inventory of every table before the first build.~~ Superseded by the ruling above; kept for provenance.
+
+## How it is recorded
+
+Proposed, not ruled: [`analysis/README.md`](../../analysis/README.md) — a folder per source and per table, one file
+per item, one file per column, evidence as JSON aggregates, four folders for the cross-table items. A first worked
+example is [`analysis/wwi/tables/Sales.Orders/`](../../analysis/wwi/tables/Sales.Orders/), minimum items only. Its
+most useful finding so far is a contradiction: `BackorderOrderID` is declared to point from a backorder to its
+original and in the data points the other way.
 
 ## Prior art
 

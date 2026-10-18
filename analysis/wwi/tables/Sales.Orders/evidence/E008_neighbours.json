@@ -1,0 +1,45 @@
+{
+ "id": "E008",
+ "written_at": "2026-10-18T09:51:50+00:00",
+ "kind": "profile",
+ "tool": "prototypes/information_analysis/evidence_orders.py",
+ "as_of": {
+  "source": "wwi",
+  "extract": "2016-06-01",
+  "manifest_sha256": "35b71b2e3ff4bb9ef4e24afc9c56f914e8386df4060a794b862e7f5a00d2774f"
+ },
+ "result": {
+  "orders_without_lines": 0,
+  "line_OrderIDs_not_in_orders": 0,
+  "lines_per_order_min": 1,
+  "lines_per_order_max": 5,
+  "lines_of_unpicked_orders": 3149,
+  "lines_of_unpicked_orders_with_PickedQuantity_above_0": 0,
+  "CustomerID_not_in_Customers": 0,
+  "ContactPersonID_equals_customer_primary_contact": 73653,
+  "person_columns_resolving_to_People": {
+   "SalespersonPersonID": 73653,
+   "PickedByPersonID": 63020,
+   "ContactPersonID": 73653,
+   "LastEditedBy": 73653
+  },
+  "person_columns_nonempty": {
+   "SalespersonPersonID": 73653,
+   "PickedByPersonID": 63020,
+   "ContactPersonID": 73653,
+   "LastEditedBy": 73653
+  },
+  "LastEditedBy_is_person_1": 5,
+  "person_1_IsEmployee": "0",
+  "person_1_IsPermittedToLogon": "0",
+  "salespersons_flagged_IsSalesperson": 10,
+  "salespersons_distinct": 10,
+  "contacts_flagged_IsEmployee": 0,
+  "contacts_distinct": 663,
+  "pickers_distinct": 19,
+  "pickers_flagged_IsEmployee": 19,
+  "customer_names_with_placeholder_words": 0,
+  "contacts_with_EmailAddress": 663,
+  "contacts_with_PhoneNumber": 663
+ }
+}
