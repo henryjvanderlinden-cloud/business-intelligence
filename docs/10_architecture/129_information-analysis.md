@@ -40,12 +40,19 @@ mission names first — wrong joins, wrong grain, silently stale data
 misreading. It would also give the builder of `ARC-OP-34`, and the independent re-derivation of
 keys and grain ruled there, a defined input.
 
-The phase would produce no separate report. Its output would be the `dataset` and `field` cards of
-[120](120_context-layer.md), each finding an assertion carrying its claim type — *declared* (what
-the source or its documentation says), *observed* (what the data shows) or *intended* (what a
-person rules it should mean) — with its evidence. A table analysed this way stays analysed only
-while the evidence holds; repeated profiling over loads, and drift detection
-([126](126_context-gardening.md)), keep the findings current.
+The phase would produce no separate report. Its output is the record of
+[ADR-0018](../20_decisions/0018-information-analysis-record.md) in [`analysis/`](../../analysis/README.md): the
+findings about a table or a column, which the `dataset` and `field` cards of [120](120_context-layer.md) would
+show, and the findings about a pair of tables, recorded as relationship assertions in `relations/` as
+[128](128_join-knowledge.md) requires. Each claim carries its type — *declared* (what the source or its documentation
+says), *observed* (what the data shows), *implemented* (what code does) or *intended* (what a person rules it should
+mean) — with its evidence. *Corrected 2026-10-18 after sol's review
+([XREV](../30_research/notes/XREV_2026-10-18_information-analysis-consistency_sol.md)), which found that the first
+wording left relationship findings no home; superseded wording, kept for provenance:* ~~Its output would be the `dataset` and `field` cards of [120](120_context-layer.md), each finding an assertion carrying its claim type — *declared* (what the source or its documentation says), *observed* (what the data shows) or *intended* (what a person rules it should mean) — with its evidence.~~
+
+A table analysed this way stays analysed only while the evidence holds; repeated profiling over loads, freshness
+computed from each file's provenance (ADR-0018), and drift detection ([126](126_context-gardening.md)) keep the
+findings current.
 
 ## The author's four
 

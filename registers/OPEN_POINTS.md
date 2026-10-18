@@ -2195,8 +2195,28 @@ What is open:
    ([`analysis/wwi/tables/Sales/Orders/`](../analysis/wwi/tables/Sales/Orders/),
    [`prototypes/information_analysis/`](../prototypes/information_analysis/)); the first layout of c7b7aa2 was moved
    out of the repository. Owed: the other tables, the best-effort items, the cross-table items, and what it cost.
-3. **Review.** Sent 2026-10-18: sol on 129's inventory (nothing written after two hours, re-sent once; sol answers
-   a test call, so the run itself is lost or still going), astra on the record layout. Astra's verdict,
+3. **Review.** Astra on the record layout (below, R1-R11, ruled in ADR-0018). Sol on 129's inventory: the first,
+   large pass never wrote an answer; re-sent in two parts, both returned.
+   [Gaps and minimum](../docs/30_research/notes/XREV_2026-10-18_information-analysis-inventory-gaps_sol.md):
+   **FAILS** — two tables whose foreign key could point at either of two candidate keys pass the minimum, and the
+   builder joins on the wrong one with a clean one-to-one result; and two things are uncovered, the source's arithmetic
+   (precision, rounding mode, rounding at line or document) and what the extraction identity can actually see
+   (row-level security, masking, tenant context).
+   [Consistency and facts](../docs/30_research/notes/XREV_2026-10-18_information-analysis-consistency_sol.md):
+   **FAILS** — 129 said its output was dataset and field cards only, leaving relationship findings no home, against
+   128; **corrected in 129 the same day** as a plain inconsistency. Four of five WWI facts checked hold; the fifth
+   (invoice header totals) was not cheaply checkable, since `Sales.Invoices` has no evidence files yet.
+   **Recommendations to the author, not yet ruled:**
+   - **R14. A minimum per join**, beside the minimum per table: before a build joins two tables, the relation's
+     item 4 and the meaning (item 2) of its key columns are done with the minimum's hard effort. Sol's counterexample
+     passes every per-table test.
+   - **R15. Visibility of the extraction identity joins item 7 (population)**, so it is minimum: what row-level
+     security, masking or tenant context hides from the account that extracts. Relevant to WWI, whose simulator
+     applies row-level security (`Application.Configuration_ApplyRowLevelSecurity`); setup compared the customers seen
+     by owner and reader once (663 each, `data/wwi/inventory/inventory.json`).
+   - **R16. A new item 28, arithmetic policy**: precision, rounding mode, where rounding happens (line or document)
+     and how residues are treated; best effort, since it decides whether recomputed values reconcile rather than what
+     the grain is. Astra's verdict,
    [XREV_2026-10-18_information-analysis-record_astra](../docs/30_research/notes/XREV_2026-10-18_information-analysis-record_astra.md):
    **FAILS** — two agents following the rules can allocate the same evidence id. Its other findings: a column file
    is shared by every item about that column, so item ownership is not file ownership; source names break as file
