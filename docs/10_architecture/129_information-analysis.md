@@ -206,6 +206,79 @@ in WWI on stock items, order lines and invoice lines.
 supplier) appear in which tables and sources: the `entity` cards of
 [120](120_context-layer.md), and the first sketch of the hubs.
 
+## Added after the ruling
+
+**27. Peculiarities: more than one thing in one table.** Added 2026-10-18 on the author's instruction, verbatim:
+
+> one more thing before we proceed, we should also test each table for peculiarities like multiple granularities in
+> one table (a table containing both customer data and contract data apart from keys, or events/transactions and
+> balances), I'm sure you can come up with more.
+
+The tests below are the model's proposal and not ruled. Each names the peculiarity, the test that would find it, and a
+Wide World Importers case where one was observed on 2026-10-18 in the 1 June extract. They matter because each one
+breaks a build that assumes one table is one thing: a sum double-counts, a join fans out, or a filter silently drops
+a kind of row.
+
+*Several grains or entities in one table*
+
+1. **Two entities side by side**: columns about another object riding along with the key's object (customer and
+   contract, order and customer). Test: column groups that depend on something other than the key — constant within
+   a non-key value. WWI: `Sales.Customers` carries a delivery address and a postal address, each a block of four
+   columns.
+2. **Events and states in one table**: transactions next to balances or levels. Test: a column that behaves as a
+   level (carried forward, not summable over time) on rows that are otherwise events. WWI:
+   `Sales.CustomerTransactions` holds invoice and payment events and an `OutstandingBalance`, non-zero on 56 of
+   97,242 rows.
+3. **Aggregates stored with detail**: totals of child rows held on the parent, which double-count when the parent is
+   joined to its children. Test: a header column equal to a count or sum over its lines. WWI: `Sales.Invoices`
+   `TotalDryItems` and `TotalChillerItems` equal the number of dry and chiller *lines* on all 70,566 invoices — and,
+   despite the name, match the summed quantity on only 145.
+4. **Measures at a higher grain repeated on lower-grain rows**: freight or a header discount on every line. Test: a
+   measure constant within the parent key. Not observed in WWI yet.
+5. **Detail and total rows together**: subtotal, rollup or "TOTAL" rows among detail rows. Test: rows whose measure
+   equals the sum of other rows, or rows with an empty dimension. Not observed in WWI yet.
+6. **A grain hidden inside a column**: a list of events or items embedded in one value. Test: parse the structured
+   columns of item 11 and count elements. WWI: `Sales.Invoices.ReturnedDeliveryData` holds one or two delivery events
+   per invoice.
+7. **Several time grains**: daily and monthly snapshots, or periods of different length, in one table. Test: the
+   spacing of the time column per key. Not observed in WWI yet.
+
+*Several kinds of row in one table*
+
+8. **Subtypes under one key**: rows of different kinds told apart by a type column or by which columns are filled.
+   Test: the null pattern of every column per value of each low-cardinality column. WWI:
+   `Warehouse.StockItemTransactions` holds issues (customer and invoice filled, quantity negative), receipts (supplier
+   and purchase order filled, quantity positive) and stocktake adjustments (neither, either sign); `Application.People`
+   holds employees, salespersons, system users, logon users and customer contacts in eight combinations of four flags.
+9. **Exclusive arcs**: one of several reference columns filled, or one column referring to different tables by a type
+   column. Test: mutually exclusive non-null patterns. WWI: `Sales.SpecialDeals` (item 13);
+   `Sales.CustomerTransactions` has an invoice on invoice rows and a payment method on payment rows, never both.
+10. **Rows of opposite meaning**: reversals, credit notes, storno entries. Test: a flag or type that flips the sign.
+    WWI: `IsCreditNote` exists on `Sales.Invoices`; no credit note is present.
+11. **Several levels of one hierarchy**: head offices and branches, groups and members, in one table. Test: a
+    self-reference whose target is itself referenced. WWI: 400 of 663 customers are billed to another customer.
+12. **Current and historical rows together**: versions with a current flag, or appended snapshots. Test: the key is
+    unique only together with a date or flag. Not in a WWI base table; its `_Archive` tables keep history apart.
+13. **Several companies, tenants or scenarios**: plan next to actual, one company next to another, keys unique only
+    within one. Test: key uniqueness per partition. Not observed in WWI.
+14. **Rows from another origin**: migrated or interfaced rows with other conventions. Test: profile split by creation
+    date or editor. WWI: rows last edited by person 1, *Data Conversion Only* (item 7).
+
+*Columns that are more than one thing*
+
+15. **Overloaded columns**: one column whose meaning depends on the row type, the company or the period. Test: the
+    distribution per type and over time, and a change point. Not observed in WWI yet.
+16. **Repeating groups**: `Phone1`, `Phone2`; `Month01` to `Month12`. Test: column-name patterns. Not in WWI.
+17. **Units or currencies varying within one column**: amounts in several currencies, quantities in several units,
+    with the unit elsewhere or nowhere. Test: a unit column, and the distribution of magnitudes per item. WWI:
+    `Sales.InvoiceLines.Quantity` counts *Each*, *Packet*, *Pair* or *Bag* by the line's `PackageTypeID`, fixed per
+    stock item, so a sum of quantity across items adds unlike units.
+18. **A grain that changes at a date**: one row per order before a cutover, one per shipment after. Test: the
+    multiplicity of the key per period. Not observed in WWI.
+
+Findings under tests 1 to 9 and 11 to 13 bear directly on granularity, which is a minimum item; whether they are
+done with the minimum's hard effort is put to the author (`ARC-OP-36`).
+
 ## Who does what
 
 Machinery could measure most of items 6, 7, 8, 9, 10, 11, 15 and 17 and harvest 18. The agentic

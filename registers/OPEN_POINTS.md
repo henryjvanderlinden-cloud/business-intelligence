@@ -2194,7 +2194,8 @@ What is open:
    ([`analysis/wwi/tables/Sales.Orders/`](../analysis/wwi/tables/Sales.Orders/),
    [`prototypes/information_analysis/`](../prototypes/information_analysis/)). Owed: the other tables, the best-effort
    items, the cross-table items, and what it cost.
-3. **Review.** Sent 2026-10-18: sol on 129's inventory (result owed), astra on the record layout. Astra's verdict,
+3. **Review.** Sent 2026-10-18: sol on 129's inventory (nothing written after two hours, re-sent once; sol answers
+   a test call, so the run itself is lost or still going), astra on the record layout. Astra's verdict,
    [XREV_2026-10-18_information-analysis-record_astra](../docs/30_research/notes/XREV_2026-10-18_information-analysis-record_astra.md):
    **FAILS** — two agents following the rules can allocate the same evidence id. Its other findings: a column file
    is shared by every item about that column, so item ownership is not file ownership; source names break as file
@@ -2228,6 +2229,31 @@ What is open:
      item 16 across tables, `analysis/_landscape/` for findings spanning sources.
    - **R10. Say plainly** that "what must be rechecked if this changes" needs a generated dependency index, not grep.
    - **R11. Bring the example into line** with the revised README.
+
+   **Added 2026-10-18, 14:07, on the author's two further points**, verbatim:
+
+   > one more thing before we proceed, we should also test each table for peculiarities like multiple granularities
+   > in one table (a table containing both customer data and contract data apart from keys, or events/transactions and
+   > balances), I'm sure you can come up with more. Also, in every file we should probably record who wrote it, when
+   > it was written, maybe also other meta data. That we we can see if claims are stale or fresh.
+
+   The first is recorded as item 27 of [129](../docs/10_architecture/129_information-analysis.md), eighteen tests
+   with WWI cases where observed (header totals that equal line counts on every invoice; invoice and payment events
+   with a balance in one table; three kinds of stock movement and eight kinds of person under one key each).
+   - **R12. Provenance and freshness in every file**, in the front matter: `written_by` (agent or person, as named in
+     `records/vocabulary.json`), `written_at` (UTC), `step` (the step-log id, which says who asked and why),
+     `method` (tool or script and its git commit), `inputs` (source, extract date, manifest hash, and a hash of the
+     table's catalogue columns, so a schema change is visible), `last_checked_at`, `last_checked_by` and
+     `last_checked_against` (when a claim was re-verified unchanged on a newer extract without being rewritten),
+     `reviewed_by`/`reviewed_at`, `ruled_by`/`ruled_at`, `supersedes`/`superseded_by`, and `recheck_when` (the
+     invalidation predicate of 120). Each claim line carries its own `as_of` and `checked_at`, since claims in one
+     file age separately. Freshness is computed by a tool from these fields — **fresh** when last checked against the
+     newest extract with no recheck condition met, **ageing** when checked only against an older one, **stale** when
+     a recheck condition is met or new evidence disagrees — not set by hand. Git cannot carry this: every commit in
+     the repository is under the author's git identity whichever agent wrote it, and a commit records when it was
+     made, not when the analysis was done or which data it read.
+   - **R13. The item-27 tests that bear on grain** (tests 1 to 9 and 11 to 13) are done with the minimum's hard
+     effort as part of item 1; the rest best effort. Would amend ADR-0017.
 4. **The citations** of 129's prior-art paragraph.
 
 Related to `EVI-OP-4` (the minimum profiling pass), `ARC-OP-24` (the task allocation it follows) and `ARC-OP-34` (the
