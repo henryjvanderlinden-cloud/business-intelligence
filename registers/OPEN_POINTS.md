@@ -2194,8 +2194,40 @@ What is open:
    ([`analysis/wwi/tables/Sales.Orders/`](../analysis/wwi/tables/Sales.Orders/),
    [`prototypes/information_analysis/`](../prototypes/information_analysis/)). Owed: the other tables, the best-effort
    items, the cross-table items, and what it cost.
-3. **Review.** Sent 2026-10-18: sol on 129's inventory, astra on the record layout; per
-   [510](../docs/50_process/510_external-review.md). Results owed.
+3. **Review.** Sent 2026-10-18: sol on 129's inventory (result owed), astra on the record layout. Astra's verdict,
+   [XREV_2026-10-18_information-analysis-record_astra](../docs/30_research/notes/XREV_2026-10-18_information-analysis-record_astra.md):
+   **FAILS** — two agents following the rules can allocate the same evidence id. Its other findings: a column file
+   is shared by every item about that column, so item ownership is not file ownership; source names break as file
+   names (`/`, `AUX`, non-ASCII, and `Sales.EU` + `Orders` against `Sales` + `EU.Orders`); one status and one
+   confidence per item bundle several claims, against ADR-0011's assertion and 120's lifecycle; evidence is not
+   content-addressed and lacks its computation; "ruled by a person" wrongly counts as high confidence; set-level
+   findings such as cross-table reconciliations have no home; and the example restates facts and drifts from the
+   README in seven places. **Recommendations to the author, not yet ruled:**
+   - **R1. A folder per column after all**, with one file per item inside it (`columns/<Column>/<nn>_<slug>.md`),
+     created only when there is something to say. The author's instinct; it is what makes item ownership file
+     ownership.
+   - **R2. Schema and table as two folder levels** (`tables/<schema>/<table>/`), and names escaped reversibly: keep
+     `A-Z a-z 0-9 _ -`, percent-encode every other byte of the UTF-8 name (`Unit%2FPrice`), encode the last letter
+     of a reserved Windows name (`AU%58`); the checker flags names that differ only in case. Every path is then
+     ASCII and constructible from the source name.
+   - **R3. Evidence content-addressed**: named by the first 16 hex digits of the SHA-256 of the record without its
+     write time, written once, never overwritten. No id is allocated, so no two agents can collide.
+   - **R4. Each evidence record holds its computation** (query or code text) and its run time; catalogue evidence is
+     pinned to the database and the simulation clock; catalogue metadata may be kept verbatim (aggregates-only applies
+     to data rows); a fetched implementation is evidence too, with URL, date and the excerpt relied on.
+   - **R5. One line per claim inside an item file** — id, claim type, lifecycle status (120's: proposed, accepted,
+     contested, superseded, retracted), confidence, evidence, effective and observation time, recheck condition, text
+     — so each claim is an assertion in ADR-0011's sense; the front matter becomes the item's summary; staleness is a
+     separate flag. The uncertain part of a minimum item is its own claim with confidence `unknown`.
+   - **R6. Confidence measures evidence, not authority**: a ruling sets status `accepted` and `ruled_by`; it does not
+     raise confidence.
+   - **R7. Each fact once**: other files link to the file that owns it.
+   - **R8. A permanent id** per subject in the front matter, the path being only its current name (120's identity
+     plane).
+   - **R9. Homes for set-level findings**: `<source>/_source/` for source-wide ones, `<source>/reconciliations/` for
+     item 16 across tables, `analysis/_landscape/` for findings spanning sources.
+   - **R10. Say plainly** that "what must be rechecked if this changes" needs a generated dependency index, not grep.
+   - **R11. Bring the example into line** with the revised README.
 4. **The citations** of 129's prior-art paragraph.
 
 Related to `EVI-OP-4` (the minimum profiling pass), `ARC-OP-24` (the task allocation it follows) and `ARC-OP-34` (the
