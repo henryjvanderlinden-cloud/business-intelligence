@@ -2201,8 +2201,15 @@ What is open:
    in every row; tax on invoice lines is rounded per line, half up; head-office terms are copied onto branches in
    `Customers`. Reviewed by astra on three tables
    ([XREV](../docs/30_research/notes/XREV_2026-10-18_round1-dossiers_astra.md)): FAILS on an "exact" claim computed from
-   rounded shares and four lesser defects, all fixed before commit; sol's pass on three other tables is owed. Owed
-   besides: the best-effort items, round 2, and what it cost.
+   rounded shares and four lesser defects, all fixed before commit; sol's pass on three other tables never wrote an
+   answer and is owed again. Owed besides: the best-effort items, round 2, and what it cost.
+
+   **Ruled 2026-10-18, 21:55** on the dossiers' questions for a person, verbatim: "Yes, this is a sandbox environment
+   with test data." So in the WWI sandbox the sensitive columns (bank details, receiver names and positions, password
+   hashes, employee terms) may be loaded as they are; the sensitivity claims stand as the classification a production
+   implementation would need (ADR-0016). Not yet carried into the item files. The order-count and reporting-date
+   questions he asked to have explained first; and he asked whether every column's business meaning is analysed, against
+   which documentation, and in what structure (answered in conversation; awaiting his reaction).
 3. **Review.** Astra on the record layout (below, R1-R11, ruled in ADR-0018). Sol on 129's inventory: the first,
    large pass never wrote an answer; re-sent in two parts, both returned.
    [Gaps and minimum](../docs/30_research/notes/XREV_2026-10-18_information-analysis-inventory-gaps_sol.md):
