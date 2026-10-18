@@ -1,0 +1,53 @@
+{
+ "code": "def profile_big(table, pk):\n    \"\"\"Streaming profile for very large tables: counts, empties, ranges and distinct of the key's first column.\"\"\"\n    f, head, rows = reader(DAY, table)\n    idx = {c: i for i, c in enumerate(head)}\n    n, empty = 0, collections.Counter()\n    lo, hi = {}, {}\n    first = set()\n    for r in rows:\n        n += 1\n        for c, i in idx.items():\n            v = r[i]\n            if v == \"\":\n                empty[c] += 1\n            else:\n                if c not in lo or v < lo[c]:\n                    lo[c] = v\n                if c not in hi or v > hi[c]:\n                    hi[c] = v\n        first.add(r[0])\n    f.close()\n    return {\"rows\": n, \"streaming_profile\": True, \"first_column\": head[0], \"first_column_distinct\": len(first),\n            \"columns\": {c: {\"empty\": empty[c], \"min\": lo.get(c, \"\")[:60], \"max\": hi.get(c, \"\")[:60]} for c in head},\n            \"schema_sha256\": ia.schema_hash(head)}\n",
+ "id": "fe99989aa94f128c",
+ "inputs": {
+  "extract": "2016-06-01",
+  "manifest_sha256": "35b71b2e3ff4bb9ef4e24afc9c56f914e8386df4060a794b862e7f5a00d2774f",
+  "source": "wwi",
+  "table": "Warehouse.ColdRoomTemperatures_Archive"
+ },
+ "kind": "profile",
+ "ran_at": "2026-10-18T13:34:46Z",
+ "result": {
+  "columns": {
+   "ColdRoomSensorNumber": {
+    "empty": 0,
+    "max": "4",
+    "min": "1"
+   },
+   "ColdRoomTemperatureID": {
+    "empty": 0,
+    "max": "999999",
+    "min": "1"
+   },
+   "RecordedWhen": {
+    "empty": 0,
+    "max": "2016-06-01T23:59:20.0000000",
+    "min": "2015-12-20T00:00:00.0000000"
+   },
+   "Temperature": {
+    "empty": 0,
+    "max": "5.00",
+    "min": "3.00"
+   },
+   "ValidFrom": {
+    "empty": 0,
+    "max": "2016-06-01T23:59:20.0000000",
+    "min": "2015-12-20T00:00:00.0000000"
+   },
+   "ValidTo": {
+    "empty": 0,
+    "max": "2016-06-01T23:59:29.0000000",
+    "min": "2015-12-20T00:00:27.0000000"
+   }
+  },
+  "first_column": "ColdRoomTemperatureID",
+  "first_column_distinct": 3676804,
+  "rows": 3676804,
+  "schema_sha256": "14944a147c4e342c01346a89c29d042ac1cf08b8a5e6a7295cf5942e81465a82",
+  "streaming_profile": true
+ },
+ "tool": "prototypes/information_analysis/profile_tables.py",
+ "tool_version": "e61ada2547265905e3558722cd127e81fa5cd770"
+}

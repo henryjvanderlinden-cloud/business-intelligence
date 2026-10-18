@@ -1,0 +1,1469 @@
+{
+ "code": "def profile(table, pk):\n    \"\"\"Profile one table of the extract DAY; pk is the list of primary-key columns from the catalogue.\"\"\"\n    f, head, rows = reader(DAY, table)\n    rows = list(rows)\n    f.close()\n    n = len(rows)\n    idx = {c: i for i, c in enumerate(head)}\n    out = {\"rows\": n, \"columns\": {}}\n    for c, i in idx.items():\n        vals = [r[i] for r in rows]\n        nonempty = [v for v in vals if v != \"\"]\n        d = {\"empty\": n - len(nonempty), \"distinct\": len(set(vals))}\n        nums = [x for x in (as_num(v) for v in nonempty) if x is not None]\n        if nonempty and len(nums) == len(nonempty):\n            d[\"numeric\"] = {\"min\": min(nums), \"max\": max(nums), \"negative\": sum(1 for x in nums if x < 0),\n                            \"zero\": sum(1 for x in nums if x == 0), \"positive\": sum(1 for x in nums if x > 0),\n                            \"non_integer\": sum(1 for x in nums if x != int(x))}\n        elif nonempty:\n            d[\"min\"], d[\"max\"] = min(nonempty)[:60], max(nonempty)[:60]\n        dated = [v for v in nonempty if len(v) >= 19 and v[4] == \"-\" and v[10] == \"T\"]\n        if nonempty and len(dated) == len(nonempty):\n            d[\"time_parts\"] = dict(collections.Counter(v[10:19] for v in dated).most_common(3))\n            d[\"time_parts_distinct\"] = len(set(v[10:] for v in dated))\n            d[\"far_future\"] = sum(1 for v in dated if v.startswith(\"9999\"))\n        js = [v for v in nonempty if v[:1] in \"{[\"]\n        if js:\n            ok, sizes = 0, collections.Counter()\n            for v in js:\n                try:\n                    o = json.loads(v)\n                    ok += 1\n                    if isinstance(o, list):\n                        sizes[\"list:%d\" % len(o)] += 1\n                    elif isinstance(o, dict):\n                        sizes[\"keys:\" + \",\".join(sorted(o.keys()))[:120]] += 1\n                except ValueError:\n                    pass\n            d[\"json\"] = {\"rows\": len(js), \"parsed\": ok, \"shapes\": dict(sizes.most_common(5))}\n        wkt = sum(1 for v in nonempty if v.split(\" \")[0] in (\"POINT\", \"POLYGON\", \"MULTIPOLYGON\", \"LINESTRING\"))\n        if wkt:\n            d[\"geometry_rows\"] = wkt\n        if d[\"distinct\"] <= 12:\n            d[\"values\"] = dict(collections.Counter(vals).most_common(12))\n        out[\"columns\"][c] = d\n    if pk and all(k in idx for k in pk):\n        keys = [tuple(r[idx[k]] for k in pk) for r in rows]\n        out[\"pk\"] = {\"columns\": pk, \"distinct\": len(set(keys)), \"empty\": sum(1 for k in keys if \"\" in k)}\n        if len(pk) == 1:\n            ints = [int(k[0]) for k in keys if k[0].lstrip(\"-\").isdigit()]\n            if ints and len(ints) == n:\n                out[\"pk\"].update({\"min\": min(ints), \"max\": max(ints), \"gaps\": max(ints) - min(ints) + 1 - len(set(ints))})\n    sig = collections.Counter(tuple(c for c in head if r[idx[c]] == \"\") for r in rows)\n    out[\"empty_patterns\"] = [{\"empty\": list(k), \"rows\": v} for k, v in sig.most_common(8)]\n    out[\"empty_patterns_distinct\"] = len(sig)\n    low = [c for c in head if 1 < out[\"columns\"][c][\"distinct\"] <= 12 and c not in pk]\n    per = {}\n    for c in low:\n        by = collections.defaultdict(lambda: collections.Counter())\n        cnt = collections.Counter()\n        for r in rows:\n            v = r[idx[c]]\n            cnt[v] += 1\n            for o in head:\n                if r[idx[o]] == \"\":\n                    by[v][o] += 1\n        varying = {}\n        for o in head:\n            counts = {v: by[v][o] for v in cnt}\n            kinds = set(\"none\" if counts[v] == 0 else \"all\" if counts[v] == cnt[v] else \"some\" for v in cnt)\n            if len(kinds) > 1 or kinds == {\"some\"}:\n                varying[o] = counts\n        if varying:\n            per[c] = {\"rows_per_value\": dict(cnt), \"empty_rows_by_value\": varying}\n    out[\"empty_rows_by_low_cardinality_value\"] = per\n    fds = []\n    if n <= FD_MAX_ROWS:\n        live = [c for c in head if c not in pk and 1 < out[\"columns\"][c][\"distinct\"] < n]\n        for x in live:\n            xi = idx[x]\n            for y in head:\n                if y == x or y in pk or out[\"columns\"][y][\"distinct\"] <= 1:\n                    continue\n                yi, m, ok = idx[y], {}, True\n                for r in rows:\n                    if m.setdefault(r[xi], r[yi]) != r[yi]:\n                        ok = False\n                        break\n                if ok:\n                    fds.append(\"%s -> %s\" % (x, y))\n    out[\"functional_dependencies\"] = fds if n <= FD_MAX_ROWS else \"not computed: too many rows\"\n    out[\"column_names_with_trailing_digits\"] = [c for c in head if c[-1:].isdigit()]\n    out[\"schema_sha256\"] = ia.schema_hash(head)\n    return out\n",
+ "id": "67a1eaebd640d569",
+ "inputs": {
+  "extract": "2016-06-01",
+  "manifest_sha256": "35b71b2e3ff4bb9ef4e24afc9c56f914e8386df4060a794b862e7f5a00d2774f",
+  "source": "wwi",
+  "table": "Warehouse.StockItems_Archive"
+ },
+ "kind": "profile",
+ "ran_at": "2026-10-18T13:34:48Z",
+ "result": {
+  "column_names_with_trailing_digits": [],
+  "columns": {
+   "Barcode": {
+    "distinct": 9,
+    "empty": 436,
+    "numeric": {
+     "max": 8792838293987.0,
+     "min": 8302039293647.0,
+     "negative": 0,
+     "non_integer": 0,
+     "positive": 8,
+     "zero": 0
+    },
+    "values": {
+     "": 436,
+     "8302039293647": 1,
+     "8302039293929": 1,
+     "8792838293234": 1,
+     "8792838293236": 1,
+     "8792838293289": 1,
+     "8792838293728": 1,
+     "8792838293820": 1,
+     "8792838293987": 1
+    }
+   },
+   "Brand": {
+    "distinct": 2,
+    "empty": 395,
+    "max": "Northwind",
+    "min": "Northwind",
+    "values": {
+     "": 395,
+     "Northwind": 49
+    }
+   },
+   "ColorID": {
+    "distinct": 8,
+    "empty": 212,
+    "numeric": {
+     "max": 36.0,
+     "min": 3.0,
+     "negative": 0,
+     "non_integer": 0,
+     "positive": 232,
+     "zero": 0
+    },
+    "values": {
+     "": 212,
+     "12": 22,
+     "18": 8,
+     "28": 14,
+     "3": 92,
+     "35": 55,
+     "36": 5,
+     "4": 36
+    }
+   },
+   "CustomFields": {
+    "distinct": 15,
+    "empty": 227,
+    "json": {
+     "parsed": 217,
+     "rows": 217,
+     "shapes": {
+      "keys:CountryOfManufacture,MinimumAge,Tags": 20,
+      "keys:CountryOfManufacture,Range,Tags": 48,
+      "keys:CountryOfManufacture,Tags": 149
+     }
+    },
+    "max": "{ \"CountryOfManufacture\": \"Japan\", \"Tags\": [] }",
+    "min": "{ \"CountryOfManufacture\": \"China\", \"Tags\": [\"Comfortable\"], "
+   },
+   "InternalComments": {
+    "distinct": 1,
+    "empty": 444,
+    "values": {
+     "": 444
+    }
+   },
+   "IsChillerStock": {
+    "distinct": 2,
+    "empty": 0,
+    "numeric": {
+     "max": 1.0,
+     "min": 0.0,
+     "negative": 0,
+     "non_integer": 0,
+     "positive": 8,
+     "zero": 436
+    },
+    "values": {
+     "0": 436,
+     "1": 8
+    }
+   },
+   "LastEditedBy": {
+    "distinct": 1,
+    "empty": 0,
+    "numeric": {
+     "max": 1.0,
+     "min": 1.0,
+     "negative": 0,
+     "non_integer": 0,
+     "positive": 444,
+     "zero": 0
+    },
+    "values": {
+     "1": 444
+    }
+   },
+   "LeadTimeDays": {
+    "distinct": 6,
+    "empty": 0,
+    "numeric": {
+     "max": 20.0,
+     "min": 2.0,
+     "negative": 0,
+     "non_integer": 0,
+     "positive": 444,
+     "zero": 0
+    },
+    "values": {
+     "12": 180,
+     "14": 216,
+     "2": 6,
+     "20": 8,
+     "3": 8,
+     "7": 26
+    }
+   },
+   "MarketingComments": {
+    "distinct": 8,
+    "empty": 387,
+    "max": "Watch your friends faces when they eat these",
+    "min": "Complete with 12 projectiles",
+    "values": {
+     "": 387,
+     "Complete with 12 projectiles": 4,
+     "Need to see over your cubicle wall? This is just what's needed.": 1,
+     "Perfect for your child's party": 6,
+     "Realistic heavy walking sound": 12,
+     "Realistic sound of undergrowth being trampled while walking": 12,
+     "Suits child to 20 kg": 20,
+     "Watch your friends faces when they eat these": 2
+    }
+   },
+   "OuterPackageID": {
+    "distinct": 3,
+    "empty": 0,
+    "numeric": {
+     "max": 9.0,
+     "min": 6.0,
+     "negative": 0,
+     "non_integer": 0,
+     "positive": 444,
+     "zero": 0
+    },
+    "values": {
+     "6": 51,
+     "7": 377,
+     "9": 16
+    }
+   },
+   "Photo": {
+    "distinct": 1,
+    "empty": 444,
+    "values": {
+     "": 444
+    }
+   },
+   "QuantityPerOuter": {
+    "distinct": 9,
+    "empty": 0,
+    "numeric": {
+     "max": 36.0,
+     "min": 1.0,
+     "negative": 0,
+     "non_integer": 0,
+     "positive": 444,
+     "zero": 0
+    },
+    "values": {
+     "1": 267,
+     "10": 61,
+     "12": 53,
+     "20": 2,
+     "24": 27,
+     "25": 24,
+     "26": 2,
+     "36": 4,
+     "5": 4
+    }
+   },
+   "RecommendedRetailPrice": {
+    "distinct": 57,
+    "empty": 0,
+    "numeric": {
+     "max": 2839.01,
+     "min": 0.99,
+     "negative": 0,
+     "non_integer": 444,
+     "positive": 444,
+     "zero": 0
+    }
+   },
+   "SearchDetails": {
+    "distinct": 227,
+    "empty": 0,
+    "max": "White chocolate snow balls 250g Perfect for your child's par",
+    "min": "\"The Gu\" red shirt XML tag t-shirt (Black) 3XL "
+   },
+   "Size": {
+    "distinct": 44,
+    "empty": 139,
+    "max": "XXS",
+    "min": "1.5m"
+   },
+   "StockItemID": {
+    "distinct": 227,
+    "empty": 0,
+    "numeric": {
+     "max": 227.0,
+     "min": 1.0,
+     "negative": 0,
+     "non_integer": 0,
+     "positive": 444,
+     "zero": 0
+    }
+   },
+   "StockItemName": {
+    "distinct": 227,
+    "empty": 0,
+    "max": "White chocolate snow balls 250g",
+    "min": "\"The Gu\" red shirt XML tag t-shirt (Black) 3XL"
+   },
+   "SupplierID": {
+    "distinct": 7,
+    "empty": 0,
+    "numeric": {
+     "max": 12.0,
+     "min": 1.0,
+     "negative": 0,
+     "non_integer": 0,
+     "positive": 444,
+     "zero": 0
+    },
+    "values": {
+     "1": 8,
+     "10": 49,
+     "12": 41,
+     "2": 6,
+     "4": 122,
+     "5": 84,
+     "7": 134
+    }
+   },
+   "Tags": {
+    "distinct": 8,
+    "empty": 227,
+    "json": {
+     "parsed": 217,
+     "rows": 217,
+     "shapes": {
+      "list:0": 172,
+      "list:1": 43,
+      "list:2": 2
+     }
+    },
+    "max": "[]",
+    "min": "[\"16GB\"]",
+    "values": {
+     "": 227,
+     "[\"16GB\"]": 6,
+     "[\"32GB\"]": 6,
+     "[\"Comfortable\"]": 20,
+     "[\"Radio Control\",\"Realistic Sound\"]": 2,
+     "[\"Radio Control\"]": 9,
+     "[\"Vintage\"]": 2,
+     "[]": 172
+    }
+   },
+   "TaxRate": {
+    "distinct": 2,
+    "empty": 0,
+    "numeric": {
+     "max": 15.0,
+     "min": 10.0,
+     "negative": 0,
+     "non_integer": 0,
+     "positive": 444,
+     "zero": 0
+    },
+    "values": {
+     "10.000": 8,
+     "15.000": 436
+    }
+   },
+   "TypicalWeightPerUnit": {
+    "distinct": 23,
+    "empty": 0,
+    "numeric": {
+     "max": 21.0,
+     "min": 0.05,
+     "negative": 0,
+     "non_integer": 362,
+     "positive": 444,
+     "zero": 0
+    }
+   },
+   "UnitPackageID": {
+    "distinct": 4,
+    "empty": 0,
+    "numeric": {
+     "max": 10.0,
+     "min": 1.0,
+     "negative": 0,
+     "non_integer": 0,
+     "positive": 444,
+     "zero": 0
+    },
+    "values": {
+     "1": 8,
+     "10": 4,
+     "7": 420,
+     "9": 12
+    }
+   },
+   "UnitPrice": {
+    "distinct": 57,
+    "empty": 0,
+    "numeric": {
+     "max": 1899.0,
+     "min": 0.66,
+     "negative": 0,
+     "non_integer": 81,
+     "positive": 444,
+     "zero": 0
+    }
+   },
+   "ValidFrom": {
+    "distinct": 11,
+    "empty": 0,
+    "far_future": 0,
+    "max": "2016-05-31T23:09:00.0000000",
+    "min": "2013-01-01T00:00:00.0000000",
+    "time_parts": {
+     "T00:00:00": 227,
+     "T23:00:00": 172,
+     "T23:07:00": 20
+    },
+    "time_parts_distinct": 7,
+    "values": {
+     "2013-01-01T00:00:00.0000000": 219,
+     "2016-01-01T00:00:00.0000000": 2,
+     "2016-01-02T00:00:00.0000000": 2,
+     "2016-01-04T00:00:00.0000000": 2,
+     "2016-01-05T00:00:00.0000000": 2,
+     "2016-05-31T23:00:00.0000000": 172,
+     "2016-05-31T23:01:00.0000000": 9,
+     "2016-05-31T23:02:00.0000000": 2,
+     "2016-05-31T23:03:00.0000000": 2,
+     "2016-05-31T23:07:00.0000000": 20,
+     "2016-05-31T23:09:00.0000000": 12
+    }
+   },
+   "ValidTo": {
+    "distinct": 13,
+    "empty": 0,
+    "far_future": 0,
+    "max": "2016-05-31T23:12:00.0000000",
+    "min": "2016-05-31T23:00:00.0000000",
+    "time_parts": {
+     "T23:00:00": 227,
+     "T23:10:00": 42,
+     "T23:12:00": 67
+    },
+    "time_parts_distinct": 13
+   }
+  },
+  "empty_patterns": [
+   {
+    "empty": [
+     "Brand",
+     "Barcode",
+     "MarketingComments",
+     "InternalComments",
+     "Photo",
+     "CustomFields",
+     "Tags"
+    ],
+    "rows": 70
+   },
+   {
+    "empty": [
+     "ColorID",
+     "Brand",
+     "Barcode",
+     "MarketingComments",
+     "InternalComments",
+     "Photo",
+     "CustomFields",
+     "Tags"
+    ],
+    "rows": 59
+   },
+   {
+    "empty": [
+     "ColorID",
+     "Brand",
+     "Barcode",
+     "MarketingComments",
+     "InternalComments",
+     "Photo"
+    ],
+    "rows": 59
+   },
+   {
+    "empty": [
+     "Brand",
+     "Size",
+     "Barcode",
+     "MarketingComments",
+     "InternalComments",
+     "Photo",
+     "CustomFields",
+     "Tags"
+    ],
+    "rows": 42
+   },
+   {
+    "empty": [
+     "Brand",
+     "Size",
+     "Barcode",
+     "MarketingComments",
+     "InternalComments",
+     "Photo"
+    ],
+    "rows": 42
+   },
+   {
+    "empty": [
+     "Brand",
+     "Barcode",
+     "MarketingComments",
+     "InternalComments",
+     "Photo"
+    ],
+    "rows": 36
+   },
+   {
+    "empty": [
+     "ColorID",
+     "Brand",
+     "Size",
+     "Barcode",
+     "MarketingComments",
+     "InternalComments",
+     "Photo"
+    ],
+    "rows": 31
+   },
+   {
+    "empty": [
+     "ColorID",
+     "Brand",
+     "Size",
+     "Barcode",
+     "MarketingComments",
+     "InternalComments",
+     "Photo",
+     "CustomFields",
+     "Tags"
+    ],
+    "rows": 19
+   }
+  ],
+  "empty_patterns_distinct": 23,
+  "empty_rows_by_low_cardinality_value": {
+   "Barcode": {
+    "empty_rows_by_value": {
+     "Barcode": {
+      "": 436,
+      "8302039293647": 0,
+      "8302039293929": 0,
+      "8792838293234": 0,
+      "8792838293236": 0,
+      "8792838293289": 0,
+      "8792838293728": 0,
+      "8792838293820": 0,
+      "8792838293987": 0
+     },
+     "Brand": {
+      "": 387,
+      "8302039293647": 1,
+      "8302039293929": 1,
+      "8792838293234": 1,
+      "8792838293236": 1,
+      "8792838293289": 1,
+      "8792838293728": 1,
+      "8792838293820": 1,
+      "8792838293987": 1
+     },
+     "ColorID": {
+      "": 204,
+      "8302039293647": 1,
+      "8302039293929": 1,
+      "8792838293234": 1,
+      "8792838293236": 1,
+      "8792838293289": 1,
+      "8792838293728": 1,
+      "8792838293820": 1,
+      "8792838293987": 1
+     },
+     "CustomFields": {
+      "": 219,
+      "8302039293647": 1,
+      "8302039293929": 1,
+      "8792838293234": 1,
+      "8792838293236": 1,
+      "8792838293289": 1,
+      "8792838293728": 1,
+      "8792838293820": 1,
+      "8792838293987": 1
+     },
+     "MarketingComments": {
+      "": 387,
+      "8302039293647": 0,
+      "8302039293929": 0,
+      "8792838293234": 0,
+      "8792838293236": 0,
+      "8792838293289": 0,
+      "8792838293728": 0,
+      "8792838293820": 0,
+      "8792838293987": 0
+     },
+     "Size": {
+      "": 139,
+      "8302039293647": 0,
+      "8302039293929": 0,
+      "8792838293234": 0,
+      "8792838293236": 0,
+      "8792838293289": 0,
+      "8792838293728": 0,
+      "8792838293820": 0,
+      "8792838293987": 0
+     },
+     "Tags": {
+      "": 219,
+      "8302039293647": 1,
+      "8302039293929": 1,
+      "8792838293234": 1,
+      "8792838293236": 1,
+      "8792838293289": 1,
+      "8792838293728": 1,
+      "8792838293820": 1,
+      "8792838293987": 1
+     }
+    },
+    "rows_per_value": {
+     "": 436,
+     "8302039293647": 1,
+     "8302039293929": 1,
+     "8792838293234": 1,
+     "8792838293236": 1,
+     "8792838293289": 1,
+     "8792838293728": 1,
+     "8792838293820": 1,
+     "8792838293987": 1
+    }
+   },
+   "Brand": {
+    "empty_rows_by_value": {
+     "Barcode": {
+      "": 387,
+      "Northwind": 49
+     },
+     "Brand": {
+      "": 395,
+      "Northwind": 0
+     },
+     "ColorID": {
+      "": 202,
+      "Northwind": 10
+     },
+     "CustomFields": {
+      "": 209,
+      "Northwind": 18
+     },
+     "MarketingComments": {
+      "": 358,
+      "Northwind": 29
+     },
+     "Size": {
+      "": 139,
+      "Northwind": 0
+     },
+     "Tags": {
+      "": 209,
+      "Northwind": 18
+     }
+    },
+    "rows_per_value": {
+     "": 395,
+     "Northwind": 49
+    }
+   },
+   "ColorID": {
+    "empty_rows_by_value": {
+     "Barcode": {
+      "": 204,
+      "12": 22,
+      "18": 8,
+      "28": 14,
+      "3": 92,
+      "35": 55,
+      "36": 5,
+      "4": 36
+     },
+     "Brand": {
+      "": 202,
+      "12": 22,
+      "18": 8,
+      "28": 2,
+      "3": 75,
+      "35": 55,
+      "36": 0,
+      "4": 31
+     },
+     "ColorID": {
+      "": 212,
+      "12": 0,
+      "18": 0,
+      "28": 0,
+      "3": 0,
+      "35": 0,
+      "36": 0,
+      "4": 0
+     },
+     "CustomFields": {
+      "": 99,
+      "12": 9,
+      "18": 4,
+      "28": 5,
+      "3": 51,
+      "35": 34,
+      "36": 2,
+      "4": 23
+     },
+     "MarketingComments": {
+      "": 174,
+      "12": 20,
+      "18": 8,
+      "28": 9,
+      "3": 84,
+      "35": 55,
+      "36": 3,
+      "4": 34
+     },
+     "Size": {
+      "": 52,
+      "12": 2,
+      "18": 0,
+      "28": 0,
+      "3": 43,
+      "35": 42,
+      "36": 0,
+      "4": 0
+     },
+     "Tags": {
+      "": 99,
+      "12": 9,
+      "18": 4,
+      "28": 5,
+      "3": 51,
+      "35": 34,
+      "36": 2,
+      "4": 23
+     }
+    },
+    "rows_per_value": {
+     "": 212,
+     "12": 22,
+     "18": 8,
+     "28": 14,
+     "3": 92,
+     "35": 55,
+     "36": 5,
+     "4": 36
+    }
+   },
+   "IsChillerStock": {
+    "empty_rows_by_value": {
+     "Barcode": {
+      "0": 436,
+      "1": 0
+     },
+     "Brand": {
+      "0": 387,
+      "1": 8
+     },
+     "ColorID": {
+      "0": 204,
+      "1": 8
+     },
+     "CustomFields": {
+      "0": 219,
+      "1": 8
+     },
+     "MarketingComments": {
+      "0": 387,
+      "1": 0
+     },
+     "Size": {
+      "0": 139,
+      "1": 0
+     },
+     "Tags": {
+      "0": 219,
+      "1": 8
+     }
+    },
+    "rows_per_value": {
+     "0": 436,
+     "1": 8
+    }
+   },
+   "LeadTimeDays": {
+    "empty_rows_by_value": {
+     "Barcode": {
+      "12": 180,
+      "14": 216,
+      "2": 6,
+      "20": 8,
+      "3": 0,
+      "7": 26
+     },
+     "Brand": {
+      "12": 180,
+      "14": 167,
+      "2": 6,
+      "20": 8,
+      "3": 8,
+      "7": 26
+     },
+     "ColorID": {
+      "12": 40,
+      "14": 150,
+      "2": 6,
+      "20": 8,
+      "3": 8,
+      "7": 0
+     },
+     "CustomFields": {
+      "12": 90,
+      "14": 96,
+      "2": 3,
+      "20": 4,
+      "3": 8,
+      "7": 26
+     },
+     "MarketingComments": {
+      "12": 156,
+      "14": 191,
+      "2": 6,
+      "20": 8,
+      "3": 0,
+      "7": 26
+     },
+     "Size": {
+      "12": 84,
+      "14": 41,
+      "2": 6,
+      "20": 8,
+      "3": 0,
+      "7": 0
+     },
+     "Tags": {
+      "12": 90,
+      "14": 96,
+      "2": 3,
+      "20": 4,
+      "3": 8,
+      "7": 26
+     }
+    },
+    "rows_per_value": {
+     "12": 180,
+     "14": 216,
+     "2": 6,
+     "20": 8,
+     "3": 8,
+     "7": 26
+    }
+   },
+   "MarketingComments": {
+    "empty_rows_by_value": {
+     "Barcode": {
+      "": 387,
+      "Complete with 12 projectiles": 4,
+      "Need to see over your cubicle wall? This is just what's needed.": 1,
+      "Perfect for your child's party": 0,
+      "Realistic heavy walking sound": 12,
+      "Realistic sound of undergrowth being trampled while walking": 12,
+      "Suits child to 20 kg": 20,
+      "Watch your friends faces when they eat these": 0
+     },
+     "Brand": {
+      "": 358,
+      "Complete with 12 projectiles": 4,
+      "Need to see over your cubicle wall? This is just what's needed.": 1,
+      "Perfect for your child's party": 6,
+      "Realistic heavy walking sound": 12,
+      "Realistic sound of undergrowth being trampled while walking": 12,
+      "Suits child to 20 kg": 0,
+      "Watch your friends faces when they eat these": 2
+     },
+     "ColorID": {
+      "": 174,
+      "Complete with 12 projectiles": 2,
+      "Need to see over your cubicle wall? This is just what's needed.": 0,
+      "Perfect for your child's party": 6,
+      "Realistic heavy walking sound": 12,
+      "Realistic sound of undergrowth being trampled while walking": 12,
+      "Suits child to 20 kg": 4,
+      "Watch your friends faces when they eat these": 2
+     },
+     "CustomFields": {
+      "": 199,
+      "Complete with 12 projectiles": 2,
+      "Need to see over your cubicle wall? This is just what's needed.": 1,
+      "Perfect for your child's party": 6,
+      "Realistic heavy walking sound": 4,
+      "Realistic sound of undergrowth being trampled while walking": 4,
+      "Suits child to 20 kg": 9,
+      "Watch your friends faces when they eat these": 2
+     },
+     "MarketingComments": {
+      "": 387,
+      "Complete with 12 projectiles": 0,
+      "Need to see over your cubicle wall? This is just what's needed.": 0,
+      "Perfect for your child's party": 0,
+      "Realistic heavy walking sound": 0,
+      "Realistic sound of undergrowth being trampled while walking": 0,
+      "Suits child to 20 kg": 0,
+      "Watch your friends faces when they eat these": 0
+     },
+     "Size": {
+      "": 134,
+      "Complete with 12 projectiles": 4,
+      "Need to see over your cubicle wall? This is just what's needed.": 1,
+      "Perfect for your child's party": 0,
+      "Realistic heavy walking sound": 0,
+      "Realistic sound of undergrowth being trampled while walking": 0,
+      "Suits child to 20 kg": 0,
+      "Watch your friends faces when they eat these": 0
+     },
+     "Tags": {
+      "": 199,
+      "Complete with 12 projectiles": 2,
+      "Need to see over your cubicle wall? This is just what's needed.": 1,
+      "Perfect for your child's party": 6,
+      "Realistic heavy walking sound": 4,
+      "Realistic sound of undergrowth being trampled while walking": 4,
+      "Suits child to 20 kg": 9,
+      "Watch your friends faces when they eat these": 2
+     }
+    },
+    "rows_per_value": {
+     "": 387,
+     "Complete with 12 projectiles": 4,
+     "Need to see over your cubicle wall? This is just what's needed.": 1,
+     "Perfect for your child's party": 6,
+     "Realistic heavy walking sound": 12,
+     "Realistic sound of undergrowth being trampled while walking": 12,
+     "Suits child to 20 kg": 20,
+     "Watch your friends faces when they eat these": 2
+    }
+   },
+   "OuterPackageID": {
+    "empty_rows_by_value": {
+     "Barcode": {
+      "6": 43,
+      "7": 377,
+      "9": 16
+     },
+     "Brand": {
+      "6": 51,
+      "7": 328,
+      "9": 16
+     },
+     "ColorID": {
+      "6": 8,
+      "7": 188,
+      "9": 16
+     },
+     "CustomFields": {
+      "6": 43,
+      "7": 175,
+      "9": 9
+     },
+     "MarketingComments": {
+      "6": 42,
+      "7": 329,
+      "9": 16
+     },
+     "Size": {
+      "6": 1,
+      "7": 126,
+      "9": 12
+     },
+     "Tags": {
+      "6": 43,
+      "7": 175,
+      "9": 9
+     }
+    },
+    "rows_per_value": {
+     "6": 51,
+     "7": 377,
+     "9": 16
+    }
+   },
+   "QuantityPerOuter": {
+    "empty_rows_by_value": {
+     "Barcode": {
+      "1": 267,
+      "10": 61,
+      "12": 52,
+      "20": 2,
+      "24": 20,
+      "25": 24,
+      "26": 2,
+      "36": 4,
+      "5": 4
+     },
+     "Brand": {
+      "1": 218,
+      "10": 61,
+      "12": 53,
+      "20": 2,
+      "24": 27,
+      "25": 24,
+      "26": 2,
+      "36": 4,
+      "5": 4
+     },
+     "ColorID": {
+      "1": 96,
+      "10": 42,
+      "12": 11,
+      "20": 2,
+      "24": 27,
+      "25": 24,
+      "26": 2,
+      "36": 4,
+      "5": 4
+     },
+     "CustomFields": {
+      "1": 119,
+      "10": 31,
+      "12": 42,
+      "20": 1,
+      "24": 17,
+      "25": 12,
+      "26": 1,
+      "36": 2,
+      "5": 2
+     },
+     "MarketingComments": {
+      "1": 219,
+      "10": 60,
+      "12": 52,
+      "20": 2,
+      "24": 20,
+      "25": 24,
+      "26": 2,
+      "36": 4,
+      "5": 4
+     },
+     "Size": {
+      "1": 132,
+      "10": 7,
+      "12": 0,
+      "20": 0,
+      "24": 0,
+      "25": 0,
+      "26": 0,
+      "36": 0,
+      "5": 0
+     },
+     "Tags": {
+      "1": 119,
+      "10": 31,
+      "12": 42,
+      "20": 1,
+      "24": 17,
+      "25": 12,
+      "26": 1,
+      "36": 2,
+      "5": 2
+     }
+    },
+    "rows_per_value": {
+     "1": 267,
+     "10": 61,
+     "12": 53,
+     "20": 2,
+     "24": 27,
+     "25": 24,
+     "26": 2,
+     "36": 4,
+     "5": 4
+    }
+   },
+   "SupplierID": {
+    "empty_rows_by_value": {
+     "Barcode": {
+      "1": 0,
+      "10": 49,
+      "12": 41,
+      "2": 6,
+      "4": 122,
+      "5": 84,
+      "7": 134
+     },
+     "Brand": {
+      "1": 8,
+      "10": 0,
+      "12": 41,
+      "2": 6,
+      "4": 122,
+      "5": 84,
+      "7": 134
+     },
+     "ColorID": {
+      "1": 8,
+      "10": 10,
+      "12": 38,
+      "2": 6,
+      "4": 40,
+      "5": 0,
+      "7": 110
+     },
+     "CustomFields": {
+      "1": 8,
+      "10": 18,
+      "12": 15,
+      "2": 3,
+      "4": 74,
+      "5": 42,
+      "7": 67
+     },
+     "MarketingComments": {
+      "1": 0,
+      "10": 29,
+      "12": 36,
+      "2": 6,
+      "4": 98,
+      "5": 84,
+      "7": 134
+     },
+     "Size": {
+      "1": 0,
+      "10": 0,
+      "12": 41,
+      "2": 6,
+      "4": 0,
+      "5": 84,
+      "7": 8
+     },
+     "Tags": {
+      "1": 8,
+      "10": 18,
+      "12": 15,
+      "2": 3,
+      "4": 74,
+      "5": 42,
+      "7": 67
+     }
+    },
+    "rows_per_value": {
+     "1": 8,
+     "10": 49,
+     "12": 41,
+     "2": 6,
+     "4": 122,
+     "5": 84,
+     "7": 134
+    }
+   },
+   "Tags": {
+    "empty_rows_by_value": {
+     "Barcode": {
+      "": 219,
+      "[\"16GB\"]": 6,
+      "[\"32GB\"]": 6,
+      "[\"Comfortable\"]": 20,
+      "[\"Radio Control\",\"Realistic Sound\"]": 2,
+      "[\"Radio Control\"]": 9,
+      "[\"Vintage\"]": 2,
+      "[]": 172
+     },
+     "Brand": {
+      "": 209,
+      "[\"16GB\"]": 6,
+      "[\"32GB\"]": 6,
+      "[\"Comfortable\"]": 20,
+      "[\"Radio Control\",\"Realistic Sound\"]": 0,
+      "[\"Radio Control\"]": 0,
+      "[\"Vintage\"]": 0,
+      "[]": 154
+     },
+     "ColorID": {
+      "": 99,
+      "[\"16GB\"]": 6,
+      "[\"32GB\"]": 6,
+      "[\"Comfortable\"]": 12,
+      "[\"Radio Control\",\"Realistic Sound\"]": 0,
+      "[\"Radio Control\"]": 2,
+      "[\"Vintage\"]": 0,
+      "[]": 87
+     },
+     "CustomFields": {
+      "": 227,
+      "[\"16GB\"]": 0,
+      "[\"32GB\"]": 0,
+      "[\"Comfortable\"]": 0,
+      "[\"Radio Control\",\"Realistic Sound\"]": 0,
+      "[\"Radio Control\"]": 0,
+      "[\"Vintage\"]": 0,
+      "[]": 0
+     },
+     "MarketingComments": {
+      "": 199,
+      "[\"16GB\"]": 6,
+      "[\"32GB\"]": 6,
+      "[\"Comfortable\"]": 12,
+      "[\"Radio Control\",\"Realistic Sound\"]": 2,
+      "[\"Radio Control\"]": 9,
+      "[\"Vintage\"]": 0,
+      "[]": 153
+     },
+     "Size": {
+      "": 64,
+      "[\"16GB\"]": 6,
+      "[\"32GB\"]": 6,
+      "[\"Comfortable\"]": 0,
+      "[\"Radio Control\",\"Realistic Sound\"]": 0,
+      "[\"Radio Control\"]": 0,
+      "[\"Vintage\"]": 0,
+      "[]": 63
+     },
+     "Tags": {
+      "": 227,
+      "[\"16GB\"]": 0,
+      "[\"32GB\"]": 0,
+      "[\"Comfortable\"]": 0,
+      "[\"Radio Control\",\"Realistic Sound\"]": 0,
+      "[\"Radio Control\"]": 0,
+      "[\"Vintage\"]": 0,
+      "[]": 0
+     }
+    },
+    "rows_per_value": {
+     "": 227,
+     "[\"16GB\"]": 6,
+     "[\"32GB\"]": 6,
+     "[\"Comfortable\"]": 20,
+     "[\"Radio Control\",\"Realistic Sound\"]": 2,
+     "[\"Radio Control\"]": 9,
+     "[\"Vintage\"]": 2,
+     "[]": 172
+    }
+   },
+   "TaxRate": {
+    "empty_rows_by_value": {
+     "Barcode": {
+      "10.000": 0,
+      "15.000": 436
+     },
+     "Brand": {
+      "10.000": 8,
+      "15.000": 387
+     },
+     "ColorID": {
+      "10.000": 8,
+      "15.000": 204
+     },
+     "CustomFields": {
+      "10.000": 8,
+      "15.000": 219
+     },
+     "MarketingComments": {
+      "10.000": 0,
+      "15.000": 387
+     },
+     "Size": {
+      "10.000": 0,
+      "15.000": 139
+     },
+     "Tags": {
+      "10.000": 8,
+      "15.000": 219
+     }
+    },
+    "rows_per_value": {
+     "10.000": 8,
+     "15.000": 436
+    }
+   },
+   "UnitPackageID": {
+    "empty_rows_by_value": {
+     "Barcode": {
+      "1": 0,
+      "10": 4,
+      "7": 420,
+      "9": 12
+     },
+     "Brand": {
+      "1": 8,
+      "10": 4,
+      "7": 371,
+      "9": 12
+     },
+     "ColorID": {
+      "1": 8,
+      "10": 4,
+      "7": 188,
+      "9": 12
+     },
+     "CustomFields": {
+      "1": 8,
+      "10": 4,
+      "7": 210,
+      "9": 5
+     },
+     "MarketingComments": {
+      "1": 0,
+      "10": 4,
+      "7": 371,
+      "9": 12
+     },
+     "Size": {
+      "1": 0,
+      "10": 0,
+      "7": 127,
+      "9": 12
+     },
+     "Tags": {
+      "1": 8,
+      "10": 4,
+      "7": 210,
+      "9": 5
+     }
+    },
+    "rows_per_value": {
+     "1": 8,
+     "10": 4,
+     "7": 420,
+     "9": 12
+    }
+   },
+   "ValidFrom": {
+    "empty_rows_by_value": {
+     "Barcode": {
+      "2013-01-01T00:00:00.0000000": 219,
+      "2016-01-01T00:00:00.0000000": 0,
+      "2016-01-02T00:00:00.0000000": 0,
+      "2016-01-04T00:00:00.0000000": 0,
+      "2016-01-05T00:00:00.0000000": 0,
+      "2016-05-31T23:00:00.0000000": 172,
+      "2016-05-31T23:01:00.0000000": 9,
+      "2016-05-31T23:02:00.0000000": 2,
+      "2016-05-31T23:03:00.0000000": 2,
+      "2016-05-31T23:07:00.0000000": 20,
+      "2016-05-31T23:09:00.0000000": 12
+     },
+     "Brand": {
+      "2013-01-01T00:00:00.0000000": 201,
+      "2016-01-01T00:00:00.0000000": 2,
+      "2016-01-02T00:00:00.0000000": 2,
+      "2016-01-04T00:00:00.0000000": 2,
+      "2016-01-05T00:00:00.0000000": 2,
+      "2016-05-31T23:00:00.0000000": 154,
+      "2016-05-31T23:01:00.0000000": 0,
+      "2016-05-31T23:02:00.0000000": 0,
+      "2016-05-31T23:03:00.0000000": 0,
+      "2016-05-31T23:07:00.0000000": 20,
+      "2016-05-31T23:09:00.0000000": 12
+     },
+     "ColorID": {
+      "2013-01-01T00:00:00.0000000": 91,
+      "2016-01-01T00:00:00.0000000": 2,
+      "2016-01-02T00:00:00.0000000": 2,
+      "2016-01-04T00:00:00.0000000": 2,
+      "2016-01-05T00:00:00.0000000": 2,
+      "2016-05-31T23:00:00.0000000": 87,
+      "2016-05-31T23:01:00.0000000": 2,
+      "2016-05-31T23:02:00.0000000": 0,
+      "2016-05-31T23:03:00.0000000": 0,
+      "2016-05-31T23:07:00.0000000": 12,
+      "2016-05-31T23:09:00.0000000": 12
+     },
+     "CustomFields": {
+      "2013-01-01T00:00:00.0000000": 219,
+      "2016-01-01T00:00:00.0000000": 2,
+      "2016-01-02T00:00:00.0000000": 2,
+      "2016-01-04T00:00:00.0000000": 2,
+      "2016-01-05T00:00:00.0000000": 2,
+      "2016-05-31T23:00:00.0000000": 0,
+      "2016-05-31T23:01:00.0000000": 0,
+      "2016-05-31T23:02:00.0000000": 0,
+      "2016-05-31T23:03:00.0000000": 0,
+      "2016-05-31T23:07:00.0000000": 0,
+      "2016-05-31T23:09:00.0000000": 0
+     },
+     "MarketingComments": {
+      "2013-01-01T00:00:00.0000000": 199,
+      "2016-01-01T00:00:00.0000000": 0,
+      "2016-01-02T00:00:00.0000000": 0,
+      "2016-01-04T00:00:00.0000000": 0,
+      "2016-01-05T00:00:00.0000000": 0,
+      "2016-05-31T23:00:00.0000000": 153,
+      "2016-05-31T23:01:00.0000000": 9,
+      "2016-05-31T23:02:00.0000000": 2,
+      "2016-05-31T23:03:00.0000000": 0,
+      "2016-05-31T23:07:00.0000000": 12,
+      "2016-05-31T23:09:00.0000000": 12
+     },
+     "Size": {
+      "2013-01-01T00:00:00.0000000": 64,
+      "2016-01-01T00:00:00.0000000": 0,
+      "2016-01-02T00:00:00.0000000": 0,
+      "2016-01-04T00:00:00.0000000": 0,
+      "2016-01-05T00:00:00.0000000": 0,
+      "2016-05-31T23:00:00.0000000": 63,
+      "2016-05-31T23:01:00.0000000": 0,
+      "2016-05-31T23:02:00.0000000": 0,
+      "2016-05-31T23:03:00.0000000": 0,
+      "2016-05-31T23:07:00.0000000": 0,
+      "2016-05-31T23:09:00.0000000": 12
+     },
+     "Tags": {
+      "2013-01-01T00:00:00.0000000": 219,
+      "2016-01-01T00:00:00.0000000": 2,
+      "2016-01-02T00:00:00.0000000": 2,
+      "2016-01-04T00:00:00.0000000": 2,
+      "2016-01-05T00:00:00.0000000": 2,
+      "2016-05-31T23:00:00.0000000": 0,
+      "2016-05-31T23:01:00.0000000": 0,
+      "2016-05-31T23:02:00.0000000": 0,
+      "2016-05-31T23:03:00.0000000": 0,
+      "2016-05-31T23:07:00.0000000": 0,
+      "2016-05-31T23:09:00.0000000": 0
+     }
+    },
+    "rows_per_value": {
+     "2013-01-01T00:00:00.0000000": 219,
+     "2016-01-01T00:00:00.0000000": 2,
+     "2016-01-02T00:00:00.0000000": 2,
+     "2016-01-04T00:00:00.0000000": 2,
+     "2016-01-05T00:00:00.0000000": 2,
+     "2016-05-31T23:00:00.0000000": 172,
+     "2016-05-31T23:01:00.0000000": 9,
+     "2016-05-31T23:02:00.0000000": 2,
+     "2016-05-31T23:03:00.0000000": 2,
+     "2016-05-31T23:07:00.0000000": 20,
+     "2016-05-31T23:09:00.0000000": 12
+    }
+   }
+  },
+  "functional_dependencies": [
+   "StockItemID -> StockItemName",
+   "StockItemID -> SupplierID",
+   "StockItemID -> ColorID",
+   "StockItemID -> UnitPackageID",
+   "StockItemID -> OuterPackageID",
+   "StockItemID -> Brand",
+   "StockItemID -> Size",
+   "StockItemID -> LeadTimeDays",
+   "StockItemID -> QuantityPerOuter",
+   "StockItemID -> IsChillerStock",
+   "StockItemID -> Barcode",
+   "StockItemID -> TaxRate",
+   "StockItemID -> UnitPrice",
+   "StockItemID -> RecommendedRetailPrice",
+   "StockItemID -> TypicalWeightPerUnit",
+   "StockItemID -> MarketingComments",
+   "StockItemID -> SearchDetails",
+   "StockItemName -> StockItemID",
+   "StockItemName -> SupplierID",
+   "StockItemName -> ColorID",
+   "StockItemName -> UnitPackageID",
+   "StockItemName -> OuterPackageID",
+   "StockItemName -> Brand",
+   "StockItemName -> Size",
+   "StockItemName -> LeadTimeDays",
+   "StockItemName -> QuantityPerOuter",
+   "StockItemName -> IsChillerStock",
+   "StockItemName -> Barcode",
+   "StockItemName -> TaxRate",
+   "StockItemName -> UnitPrice",
+   "StockItemName -> RecommendedRetailPrice",
+   "StockItemName -> TypicalWeightPerUnit",
+   "StockItemName -> MarketingComments",
+   "StockItemName -> SearchDetails",
+   "SupplierID -> Brand",
+   "SupplierID -> IsChillerStock",
+   "SupplierID -> TaxRate",
+   "UnitPackageID -> IsChillerStock",
+   "UnitPackageID -> TaxRate",
+   "Size -> Brand",
+   "Size -> IsChillerStock",
+   "Size -> TaxRate",
+   "LeadTimeDays -> IsChillerStock",
+   "LeadTimeDays -> TaxRate",
+   "IsChillerStock -> TaxRate",
+   "Barcode -> IsChillerStock",
+   "Barcode -> TaxRate",
+   "TaxRate -> IsChillerStock",
+   "UnitPrice -> IsChillerStock",
+   "UnitPrice -> TaxRate",
+   "UnitPrice -> RecommendedRetailPrice",
+   "RecommendedRetailPrice -> IsChillerStock",
+   "RecommendedRetailPrice -> TaxRate",
+   "RecommendedRetailPrice -> UnitPrice",
+   "TypicalWeightPerUnit -> Brand",
+   "MarketingComments -> IsChillerStock",
+   "MarketingComments -> TaxRate",
+   "CustomFields -> Tags",
+   "SearchDetails -> StockItemID",
+   "SearchDetails -> StockItemName",
+   "SearchDetails -> SupplierID",
+   "SearchDetails -> ColorID",
+   "SearchDetails -> UnitPackageID",
+   "SearchDetails -> OuterPackageID",
+   "SearchDetails -> Brand",
+   "SearchDetails -> Size",
+   "SearchDetails -> LeadTimeDays",
+   "SearchDetails -> QuantityPerOuter",
+   "SearchDetails -> IsChillerStock",
+   "SearchDetails -> Barcode",
+   "SearchDetails -> TaxRate",
+   "SearchDetails -> UnitPrice",
+   "SearchDetails -> RecommendedRetailPrice",
+   "SearchDetails -> TypicalWeightPerUnit",
+   "SearchDetails -> MarketingComments",
+   "ValidFrom -> IsChillerStock",
+   "ValidFrom -> TaxRate"
+  ],
+  "rows": 444,
+  "schema_sha256": "a2a70ec4f434c5caf3e43bfaa2fcb63886a956c95e50e40cbf6b01c6e0f40c7d"
+ },
+ "tool": "prototypes/information_analysis/profile_tables.py",
+ "tool_version": "e61ada2547265905e3558722cd127e81fa5cd770"
+}

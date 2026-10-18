@@ -1,0 +1,129 @@
+{
+ "code": "def profile(table, pk):\n    \"\"\"Profile one table of the extract DAY; pk is the list of primary-key columns from the catalogue.\"\"\"\n    f, head, rows = reader(DAY, table)\n    rows = list(rows)\n    f.close()\n    n = len(rows)\n    idx = {c: i for i, c in enumerate(head)}\n    out = {\"rows\": n, \"columns\": {}}\n    for c, i in idx.items():\n        vals = [r[i] for r in rows]\n        nonempty = [v for v in vals if v != \"\"]\n        d = {\"empty\": n - len(nonempty), \"distinct\": len(set(vals))}\n        nums = [x for x in (as_num(v) for v in nonempty) if x is not None]\n        if nonempty and len(nums) == len(nonempty):\n            d[\"numeric\"] = {\"min\": min(nums), \"max\": max(nums), \"negative\": sum(1 for x in nums if x < 0),\n                            \"zero\": sum(1 for x in nums if x == 0), \"positive\": sum(1 for x in nums if x > 0),\n                            \"non_integer\": sum(1 for x in nums if x != int(x))}\n        elif nonempty:\n            d[\"min\"], d[\"max\"] = min(nonempty)[:60], max(nonempty)[:60]\n        dated = [v for v in nonempty if len(v) >= 19 and v[4] == \"-\" and v[10] == \"T\"]\n        if nonempty and len(dated) == len(nonempty):\n            d[\"time_parts\"] = dict(collections.Counter(v[10:19] for v in dated).most_common(3))\n            d[\"time_parts_distinct\"] = len(set(v[10:] for v in dated))\n            d[\"far_future\"] = sum(1 for v in dated if v.startswith(\"9999\"))\n        js = [v for v in nonempty if v[:1] in \"{[\"]\n        if js:\n            ok, sizes = 0, collections.Counter()\n            for v in js:\n                try:\n                    o = json.loads(v)\n                    ok += 1\n                    if isinstance(o, list):\n                        sizes[\"list:%d\" % len(o)] += 1\n                    elif isinstance(o, dict):\n                        sizes[\"keys:\" + \",\".join(sorted(o.keys()))[:120]] += 1\n                except ValueError:\n                    pass\n            d[\"json\"] = {\"rows\": len(js), \"parsed\": ok, \"shapes\": dict(sizes.most_common(5))}\n        wkt = sum(1 for v in nonempty if v.split(\" \")[0] in (\"POINT\", \"POLYGON\", \"MULTIPOLYGON\", \"LINESTRING\"))\n        if wkt:\n            d[\"geometry_rows\"] = wkt\n        if d[\"distinct\"] <= 12:\n            d[\"values\"] = dict(collections.Counter(vals).most_common(12))\n        out[\"columns\"][c] = d\n    if pk and all(k in idx for k in pk):\n        keys = [tuple(r[idx[k]] for k in pk) for r in rows]\n        out[\"pk\"] = {\"columns\": pk, \"distinct\": len(set(keys)), \"empty\": sum(1 for k in keys if \"\" in k)}\n        if len(pk) == 1:\n            ints = [int(k[0]) for k in keys if k[0].lstrip(\"-\").isdigit()]\n            if ints and len(ints) == n:\n                out[\"pk\"].update({\"min\": min(ints), \"max\": max(ints), \"gaps\": max(ints) - min(ints) + 1 - len(set(ints))})\n    sig = collections.Counter(tuple(c for c in head if r[idx[c]] == \"\") for r in rows)\n    out[\"empty_patterns\"] = [{\"empty\": list(k), \"rows\": v} for k, v in sig.most_common(8)]\n    out[\"empty_patterns_distinct\"] = len(sig)\n    low = [c for c in head if 1 < out[\"columns\"][c][\"distinct\"] <= 12 and c not in pk]\n    per = {}\n    for c in low:\n        by = collections.defaultdict(lambda: collections.Counter())\n        cnt = collections.Counter()\n        for r in rows:\n            v = r[idx[c]]\n            cnt[v] += 1\n            for o in head:\n                if r[idx[o]] == \"\":\n                    by[v][o] += 1\n        varying = {}\n        for o in head:\n            counts = {v: by[v][o] for v in cnt}\n            kinds = set(\"none\" if counts[v] == 0 else \"all\" if counts[v] == cnt[v] else \"some\" for v in cnt)\n            if len(kinds) > 1 or kinds == {\"some\"}:\n                varying[o] = counts\n        if varying:\n            per[c] = {\"rows_per_value\": dict(cnt), \"empty_rows_by_value\": varying}\n    out[\"empty_rows_by_low_cardinality_value\"] = per\n    fds = []\n    if n <= FD_MAX_ROWS:\n        live = [c for c in head if c not in pk and 1 < out[\"columns\"][c][\"distinct\"] < n]\n        for x in live:\n            xi = idx[x]\n            for y in head:\n                if y == x or y in pk or out[\"columns\"][y][\"distinct\"] <= 1:\n                    continue\n                yi, m, ok = idx[y], {}, True\n                for r in rows:\n                    if m.setdefault(r[xi], r[yi]) != r[yi]:\n                        ok = False\n                        break\n                if ok:\n                    fds.append(\"%s -> %s\" % (x, y))\n    out[\"functional_dependencies\"] = fds if n <= FD_MAX_ROWS else \"not computed: too many rows\"\n    out[\"column_names_with_trailing_digits\"] = [c for c in head if c[-1:].isdigit()]\n    out[\"schema_sha256\"] = ia.schema_hash(head)\n    return out\n",
+ "id": "4669dabe65f6b166",
+ "inputs": {
+  "extract": "2016-06-01",
+  "manifest_sha256": "35b71b2e3ff4bb9ef4e24afc9c56f914e8386df4060a794b862e7f5a00d2774f",
+  "source": "wwi",
+  "table": "Purchasing.SupplierCategories"
+ },
+ "kind": "profile",
+ "ran_at": "2026-10-18T13:34:27Z",
+ "result": {
+  "column_names_with_trailing_digits": [],
+  "columns": {
+   "LastEditedBy": {
+    "distinct": 2,
+    "empty": 0,
+    "numeric": {
+     "max": 16.0,
+     "min": 1.0,
+     "negative": 0,
+     "non_integer": 0,
+     "positive": 9,
+     "zero": 0
+    },
+    "values": {
+     "1": 8,
+     "16": 1
+    }
+   },
+   "SupplierCategoryID": {
+    "distinct": 9,
+    "empty": 0,
+    "numeric": {
+     "max": 9.0,
+     "min": 1.0,
+     "negative": 0,
+     "non_integer": 0,
+     "positive": 9,
+     "zero": 0
+    },
+    "values": {
+     "1": 1,
+     "2": 1,
+     "3": 1,
+     "4": 1,
+     "5": 1,
+     "6": 1,
+     "7": 1,
+     "8": 1,
+     "9": 1
+    }
+   },
+   "SupplierCategoryName": {
+    "distinct": 9,
+    "empty": 0,
+    "max": "Toy Supplier",
+    "min": "Clothing Supplier",
+    "values": {
+     "Clothing Supplier": 1,
+     "Courier Services Supplier": 1,
+     "Financial Services Supplier": 1,
+     "Insurance Services Supplier": 1,
+     "Marketing Services Supplier": 1,
+     "Novelty Goods Supplier": 1,
+     "Other Wholesaler": 1,
+     "Packaging Supplier": 1,
+     "Toy Supplier": 1
+    }
+   },
+   "ValidFrom": {
+    "distinct": 2,
+    "empty": 0,
+    "far_future": 0,
+    "max": "2015-01-01T16:00:00.0000000",
+    "min": "2013-01-01T00:00:00.0000000",
+    "time_parts": {
+     "T00:00:00": 8,
+     "T16:00:00": 1
+    },
+    "time_parts_distinct": 2,
+    "values": {
+     "2013-01-01T00:00:00.0000000": 8,
+     "2015-01-01T16:00:00.0000000": 1
+    }
+   },
+   "ValidTo": {
+    "distinct": 1,
+    "empty": 0,
+    "far_future": 9,
+    "max": "9999-12-31T23:59:59.9999999",
+    "min": "9999-12-31T23:59:59.9999999",
+    "time_parts": {
+     "T23:59:59": 9
+    },
+    "time_parts_distinct": 1,
+    "values": {
+     "9999-12-31T23:59:59.9999999": 9
+    }
+   }
+  },
+  "empty_patterns": [
+   {
+    "empty": [],
+    "rows": 9
+   }
+  ],
+  "empty_patterns_distinct": 1,
+  "empty_rows_by_low_cardinality_value": {},
+  "functional_dependencies": [
+   "LastEditedBy -> ValidFrom",
+   "ValidFrom -> LastEditedBy"
+  ],
+  "pk": {
+   "columns": [
+    "SupplierCategoryID"
+   ],
+   "distinct": 9,
+   "empty": 0,
+   "gaps": 0,
+   "max": 9,
+   "min": 1
+  },
+  "rows": 9,
+  "schema_sha256": "1419ef6b992982575960251d90234c9f5f46b72d6559f42f83b10ceb82e9e21f"
+ },
+ "tool": "prototypes/information_analysis/profile_tables.py",
+ "tool_version": "e61ada2547265905e3558722cd127e81fa5cd770"
+}

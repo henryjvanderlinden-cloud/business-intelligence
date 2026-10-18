@@ -40,8 +40,14 @@ its tables are understood.
    columns and its own analysis before a build relies on it — belongs to round 2.
 3. **Item 28, arithmetic policy**, is added, best effort: precision, rounding mode, where rounding happens (line or
    document) and how residues are treated.
-4. **Not decided here:** round 2's folder structure (proposed in [`analysis/README.md`](../../analysis/README.md)
-   section 9, not ruled), and R15, which the author asked to have explained first (`ARC-OP-36`).
+4. ~~**Not decided here:** round 2's folder structure (proposed in [`analysis/README.md`](../../analysis/README.md)
+   section 9, not ruled), and R15, which the author asked to have explained first (`ARC-OP-36`).~~ Superseded by
+   item 5, the same day.
+5. **Ruled 2026-10-18, 14:59**, verbatim: "R15: agreed. Round 2 structure looks good. Please proceed." Round 2 uses
+   the `across/` tree of [`analysis/README.md`](../../analysis/README.md) section 9, with items 01, 02, 06, 07 and 27
+   as the minimum per relation. And item 7 (population), a minimum item, includes **what the extracting account can
+   see**: whether the table carries a row-level security policy or masked columns, and whether the extracting account
+   sees as many rows as an unrestricted one (R15).
 
 ## Consequences
 

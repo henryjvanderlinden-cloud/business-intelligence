@@ -1,0 +1,481 @@
+{
+ "code": "def profile(table, pk):\n    \"\"\"Profile one table of the extract DAY; pk is the list of primary-key columns from the catalogue.\"\"\"\n    f, head, rows = reader(DAY, table)\n    rows = list(rows)\n    f.close()\n    n = len(rows)\n    idx = {c: i for i, c in enumerate(head)}\n    out = {\"rows\": n, \"columns\": {}}\n    for c, i in idx.items():\n        vals = [r[i] for r in rows]\n        nonempty = [v for v in vals if v != \"\"]\n        d = {\"empty\": n - len(nonempty), \"distinct\": len(set(vals))}\n        nums = [x for x in (as_num(v) for v in nonempty) if x is not None]\n        if nonempty and len(nums) == len(nonempty):\n            d[\"numeric\"] = {\"min\": min(nums), \"max\": max(nums), \"negative\": sum(1 for x in nums if x < 0),\n                            \"zero\": sum(1 for x in nums if x == 0), \"positive\": sum(1 for x in nums if x > 0),\n                            \"non_integer\": sum(1 for x in nums if x != int(x))}\n        elif nonempty:\n            d[\"min\"], d[\"max\"] = min(nonempty)[:60], max(nonempty)[:60]\n        dated = [v for v in nonempty if len(v) >= 19 and v[4] == \"-\" and v[10] == \"T\"]\n        if nonempty and len(dated) == len(nonempty):\n            d[\"time_parts\"] = dict(collections.Counter(v[10:19] for v in dated).most_common(3))\n            d[\"time_parts_distinct\"] = len(set(v[10:] for v in dated))\n            d[\"far_future\"] = sum(1 for v in dated if v.startswith(\"9999\"))\n        js = [v for v in nonempty if v[:1] in \"{[\"]\n        if js:\n            ok, sizes = 0, collections.Counter()\n            for v in js:\n                try:\n                    o = json.loads(v)\n                    ok += 1\n                    if isinstance(o, list):\n                        sizes[\"list:%d\" % len(o)] += 1\n                    elif isinstance(o, dict):\n                        sizes[\"keys:\" + \",\".join(sorted(o.keys()))[:120]] += 1\n                except ValueError:\n                    pass\n            d[\"json\"] = {\"rows\": len(js), \"parsed\": ok, \"shapes\": dict(sizes.most_common(5))}\n        wkt = sum(1 for v in nonempty if v.split(\" \")[0] in (\"POINT\", \"POLYGON\", \"MULTIPOLYGON\", \"LINESTRING\"))\n        if wkt:\n            d[\"geometry_rows\"] = wkt\n        if d[\"distinct\"] <= 12:\n            d[\"values\"] = dict(collections.Counter(vals).most_common(12))\n        out[\"columns\"][c] = d\n    if pk and all(k in idx for k in pk):\n        keys = [tuple(r[idx[k]] for k in pk) for r in rows]\n        out[\"pk\"] = {\"columns\": pk, \"distinct\": len(set(keys)), \"empty\": sum(1 for k in keys if \"\" in k)}\n        if len(pk) == 1:\n            ints = [int(k[0]) for k in keys if k[0].lstrip(\"-\").isdigit()]\n            if ints and len(ints) == n:\n                out[\"pk\"].update({\"min\": min(ints), \"max\": max(ints), \"gaps\": max(ints) - min(ints) + 1 - len(set(ints))})\n    sig = collections.Counter(tuple(c for c in head if r[idx[c]] == \"\") for r in rows)\n    out[\"empty_patterns\"] = [{\"empty\": list(k), \"rows\": v} for k, v in sig.most_common(8)]\n    out[\"empty_patterns_distinct\"] = len(sig)\n    low = [c for c in head if 1 < out[\"columns\"][c][\"distinct\"] <= 12 and c not in pk]\n    per = {}\n    for c in low:\n        by = collections.defaultdict(lambda: collections.Counter())\n        cnt = collections.Counter()\n        for r in rows:\n            v = r[idx[c]]\n            cnt[v] += 1\n            for o in head:\n                if r[idx[o]] == \"\":\n                    by[v][o] += 1\n        varying = {}\n        for o in head:\n            counts = {v: by[v][o] for v in cnt}\n            kinds = set(\"none\" if counts[v] == 0 else \"all\" if counts[v] == cnt[v] else \"some\" for v in cnt)\n            if len(kinds) > 1 or kinds == {\"some\"}:\n                varying[o] = counts\n        if varying:\n            per[c] = {\"rows_per_value\": dict(cnt), \"empty_rows_by_value\": varying}\n    out[\"empty_rows_by_low_cardinality_value\"] = per\n    fds = []\n    if n <= FD_MAX_ROWS:\n        live = [c for c in head if c not in pk and 1 < out[\"columns\"][c][\"distinct\"] < n]\n        for x in live:\n            xi = idx[x]\n            for y in head:\n                if y == x or y in pk or out[\"columns\"][y][\"distinct\"] <= 1:\n                    continue\n                yi, m, ok = idx[y], {}, True\n                for r in rows:\n                    if m.setdefault(r[xi], r[yi]) != r[yi]:\n                        ok = False\n                        break\n                if ok:\n                    fds.append(\"%s -> %s\" % (x, y))\n    out[\"functional_dependencies\"] = fds if n <= FD_MAX_ROWS else \"not computed: too many rows\"\n    out[\"column_names_with_trailing_digits\"] = [c for c in head if c[-1:].isdigit()]\n    out[\"schema_sha256\"] = ia.schema_hash(head)\n    return out\n",
+ "id": "419f7b85d80b0191",
+ "inputs": {
+  "extract": "2016-06-01",
+  "manifest_sha256": "35b71b2e3ff4bb9ef4e24afc9c56f914e8386df4060a794b862e7f5a00d2774f",
+  "source": "wwi",
+  "table": "Application.People"
+ },
+ "kind": "profile",
+ "ran_at": "2026-10-18T13:34:25Z",
+ "result": {
+  "column_names_with_trailing_digits": [],
+  "columns": {
+   "CustomFields": {
+    "distinct": 20,
+    "empty": 1092,
+    "json": {
+     "parsed": 19,
+     "rows": 19,
+     "shapes": {
+      "keys:CommissionRate,HireDate,OtherLanguages,PrimarySalesTerritory,Title": 10,
+      "keys:HireDate,OtherLanguages,Title": 9
+     }
+    },
+    "max": "{ \"OtherLanguages\": [] ,\"HireDate\":\"2012-03-05T00:00:00\",\"Ti",
+    "min": "{ \"OtherLanguages\": [\"Arabic\",\"Greek\"] ,\"HireDate\":\"2009-03-"
+   },
+   "EmailAddress": {
+    "distinct": 1030,
+    "empty": 1,
+    "max": "\u00e5\u0161ani@wingtiptoys.com",
+    "min": "aahlada@tailspintoys.com"
+   },
+   "FaxNumber": {
+    "distinct": 62,
+    "empty": 1,
+    "max": "(907) 555-0101",
+    "min": "(201) 555-0101"
+   },
+   "FullName": {
+    "distinct": 1111,
+    "empty": 0,
+    "max": "\u00c5\u0161ani Sen",
+    "min": "Aahlada Thota"
+   },
+   "HashedPassword": {
+    "distinct": 158,
+    "empty": 954,
+    "max": "0xFBF469B0E38663243BB141AE80F893EDAE22E04AF66D040D17B492536C",
+    "min": "0x000D92459522EE57C9FA8EE36867819292D04E865BF28963B8113A3247"
+   },
+   "IsEmployee": {
+    "distinct": 2,
+    "empty": 0,
+    "numeric": {
+     "max": 1.0,
+     "min": 0.0,
+     "negative": 0,
+     "non_integer": 0,
+     "positive": 19,
+     "zero": 1092
+    },
+    "values": {
+     "0": 1092,
+     "1": 19
+    }
+   },
+   "IsExternalLogonProvider": {
+    "distinct": 1,
+    "empty": 0,
+    "numeric": {
+     "max": 0.0,
+     "min": 0.0,
+     "negative": 0,
+     "non_integer": 0,
+     "positive": 0,
+     "zero": 1111
+    },
+    "values": {
+     "0": 1111
+    }
+   },
+   "IsPermittedToLogon": {
+    "distinct": 2,
+    "empty": 0,
+    "numeric": {
+     "max": 1.0,
+     "min": 0.0,
+     "negative": 0,
+     "non_integer": 0,
+     "positive": 155,
+     "zero": 956
+    },
+    "values": {
+     "0": 956,
+     "1": 155
+    }
+   },
+   "IsSalesperson": {
+    "distinct": 2,
+    "empty": 0,
+    "numeric": {
+     "max": 1.0,
+     "min": 0.0,
+     "negative": 0,
+     "non_integer": 0,
+     "positive": 10,
+     "zero": 1101
+    },
+    "values": {
+     "0": 1101,
+     "1": 10
+    }
+   },
+   "IsSystemUser": {
+    "distinct": 2,
+    "empty": 0,
+    "numeric": {
+     "max": 1.0,
+     "min": 0.0,
+     "negative": 0,
+     "non_integer": 0,
+     "positive": 39,
+     "zero": 1072
+    },
+    "values": {
+     "0": 1072,
+     "1": 39
+    }
+   },
+   "LastEditedBy": {
+    "distinct": 1,
+    "empty": 0,
+    "numeric": {
+     "max": 1.0,
+     "min": 1.0,
+     "negative": 0,
+     "non_integer": 0,
+     "positive": 1111,
+     "zero": 0
+    },
+    "values": {
+     "1": 1111
+    }
+   },
+   "LogonName": {
+    "distinct": 156,
+    "empty": 0,
+    "max": "yves@example.com",
+    "min": "NO LOGON"
+   },
+   "OtherLanguages": {
+    "distinct": 18,
+    "empty": 1092,
+    "json": {
+     "parsed": 19,
+     "rows": 19,
+     "shapes": {
+      "list:0": 3,
+      "list:1": 5,
+      "list:2": 7,
+      "list:3": 4
+     }
+    },
+    "max": "[]",
+    "min": "[\"Arabic\",\"Greek\"]"
+   },
+   "PersonID": {
+    "distinct": 1111,
+    "empty": 0,
+    "numeric": {
+     "max": 3261.0,
+     "min": 1.0,
+     "negative": 0,
+     "non_integer": 0,
+     "positive": 1111,
+     "zero": 0
+    }
+   },
+   "PhoneNumber": {
+    "distinct": 72,
+    "empty": 1,
+    "max": "(907) 555-0100",
+    "min": "(201) 555-0100"
+   },
+   "Photo": {
+    "distinct": 1,
+    "empty": 1111,
+    "values": {
+     "": 1111
+    }
+   },
+   "PreferredName": {
+    "distinct": 882,
+    "empty": 0,
+    "max": "\u00c5\u0161ani",
+    "min": "Aahlada"
+   },
+   "SearchName": {
+    "distinct": 1111,
+    "empty": 0,
+    "max": "\u00c5\u0161ani \u00c5\u0161ani Sen",
+    "min": "Aahlada Aahlada Thota"
+   },
+   "UserPreferences": {
+    "distinct": 60,
+    "empty": 929,
+    "json": {
+     "parsed": 182,
+     "rows": 182,
+     "shapes": {
+      "keys:dateFormat,favoritesOnDashboard,table,theme,timeZone": 182
+     }
+    },
+    "max": "{\"theme\":\"ui-darkness\",\"dateFormat\":\"yy-mm-dd\",\"timeZone\": \"",
+    "min": "{\"theme\":\"black-tie\",\"dateFormat\":\"DD, MM d, yy\",\"timeZone\":"
+   },
+   "ValidFrom": {
+    "distinct": 59,
+    "empty": 0,
+    "far_future": 0,
+    "max": "2016-06-01T08:00:00.0000000",
+    "min": "2013-01-01T00:00:00.0000000",
+    "time_parts": {
+     "T00:00:00": 929,
+     "T08:00:00": 1,
+     "T23:14:00": 181
+    },
+    "time_parts_distinct": 3
+   },
+   "ValidTo": {
+    "distinct": 1,
+    "empty": 0,
+    "far_future": 1111,
+    "max": "9999-12-31T23:59:59.9999999",
+    "min": "9999-12-31T23:59:59.9999999",
+    "time_parts": {
+     "T23:59:59": 1111
+    },
+    "time_parts_distinct": 1,
+    "values": {
+     "9999-12-31T23:59:59.9999999": 1111
+    }
+   }
+  },
+  "empty_patterns": [
+   {
+    "empty": [
+     "HashedPassword",
+     "UserPreferences",
+     "Photo",
+     "CustomFields",
+     "OtherLanguages"
+    ],
+    "rows": 929
+   },
+   {
+    "empty": [
+     "Photo",
+     "CustomFields",
+     "OtherLanguages"
+    ],
+    "rows": 138
+   },
+   {
+    "empty": [
+     "HashedPassword",
+     "Photo",
+     "CustomFields",
+     "OtherLanguages"
+    ],
+    "rows": 24
+   },
+   {
+    "empty": [
+     "Photo"
+    ],
+    "rows": 19
+   },
+   {
+    "empty": [
+     "HashedPassword",
+     "PhoneNumber",
+     "FaxNumber",
+     "EmailAddress",
+     "Photo",
+     "CustomFields",
+     "OtherLanguages"
+    ],
+    "rows": 1
+   }
+  ],
+  "empty_patterns_distinct": 5,
+  "empty_rows_by_low_cardinality_value": {
+   "IsEmployee": {
+    "empty_rows_by_value": {
+     "CustomFields": {
+      "0": 1092,
+      "1": 0
+     },
+     "EmailAddress": {
+      "0": 1,
+      "1": 0
+     },
+     "FaxNumber": {
+      "0": 1,
+      "1": 0
+     },
+     "HashedPassword": {
+      "0": 954,
+      "1": 0
+     },
+     "OtherLanguages": {
+      "0": 1092,
+      "1": 0
+     },
+     "PhoneNumber": {
+      "0": 1,
+      "1": 0
+     },
+     "UserPreferences": {
+      "0": 929,
+      "1": 0
+     }
+    },
+    "rows_per_value": {
+     "0": 1092,
+     "1": 19
+    }
+   },
+   "IsPermittedToLogon": {
+    "empty_rows_by_value": {
+     "CustomFields": {
+      "0": 954,
+      "1": 138
+     },
+     "EmailAddress": {
+      "0": 1,
+      "1": 0
+     },
+     "FaxNumber": {
+      "0": 1,
+      "1": 0
+     },
+     "HashedPassword": {
+      "0": 954,
+      "1": 0
+     },
+     "OtherLanguages": {
+      "0": 954,
+      "1": 138
+     },
+     "PhoneNumber": {
+      "0": 1,
+      "1": 0
+     },
+     "UserPreferences": {
+      "0": 929,
+      "1": 0
+     }
+    },
+    "rows_per_value": {
+     "0": 956,
+     "1": 155
+    }
+   },
+   "IsSalesperson": {
+    "empty_rows_by_value": {
+     "CustomFields": {
+      "0": 1092,
+      "1": 0
+     },
+     "EmailAddress": {
+      "0": 1,
+      "1": 0
+     },
+     "FaxNumber": {
+      "0": 1,
+      "1": 0
+     },
+     "HashedPassword": {
+      "0": 954,
+      "1": 0
+     },
+     "OtherLanguages": {
+      "0": 1092,
+      "1": 0
+     },
+     "PhoneNumber": {
+      "0": 1,
+      "1": 0
+     },
+     "UserPreferences": {
+      "0": 929,
+      "1": 0
+     }
+    },
+    "rows_per_value": {
+     "0": 1101,
+     "1": 10
+    }
+   },
+   "IsSystemUser": {
+    "empty_rows_by_value": {
+     "CustomFields": {
+      "0": 1072,
+      "1": 20
+     },
+     "EmailAddress": {
+      "0": 1,
+      "1": 0
+     },
+     "FaxNumber": {
+      "0": 1,
+      "1": 0
+     },
+     "HashedPassword": {
+      "0": 936,
+      "1": 18
+     },
+     "OtherLanguages": {
+      "0": 1072,
+      "1": 20
+     },
+     "PhoneNumber": {
+      "0": 1,
+      "1": 0
+     },
+     "UserPreferences": {
+      "0": 929,
+      "1": 0
+     }
+    },
+    "rows_per_value": {
+     "0": 1072,
+     "1": 39
+    }
+   }
+  },
+  "functional_dependencies": [
+   "LogonName -> IsPermittedToLogon",
+   "LogonName -> IsEmployee",
+   "LogonName -> IsSalesperson",
+   "LogonName -> CustomFields",
+   "LogonName -> OtherLanguages",
+   "HashedPassword -> IsPermittedToLogon",
+   "HashedPassword -> LogonName",
+   "HashedPassword -> IsEmployee",
+   "HashedPassword -> IsSalesperson",
+   "HashedPassword -> CustomFields",
+   "HashedPassword -> OtherLanguages",
+   "PhoneNumber -> IsEmployee",
+   "FaxNumber -> IsEmployee",
+   "EmailAddress -> PreferredName",
+   "EmailAddress -> IsSystemUser",
+   "EmailAddress -> IsEmployee",
+   "EmailAddress -> IsSalesperson",
+   "EmailAddress -> CustomFields",
+   "EmailAddress -> OtherLanguages",
+   "CustomFields -> IsEmployee",
+   "CustomFields -> IsSalesperson",
+   "CustomFields -> OtherLanguages",
+   "OtherLanguages -> IsEmployee"
+  ],
+  "pk": {
+   "columns": [
+    "PersonID"
+   ],
+   "distinct": 1111,
+   "empty": 0,
+   "gaps": 2150,
+   "max": 3261,
+   "min": 1
+  },
+  "rows": 1111,
+  "schema_sha256": "5f24e9163953099bd97211216302ba9edbe184de9237880789cd61681982e529"
+ },
+ "tool": "prototypes/information_analysis/profile_tables.py",
+ "tool_version": "e61ada2547265905e3558722cd127e81fa5cd770"
+}

@@ -1,8 +1,8 @@
 # Information analysis - how it is recorded
 
 > **STATUS: RULED** 2026-10-18 in [ADR-0018](../docs/20_decisions/0018-information-analysis-record.md) and, for the two
-> rounds and item 28, [ADR-0019](../docs/20_decisions/0019-information-analysis-in-two-rounds.md); **section 9, the
-> layout of round 2, is proposed and not ruled.** After review
+> rounds, item 28, round 2's layout (section 9) and extraction visibility under item 7,
+> [ADR-0019](../docs/20_decisions/0019-information-analysis-in-two-rounds.md). After review
 > by astra ([XREV](../docs/30_research/notes/XREV_2026-10-18_information-analysis-record_astra.md)). Enforced by
 > `python tools/check_repo.py`; summarised by `python tools/ia_status.py`.
 
@@ -23,8 +23,9 @@ and, on metadata:
 
 ## 1. Layout
 
-Round 1 (ADR-0019) is per table and per column: the `tables/` tree and `_source/`. Round 2, across tables, is section 9;
-the cross-table folders shown here are replaced by its proposal once that is ruled.
+Round 1 (ADR-0019) is per table and per column: the `tables/` tree and `_source/`. Round 2, across tables, is section 9,
+whose `across/` tree replaces the cross-table folders shown here (`reconciliations/`, `relations/`, `processes/`,
+`terms/`, `entities/` live under `<source>/across/`).
 
 ```
 analysis/
@@ -195,10 +196,10 @@ was read, and the excerpt relied on.
 7. "What must be rechecked if this changes" is a question for a generated dependency index, not for grep; none
    exists yet.
 
-## 9. Round 2: across tables (PROPOSED, not ruled)
+## 9. Round 2: across tables (ruled 2026-10-18, ADR-0019)
 
 Round 2 asks how tables relate, if at all; which cross-table peculiarities deserve a warning; and what an assumed or
-proven join means (ADR-0019). It would get its own tree, built like round 1 so an agent needs to learn one shape:
+proven join means (ADR-0019). It has its own tree, built like round 1 so an agent needs to learn one shape:
 
 ```
 analysis/<source>/across/
@@ -221,7 +222,7 @@ analysis/<source>/across/
                                     observed value inclusion and names, each marked assumed or proven
 ```
 
-The minimum for a relation would be items 01, 02, 06, 07 and 27: the cardinality, the meaning, the key roles, the
+The minimum for a relation is items 01, 02, 06, 07 and 27: the cardinality, the meaning, the key roles, the
 orphans and the warnings, with the same hard effort as round 1's minimum (R14). Sol's counterexample — two candidate
 keys a foreign key could point to, both giving a clean one-to-one join — is caught by 02 and 06 together. A relation
 nobody has proven stays a folder whose claims say `type=observed` or `intended` with their confidence; "assumed" is a

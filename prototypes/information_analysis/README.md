@@ -17,7 +17,29 @@ hash and never overwritten. Run from the repository root with Python 3 and no de
 python prototypes/information_analysis/evidence_orders.py
 ```
 
-**Answer:** not yet; one table is not a trial.
+**Round 1's minimum for all 48 tables** (2026-10-18): `profile_tables.py` writes catalogue, profile and transition
+evidence for every table; `evidence_shared.py` adds what one table's profile cannot show (a numbering shared by three
+tables, candidate keys, invoice-line arithmetic); `write_dossiers.py` writes the item files, with mechanical claims
+built from the evidence and judgement claims from a specification the agent writes per table (kept in the agent's
+scratch folder; the item files are the record). Run in that order, from the repository root:
+
+```
+python prototypes/information_analysis/profile_tables.py
+python prototypes/information_analysis/evidence_shared.py
+python prototypes/information_analysis/evidence_shared.py candidates
+python prototypes/information_analysis/evidence_shared.py arithmetic
+python prototypes/information_analysis/write_dossiers.py <specification module>
+```
+
+**Answer, first part:** the inventory works on a real source. The catalogue took 7 queries (one per job run), the
+profiles about two minutes of machine time for 48 tables and 5.4 million rows, and the author's hands not at all; the
+judgement claims took the agent most of the effort. Unanswered: whether a different agent would reach the same
+judgements (review owed) and what round 2 costs.
+
+**Changes waiting for the next run of `setup.ps1`** (the job is pinned, so these take effect only then):
+1. a connection per query with `Pooling=false`, so several requests in one run no longer fail (below);
+2. the `status` action to list security policies and masked columns as owner, which would settle the open R15
+   question (`07_population.md`, "whether a row-level security policy exists") for every table.
 
 **A defect of the sandbox, diagnosed 2026-10-18.** In one run of the job, the first query succeeds and every later
 request in the same run - a query or even `status` - fails with "Cannot continue the execution because the session

@@ -103,7 +103,9 @@ after deletion; composite keys; and self-references. WWI's `Sales.Orders.Backord
 rows, test data, several companies or tenants in one table, rows that are cancelled, inactive or
 soft-deleted. A count, a sum or a join that does not know the population is wrong without any
 error. WWI's `Application.People` begins with person 1, *Data Conversion Only*, a technical row,
-not a person.
+not a person. *Added 2026-10-18 (ADR-0019, R15):* population includes **what the extracting account can see** —
+whether the table carries a row-level security policy or masked columns, and whether the extracting account sees as
+many rows as an unrestricted one. An extract through a restricted account looks complete while it is not.
 
 ### What is in it
 

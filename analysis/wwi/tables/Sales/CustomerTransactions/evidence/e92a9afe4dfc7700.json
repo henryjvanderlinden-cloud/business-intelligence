@@ -1,0 +1,46 @@
+{
+ "code": "def shared_transaction_numbering():\n    ids = {}\n    for t, col in TRANSACTION_TABLES.items():\n        f, head, rows = reader(DAY, t)\n        i = head.index(col)\n        ids[t] = set(int(r[i]) for r in rows)\n        f.close()\n    names = list(ids)\n    union = set().union(*ids.values())\n    return {\"tables\": {t: {\"rows\": len(v), \"min\": min(v), \"max\": max(v)} for t, v in ids.items()},\n            \"overlap_between_tables\": {\"%s & %s\" % (a, b): len(ids[a] & ids[b]) for i, a in enumerate(names) for b in names[i + 1:]},\n            \"union_rows\": len(union), \"union_min\": min(union), \"union_max\": max(union),\n            \"numbers_unused_in_union_range\": max(union) - min(union) + 1 - len(union)}\n",
+ "id": "e92a9afe4dfc7700",
+ "inputs": {
+  "extract": "2016-06-01",
+  "manifest_sha256": "35b71b2e3ff4bb9ef4e24afc9c56f914e8386df4060a794b862e7f5a00d2774f",
+  "source": "wwi",
+  "tables": [
+   "Purchasing.SupplierTransactions",
+   "Sales.CustomerTransactions",
+   "Warehouse.StockItemTransactions"
+  ]
+ },
+ "kind": "profile",
+ "ran_at": "2026-10-18T13:13:44Z",
+ "result": {
+  "numbers_unused_in_union_range": 0,
+  "overlap_between_tables": {
+   "Purchasing.SupplierTransactions & Warehouse.StockItemTransactions": 0,
+   "Sales.CustomerTransactions & Purchasing.SupplierTransactions": 0,
+   "Sales.CustomerTransactions & Warehouse.StockItemTransactions": 0
+  },
+  "tables": {
+   "Purchasing.SupplierTransactions": {
+    "max": 336263,
+    "min": 134,
+    "rows": 2440
+   },
+   "Sales.CustomerTransactions": {
+    "max": 336525,
+    "min": 2,
+    "rows": 97242
+   },
+   "Warehouse.StockItemTransactions": {
+    "max": 336524,
+    "min": 1,
+    "rows": 236843
+   }
+  },
+  "union_max": 336525,
+  "union_min": 1,
+  "union_rows": 336525
+ },
+ "tool": "prototypes/information_analysis/evidence_shared.py",
+ "tool_version": "d4b86830c55f8e637b4aaad48205b3a15aa159c7"
+}

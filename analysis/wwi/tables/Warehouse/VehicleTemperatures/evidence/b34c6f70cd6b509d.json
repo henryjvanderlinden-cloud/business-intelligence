@@ -1,0 +1,26 @@
+{
+ "code": "def candidate_key(table, cols):\n    \"\"\"Is this column combination unique, among the rows where all its columns are filled?\"\"\"\n    f, head, rows = reader(DAY, table)\n    idx = [head.index(c) for c in cols]\n    seen, dup, filled, n = set(), 0, 0, 0\n    for r in rows:\n        n += 1\n        k = tuple(r[i] for i in idx)\n        if \"\" in k:\n            continue\n        filled += 1\n        if k in seen:\n            dup += 1\n        seen.add(k)\n    f.close()\n    return {\"columns\": cols, \"rows\": n, \"rows_with_all_filled\": filled, \"distinct\": len(seen), \"duplicate_rows\": dup}\n",
+ "id": "b34c6f70cd6b509d",
+ "inputs": {
+  "extract": "2016-06-01",
+  "manifest_sha256": "35b71b2e3ff4bb9ef4e24afc9c56f914e8386df4060a794b862e7f5a00d2774f",
+  "source": "wwi",
+  "table": "Warehouse.VehicleTemperatures"
+ },
+ "kind": "profile",
+ "ran_at": "2026-10-18T13:15:28Z",
+ "result": [
+  {
+   "columns": [
+    "ChillerSensorNumber",
+    "RecordedWhen"
+   ],
+   "distinct": 66430,
+   "duplicate_rows": 0,
+   "rows": 66430,
+   "rows_with_all_filled": 66430
+  }
+ ],
+ "tool": "prototypes/information_analysis/evidence_shared.py",
+ "tool_version": "53320a12270152d842528644a8524cf98e49d828"
+}

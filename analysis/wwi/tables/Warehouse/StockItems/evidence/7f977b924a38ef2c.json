@@ -1,0 +1,1130 @@
+{
+ "code": "def profile(table, pk):\n    \"\"\"Profile one table of the extract DAY; pk is the list of primary-key columns from the catalogue.\"\"\"\n    f, head, rows = reader(DAY, table)\n    rows = list(rows)\n    f.close()\n    n = len(rows)\n    idx = {c: i for i, c in enumerate(head)}\n    out = {\"rows\": n, \"columns\": {}}\n    for c, i in idx.items():\n        vals = [r[i] for r in rows]\n        nonempty = [v for v in vals if v != \"\"]\n        d = {\"empty\": n - len(nonempty), \"distinct\": len(set(vals))}\n        nums = [x for x in (as_num(v) for v in nonempty) if x is not None]\n        if nonempty and len(nums) == len(nonempty):\n            d[\"numeric\"] = {\"min\": min(nums), \"max\": max(nums), \"negative\": sum(1 for x in nums if x < 0),\n                            \"zero\": sum(1 for x in nums if x == 0), \"positive\": sum(1 for x in nums if x > 0),\n                            \"non_integer\": sum(1 for x in nums if x != int(x))}\n        elif nonempty:\n            d[\"min\"], d[\"max\"] = min(nonempty)[:60], max(nonempty)[:60]\n        dated = [v for v in nonempty if len(v) >= 19 and v[4] == \"-\" and v[10] == \"T\"]\n        if nonempty and len(dated) == len(nonempty):\n            d[\"time_parts\"] = dict(collections.Counter(v[10:19] for v in dated).most_common(3))\n            d[\"time_parts_distinct\"] = len(set(v[10:] for v in dated))\n            d[\"far_future\"] = sum(1 for v in dated if v.startswith(\"9999\"))\n        js = [v for v in nonempty if v[:1] in \"{[\"]\n        if js:\n            ok, sizes = 0, collections.Counter()\n            for v in js:\n                try:\n                    o = json.loads(v)\n                    ok += 1\n                    if isinstance(o, list):\n                        sizes[\"list:%d\" % len(o)] += 1\n                    elif isinstance(o, dict):\n                        sizes[\"keys:\" + \",\".join(sorted(o.keys()))[:120]] += 1\n                except ValueError:\n                    pass\n            d[\"json\"] = {\"rows\": len(js), \"parsed\": ok, \"shapes\": dict(sizes.most_common(5))}\n        wkt = sum(1 for v in nonempty if v.split(\" \")[0] in (\"POINT\", \"POLYGON\", \"MULTIPOLYGON\", \"LINESTRING\"))\n        if wkt:\n            d[\"geometry_rows\"] = wkt\n        if d[\"distinct\"] <= 12:\n            d[\"values\"] = dict(collections.Counter(vals).most_common(12))\n        out[\"columns\"][c] = d\n    if pk and all(k in idx for k in pk):\n        keys = [tuple(r[idx[k]] for k in pk) for r in rows]\n        out[\"pk\"] = {\"columns\": pk, \"distinct\": len(set(keys)), \"empty\": sum(1 for k in keys if \"\" in k)}\n        if len(pk) == 1:\n            ints = [int(k[0]) for k in keys if k[0].lstrip(\"-\").isdigit()]\n            if ints and len(ints) == n:\n                out[\"pk\"].update({\"min\": min(ints), \"max\": max(ints), \"gaps\": max(ints) - min(ints) + 1 - len(set(ints))})\n    sig = collections.Counter(tuple(c for c in head if r[idx[c]] == \"\") for r in rows)\n    out[\"empty_patterns\"] = [{\"empty\": list(k), \"rows\": v} for k, v in sig.most_common(8)]\n    out[\"empty_patterns_distinct\"] = len(sig)\n    low = [c for c in head if 1 < out[\"columns\"][c][\"distinct\"] <= 12 and c not in pk]\n    per = {}\n    for c in low:\n        by = collections.defaultdict(lambda: collections.Counter())\n        cnt = collections.Counter()\n        for r in rows:\n            v = r[idx[c]]\n            cnt[v] += 1\n            for o in head:\n                if r[idx[o]] == \"\":\n                    by[v][o] += 1\n        varying = {}\n        for o in head:\n            counts = {v: by[v][o] for v in cnt}\n            kinds = set(\"none\" if counts[v] == 0 else \"all\" if counts[v] == cnt[v] else \"some\" for v in cnt)\n            if len(kinds) > 1 or kinds == {\"some\"}:\n                varying[o] = counts\n        if varying:\n            per[c] = {\"rows_per_value\": dict(cnt), \"empty_rows_by_value\": varying}\n    out[\"empty_rows_by_low_cardinality_value\"] = per\n    fds = []\n    if n <= FD_MAX_ROWS:\n        live = [c for c in head if c not in pk and 1 < out[\"columns\"][c][\"distinct\"] < n]\n        for x in live:\n            xi = idx[x]\n            for y in head:\n                if y == x or y in pk or out[\"columns\"][y][\"distinct\"] <= 1:\n                    continue\n                yi, m, ok = idx[y], {}, True\n                for r in rows:\n                    if m.setdefault(r[xi], r[yi]) != r[yi]:\n                        ok = False\n                        break\n                if ok:\n                    fds.append(\"%s -> %s\" % (x, y))\n    out[\"functional_dependencies\"] = fds if n <= FD_MAX_ROWS else \"not computed: too many rows\"\n    out[\"column_names_with_trailing_digits\"] = [c for c in head if c[-1:].isdigit()]\n    out[\"schema_sha256\"] = ia.schema_hash(head)\n    return out\n",
+ "id": "7f977b924a38ef2c",
+ "inputs": {
+  "extract": "2016-06-01",
+  "manifest_sha256": "35b71b2e3ff4bb9ef4e24afc9c56f914e8386df4060a794b862e7f5a00d2774f",
+  "source": "wwi",
+  "table": "Warehouse.StockItems"
+ },
+ "kind": "profile",
+ "ran_at": "2026-10-18T13:34:47Z",
+ "result": {
+  "column_names_with_trailing_digits": [],
+  "columns": {
+   "Barcode": {
+    "distinct": 9,
+    "empty": 219,
+    "numeric": {
+     "max": 8792838293987.0,
+     "min": 8302039293647.0,
+     "negative": 0,
+     "non_integer": 0,
+     "positive": 8,
+     "zero": 0
+    },
+    "values": {
+     "": 219,
+     "8302039293647": 1,
+     "8302039293929": 1,
+     "8792838293234": 1,
+     "8792838293236": 1,
+     "8792838293289": 1,
+     "8792838293728": 1,
+     "8792838293820": 1,
+     "8792838293987": 1
+    }
+   },
+   "Brand": {
+    "distinct": 2,
+    "empty": 209,
+    "max": "Northwind",
+    "min": "Northwind",
+    "values": {
+     "": 209,
+     "Northwind": 18
+    }
+   },
+   "ColorID": {
+    "distinct": 8,
+    "empty": 99,
+    "numeric": {
+     "max": 36.0,
+     "min": 3.0,
+     "negative": 0,
+     "non_integer": 0,
+     "positive": 128,
+     "zero": 0
+    },
+    "values": {
+     "": 99,
+     "12": 9,
+     "18": 4,
+     "28": 5,
+     "3": 51,
+     "35": 34,
+     "36": 2,
+     "4": 23
+    }
+   },
+   "CustomFields": {
+    "distinct": 21,
+    "empty": 0,
+    "json": {
+     "parsed": 227,
+     "rows": 227,
+     "shapes": {
+      "keys:CountryOfManufacture,MinimumAge,Tags": 9,
+      "keys:CountryOfManufacture,Range,Tags": 74,
+      "keys:CountryOfManufacture,ShelfLife,Tags": 8,
+      "keys:CountryOfManufacture,Tags": 136
+     }
+    },
+    "max": "{ \"CountryOfManufacture\": \"USA\", \"ShelfLife\": \"7 days\", \"Tag",
+    "min": "{ \"CountryOfManufacture\": \"China\", \"Tags\": [\"Comedy\"] }"
+   },
+   "InternalComments": {
+    "distinct": 1,
+    "empty": 227,
+    "values": {
+     "": 227
+    }
+   },
+   "IsChillerStock": {
+    "distinct": 2,
+    "empty": 0,
+    "numeric": {
+     "max": 1.0,
+     "min": 0.0,
+     "negative": 0,
+     "non_integer": 0,
+     "positive": 8,
+     "zero": 219
+    },
+    "values": {
+     "0": 219,
+     "1": 8
+    }
+   },
+   "LastEditedBy": {
+    "distinct": 1,
+    "empty": 0,
+    "numeric": {
+     "max": 1.0,
+     "min": 1.0,
+     "negative": 0,
+     "non_integer": 0,
+     "positive": 227,
+     "zero": 0
+    },
+    "values": {
+     "1": 227
+    }
+   },
+   "LeadTimeDays": {
+    "distinct": 6,
+    "empty": 0,
+    "numeric": {
+     "max": 20.0,
+     "min": 2.0,
+     "negative": 0,
+     "non_integer": 0,
+     "positive": 227,
+     "zero": 0
+    },
+    "values": {
+     "12": 90,
+     "14": 96,
+     "2": 3,
+     "20": 4,
+     "3": 8,
+     "7": 26
+    }
+   },
+   "MarketingComments": {
+    "distinct": 8,
+    "empty": 199,
+    "max": "Watch your friends faces when they eat these",
+    "min": "Complete with 12 projectiles",
+    "values": {
+     "": 199,
+     "Complete with 12 projectiles": 2,
+     "Need to see over your cubicle wall? This is just what's needed.": 1,
+     "Perfect for your child's party": 6,
+     "Realistic heavy walking sound": 4,
+     "Realistic sound of undergrowth being trampled while walking": 4,
+     "Suits child to 20 kg": 9,
+     "Watch your friends faces when they eat these": 2
+    }
+   },
+   "OuterPackageID": {
+    "distinct": 3,
+    "empty": 0,
+    "numeric": {
+     "max": 9.0,
+     "min": 6.0,
+     "negative": 0,
+     "non_integer": 0,
+     "positive": 227,
+     "zero": 0
+    },
+    "values": {
+     "6": 43,
+     "7": 175,
+     "9": 9
+    }
+   },
+   "Photo": {
+    "distinct": 1,
+    "empty": 227,
+    "values": {
+     "": 227
+    }
+   },
+   "QuantityPerOuter": {
+    "distinct": 9,
+    "empty": 0,
+    "numeric": {
+     "max": 36.0,
+     "min": 1.0,
+     "negative": 0,
+     "non_integer": 0,
+     "positive": 227,
+     "zero": 0
+    },
+    "values": {
+     "1": 119,
+     "10": 31,
+     "12": 42,
+     "20": 1,
+     "24": 17,
+     "25": 12,
+     "26": 1,
+     "36": 2,
+     "5": 2
+    }
+   },
+   "RecommendedRetailPrice": {
+    "distinct": 57,
+    "empty": 0,
+    "numeric": {
+     "max": 2839.01,
+     "min": 0.99,
+     "negative": 0,
+     "non_integer": 227,
+     "positive": 227,
+     "zero": 0
+    }
+   },
+   "SearchDetails": {
+    "distinct": 227,
+    "empty": 0,
+    "max": "White chocolate snow balls 250g Perfect for your child's par",
+    "min": "\"The Gu\" red shirt XML tag t-shirt (Black) 3XL "
+   },
+   "Size": {
+    "distinct": 44,
+    "empty": 64,
+    "max": "XXS",
+    "min": "1.5m"
+   },
+   "StockItemID": {
+    "distinct": 227,
+    "empty": 0,
+    "numeric": {
+     "max": 227.0,
+     "min": 1.0,
+     "negative": 0,
+     "non_integer": 0,
+     "positive": 227,
+     "zero": 0
+    }
+   },
+   "StockItemName": {
+    "distinct": 227,
+    "empty": 0,
+    "max": "White chocolate snow balls 250g",
+    "min": "\"The Gu\" red shirt XML tag t-shirt (Black) 3XL"
+   },
+   "SupplierID": {
+    "distinct": 7,
+    "empty": 0,
+    "numeric": {
+     "max": 12.0,
+     "min": 1.0,
+     "negative": 0,
+     "non_integer": 0,
+     "positive": 227,
+     "zero": 0
+    },
+    "values": {
+     "1": 8,
+     "10": 18,
+     "12": 15,
+     "2": 3,
+     "4": 74,
+     "5": 42,
+     "7": 67
+    }
+   },
+   "Tags": {
+    "distinct": 13,
+    "empty": 0,
+    "json": {
+     "parsed": 227,
+     "rows": 227,
+     "shapes": {
+      "list:0": 55,
+      "list:1": 129,
+      "list:2": 41,
+      "list:3": 2
+     }
+    },
+    "max": "[]",
+    "min": "[\"16GB\",\"USB Powered\"]"
+   },
+   "TaxRate": {
+    "distinct": 2,
+    "empty": 0,
+    "numeric": {
+     "max": 15.0,
+     "min": 10.0,
+     "negative": 0,
+     "non_integer": 0,
+     "positive": 227,
+     "zero": 0
+    },
+    "values": {
+     "10.000": 8,
+     "15.000": 219
+    }
+   },
+   "TypicalWeightPerUnit": {
+    "distinct": 23,
+    "empty": 0,
+    "numeric": {
+     "max": 21.0,
+     "min": 0.05,
+     "negative": 0,
+     "non_integer": 187,
+     "positive": 227,
+     "zero": 0
+    }
+   },
+   "UnitPackageID": {
+    "distinct": 4,
+    "empty": 0,
+    "numeric": {
+     "max": 10.0,
+     "min": 1.0,
+     "negative": 0,
+     "non_integer": 0,
+     "positive": 227,
+     "zero": 0
+    },
+    "values": {
+     "1": 8,
+     "10": 4,
+     "7": 210,
+     "9": 5
+    }
+   },
+   "UnitPrice": {
+    "distinct": 57,
+    "empty": 0,
+    "numeric": {
+     "max": 1899.0,
+     "min": 0.66,
+     "negative": 0,
+     "non_integer": 45,
+     "positive": 227,
+     "zero": 0
+    }
+   },
+   "ValidFrom": {
+    "distinct": 10,
+    "empty": 0,
+    "far_future": 0,
+    "max": "2016-05-31T23:12:00.0000000",
+    "min": "2016-05-31T23:00:00.0000000",
+    "time_parts": {
+     "T23:00:00": 55,
+     "T23:10:00": 42,
+     "T23:12:00": 67
+    },
+    "time_parts_distinct": 10,
+    "values": {
+     "2016-05-31T23:00:00.0000000": 55,
+     "2016-05-31T23:02:00.0000000": 7,
+     "2016-05-31T23:03:00.0000000": 2,
+     "2016-05-31T23:04:00.0000000": 8,
+     "2016-05-31T23:05:00.0000000": 3,
+     "2016-05-31T23:06:00.0000000": 9,
+     "2016-05-31T23:08:00.0000000": 20,
+     "2016-05-31T23:10:00.0000000": 42,
+     "2016-05-31T23:11:00.0000000": 14,
+     "2016-05-31T23:12:00.0000000": 67
+    }
+   },
+   "ValidTo": {
+    "distinct": 1,
+    "empty": 0,
+    "far_future": 227,
+    "max": "9999-12-31T23:59:59.9999999",
+    "min": "9999-12-31T23:59:59.9999999",
+    "time_parts": {
+     "T23:59:59": 227
+    },
+    "time_parts_distinct": 1,
+    "values": {
+     "9999-12-31T23:59:59.9999999": 227
+    }
+   }
+  },
+  "empty_patterns": [
+   {
+    "empty": [
+     "Brand",
+     "Barcode",
+     "MarketingComments",
+     "InternalComments",
+     "Photo"
+    ],
+    "rows": 70
+   },
+   {
+    "empty": [
+     "ColorID",
+     "Brand",
+     "Barcode",
+     "MarketingComments",
+     "InternalComments",
+     "Photo"
+    ],
+    "rows": 59
+   },
+   {
+    "empty": [
+     "Brand",
+     "Size",
+     "Barcode",
+     "MarketingComments",
+     "InternalComments",
+     "Photo"
+    ],
+    "rows": 42
+   },
+   {
+    "empty": [
+     "ColorID",
+     "Brand",
+     "Size",
+     "Barcode",
+     "MarketingComments",
+     "InternalComments",
+     "Photo"
+    ],
+    "rows": 19
+   },
+   {
+    "empty": [
+     "ColorID",
+     "Brand",
+     "Barcode",
+     "InternalComments",
+     "Photo"
+    ],
+    "rows": 8
+   },
+   {
+    "empty": [
+     "ColorID",
+     "Brand",
+     "InternalComments",
+     "Photo"
+    ],
+    "rows": 8
+   },
+   {
+    "empty": [
+     "Barcode",
+     "MarketingComments",
+     "InternalComments",
+     "Photo"
+    ],
+    "rows": 7
+   },
+   {
+    "empty": [
+     "Barcode",
+     "InternalComments",
+     "Photo"
+    ],
+    "rows": 7
+   }
+  ],
+  "empty_patterns_distinct": 12,
+  "empty_rows_by_low_cardinality_value": {
+   "Barcode": {
+    "empty_rows_by_value": {
+     "Barcode": {
+      "": 219,
+      "8302039293647": 0,
+      "8302039293929": 0,
+      "8792838293234": 0,
+      "8792838293236": 0,
+      "8792838293289": 0,
+      "8792838293728": 0,
+      "8792838293820": 0,
+      "8792838293987": 0
+     },
+     "Brand": {
+      "": 201,
+      "8302039293647": 1,
+      "8302039293929": 1,
+      "8792838293234": 1,
+      "8792838293236": 1,
+      "8792838293289": 1,
+      "8792838293728": 1,
+      "8792838293820": 1,
+      "8792838293987": 1
+     },
+     "ColorID": {
+      "": 91,
+      "8302039293647": 1,
+      "8302039293929": 1,
+      "8792838293234": 1,
+      "8792838293236": 1,
+      "8792838293289": 1,
+      "8792838293728": 1,
+      "8792838293820": 1,
+      "8792838293987": 1
+     },
+     "MarketingComments": {
+      "": 199,
+      "8302039293647": 0,
+      "8302039293929": 0,
+      "8792838293234": 0,
+      "8792838293236": 0,
+      "8792838293289": 0,
+      "8792838293728": 0,
+      "8792838293820": 0,
+      "8792838293987": 0
+     },
+     "Size": {
+      "": 64,
+      "8302039293647": 0,
+      "8302039293929": 0,
+      "8792838293234": 0,
+      "8792838293236": 0,
+      "8792838293289": 0,
+      "8792838293728": 0,
+      "8792838293820": 0,
+      "8792838293987": 0
+     }
+    },
+    "rows_per_value": {
+     "": 219,
+     "8302039293647": 1,
+     "8302039293929": 1,
+     "8792838293234": 1,
+     "8792838293236": 1,
+     "8792838293289": 1,
+     "8792838293728": 1,
+     "8792838293820": 1,
+     "8792838293987": 1
+    }
+   },
+   "Brand": {
+    "empty_rows_by_value": {
+     "Barcode": {
+      "": 201,
+      "Northwind": 18
+     },
+     "Brand": {
+      "": 209,
+      "Northwind": 0
+     },
+     "ColorID": {
+      "": 95,
+      "Northwind": 4
+     },
+     "MarketingComments": {
+      "": 190,
+      "Northwind": 9
+     },
+     "Size": {
+      "": 64,
+      "Northwind": 0
+     }
+    },
+    "rows_per_value": {
+     "": 209,
+     "Northwind": 18
+    }
+   },
+   "ColorID": {
+    "empty_rows_by_value": {
+     "Barcode": {
+      "": 91,
+      "12": 9,
+      "18": 4,
+      "28": 5,
+      "3": 51,
+      "35": 34,
+      "36": 2,
+      "4": 23
+     },
+     "Brand": {
+      "": 95,
+      "12": 9,
+      "18": 4,
+      "28": 1,
+      "3": 45,
+      "35": 34,
+      "36": 0,
+      "4": 21
+     },
+     "ColorID": {
+      "": 99,
+      "12": 0,
+      "18": 0,
+      "28": 0,
+      "3": 0,
+      "35": 0,
+      "36": 0,
+      "4": 0
+     },
+     "MarketingComments": {
+      "": 80,
+      "12": 8,
+      "18": 4,
+      "28": 3,
+      "3": 47,
+      "35": 34,
+      "36": 1,
+      "4": 22
+     },
+     "Size": {
+      "": 20,
+      "12": 1,
+      "18": 0,
+      "28": 0,
+      "3": 22,
+      "35": 21,
+      "36": 0,
+      "4": 0
+     }
+    },
+    "rows_per_value": {
+     "": 99,
+     "12": 9,
+     "18": 4,
+     "28": 5,
+     "3": 51,
+     "35": 34,
+     "36": 2,
+     "4": 23
+    }
+   },
+   "IsChillerStock": {
+    "empty_rows_by_value": {
+     "Barcode": {
+      "0": 219,
+      "1": 0
+     },
+     "Brand": {
+      "0": 201,
+      "1": 8
+     },
+     "ColorID": {
+      "0": 91,
+      "1": 8
+     },
+     "MarketingComments": {
+      "0": 199,
+      "1": 0
+     },
+     "Size": {
+      "0": 64,
+      "1": 0
+     }
+    },
+    "rows_per_value": {
+     "0": 219,
+     "1": 8
+    }
+   },
+   "LeadTimeDays": {
+    "empty_rows_by_value": {
+     "Barcode": {
+      "12": 90,
+      "14": 96,
+      "2": 3,
+      "20": 4,
+      "3": 0,
+      "7": 26
+     },
+     "Brand": {
+      "12": 90,
+      "14": 78,
+      "2": 3,
+      "20": 4,
+      "3": 8,
+      "7": 26
+     },
+     "ColorID": {
+      "12": 16,
+      "14": 68,
+      "2": 3,
+      "20": 4,
+      "3": 8,
+      "7": 0
+     },
+     "MarketingComments": {
+      "12": 82,
+      "14": 84,
+      "2": 3,
+      "20": 4,
+      "3": 0,
+      "7": 26
+     },
+     "Size": {
+      "12": 42,
+      "14": 15,
+      "2": 3,
+      "20": 4,
+      "3": 0,
+      "7": 0
+     }
+    },
+    "rows_per_value": {
+     "12": 90,
+     "14": 96,
+     "2": 3,
+     "20": 4,
+     "3": 8,
+     "7": 26
+    }
+   },
+   "MarketingComments": {
+    "empty_rows_by_value": {
+     "Barcode": {
+      "": 199,
+      "Complete with 12 projectiles": 2,
+      "Need to see over your cubicle wall? This is just what's needed.": 1,
+      "Perfect for your child's party": 0,
+      "Realistic heavy walking sound": 4,
+      "Realistic sound of undergrowth being trampled while walking": 4,
+      "Suits child to 20 kg": 9,
+      "Watch your friends faces when they eat these": 0
+     },
+     "Brand": {
+      "": 190,
+      "Complete with 12 projectiles": 2,
+      "Need to see over your cubicle wall? This is just what's needed.": 1,
+      "Perfect for your child's party": 6,
+      "Realistic heavy walking sound": 4,
+      "Realistic sound of undergrowth being trampled while walking": 4,
+      "Suits child to 20 kg": 0,
+      "Watch your friends faces when they eat these": 2
+     },
+     "ColorID": {
+      "": 80,
+      "Complete with 12 projectiles": 1,
+      "Need to see over your cubicle wall? This is just what's needed.": 0,
+      "Perfect for your child's party": 6,
+      "Realistic heavy walking sound": 4,
+      "Realistic sound of undergrowth being trampled while walking": 4,
+      "Suits child to 20 kg": 2,
+      "Watch your friends faces when they eat these": 2
+     },
+     "MarketingComments": {
+      "": 199,
+      "Complete with 12 projectiles": 0,
+      "Need to see over your cubicle wall? This is just what's needed.": 0,
+      "Perfect for your child's party": 0,
+      "Realistic heavy walking sound": 0,
+      "Realistic sound of undergrowth being trampled while walking": 0,
+      "Suits child to 20 kg": 0,
+      "Watch your friends faces when they eat these": 0
+     },
+     "Size": {
+      "": 61,
+      "Complete with 12 projectiles": 2,
+      "Need to see over your cubicle wall? This is just what's needed.": 1,
+      "Perfect for your child's party": 0,
+      "Realistic heavy walking sound": 0,
+      "Realistic sound of undergrowth being trampled while walking": 0,
+      "Suits child to 20 kg": 0,
+      "Watch your friends faces when they eat these": 0
+     }
+    },
+    "rows_per_value": {
+     "": 199,
+     "Complete with 12 projectiles": 2,
+     "Need to see over your cubicle wall? This is just what's needed.": 1,
+     "Perfect for your child's party": 6,
+     "Realistic heavy walking sound": 4,
+     "Realistic sound of undergrowth being trampled while walking": 4,
+     "Suits child to 20 kg": 9,
+     "Watch your friends faces when they eat these": 2
+    }
+   },
+   "OuterPackageID": {
+    "empty_rows_by_value": {
+     "Barcode": {
+      "6": 35,
+      "7": 175,
+      "9": 9
+     },
+     "Brand": {
+      "6": 43,
+      "7": 157,
+      "9": 9
+     },
+     "ColorID": {
+      "6": 8,
+      "7": 82,
+      "9": 9
+     },
+     "MarketingComments": {
+      "6": 34,
+      "7": 156,
+      "9": 9
+     },
+     "Size": {
+      "6": 1,
+      "7": 58,
+      "9": 5
+     }
+    },
+    "rows_per_value": {
+     "6": 43,
+     "7": 175,
+     "9": 9
+    }
+   },
+   "QuantityPerOuter": {
+    "empty_rows_by_value": {
+     "Barcode": {
+      "1": 119,
+      "10": 31,
+      "12": 41,
+      "20": 1,
+      "24": 10,
+      "25": 12,
+      "26": 1,
+      "36": 2,
+      "5": 2
+     },
+     "Brand": {
+      "1": 101,
+      "10": 31,
+      "12": 42,
+      "20": 1,
+      "24": 17,
+      "25": 12,
+      "26": 1,
+      "36": 2,
+      "5": 2
+     },
+     "ColorID": {
+      "1": 35,
+      "10": 21,
+      "12": 8,
+      "20": 1,
+      "24": 17,
+      "25": 12,
+      "26": 1,
+      "36": 2,
+      "5": 2
+     },
+     "MarketingComments": {
+      "1": 100,
+      "10": 30,
+      "12": 41,
+      "20": 1,
+      "24": 10,
+      "25": 12,
+      "26": 1,
+      "36": 2,
+      "5": 2
+     },
+     "Size": {
+      "1": 60,
+      "10": 4,
+      "12": 0,
+      "20": 0,
+      "24": 0,
+      "25": 0,
+      "26": 0,
+      "36": 0,
+      "5": 0
+     }
+    },
+    "rows_per_value": {
+     "1": 119,
+     "10": 31,
+     "12": 42,
+     "20": 1,
+     "24": 17,
+     "25": 12,
+     "26": 1,
+     "36": 2,
+     "5": 2
+    }
+   },
+   "SupplierID": {
+    "empty_rows_by_value": {
+     "Barcode": {
+      "1": 0,
+      "10": 18,
+      "12": 15,
+      "2": 3,
+      "4": 74,
+      "5": 42,
+      "7": 67
+     },
+     "Brand": {
+      "1": 8,
+      "10": 0,
+      "12": 15,
+      "2": 3,
+      "4": 74,
+      "5": 42,
+      "7": 67
+     },
+     "ColorID": {
+      "1": 8,
+      "10": 4,
+      "12": 13,
+      "2": 3,
+      "4": 16,
+      "5": 0,
+      "7": 55
+     },
+     "MarketingComments": {
+      "1": 0,
+      "10": 9,
+      "12": 12,
+      "2": 3,
+      "4": 66,
+      "5": 42,
+      "7": 67
+     },
+     "Size": {
+      "1": 0,
+      "10": 0,
+      "12": 15,
+      "2": 3,
+      "4": 0,
+      "5": 42,
+      "7": 4
+     }
+    },
+    "rows_per_value": {
+     "1": 8,
+     "10": 18,
+     "12": 15,
+     "2": 3,
+     "4": 74,
+     "5": 42,
+     "7": 67
+    }
+   },
+   "TaxRate": {
+    "empty_rows_by_value": {
+     "Barcode": {
+      "10.000": 0,
+      "15.000": 219
+     },
+     "Brand": {
+      "10.000": 8,
+      "15.000": 201
+     },
+     "ColorID": {
+      "10.000": 8,
+      "15.000": 91
+     },
+     "MarketingComments": {
+      "10.000": 0,
+      "15.000": 199
+     },
+     "Size": {
+      "10.000": 0,
+      "15.000": 64
+     }
+    },
+    "rows_per_value": {
+     "10.000": 8,
+     "15.000": 219
+    }
+   },
+   "UnitPackageID": {
+    "empty_rows_by_value": {
+     "Barcode": {
+      "1": 0,
+      "10": 4,
+      "7": 210,
+      "9": 5
+     },
+     "Brand": {
+      "1": 8,
+      "10": 4,
+      "7": 192,
+      "9": 5
+     },
+     "ColorID": {
+      "1": 8,
+      "10": 4,
+      "7": 82,
+      "9": 5
+     },
+     "MarketingComments": {
+      "1": 0,
+      "10": 4,
+      "7": 190,
+      "9": 5
+     },
+     "Size": {
+      "1": 0,
+      "10": 0,
+      "7": 59,
+      "9": 5
+     }
+    },
+    "rows_per_value": {
+     "1": 8,
+     "10": 4,
+     "7": 210,
+     "9": 5
+    }
+   },
+   "ValidFrom": {
+    "empty_rows_by_value": {
+     "Barcode": {
+      "2016-05-31T23:00:00.0000000": 47,
+      "2016-05-31T23:02:00.0000000": 7,
+      "2016-05-31T23:03:00.0000000": 2,
+      "2016-05-31T23:04:00.0000000": 8,
+      "2016-05-31T23:05:00.0000000": 3,
+      "2016-05-31T23:06:00.0000000": 9,
+      "2016-05-31T23:08:00.0000000": 20,
+      "2016-05-31T23:10:00.0000000": 42,
+      "2016-05-31T23:11:00.0000000": 14,
+      "2016-05-31T23:12:00.0000000": 67
+     },
+     "Brand": {
+      "2016-05-31T23:00:00.0000000": 55,
+      "2016-05-31T23:02:00.0000000": 0,
+      "2016-05-31T23:03:00.0000000": 0,
+      "2016-05-31T23:04:00.0000000": 8,
+      "2016-05-31T23:05:00.0000000": 3,
+      "2016-05-31T23:06:00.0000000": 0,
+      "2016-05-31T23:08:00.0000000": 20,
+      "2016-05-31T23:10:00.0000000": 42,
+      "2016-05-31T23:11:00.0000000": 14,
+      "2016-05-31T23:12:00.0000000": 67
+     },
+     "ColorID": {
+      "2016-05-31T23:00:00.0000000": 12,
+      "2016-05-31T23:02:00.0000000": 2,
+      "2016-05-31T23:03:00.0000000": 0,
+      "2016-05-31T23:04:00.0000000": 0,
+      "2016-05-31T23:05:00.0000000": 3,
+      "2016-05-31T23:06:00.0000000": 2,
+      "2016-05-31T23:08:00.0000000": 12,
+      "2016-05-31T23:10:00.0000000": 0,
+      "2016-05-31T23:11:00.0000000": 13,
+      "2016-05-31T23:12:00.0000000": 55
+     },
+     "MarketingComments": {
+      "2016-05-31T23:00:00.0000000": 46,
+      "2016-05-31T23:02:00.0000000": 7,
+      "2016-05-31T23:03:00.0000000": 2,
+      "2016-05-31T23:04:00.0000000": 8,
+      "2016-05-31T23:05:00.0000000": 3,
+      "2016-05-31T23:06:00.0000000": 0,
+      "2016-05-31T23:08:00.0000000": 12,
+      "2016-05-31T23:10:00.0000000": 42,
+      "2016-05-31T23:11:00.0000000": 12,
+      "2016-05-31T23:12:00.0000000": 67
+     },
+     "Size": {
+      "2016-05-31T23:00:00.0000000": 1,
+      "2016-05-31T23:02:00.0000000": 0,
+      "2016-05-31T23:03:00.0000000": 0,
+      "2016-05-31T23:04:00.0000000": 0,
+      "2016-05-31T23:05:00.0000000": 3,
+      "2016-05-31T23:06:00.0000000": 0,
+      "2016-05-31T23:08:00.0000000": 0,
+      "2016-05-31T23:10:00.0000000": 42,
+      "2016-05-31T23:11:00.0000000": 14,
+      "2016-05-31T23:12:00.0000000": 4
+     }
+    },
+    "rows_per_value": {
+     "2016-05-31T23:00:00.0000000": 55,
+     "2016-05-31T23:02:00.0000000": 7,
+     "2016-05-31T23:03:00.0000000": 2,
+     "2016-05-31T23:04:00.0000000": 8,
+     "2016-05-31T23:05:00.0000000": 3,
+     "2016-05-31T23:06:00.0000000": 9,
+     "2016-05-31T23:08:00.0000000": 20,
+     "2016-05-31T23:10:00.0000000": 42,
+     "2016-05-31T23:11:00.0000000": 14,
+     "2016-05-31T23:12:00.0000000": 67
+    }
+   }
+  },
+  "functional_dependencies": [
+   "SupplierID -> Brand",
+   "SupplierID -> IsChillerStock",
+   "SupplierID -> TaxRate",
+   "UnitPackageID -> IsChillerStock",
+   "UnitPackageID -> TaxRate",
+   "Size -> Brand",
+   "Size -> IsChillerStock",
+   "Size -> TaxRate",
+   "LeadTimeDays -> IsChillerStock",
+   "LeadTimeDays -> TaxRate",
+   "IsChillerStock -> TaxRate",
+   "Barcode -> IsChillerStock",
+   "Barcode -> TaxRate",
+   "TaxRate -> IsChillerStock",
+   "UnitPrice -> IsChillerStock",
+   "UnitPrice -> TaxRate",
+   "UnitPrice -> RecommendedRetailPrice",
+   "RecommendedRetailPrice -> IsChillerStock",
+   "RecommendedRetailPrice -> TaxRate",
+   "RecommendedRetailPrice -> UnitPrice",
+   "TypicalWeightPerUnit -> Brand",
+   "MarketingComments -> IsChillerStock",
+   "MarketingComments -> TaxRate",
+   "CustomFields -> SupplierID",
+   "CustomFields -> Brand",
+   "CustomFields -> IsChillerStock",
+   "CustomFields -> TaxRate",
+   "CustomFields -> Tags",
+   "CustomFields -> ValidFrom",
+   "Tags -> Brand",
+   "Tags -> ValidFrom",
+   "ValidFrom -> Brand"
+  ],
+  "pk": {
+   "columns": [
+    "StockItemID"
+   ],
+   "distinct": 227,
+   "empty": 0,
+   "gaps": 0,
+   "max": 227,
+   "min": 1
+  },
+  "rows": 227,
+  "schema_sha256": "a2a70ec4f434c5caf3e43bfaa2fcb63886a956c95e50e40cbf6b01c6e0f40c7d"
+ },
+ "tool": "prototypes/information_analysis/profile_tables.py",
+ "tool_version": "e61ada2547265905e3558722cd127e81fa5cd770"
+}

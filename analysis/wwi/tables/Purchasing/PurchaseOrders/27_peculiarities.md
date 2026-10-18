@@ -1,0 +1,48 @@
+---
+id: wwi:object:1026102696
+subject: wwi/tables/Purchasing/PurchaseOrders
+item: 27
+topic: peculiarities
+tier: minimum
+summary: Supplier attributes ride on the order (delivery method, supplier reference); expected delivery and finalization follow the order date.
+confidence: medium
+claims: 5
+written_by: claude-opus-5-5
+written_at: 2026-10-18T13:20:00Z
+step: S08-054
+method: mechanical claims by prototypes/information_analysis/write_dossiers.py from the evidence of profile_tables.py and evidence_shared.py; judgement claims (type intended, or interpretations) by claude-opus-5-5 reading that evidence; script blobs: write_dossiers.py 102dceeb7d85ec3db493afa75ff1e907c8b3f3a6, profile_tables.py e61ada2547265905e3558722cd127e81fa5cd770, evidence_shared.py 03d3dfbc0522d76aef793a33dc2bc491abc70529
+input_source: wwi
+input_extract: 2016-06-01
+input_manifest_sha256: 35b71b2e3ff4bb9ef4e24afc9c56f914e8386df4060a794b862e7f5a00d2774f
+input_schema_sha256: adb80ef2e4b8c472bfbd6569b8b3340fe525f86fe4769f74faa03e1e6624864a
+last_checked_at: 2026-10-18T13:20:00Z
+last_checked_by: claude-opus-5-5
+last_checked_against: 2016-06-01
+reviewed_by: none
+reviewed_at: none
+ruled_by: none
+ruled_at: none
+supersedes: none
+superseded_by: none
+recheck_when: every new extract, or a schema change
+---
+
+## Claims
+
+- C1 | type=observed | status=proposed | confidence=high | effective=2016-06-01 | observed=2026-10-18 | checked=2026-10-18 | evidence=6883f497d8b4086d | recheck=the empty-column patterns change | text: Test 8: 1 distinct pattern of empty columns; the most common: 2,076 rows with Comments, InternalComments empty.
+- C2 | type=observed | status=proposed | confidence=high | effective=2016-06-01 | observed=2026-10-18 | checked=2026-10-18 | evidence=6883f497d8b4086d | recheck=a row breaks a dependency | text: Test 1: 7 functional dependencies between non-key columns over the whole extract (5 involving audit columns, a batch-edit signature, not listed): SupplierID -> DeliveryMethodID; SupplierID -> SupplierReference; OrderDate -> ExpectedDeliveryDate; OrderDate -> IsOrderFinalized; ExpectedDeliveryDate -> IsOrderFinalized; SupplierReference -> SupplierID; SupplierReference -> DeliveryMethodID.
+- C3 | type=observed | status=proposed | confidence=high | effective=2016-06-01 | observed=2026-10-18 | checked=2026-10-18 | evidence=6883f497d8b4086d | recheck=a column is added | text: Test 16: no column name ends in a digit.
+- C4 | type=observed | status=proposed | confidence=high | effective=2016-06-01 | observed=2026-10-18 | checked=2026-10-18 | evidence=6883f497d8b4086d | recheck=every new extract, or a schema change | text: Test 1: SupplierID determines DeliveryMethodID and SupplierReference, so these are supplier attributes copied onto the order (whether copied at the time or looked up is item 12).
+- C5 | type=observed | status=proposed | confidence=medium | effective=2016-06-01 | observed=2026-10-18 | checked=2026-10-18 | evidence=6883f497d8b4086d | recheck=every new extract, or a schema change | text: OrderDate determines ExpectedDeliveryDate and IsOrderFinalized: orders of one day are placed and finalized together, a sign of the simulator's batch behaviour.
+
+## Reasoning
+
+Mechanical claims follow the confidence rules of analysis/README.md section 5; judgement claims are the writer's reading of the evidence.
+
+## Uncertainties
+
+None.
+
+## For a person
+
+None.

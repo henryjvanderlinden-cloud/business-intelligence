@@ -1,0 +1,29 @@
+{
+ "code": "def transition(table, pk):\n    \"\"\"Compare the previous extract with this one by primary key.\"\"\"\n    def load(day):\n        f, head, rows = reader(day, table)\n        idx = [head.index(k) for k in pk]\n        d = {tuple(r[i] for i in idx): r for r in rows}\n        f.close()\n        return head, d\n    ha, a = load(PREV)\n    hb, b = load(DAY)\n    if ha != hb:\n        return {\"columns_changed\": True}\n    changed = [k for k in a if k in b and a[k] != b[k]]\n    return {\"rows_from\": len(a), \"rows_to\": len(b), \"inserted\": sum(1 for k in b if k not in a),\n            \"deleted\": sum(1 for k in a if k not in b), \"updated\": len(changed),\n            \"updated_columns\": dict(collections.Counter(\n                hb[i] for k in changed for i in range(len(hb)) if a[k][i] != b[k][i]))}\n",
+ "id": "da513669b3fb1e7d",
+ "inputs": {
+  "from": {
+   "extract": "2016-05-31",
+   "manifest_sha256": "e1997891e919ac1a4f9af533db9a0e938ce53588406814e2119af0b164641ca2",
+   "source": "wwi"
+  },
+  "table": "Application.Countries",
+  "to": {
+   "extract": "2016-06-01",
+   "manifest_sha256": "35b71b2e3ff4bb9ef4e24afc9c56f914e8386df4060a794b862e7f5a00d2774f",
+   "source": "wwi"
+  }
+ },
+ "kind": "comparison of two extracts",
+ "ran_at": "2026-10-18T13:34:23Z",
+ "result": {
+  "deleted": 0,
+  "inserted": 0,
+  "rows_from": 190,
+  "rows_to": 190,
+  "updated": 0,
+  "updated_columns": {}
+ },
+ "tool": "prototypes/information_analysis/profile_tables.py",
+ "tool_version": "e61ada2547265905e3558722cd127e81fa5cd770"
+}

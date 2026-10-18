@@ -1,0 +1,966 @@
+{
+ "code": "def profile(table, pk):\n    \"\"\"Profile one table of the extract DAY; pk is the list of primary-key columns from the catalogue.\"\"\"\n    f, head, rows = reader(DAY, table)\n    rows = list(rows)\n    f.close()\n    n = len(rows)\n    idx = {c: i for i, c in enumerate(head)}\n    out = {\"rows\": n, \"columns\": {}}\n    for c, i in idx.items():\n        vals = [r[i] for r in rows]\n        nonempty = [v for v in vals if v != \"\"]\n        d = {\"empty\": n - len(nonempty), \"distinct\": len(set(vals))}\n        nums = [x for x in (as_num(v) for v in nonempty) if x is not None]\n        if nonempty and len(nums) == len(nonempty):\n            d[\"numeric\"] = {\"min\": min(nums), \"max\": max(nums), \"negative\": sum(1 for x in nums if x < 0),\n                            \"zero\": sum(1 for x in nums if x == 0), \"positive\": sum(1 for x in nums if x > 0),\n                            \"non_integer\": sum(1 for x in nums if x != int(x))}\n        elif nonempty:\n            d[\"min\"], d[\"max\"] = min(nonempty)[:60], max(nonempty)[:60]\n        dated = [v for v in nonempty if len(v) >= 19 and v[4] == \"-\" and v[10] == \"T\"]\n        if nonempty and len(dated) == len(nonempty):\n            d[\"time_parts\"] = dict(collections.Counter(v[10:19] for v in dated).most_common(3))\n            d[\"time_parts_distinct\"] = len(set(v[10:] for v in dated))\n            d[\"far_future\"] = sum(1 for v in dated if v.startswith(\"9999\"))\n        js = [v for v in nonempty if v[:1] in \"{[\"]\n        if js:\n            ok, sizes = 0, collections.Counter()\n            for v in js:\n                try:\n                    o = json.loads(v)\n                    ok += 1\n                    if isinstance(o, list):\n                        sizes[\"list:%d\" % len(o)] += 1\n                    elif isinstance(o, dict):\n                        sizes[\"keys:\" + \",\".join(sorted(o.keys()))[:120]] += 1\n                except ValueError:\n                    pass\n            d[\"json\"] = {\"rows\": len(js), \"parsed\": ok, \"shapes\": dict(sizes.most_common(5))}\n        wkt = sum(1 for v in nonempty if v.split(\" \")[0] in (\"POINT\", \"POLYGON\", \"MULTIPOLYGON\", \"LINESTRING\"))\n        if wkt:\n            d[\"geometry_rows\"] = wkt\n        if d[\"distinct\"] <= 12:\n            d[\"values\"] = dict(collections.Counter(vals).most_common(12))\n        out[\"columns\"][c] = d\n    if pk and all(k in idx for k in pk):\n        keys = [tuple(r[idx[k]] for k in pk) for r in rows]\n        out[\"pk\"] = {\"columns\": pk, \"distinct\": len(set(keys)), \"empty\": sum(1 for k in keys if \"\" in k)}\n        if len(pk) == 1:\n            ints = [int(k[0]) for k in keys if k[0].lstrip(\"-\").isdigit()]\n            if ints and len(ints) == n:\n                out[\"pk\"].update({\"min\": min(ints), \"max\": max(ints), \"gaps\": max(ints) - min(ints) + 1 - len(set(ints))})\n    sig = collections.Counter(tuple(c for c in head if r[idx[c]] == \"\") for r in rows)\n    out[\"empty_patterns\"] = [{\"empty\": list(k), \"rows\": v} for k, v in sig.most_common(8)]\n    out[\"empty_patterns_distinct\"] = len(sig)\n    low = [c for c in head if 1 < out[\"columns\"][c][\"distinct\"] <= 12 and c not in pk]\n    per = {}\n    for c in low:\n        by = collections.defaultdict(lambda: collections.Counter())\n        cnt = collections.Counter()\n        for r in rows:\n            v = r[idx[c]]\n            cnt[v] += 1\n            for o in head:\n                if r[idx[o]] == \"\":\n                    by[v][o] += 1\n        varying = {}\n        for o in head:\n            counts = {v: by[v][o] for v in cnt}\n            kinds = set(\"none\" if counts[v] == 0 else \"all\" if counts[v] == cnt[v] else \"some\" for v in cnt)\n            if len(kinds) > 1 or kinds == {\"some\"}:\n                varying[o] = counts\n        if varying:\n            per[c] = {\"rows_per_value\": dict(cnt), \"empty_rows_by_value\": varying}\n    out[\"empty_rows_by_low_cardinality_value\"] = per\n    fds = []\n    if n <= FD_MAX_ROWS:\n        live = [c for c in head if c not in pk and 1 < out[\"columns\"][c][\"distinct\"] < n]\n        for x in live:\n            xi = idx[x]\n            for y in head:\n                if y == x or y in pk or out[\"columns\"][y][\"distinct\"] <= 1:\n                    continue\n                yi, m, ok = idx[y], {}, True\n                for r in rows:\n                    if m.setdefault(r[xi], r[yi]) != r[yi]:\n                        ok = False\n                        break\n                if ok:\n                    fds.append(\"%s -> %s\" % (x, y))\n    out[\"functional_dependencies\"] = fds if n <= FD_MAX_ROWS else \"not computed: too many rows\"\n    out[\"column_names_with_trailing_digits\"] = [c for c in head if c[-1:].isdigit()]\n    out[\"schema_sha256\"] = ia.schema_hash(head)\n    return out\n",
+ "id": "ebebcc1db7d5d404",
+ "inputs": {
+  "extract": "2016-06-01",
+  "manifest_sha256": "35b71b2e3ff4bb9ef4e24afc9c56f914e8386df4060a794b862e7f5a00d2774f",
+  "source": "wwi",
+  "table": "Purchasing.Suppliers_Archive"
+ },
+ "kind": "profile",
+ "ran_at": "2026-10-18T13:34:28Z",
+ "result": {
+  "column_names_with_trailing_digits": [
+   "DeliveryAddressLine1",
+   "DeliveryAddressLine2",
+   "PostalAddressLine1",
+   "PostalAddressLine2"
+  ],
+  "columns": {
+   "AlternateContactPersonID": {
+    "distinct": 13,
+    "empty": 0,
+    "numeric": {
+     "max": 46.0,
+     "min": 22.0,
+     "negative": 0,
+     "non_integer": 0,
+     "positive": 13,
+     "zero": 0
+    }
+   },
+   "BankAccountBranch": {
+    "distinct": 12,
+    "empty": 0,
+    "max": "Woodgrove Bank Zionsville",
+    "min": "Woodgrove Bank Crandon Lakes",
+    "values": {
+     "Woodgrove Bank Crandon Lakes": 1,
+     "Woodgrove Bank Elizabeth City": 1,
+     "Woodgrove Bank Greenbank": 1,
+     "Woodgrove Bank Jonesborough": 1,
+     "Woodgrove Bank Kadoka": 1,
+     "Woodgrove Bank Karlstad": 1,
+     "Woodgrove Bank Lakeview Heights": 1,
+     "Woodgrove Bank Lanagan": 1,
+     "Woodgrove Bank Lancing": 1,
+     "Woodgrove Bank Mokelumne Hill": 1,
+     "Woodgrove Bank San Francisco": 2,
+     "Woodgrove Bank Zionsville": 1
+    }
+   },
+   "BankAccountCode": {
+    "distinct": 13,
+    "empty": 0,
+    "numeric": {
+     "max": 789568.0,
+     "min": 214568.0,
+     "negative": 0,
+     "non_integer": 0,
+     "positive": 13,
+     "zero": 0
+    }
+   },
+   "BankAccountName": {
+    "distinct": 13,
+    "empty": 0,
+    "max": "Woodgrove Bank",
+    "min": "A Datum Corporation"
+   },
+   "BankAccountNumber": {
+    "distinct": 13,
+    "empty": 0,
+    "numeric": {
+     "max": 8575824136.0,
+     "min": 1025869354.0,
+     "negative": 0,
+     "non_integer": 0,
+     "positive": 13,
+     "zero": 0
+    }
+   },
+   "BankInternationalCode": {
+    "distinct": 13,
+    "empty": 0,
+    "numeric": {
+     "max": 65893.0,
+     "min": 12546.0,
+     "negative": 0,
+     "non_integer": 0,
+     "positive": 13,
+     "zero": 0
+    }
+   },
+   "DeliveryAddressLine1": {
+    "distinct": 9,
+    "empty": 4,
+    "max": "Unit 2",
+    "min": "Level 1",
+    "values": {
+     "": 4,
+     "Level 1": 1,
+     "Level 2": 1,
+     "Level 3": 2,
+     "Level 43": 1,
+     "Level 83": 1,
+     "Suite 10": 1,
+     "Suite 34": 1,
+     "Unit 2": 1
+    }
+   },
+   "DeliveryAddressLine2": {
+    "distinct": 13,
+    "empty": 0,
+    "max": "9893 Mount Norris Road",
+    "min": "183838 Southwest Boulevard"
+   },
+   "DeliveryCityID": {
+    "distinct": 12,
+    "empty": 0,
+    "numeric": {
+     "max": 38171.0,
+     "min": 7899.0,
+     "negative": 0,
+     "non_integer": 0,
+     "positive": 13,
+     "zero": 0
+    },
+    "values": {
+     "10346": 1,
+     "13870": 1,
+     "17161": 1,
+     "17277": 1,
+     "17346": 1,
+     "18557": 1,
+     "18634": 1,
+     "18656": 1,
+     "22602": 1,
+     "30378": 2,
+     "38171": 1,
+     "7899": 1
+    }
+   },
+   "DeliveryLocation": {
+    "distinct": 1,
+    "empty": 13,
+    "values": {
+     "": 13
+    }
+   },
+   "DeliveryMethodID": {
+    "distinct": 6,
+    "empty": 4,
+    "numeric": {
+     "max": 10.0,
+     "min": 2.0,
+     "negative": 0,
+     "non_integer": 0,
+     "positive": 9,
+     "zero": 0
+    },
+    "values": {
+     "": 4,
+     "10": 3,
+     "2": 1,
+     "7": 3,
+     "8": 1,
+     "9": 1
+    }
+   },
+   "DeliveryPostalCode": {
+    "distinct": 12,
+    "empty": 0,
+    "numeric": {
+     "max": 98253.0,
+     "min": 7860.0,
+     "negative": 0,
+     "non_integer": 0,
+     "positive": 13,
+     "zero": 0
+    },
+    "values": {
+     "07860": 1,
+     "27906": 1,
+     "37659": 1,
+     "37770": 1,
+     "40351": 1,
+     "46077": 1,
+     "56732": 1,
+     "57543": 1,
+     "64847": 1,
+     "94101": 2,
+     "95245": 1,
+     "98253": 1
+    }
+   },
+   "FaxNumber": {
+    "distinct": 13,
+    "empty": 0,
+    "max": "(847) 555-0101",
+    "min": "(201) 555-0104"
+   },
+   "InternalComments": {
+    "distinct": 3,
+    "empty": 11,
+    "max": "Only speak to Donald if Hubert really is not available",
+    "min": "Marcos is not in on Mondays",
+    "values": {
+     "": 11,
+     "Marcos is not in on Mondays": 1,
+     "Only speak to Donald if Hubert really is not available": 1
+    }
+   },
+   "LastEditedBy": {
+    "distinct": 1,
+    "empty": 0,
+    "numeric": {
+     "max": 1.0,
+     "min": 1.0,
+     "negative": 0,
+     "non_integer": 0,
+     "positive": 13,
+     "zero": 0
+    },
+    "values": {
+     "1": 13
+    }
+   },
+   "PaymentDays": {
+    "distinct": 3,
+    "empty": 0,
+    "numeric": {
+     "max": 30.0,
+     "min": 7.0,
+     "negative": 0,
+     "non_integer": 0,
+     "positive": 13,
+     "zero": 0
+    },
+    "values": {
+     "14": 3,
+     "30": 6,
+     "7": 4
+    }
+   },
+   "PhoneNumber": {
+    "distinct": 13,
+    "empty": 0,
+    "max": "(847) 555-0100",
+    "min": "(201) 555-0105"
+   },
+   "PostalAddressLine1": {
+    "distinct": 13,
+    "empty": 0,
+    "max": "PO Box 94829",
+    "min": "PO  Box 595"
+   },
+   "PostalAddressLine2": {
+    "distinct": 13,
+    "empty": 0,
+    "max": "Willow",
+    "min": "Anderson"
+   },
+   "PostalCityID": {
+    "distinct": 12,
+    "empty": 0,
+    "numeric": {
+     "max": 38171.0,
+     "min": 7899.0,
+     "negative": 0,
+     "non_integer": 0,
+     "positive": 13,
+     "zero": 0
+    },
+    "values": {
+     "10346": 1,
+     "13870": 1,
+     "17161": 1,
+     "17277": 1,
+     "17346": 1,
+     "18557": 1,
+     "18634": 1,
+     "18656": 1,
+     "22602": 1,
+     "30378": 2,
+     "38171": 1,
+     "7899": 1
+    }
+   },
+   "PostalPostalCode": {
+    "distinct": 12,
+    "empty": 0,
+    "numeric": {
+     "max": 98253.0,
+     "min": 7860.0,
+     "negative": 0,
+     "non_integer": 0,
+     "positive": 13,
+     "zero": 0
+    },
+    "values": {
+     "07860": 1,
+     "27906": 1,
+     "37659": 1,
+     "37770": 1,
+     "40351": 1,
+     "46077": 1,
+     "56732": 1,
+     "57543": 1,
+     "64847": 1,
+     "94101": 2,
+     "95245": 1,
+     "98253": 1
+    }
+   },
+   "PrimaryContactPersonID": {
+    "distinct": 13,
+    "empty": 0,
+    "numeric": {
+     "max": 45.0,
+     "min": 21.0,
+     "negative": 0,
+     "non_integer": 0,
+     "positive": 13,
+     "zero": 0
+    }
+   },
+   "SupplierCategoryID": {
+    "distinct": 8,
+    "empty": 0,
+    "numeric": {
+     "max": 9.0,
+     "min": 2.0,
+     "negative": 0,
+     "non_integer": 0,
+     "positive": 13,
+     "zero": 0
+    },
+    "values": {
+     "2": 6,
+     "3": 1,
+     "4": 1,
+     "5": 1,
+     "6": 1,
+     "7": 1,
+     "8": 1,
+     "9": 1
+    }
+   },
+   "SupplierID": {
+    "distinct": 13,
+    "empty": 0,
+    "numeric": {
+     "max": 13.0,
+     "min": 1.0,
+     "negative": 0,
+     "non_integer": 0,
+     "positive": 13,
+     "zero": 0
+    }
+   },
+   "SupplierName": {
+    "distinct": 13,
+    "empty": 0,
+    "max": "Woodgrove Bank",
+    "min": "A Datum Corporation"
+   },
+   "SupplierReference": {
+    "distinct": 13,
+    "empty": 0,
+    "max": "ML0300202",
+    "min": "028034202"
+   },
+   "ValidFrom": {
+    "distinct": 1,
+    "empty": 0,
+    "far_future": 0,
+    "max": "2013-01-01T00:00:00.0000000",
+    "min": "2013-01-01T00:00:00.0000000",
+    "time_parts": {
+     "T00:00:00": 13
+    },
+    "time_parts_distinct": 1,
+    "values": {
+     "2013-01-01T00:00:00.0000000": 13
+    }
+   },
+   "ValidTo": {
+    "distinct": 1,
+    "empty": 0,
+    "far_future": 0,
+    "max": "2013-01-01T00:05:00.0000000",
+    "min": "2013-01-01T00:05:00.0000000",
+    "time_parts": {
+     "T00:05:00": 13
+    },
+    "time_parts_distinct": 1,
+    "values": {
+     "2013-01-01T00:05:00.0000000": 13
+    }
+   },
+   "WebsiteURL": {
+    "distinct": 13,
+    "empty": 0,
+    "max": "http://www.woodgrovebank.com",
+    "min": "http://www.adatum.com"
+   }
+  },
+  "empty_patterns": [
+   {
+    "empty": [
+     "InternalComments",
+     "DeliveryLocation"
+    ],
+    "rows": 6
+   },
+   {
+    "empty": [
+     "DeliveryMethodID",
+     "InternalComments",
+     "DeliveryAddressLine1",
+     "DeliveryLocation"
+    ],
+    "rows": 2
+   },
+   {
+    "empty": [
+     "InternalComments",
+     "DeliveryAddressLine1",
+     "DeliveryLocation"
+    ],
+    "rows": 2
+   },
+   {
+    "empty": [
+     "DeliveryMethodID",
+     "DeliveryLocation"
+    ],
+    "rows": 1
+   },
+   {
+    "empty": [
+     "DeliveryMethodID",
+     "InternalComments",
+     "DeliveryLocation"
+    ],
+    "rows": 1
+   },
+   {
+    "empty": [
+     "DeliveryLocation"
+    ],
+    "rows": 1
+   }
+  ],
+  "empty_patterns_distinct": 6,
+  "empty_rows_by_low_cardinality_value": {
+   "BankAccountBranch": {
+    "empty_rows_by_value": {
+     "DeliveryAddressLine1": {
+      "Woodgrove Bank Crandon Lakes": 1,
+      "Woodgrove Bank Elizabeth City": 0,
+      "Woodgrove Bank Greenbank": 0,
+      "Woodgrove Bank Jonesborough": 0,
+      "Woodgrove Bank Kadoka": 0,
+      "Woodgrove Bank Karlstad": 0,
+      "Woodgrove Bank Lakeview Heights": 0,
+      "Woodgrove Bank Lanagan": 1,
+      "Woodgrove Bank Lancing": 1,
+      "Woodgrove Bank Mokelumne Hill": 0,
+      "Woodgrove Bank San Francisco": 1,
+      "Woodgrove Bank Zionsville": 0
+     },
+     "DeliveryMethodID": {
+      "Woodgrove Bank Crandon Lakes": 0,
+      "Woodgrove Bank Elizabeth City": 0,
+      "Woodgrove Bank Greenbank": 0,
+      "Woodgrove Bank Jonesborough": 0,
+      "Woodgrove Bank Kadoka": 1,
+      "Woodgrove Bank Karlstad": 0,
+      "Woodgrove Bank Lakeview Heights": 0,
+      "Woodgrove Bank Lanagan": 0,
+      "Woodgrove Bank Lancing": 1,
+      "Woodgrove Bank Mokelumne Hill": 0,
+      "Woodgrove Bank San Francisco": 2,
+      "Woodgrove Bank Zionsville": 0
+     },
+     "InternalComments": {
+      "Woodgrove Bank Crandon Lakes": 1,
+      "Woodgrove Bank Elizabeth City": 0,
+      "Woodgrove Bank Greenbank": 1,
+      "Woodgrove Bank Jonesborough": 1,
+      "Woodgrove Bank Kadoka": 1,
+      "Woodgrove Bank Karlstad": 1,
+      "Woodgrove Bank Lakeview Heights": 1,
+      "Woodgrove Bank Lanagan": 1,
+      "Woodgrove Bank Lancing": 1,
+      "Woodgrove Bank Mokelumne Hill": 1,
+      "Woodgrove Bank San Francisco": 1,
+      "Woodgrove Bank Zionsville": 1
+     }
+    },
+    "rows_per_value": {
+     "Woodgrove Bank Crandon Lakes": 1,
+     "Woodgrove Bank Elizabeth City": 1,
+     "Woodgrove Bank Greenbank": 1,
+     "Woodgrove Bank Jonesborough": 1,
+     "Woodgrove Bank Kadoka": 1,
+     "Woodgrove Bank Karlstad": 1,
+     "Woodgrove Bank Lakeview Heights": 1,
+     "Woodgrove Bank Lanagan": 1,
+     "Woodgrove Bank Lancing": 1,
+     "Woodgrove Bank Mokelumne Hill": 1,
+     "Woodgrove Bank San Francisco": 2,
+     "Woodgrove Bank Zionsville": 1
+    }
+   },
+   "DeliveryAddressLine1": {
+    "empty_rows_by_value": {
+     "DeliveryAddressLine1": {
+      "": 4,
+      "Level 1": 0,
+      "Level 2": 0,
+      "Level 3": 0,
+      "Level 43": 0,
+      "Level 83": 0,
+      "Suite 10": 0,
+      "Suite 34": 0,
+      "Unit 2": 0
+     },
+     "DeliveryMethodID": {
+      "": 2,
+      "Level 1": 0,
+      "Level 2": 0,
+      "Level 3": 1,
+      "Level 43": 1,
+      "Level 83": 0,
+      "Suite 10": 0,
+      "Suite 34": 0,
+      "Unit 2": 0
+     },
+     "InternalComments": {
+      "": 4,
+      "Level 1": 0,
+      "Level 2": 1,
+      "Level 3": 1,
+      "Level 43": 1,
+      "Level 83": 1,
+      "Suite 10": 1,
+      "Suite 34": 1,
+      "Unit 2": 1
+     }
+    },
+    "rows_per_value": {
+     "": 4,
+     "Level 1": 1,
+     "Level 2": 1,
+     "Level 3": 2,
+     "Level 43": 1,
+     "Level 83": 1,
+     "Suite 10": 1,
+     "Suite 34": 1,
+     "Unit 2": 1
+    }
+   },
+   "DeliveryCityID": {
+    "empty_rows_by_value": {
+     "DeliveryAddressLine1": {
+      "10346": 0,
+      "13870": 0,
+      "17161": 0,
+      "17277": 0,
+      "17346": 0,
+      "18557": 0,
+      "18634": 1,
+      "18656": 1,
+      "22602": 0,
+      "30378": 1,
+      "38171": 0,
+      "7899": 1
+     },
+     "DeliveryMethodID": {
+      "10346": 0,
+      "13870": 0,
+      "17161": 0,
+      "17277": 1,
+      "17346": 0,
+      "18557": 0,
+      "18634": 0,
+      "18656": 1,
+      "22602": 0,
+      "30378": 2,
+      "38171": 0,
+      "7899": 0
+     },
+     "InternalComments": {
+      "10346": 0,
+      "13870": 1,
+      "17161": 1,
+      "17277": 1,
+      "17346": 1,
+      "18557": 1,
+      "18634": 1,
+      "18656": 1,
+      "22602": 1,
+      "30378": 1,
+      "38171": 1,
+      "7899": 1
+     }
+    },
+    "rows_per_value": {
+     "10346": 1,
+     "13870": 1,
+     "17161": 1,
+     "17277": 1,
+     "17346": 1,
+     "18557": 1,
+     "18634": 1,
+     "18656": 1,
+     "22602": 1,
+     "30378": 2,
+     "38171": 1,
+     "7899": 1
+    }
+   },
+   "DeliveryMethodID": {
+    "empty_rows_by_value": {
+     "DeliveryAddressLine1": {
+      "": 2,
+      "10": 1,
+      "2": 0,
+      "7": 0,
+      "8": 1,
+      "9": 0
+     },
+     "DeliveryMethodID": {
+      "": 4,
+      "10": 0,
+      "2": 0,
+      "7": 0,
+      "8": 0,
+      "9": 0
+     },
+     "InternalComments": {
+      "": 3,
+      "10": 2,
+      "2": 1,
+      "7": 3,
+      "8": 1,
+      "9": 1
+     }
+    },
+    "rows_per_value": {
+     "": 4,
+     "10": 3,
+     "2": 1,
+     "7": 3,
+     "8": 1,
+     "9": 1
+    }
+   },
+   "DeliveryPostalCode": {
+    "empty_rows_by_value": {
+     "DeliveryAddressLine1": {
+      "07860": 1,
+      "27906": 0,
+      "37659": 0,
+      "37770": 1,
+      "40351": 0,
+      "46077": 0,
+      "56732": 0,
+      "57543": 0,
+      "64847": 1,
+      "94101": 1,
+      "95245": 0,
+      "98253": 0
+     },
+     "DeliveryMethodID": {
+      "07860": 0,
+      "27906": 0,
+      "37659": 0,
+      "37770": 1,
+      "40351": 0,
+      "46077": 0,
+      "56732": 0,
+      "57543": 1,
+      "64847": 0,
+      "94101": 2,
+      "95245": 0,
+      "98253": 0
+     },
+     "InternalComments": {
+      "07860": 1,
+      "27906": 0,
+      "37659": 1,
+      "37770": 1,
+      "40351": 1,
+      "46077": 1,
+      "56732": 1,
+      "57543": 1,
+      "64847": 1,
+      "94101": 1,
+      "95245": 1,
+      "98253": 1
+     }
+    },
+    "rows_per_value": {
+     "07860": 1,
+     "27906": 1,
+     "37659": 1,
+     "37770": 1,
+     "40351": 1,
+     "46077": 1,
+     "56732": 1,
+     "57543": 1,
+     "64847": 1,
+     "94101": 2,
+     "95245": 1,
+     "98253": 1
+    }
+   },
+   "InternalComments": {
+    "empty_rows_by_value": {
+     "DeliveryAddressLine1": {
+      "": 4,
+      "Marcos is not in on Mondays": 0,
+      "Only speak to Donald if Hubert really is not available": 0
+     },
+     "DeliveryMethodID": {
+      "": 3,
+      "Marcos is not in on Mondays": 0,
+      "Only speak to Donald if Hubert really is not available": 1
+     },
+     "InternalComments": {
+      "": 11,
+      "Marcos is not in on Mondays": 0,
+      "Only speak to Donald if Hubert really is not available": 0
+     }
+    },
+    "rows_per_value": {
+     "": 11,
+     "Marcos is not in on Mondays": 1,
+     "Only speak to Donald if Hubert really is not available": 1
+    }
+   },
+   "PaymentDays": {
+    "empty_rows_by_value": {
+     "DeliveryAddressLine1": {
+      "14": 2,
+      "30": 2,
+      "7": 0
+     },
+     "DeliveryMethodID": {
+      "14": 1,
+      "30": 1,
+      "7": 2
+     },
+     "InternalComments": {
+      "14": 3,
+      "30": 6,
+      "7": 2
+     }
+    },
+    "rows_per_value": {
+     "14": 3,
+     "30": 6,
+     "7": 4
+    }
+   },
+   "PostalCityID": {
+    "empty_rows_by_value": {
+     "DeliveryAddressLine1": {
+      "10346": 0,
+      "13870": 0,
+      "17161": 0,
+      "17277": 0,
+      "17346": 0,
+      "18557": 0,
+      "18634": 1,
+      "18656": 1,
+      "22602": 0,
+      "30378": 1,
+      "38171": 0,
+      "7899": 1
+     },
+     "DeliveryMethodID": {
+      "10346": 0,
+      "13870": 0,
+      "17161": 0,
+      "17277": 1,
+      "17346": 0,
+      "18557": 0,
+      "18634": 0,
+      "18656": 1,
+      "22602": 0,
+      "30378": 2,
+      "38171": 0,
+      "7899": 0
+     },
+     "InternalComments": {
+      "10346": 0,
+      "13870": 1,
+      "17161": 1,
+      "17277": 1,
+      "17346": 1,
+      "18557": 1,
+      "18634": 1,
+      "18656": 1,
+      "22602": 1,
+      "30378": 1,
+      "38171": 1,
+      "7899": 1
+     }
+    },
+    "rows_per_value": {
+     "10346": 1,
+     "13870": 1,
+     "17161": 1,
+     "17277": 1,
+     "17346": 1,
+     "18557": 1,
+     "18634": 1,
+     "18656": 1,
+     "22602": 1,
+     "30378": 2,
+     "38171": 1,
+     "7899": 1
+    }
+   },
+   "PostalPostalCode": {
+    "empty_rows_by_value": {
+     "DeliveryAddressLine1": {
+      "07860": 1,
+      "27906": 0,
+      "37659": 0,
+      "37770": 1,
+      "40351": 0,
+      "46077": 0,
+      "56732": 0,
+      "57543": 0,
+      "64847": 1,
+      "94101": 1,
+      "95245": 0,
+      "98253": 0
+     },
+     "DeliveryMethodID": {
+      "07860": 0,
+      "27906": 0,
+      "37659": 0,
+      "37770": 1,
+      "40351": 0,
+      "46077": 0,
+      "56732": 0,
+      "57543": 1,
+      "64847": 0,
+      "94101": 2,
+      "95245": 0,
+      "98253": 0
+     },
+     "InternalComments": {
+      "07860": 1,
+      "27906": 0,
+      "37659": 1,
+      "37770": 1,
+      "40351": 1,
+      "46077": 1,
+      "56732": 1,
+      "57543": 1,
+      "64847": 1,
+      "94101": 1,
+      "95245": 1,
+      "98253": 1
+     }
+    },
+    "rows_per_value": {
+     "07860": 1,
+     "27906": 1,
+     "37659": 1,
+     "37770": 1,
+     "40351": 1,
+     "46077": 1,
+     "56732": 1,
+     "57543": 1,
+     "64847": 1,
+     "94101": 2,
+     "95245": 1,
+     "98253": 1
+    }
+   },
+   "SupplierCategoryID": {
+    "empty_rows_by_value": {
+     "DeliveryAddressLine1": {
+      "2": 1,
+      "3": 1,
+      "4": 0,
+      "5": 0,
+      "6": 1,
+      "7": 0,
+      "8": 0,
+      "9": 1
+     },
+     "DeliveryMethodID": {
+      "2": 0,
+      "3": 0,
+      "4": 0,
+      "5": 0,
+      "6": 1,
+      "7": 1,
+      "8": 1,
+      "9": 1
+     },
+     "InternalComments": {
+      "2": 5,
+      "3": 1,
+      "4": 1,
+      "5": 1,
+      "6": 1,
+      "7": 0,
+      "8": 1,
+      "9": 1
+     }
+    },
+    "rows_per_value": {
+     "2": 6,
+     "3": 1,
+     "4": 1,
+     "5": 1,
+     "6": 1,
+     "7": 1,
+     "8": 1,
+     "9": 1
+    }
+   }
+  },
+  "functional_dependencies": [
+   "DeliveryCityID -> DeliveryMethodID",
+   "DeliveryCityID -> PostalCityID",
+   "DeliveryCityID -> BankAccountBranch",
+   "DeliveryCityID -> DeliveryPostalCode",
+   "DeliveryCityID -> PostalPostalCode",
+   "PostalCityID -> DeliveryMethodID",
+   "PostalCityID -> DeliveryCityID",
+   "PostalCityID -> BankAccountBranch",
+   "PostalCityID -> DeliveryPostalCode",
+   "PostalCityID -> PostalPostalCode",
+   "BankAccountBranch -> DeliveryMethodID",
+   "BankAccountBranch -> DeliveryCityID",
+   "BankAccountBranch -> PostalCityID",
+   "BankAccountBranch -> DeliveryPostalCode",
+   "BankAccountBranch -> PostalPostalCode",
+   "DeliveryPostalCode -> DeliveryMethodID",
+   "DeliveryPostalCode -> DeliveryCityID",
+   "DeliveryPostalCode -> PostalCityID",
+   "DeliveryPostalCode -> BankAccountBranch",
+   "DeliveryPostalCode -> PostalPostalCode",
+   "PostalPostalCode -> DeliveryMethodID",
+   "PostalPostalCode -> DeliveryCityID",
+   "PostalPostalCode -> PostalCityID",
+   "PostalPostalCode -> BankAccountBranch",
+   "PostalPostalCode -> DeliveryPostalCode"
+  ],
+  "rows": 13,
+  "schema_sha256": "7bcb78223c92bb8418652485c9f8ee3acdcdaf5d5f711f56ade275cb0fd6aa98"
+ },
+ "tool": "prototypes/information_analysis/profile_tables.py",
+ "tool_version": "e61ada2547265905e3558722cd127e81fa5cd770"
+}

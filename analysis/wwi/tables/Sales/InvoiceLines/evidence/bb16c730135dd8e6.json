@@ -1,0 +1,22 @@
+{
+ "code": "def invoice_line_arithmetic():\n    \"\"\"Do TaxAmount and ExtendedPrice follow from Quantity, UnitPrice and TaxRate, and how is tax rounded?\"\"\"\n    from decimal import Decimal, ROUND_HALF_UP, ROUND_HALF_EVEN\n    f, head, rows = reader(DAY, \"Sales.InvoiceLines\")\n    i = {c: head.index(c) for c in (\"Quantity\", \"UnitPrice\", \"TaxRate\", \"TaxAmount\", \"ExtendedPrice\")}\n    n = tax_exact = tax_half_up = tax_half_even = ext_ok = 0\n    worst = Decimal(0)\n    for r in rows:\n        n += 1\n        q, up, tr = Decimal(r[i[\"Quantity\"]]), Decimal(r[i[\"UnitPrice\"]]), Decimal(r[i[\"TaxRate\"]])\n        tax, ext = Decimal(r[i[\"TaxAmount\"]]), Decimal(r[i[\"ExtendedPrice\"]])\n        raw = q * up * tr / 100\n        tax_exact += raw == tax\n        tax_half_up += raw.quantize(Decimal(\"0.01\"), ROUND_HALF_UP) == tax\n        tax_half_even += raw.quantize(Decimal(\"0.01\"), ROUND_HALF_EVEN) == tax\n        ext_ok += q * up + tax == ext\n        worst = max(worst, abs(raw - tax))\n    f.close()\n    return {\"rows\": n, \"tax_equals_quantity_x_price_x_rate_exactly\": tax_exact,\n            \"tax_equals_it_rounded_half_up_to_cents\": tax_half_up, \"tax_equals_it_rounded_half_even_to_cents\": tax_half_even,\n            \"extended_price_equals_quantity_x_price_plus_tax\": ext_ok, \"largest_difference_tax_vs_unrounded\": str(worst)}\n",
+ "id": "bb16c730135dd8e6",
+ "inputs": {
+  "extract": "2016-06-01",
+  "manifest_sha256": "35b71b2e3ff4bb9ef4e24afc9c56f914e8386df4060a794b862e7f5a00d2774f",
+  "source": "wwi",
+  "table": "Sales.InvoiceLines"
+ },
+ "kind": "profile",
+ "ran_at": "2026-10-18T13:17:01Z",
+ "result": {
+  "extended_price_equals_quantity_x_price_plus_tax": 228432,
+  "largest_difference_tax_vs_unrounded": "0.00500",
+  "rows": 228432,
+  "tax_equals_it_rounded_half_even_to_cents": 226319,
+  "tax_equals_it_rounded_half_up_to_cents": 228432,
+  "tax_equals_quantity_x_price_x_rate_exactly": 220700
+ },
+ "tool": "prototypes/information_analysis/evidence_shared.py",
+ "tool_version": "03d3dfbc0522d76aef793a33dc2bc491abc70529"
+}

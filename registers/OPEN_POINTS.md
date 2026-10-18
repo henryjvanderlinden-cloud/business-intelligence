@@ -2190,11 +2190,19 @@ What is open:
    [`analysis/README.md`](../analysis/README.md): a folder per source and per table, a file per item and per column
    (not a folder per column, and no topic folders except for the four cross-table items), evidence as JSON
    aggregates, a confidence scale. Not ruled; unenforced by the checker until it is.
-2. **The trial.** `Sales.Orders` redone on 2026-10-18 in the ruled layout (ADR-0018): the six minimum items, item 27
-   and two column files, 53 claims on 11 evidence files
-   ([`analysis/wwi/tables/Sales/Orders/`](../analysis/wwi/tables/Sales/Orders/),
-   [`prototypes/information_analysis/`](../prototypes/information_analysis/)); the first layout of c7b7aa2 was moved
-   out of the repository. Owed: the other tables, the best-effort items, the cross-table items, and what it cost.
+2. **The trial.** Round 1's minimum done on 2026-10-18 for all 48 WWI tables: 31 base tables with items 01, 03, 05,
+   06, 07, 19 and 27, and the 17 history tables with item 05 (238 item files, 1,004 claims, 152 evidence files under
+   [`analysis/wwi/tables/`](../analysis/wwi/tables/); scripts in [`prototypes/information_analysis/`](../prototypes/information_analysis/)).
+   `Sales.Orders` was done by hand; the other tables by a generator that writes the mechanical claims from the
+   evidence, with the agent's judgement claims per table. Findings that bear on a build include: the source masks
+   supplier bank details, and the extract, made as owner, holds them in clear; the three transaction tables share one
+   numbering; system-time columns record wall-clock edits (one row stamped 2022); `ColdRoomTemperatures` keeps only the
+   latest reading, its history table holds 3.7 million readings; `VehicleTemperatures.FullSensorData` is malformed JSON
+   in every row; tax on invoice lines is rounded per line, half up; head-office terms are copied onto branches in
+   `Customers`. Reviewed by astra on three tables
+   ([XREV](../docs/30_research/notes/XREV_2026-10-18_round1-dossiers_astra.md)): FAILS on an "exact" claim computed from
+   rounded shares and four lesser defects, all fixed before commit; sol's pass on three other tables is owed. Owed
+   besides: the best-effort items, round 2, and what it cost.
 3. **Review.** Astra on the record layout (below, R1-R11, ruled in ADR-0018). Sol on 129's inventory: the first,
    large pass never wrote an answer; re-sent in two parts, both returned.
    [Gaps and minimum](../docs/30_research/notes/XREV_2026-10-18_information-analysis-inventory-gaps_sol.md):
@@ -2220,8 +2228,9 @@ What is open:
 
    **Ruled 2026-10-18, 14:38**, in [ADR-0019](../docs/20_decisions/0019-information-analysis-in-two-rounds.md): the
    analysis runs in two rounds, round 1 per table (the brief), round 2 across tables (how tables relate, warnings,
-   the meaning of assumed or proven joins), R14 belonging to round 2; R16 accepted as item 28. Still open from this
-   batch:
+   the meaning of assumed or proven joins), R14 belonging to round 2; R16 accepted as item 28. **Ruled further at 14:59** ("R15: agreed. Round 2 structure looks good.
+   Please proceed."): round 2's `across/` tree and its minimum, and R15 under item 7; recorded in ADR-0019 item 5. The
+   two points as they stood before that ruling, superseded and kept for provenance:
    - **Round 2's folder structure**, proposed in [`analysis/README.md`](../analysis/README.md) section 9: an
      `across/` tree with a folder per relation holding item files 01, 02, 03, 06, 07 and 27, folders for processes,
      terms, entities and cross-table reconciliations, and a generated list of candidate relations; minimum per
