@@ -1,0 +1,51 @@
+{
+ "code": "def neighbours():\n    o = load(DAY, \"Sales.Orders\")\n    by = {int(r[\"OrderID\"]): r for r in o}\n    lines = load(DAY, \"Sales.OrderLines\")\n    ol = collections.Counter(int(r[\"OrderID\"]) for r in lines)\n    unpicked = set(k for k in by if not by[k][\"PickingCompletedWhen\"])\n    cust = load(DAY, \"Sales.Customers\")\n    primary = {c[\"CustomerID\"]: c[\"PrimaryContactPersonID\"] for c in cust}\n    people = {p[\"PersonID\"]: p for p in load(DAY, \"Application.People\")}\n    pcols = [\"SalespersonPersonID\", \"PickedByPersonID\", \"ContactPersonID\", \"LastEditedBy\"]\n    pickers = set(r[\"PickedByPersonID\"] for r in o if r[\"PickedByPersonID\"])\n    contacts = set(r[\"ContactPersonID\"] for r in o)\n    p1 = [r for r in o if r[\"LastEditedBy\"] == \"1\"]\n    return {\n        \"orders_without_lines\": sum(1 for k in by if k not in ol),\n        \"line_OrderIDs_not_in_orders\": sum(1 for k in ol if k not in by),\n        \"lines_per_order_min\": min(ol.values()), \"lines_per_order_max\": max(ol.values()),\n        \"lines_of_unpicked_orders\": sum(1 for r in lines if int(r[\"OrderID\"]) in unpicked),\n        \"lines_of_unpicked_orders_with_PickedQuantity_above_0\": sum(\n            1 for r in lines if int(r[\"OrderID\"]) in unpicked and float(r[\"PickedQuantity\"]) > 0),\n        \"CustomerID_not_in_Customers\": len(set(r[\"CustomerID\"] for r in o) - set(primary)),\n        \"ContactPersonID_equals_customer_primary_contact\": sum(\n            1 for r in o if r[\"ContactPersonID\"] == primary.get(r[\"CustomerID\"])),\n        \"person_columns_nonempty\": {c: sum(1 for r in o if r[c]) for c in pcols},\n        \"person_columns_resolving\": {c: sum(1 for r in o if r[c] and r[c] in people) for c in pcols},\n        \"salespersons_distinct\": len(set(r[\"SalespersonPersonID\"] for r in o)),\n        \"salespersons_flagged_IsSalesperson\": sum(\n            1 for i in set(r[\"SalespersonPersonID\"] for r in o) if people[i][\"IsSalesperson\"] == \"1\"),\n        \"pickers_distinct\": len(pickers),\n        \"pickers_flagged_IsEmployee\": sum(1 for i in pickers if people[i][\"IsEmployee\"] == \"1\"),\n        \"contacts_distinct\": len(contacts),\n        \"contacts_flagged_IsEmployee\": sum(1 for i in contacts if people[i][\"IsEmployee\"] == \"1\"),\n        \"contacts_with_EmailAddress\": sum(1 for i in contacts if people[i][\"EmailAddress\"]),\n        \"contacts_with_PhoneNumber\": sum(1 for i in contacts if people[i][\"PhoneNumber\"]),\n        \"LastEditedBy_person_1_rows\": len(p1),\n        \"LastEditedBy_person_1_OrderDate_range\": [min(r[\"OrderDate\"] for r in p1), max(r[\"OrderDate\"] for r in p1)]\n        if p1 else None,\n        \"person_1_IsEmployee\": people[\"1\"][\"IsEmployee\"], \"person_1_IsPermittedToLogon\": people[\"1\"][\"IsPermittedToLogon\"],\n        \"customer_names_with_placeholder_words\": sum(\n            1 for c in cust if any(w in c[\"CustomerName\"].lower() for w in (\"unknown\", \"test\", \"dummy\", \"n/a\"))),\n    }\n",
+ "id": "7aa3df3f1beb91b7",
+ "inputs": {
+  "extract": "2016-06-01",
+  "manifest_sha256": "35b71b2e3ff4bb9ef4e24afc9c56f914e8386df4060a794b862e7f5a00d2774f",
+  "source": "wwi"
+ },
+ "kind": "profile",
+ "ran_at": "2026-10-18T12:22:25Z",
+ "result": {
+  "ContactPersonID_equals_customer_primary_contact": 73653,
+  "CustomerID_not_in_Customers": 0,
+  "LastEditedBy_person_1_OrderDate_range": [
+   "2013-08-13T00:00:00.0000000",
+   "2016-05-06T00:00:00.0000000"
+  ],
+  "LastEditedBy_person_1_rows": 5,
+  "contacts_distinct": 663,
+  "contacts_flagged_IsEmployee": 0,
+  "contacts_with_EmailAddress": 663,
+  "contacts_with_PhoneNumber": 663,
+  "customer_names_with_placeholder_words": 0,
+  "line_OrderIDs_not_in_orders": 0,
+  "lines_of_unpicked_orders": 3149,
+  "lines_of_unpicked_orders_with_PickedQuantity_above_0": 0,
+  "lines_per_order_max": 5,
+  "lines_per_order_min": 1,
+  "orders_without_lines": 0,
+  "person_1_IsEmployee": "0",
+  "person_1_IsPermittedToLogon": "0",
+  "person_columns_nonempty": {
+   "ContactPersonID": 73653,
+   "LastEditedBy": 73653,
+   "PickedByPersonID": 63020,
+   "SalespersonPersonID": 73653
+  },
+  "person_columns_resolving": {
+   "ContactPersonID": 73653,
+   "LastEditedBy": 73653,
+   "PickedByPersonID": 63020,
+   "SalespersonPersonID": 73653
+  },
+  "pickers_distinct": 19,
+  "pickers_flagged_IsEmployee": 19,
+  "salespersons_distinct": 10,
+  "salespersons_flagged_IsSalesperson": 10
+ },
+ "tool": "prototypes/information_analysis/evidence_orders.py",
+ "tool_version": "5b39164821d92e89109688e68c204752d9edeff5"
+}

@@ -303,9 +303,10 @@ inventory of every table before the first build.~~ Superseded by the ruling abov
 
 ## How it is recorded
 
-Proposed, not ruled: [`analysis/README.md`](../../analysis/README.md) — a folder per source and per table, one file
-per item, one file per column, evidence as JSON aggregates, four folders for the cross-table items. A first worked
-example is [`analysis/wwi/tables/Sales.Orders/`](../../analysis/wwi/tables/Sales.Orders/), minimum items only. Its
+*Ruled 2026-10-18, [ADR-0018](../20_decisions/0018-information-analysis-record.md).* [`analysis/README.md`](../../analysis/README.md)
+is the operating manual: a folder per source, schema, table and column; a file per item; a line per claim;
+content-addressed evidence; provenance and computed freshness in every file. The first worked example is
+[`analysis/wwi/tables/Sales/Orders/`](../../analysis/wwi/tables/Sales/Orders/), the minimum items and item 27. Its
 most useful finding so far is a contradiction: `BackorderOrderID` is declared to point from a backorder to its
 original and in the data points the other way.
 

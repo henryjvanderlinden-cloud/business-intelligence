@@ -530,6 +530,130 @@ def check_records():
         print("records: maintenance baseline is %s" % baseline.get("status"))
     print("records: author %d responses, %d words, %d large acts" % (len(responses), h_words[0], h_large[0]))
 
+def check_analysis():
+    """The information-analysis record of ADR-0018: see analysis/README.md."""
+    adir = os.path.join(ROOT, "analysis")
+    if not os.path.isdir(adir):
+        return
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    import ia_lib as ia
+    vocab = json.loads(read(os.path.join(RECORDS_DIR, "vocabulary.json")))
+    agents = set(vocab["agents"])
+    n_items = n_claims = n_evidence = 0
+    for dirpath, dirnames, filenames in os.walk(adir):
+        rel_dir = os.path.relpath(dirpath, ROOT).replace(os.sep, "/")
+        names = dirnames + filenames
+        lowered = {}
+        for name in names:
+            lowered.setdefault(name.lower(), []).append(name)
+        for group in lowered.values():
+            if len(group) > 1:
+                err(rel_dir, "names differ only in case: %s" % ", ".join(group))
+        parts = rel_dir.split("/")
+        under_tables = "tables" in parts
+        for d in dirnames:
+            if under_tables and not ia.is_escaped(d):
+                err("%s/%s" % (rel_dir, d), "folder name is not a reversibly escaped source name (ADR-0018)")
+        for f in filenames:
+            rel = "%s/%s" % (rel_dir, f)
+            path = os.path.join(dirpath, f)
+            if rel == "analysis/README.md":
+                continue
+            if parts[-1] == "evidence":
+                m = ia.EVIDENCE_RE.match(f)
+                if not m:
+                    err(rel, "an evidence file is named <16 hex digits>.json")
+                    continue
+                try:
+                    with open(path, encoding="utf-8") as fh:
+                        rec = json.load(fh)
+                except ValueError as e:
+                    err(rel, "not JSON: %s" % e)
+                    continue
+                n_evidence += 1
+                if rec.get("id") != m.group(1):
+                    err(rel, "id does not match the file name")
+                if ia.evidence_hash(rec) != m.group(1):
+                    err(rel, "content hash does not match the file name: edited after writing?")
+                for k in ("kind", "tool", "inputs", "ran_at", "result"):
+                    if k not in rec:
+                        err(rel, "evidence lacks %r" % k)
+                if not (rec.get("code") or rec.get("query") or rec.get("excerpt")):
+                    err(rel, "evidence holds no code, query or excerpt")
+                continue
+            if not under_tables or not f.endswith(".md"):
+                continue
+            m = ia.ITEM_FILE_RE.match(f)
+            if not m:
+                err(rel, "an item file is named <nn>_<slug>.md")
+                continue
+            nn, slug = m.groups()
+            is_column = "columns" in parts
+            if ia.ITEMS.get(nn) != slug:
+                err(rel, "item %s is %r, not %r" % (nn, ia.ITEMS.get(nn), slug))
+            allowed = ia.COLUMN_ITEMS if is_column else ia.TABLE_ITEMS
+            if nn not in allowed:
+                err(rel, "item %s is not recorded at this level" % nn)
+            text = read(rel)
+            if any(ord(ch) > 127 for ch in text):
+                warn(rel, "non-ASCII characters; allowed only inside values quoted from the source")
+            front, claims, perrs = ia.parse_item(text)
+            for e in perrs:
+                err(rel, e)
+            n_items += 1
+            n_claims += len(claims)
+            for k in ia.FRONT_KEYS:
+                if k not in front:
+                    err(rel, "front matter lacks %r" % k)
+            if front.get("item") != nn or front.get("topic") != slug:
+                err(rel, "item and topic must match the file name")
+            if front.get("tier") not in ia.TIERS:
+                err(rel, "tier %r not in %s" % (front.get("tier"), sorted(ia.TIERS)))
+            elif nn in ia.MINIMUM and front.get("tier") != "minimum":
+                err(rel, "item %s is a minimum item (ADR-0017)" % nn)
+            for k in ("written_by", "last_checked_by"):
+                if front.get(k) not in agents:
+                    err(rel, "%s %r is not an agent in records/vocabulary.json" % (k, front.get(k)))
+            for k in ("written_at", "last_checked_at"):
+                if not _ts((front.get(k) or "").replace("Z", "+00:00")):
+                    err(rel, "%s needs an ISO time with a zone" % k)
+            if not re.match(r"^S\d\d-\d{3}$", front.get("step", "")):
+                err(rel, "step must be a step-log id")
+            if str(len(claims)) != front.get("claims"):
+                err(rel, "claims: says %s, the file has %d" % (front.get("claims"), len(claims)))
+            if not claims:
+                err(rel, "an item file holds at least one claim")
+            ev_dir = os.path.join(os.path.dirname(path) if not is_column else
+                                  os.path.join(dirpath, "..", ".."), "evidence")
+            ev_have = set(x[:-5] for x in os.listdir(ev_dir)) if os.path.isdir(ev_dir) else set()
+            seen = set()
+            lowest = None
+            for c in claims:
+                w = "%s#%s" % (rel, c["id"])
+                if c["id"] in seen:
+                    err(w, "claim id repeated")
+                seen.add(c["id"])
+                for k in ia.CLAIM_KEYS:
+                    if k not in c:
+                        err(w, "claim lacks %r" % k)
+                if c.get("type") not in ia.CLAIM_TYPES:
+                    err(w, "type %r not allowed" % c.get("type"))
+                if c.get("status") not in ia.STATUSES:
+                    err(w, "status %r not allowed" % c.get("status"))
+                if c.get("confidence") not in ia.CONFIDENCE:
+                    err(w, "confidence %r not allowed" % c.get("confidence"))
+                elif c.get("status") not in ("superseded", "retracted"):
+                    rank = ia.CONFIDENCE.index(c["confidence"])
+                    lowest = rank if lowest is None else min(lowest, rank)
+                for e in (c.get("evidence") or "none").split(","):
+                    e = e.strip()
+                    if e != "none" and e not in ev_have:
+                        err(w, "evidence %s not found in %s" % (e, os.path.relpath(ev_dir, ROOT)))
+            if lowest is not None and front.get("confidence") != ia.CONFIDENCE[lowest]:
+                err(rel, "confidence must be the lowest among live claims (%s)" % ia.CONFIDENCE[lowest])
+    print("analysis: %d item files, %d claims, %d evidence files" % (n_items, n_claims, n_evidence))
+
+
 def main():
     check_register()
     check_adr_index()
@@ -537,6 +661,7 @@ def main():
     check_links()
     check_superseded()
     check_records()
+    check_analysis()
 
     if warnings:
         print("\n%d warning(s):" % len(warnings))

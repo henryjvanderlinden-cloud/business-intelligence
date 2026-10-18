@@ -1,9 +1,8 @@
-# Information analysis — how it is recorded
+# Information analysis - how it is recorded
 
-> **STATUS: PROPOSED, NOT RULED** (`ARC-OP-36` item 3). Drafted 2026-10-18, session 08, on the author's brief below.
-> One worked example exists, [`wwi/tables/Sales.Orders/`](wwi/tables/Sales.Orders/), to judge the layout by; if the
-> layout changes, the example is moved or rewritten. No convention here is enforced by `tools/check_repo.py` yet
-> (AGENTS.md rule 11). Unreviewed.
+> **STATUS: RULED** 2026-10-18 in [ADR-0018](../docs/20_decisions/0018-information-analysis-record.md), after review
+> by astra ([XREV](../docs/30_research/notes/XREV_2026-10-18_information-analysis-record_astra.md)). Enforced by
+> `python tools/check_repo.py`; summarised by `python tools/ia_status.py`.
 
 This folder holds the information analysis of [129](../docs/10_architecture/129_information-analysis.md), done under
 [ADR-0017](../docs/20_decisions/0017-information-analysis-before-building.md). It is written for agents first. The
@@ -15,122 +14,178 @@ author's brief, verbatim:
 > easily gitable, that allow for multiple agents working simultaneously, that are easily searchable, that follow a
 > predictable structure.
 
-## Layout
+and, on metadata:
+
+> Also, in every file we should probably record who wrote it, when it was written, maybe also other meta data. That
+> we we can see if claims are stale or fresh.
+
+## 1. Layout
 
 ```
 analysis/
-  README.md                         this file
-  <source>/                         one folder per source, e.g. wwi/
-    _source/                        items about the source as a whole
-      18_documentation.md           e.g.; also 14, 20, 22, 23 where they hold source-wide
-    tables/
-      <Schema.Table>/               one folder per table, named exactly as in the source
-        01_granularity.md           one file per item of 129, named <nn>_<slug>.md
-        03_temporal.md
-        05_role.md  06_keys.md  07_population.md  19_sensitivity.md   (the minimum)
-        ...                         other items as they are done
-        columns/
-          <Column>.md               one file per column, named exactly as in the source
-        evidence/
-          E<nnn>_<slug>.json        what a finding rests on: query or code, as-of, result
-    relations/                      item 4: one file per relationship
-      <Schema.Table>.<Column>__<Schema.Table>.<Column>.md
-    processes/                      item 24: one file per business process
-    terms/                          item 25: one file per term with more than one meaning or name
-    entities/                       item 26: one file per business entity
+  README.md                                this file
+  _landscape/<slug>.md                     findings spanning more than one source
+  <source>/                                e.g. wwi
+    _source/<nn>_<slug>.md                 source-wide items (14, 18, 20, 22, 23)
+    reconciliations/<slug>.md              item 16 when it spans tables
+    relations/<rel>.md                     item 4, one file per relationship (name below)
+    processes/<slug>.md                    item 24, one per business process
+    terms/<slug>.md                        item 25, one per term
+    entities/<slug>.md                     item 26, one per business entity
+    tables/<schema>/<table>/
+      <nn>_<slug>.md                       one file per item about the table
+      columns/<column>/<nn>_<slug>.md      one file per item about one column
+      evidence/<hash>.json                 what claims rest on; written once
 ```
 
-## Why this shape
+A source without schemas uses `_` as its schema folder. **A file exists only when something has been found**: an
+absent file means not yet analysed, and no placeholder is ever created.
 
-**A folder per table: yes.** It is the unit an agent works on and the unit a build consumes. An agent analysing or
-building on `Sales.Orders` reads one folder and nothing else.
+**Every finding has exactly one file**, so two agents never edit the same file unless they analyse the same item of
+the same subject, which the step log assigns to one of them. Evidence files are named by their content, so no id is
+allocated and none can collide. No index is kept by hand; `tools/ia_status.py` generates one.
 
-**A folder per attribute: no; a file per attribute.** A column's findings — its meaning, date role, measure, codes,
-format, copied-at-the-time status, sensitivity — belong together and are short. A folder per column with a file per
-topic would give WWI about 3,300 files of a few lines each (368 columns outside the history tables, times nine
-column-level topics), and an agent would need nine reads to learn one column. One file per column is one read.
+## 2. Items and their file names
 
-**Folders per analytical topic: no, except for the four cross-table items.** A topic view is already a file pattern:
-every sensitivity finding in WWI is `analysis/wwi/tables/*/19_sensitivity.md`, and every uncertain minimum is a
-search for `confidence: low` or `unknown` in the six minimum files. A second tree organised by topic would hold every
-finding twice, and the copies would drift. Relations, processes, terms and entities are different: they have no single
-table to live in, so they get folders of their own.
+The number is the item's number in 129 and never changes. Column-level files use the items marked *c*.
 
-**Small files, one writer.** Each finding lives in exactly one file, about one subject and one item. Two agents
-working on different items of the same table, or on different tables, never touch the same file, so they need no
-locking and their commits merge cleanly. No hand-maintained index file exists, because an index is the one file every
-agent would edit; an index or a progress table is generated from the front matter on demand.
+| nn | slug | level | | nn | slug | level |
+|---|---|---|---|---|---|---|
+| 01 | granularity | table, minimum | | 15 | quality | table, c |
+| 02 | meaning | table, c | | 16 | reconciliation | table |
+| 03 | temporal | table, c, minimum | | 17 | volume | table |
+| 04 | relations | `relations/` | | 18 | documentation | table, c, source |
+| 05 | role | table, minimum | | 19 | sensitivity | table, c, minimum |
+| 06 | keys | table, c, minimum | | 20 | ownership | table, source |
+| 07 | population | table, c, minimum | | 21 | demand | table, c |
+| 08 | measures | table, c | | 22 | stability | table, c, source |
+| 09 | derived | table, c | | 23 | extraction | table, source |
+| 10 | codes | table, c | | 24 | processes | `processes/` |
+| 11 | formats | table, c | | 25 | terms | `terms/` |
+| 12 | copies | table, c | | 26 | entities | `entities/` |
+| 13 | hierarchies | table, c | | 27 | peculiarities | table, c; tests 1-9, 11-13 minimum |
+| 14 | provenance | table, source | | | | |
 
-**An absent file means not yet analysed.** No placeholder files are created; the set of files present is the progress.
+## 3. Names
 
-## Names
+Folder and file names are the source's own names, **escaped reversibly**: the characters `A-Z a-z 0-9 _ -` are kept;
+every other byte of the name in UTF-8, `%` and `.` included, becomes `%` and two upper-case hex digits; and if the
+result is a reserved Windows name (`CON`, `PRN`, `AUX`, `NUL`, `COM0`-`COM9`, `LPT0`-`LPT9`, in any case), its last
+letter is encoded too. So `Unit/Price` is `Unit%2FPrice`, `AUX` is `AU%58`, `Klantnaam beeindigd` with a diaeresis
+is `Klantnaam%20be%C3%ABindigd`. Every path is ASCII and can be built from the source name without a lookup. Two
+names in one folder that differ only in case are an error. A relation file is named
+`<schema>.<table>.<column>__<schema>.<table>.<column>.md`, each part escaped; since `.` inside a name is escaped,
+the separators are unambiguous.
 
-File and folder names are ASCII and are the source's own names, case preserved (`Sales.Orders`, `BackorderOrderID`),
-so an agent can construct a path from a table or column name without looking it up. Item files take the two-digit
-item number of 129 and its slug; 129's numbers are stable (ADR-0017), so a path never changes meaning. A history table
-that only mirrors another table gets a folder with `05_role.md` alone, pointing to its base table.
-
-File contents are plain text: Markdown with a front-matter block. ASCII throughout, except where a value is quoted
-from the source and needs another character.
-
-## The item file
+## 4. The item file
 
 ```
 ---
-item: 06                    two digits, from 129
-topic: keys                 129's slug
-subject: wwi/Sales.Orders   source/table, or source/table/column
-tier: minimum               minimum | best-effort (ADR-0017)
-status: proposed            proposed | ruled | stale
-confidence: high            high | medium | low | unknown (below)
-finding: OrderID is the declared primary key and is unique in the extract.
-claims: [declared, observed]   the claim types of 120 the finding rests on
-as_of: wwi 2016-06-01 manifest sha256 35b71b2e...
-evidence: [E002, E004]      ids of files in evidence/
-analysed_by: claude-opus-5-5
-analysed_at: 2026-10-18
-ruled_by: none              the person who ruled, if anyone
+id: wwi:object:1154103152:column:6       permanent id of the subject (below)
+subject: wwi/tables/Sales/Orders/columns/BackorderOrderID
+item: 02
+topic: meaning
+tier: minimum                            minimum | best-effort (ADR-0017, ADR-0018)
+summary: one line: the finding
+confidence: high                         the lowest confidence among the claims below
+claims: 3                                the number of claim lines
+written_by: claude-opus-5-5              as named in records/vocabulary.json
+written_at: 2026-10-18T12:40:00Z
+step: S08-041                            the step-log entry: who asked, and why
+method: what produced the claims, with the git blob hash of any script
+input_source: wwi
+input_extract: 2016-06-01
+input_manifest_sha256: <sha256 of the extract's manifest.json>
+input_schema_sha256: <sha256 of the table's column names in order, from the extract header>
+last_checked_at: 2026-10-18T12:40:00Z    last re-verification, even without a rewrite
+last_checked_by: claude-opus-5-5
+last_checked_against: 2016-06-01         the extract it was last verified against
+reviewed_by: none
+reviewed_at: none
+ruled_by: none
+ruled_at: none
+supersedes: none
+superseded_by: none
+recheck_when: the condition under which the claims must be re-checked, in words
 ---
 
-## Finding         what is the case, in a few sentences
-## Reasoning       why the evidence supports it, and what else was considered
-## Uncertainties   what is not established, and what would settle it
-## For a person    questions only a person can answer; none if none
+## Claims
+
+- C1 | type=declared | status=proposed | confidence=high | effective=2016-06-01 | observed=2026-10-18 | checked=2026-10-18 | evidence=3f2a9c01d4e5b6a7 | recheck=description changes | text: The source describes ...
+
+## Reasoning
+## Uncertainties
+## For a person
 ```
 
-`finding` is one line, so `grep -r "^finding:" analysis/wwi/tables/Sales.Orders` gives the table's dossier in one
-command. Flat `key: value` lines, so plain `grep` works without a YAML parser.
+Every key is a flat `key: value` line, so `grep` works without a YAML parser: `grep -r "^summary:"` on a table
+folder gives its dossier; `grep -rl "^confidence: unknown"` finds every file with an unestablished claim.
 
-The column file has the same front matter with `item: column` and one section per column-level topic present, each
-headed with its item number and carrying its own `confidence` line.
+**A claim is one line**, an assertion in the sense of [ADR-0011](../docs/20_decisions/0011-assertions-identity-plane-publication-gate.md):
 
-## Confidence
+- `C<n>`, unique in the file; elsewhere a claim is cited as `<path>#C<n>`.
+- `type`: declared, observed, implemented, intended, certified ([120](../docs/10_architecture/120_context-layer.md)).
+- `status`: proposed, accepted, contested, superseded, retracted (120's lifecycle).
+- `confidence`: section 5.
+- `effective`: the date the claim holds for in the source (the extract date); `observed`: when it was established;
+  `checked`: when it was last re-verified.
+- `evidence`: evidence hashes from the table's `evidence/`, comma-separated, or `none`.
+- `recheck`: the condition under which this claim must be re-checked.
+- `text:` last, so the text may contain `|`.
 
-Proposed scale, so that "high" means the same from every agent:
+The uncertain part of a minimum item is **its own claim with `confidence=unknown`**, saying what would settle it.
+Contradicting claims are both kept; neither is retracted for the other. **Each fact is stated once**: other files link
+to the claim that owns it rather than restate it.
 
-- **high** — declared and observed agree; or observed without exception over the whole population, with a mechanism
-  that explains it; or ruled by a person.
-- **medium** — observed consistently over a short window (one load transition, one extract), or declared and not yet
+**The permanent id** is the source catalogue's own identity: `wwi:object:<object_id>` for a table,
+`...:column:<column_id>` for a column. It survives a rename in the source, not a re-platforming (ADR-0018).
+
+## 5. Confidence
+
+Confidence measures evidence, not authority.
+
+- **high** - declared and observed agree; or observed without exception over the whole population, with a mechanism
+  that explains it.
+- **medium** - observed consistently over a short window (one load transition, one extract), or declared and not yet
   observed.
-- **low** — inferred from names, descriptions, documentation or a sample.
-- **unknown** — not established. For a minimum item this is the honest answer ADR-0017 asks for, with what would
-  settle it under *Uncertainties*.
+- **low** - inferred from names, descriptions, documentation, a sample or a second-hand summary.
+- **unknown** - not established; the claim says what would settle it.
 
-A declaration that the data contradicts lowers nothing: the contradiction is the finding, recorded with both claims.
+A ruling sets `status=accepted` and the file's `ruled_by` and `ruled_at`; it does not raise confidence.
 
-## Evidence
+## 6. Freshness
 
-Evidence files are written by deterministic machinery, or by an agent running a deterministic query, and are not
-edited afterwards; a new run is a new file. Each holds the query or code, the tool, the source and its as-of with the
-manifest hash, the run time, and the result. **Results are aggregates** — counts, distinct counts, minimums and
-maximums, conformance rates — and never rows of source data, which `.gitignore` keeps out of the repository. They are
-JSON because a CSV would be ignored there and because agents parse it without guessing.
+Computed by `tools/ia_status.py`, never set by hand, per file:
 
-## Working rules for agents
+- **fresh** - `last_checked_against` is the newest extract of the source, and the table's columns are unchanged
+  (`input_schema_sha256` equals the newest extract's);
+- **ageing** - last checked against an older extract, columns unchanged;
+- **stale** - the columns have changed, or `superseded_by` is set.
 
-1. Read the table's folder before writing in it; write only the files of the item you are analysing.
-2. One finding, one file. If a finding about one table needs a fact about another, link to that table's file.
-3. Never guess a minimum item. Write `confidence: unknown` and the uncertainty.
-4. Contradictions are findings. Keep both claims; do not choose between them.
-5. When the evidence a finding rests on is superseded by a newer extract that disagrees, set `status: stale`.
-6. Log the work in the step log as usual (`task_type: profiling` for measuring, `modelling` for proposing meaning).
+`recheck_when` and each claim's `recheck` are in words; the tool lists them for an agent to evaluate. Re-verifying a
+claim without changing it updates `checked`, `last_checked_at`, `last_checked_by` and `last_checked_against`, so an
+old claim confirmed yesterday shows as fresh. Git cannot carry this: every commit is under the author's git identity
+whichever agent wrote it, and records when the commit was made, not when the analysis was done or on which data.
+
+## 7. Evidence
+
+An evidence file is JSON, written by deterministic machinery or by an agent running a deterministic query, and never
+edited: a new run is a new file. It holds `kind`, `tool` and `tool_version` (the git blob hash of the script), the
+`code` or `query` that produced it, `inputs` (source, extract, manifest hash, or database and simulation clock),
+`ran_at`, and `result`. Its name is the first 16 hex digits of the SHA-256 of its canonical JSON without the `id`
+field, and `id` repeats it; the checker verifies both. **Results are aggregates** - counts, distinct counts, minimums,
+maximums, conformance rates - and never rows of source data. Catalogue metadata (column names, types, constraints,
+descriptions) may be kept verbatim. A source read on the web is evidence too, with its URL, the fetch date, how it
+was read, and the excerpt relied on.
+
+## 8. Rules for agents
+
+1. Read the subject's folder before writing in it; write only the file of the item you were assigned.
+2. Never guess a minimum item. Write the claim with `confidence=unknown` and what would settle it.
+3. Keep contradictions as two claims.
+4. State a fact once; link to it elsewhere.
+5. When you re-verify, update the check fields; when the evidence disagrees, add a claim and set the old one to
+   `status=contested` or `superseded`.
+6. Log the work in the step log (`task_type: profiling` for measuring, `modelling` for proposing meaning).
+7. "What must be rechecked if this changes" is a question for a generated dependency index, not for grep; none
+   exists yet.

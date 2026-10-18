@@ -1,0 +1,22 @@
+{
+ "excerpt": [
+  "PickStockForCustomerOrders: No statement sets or inserts BackorderOrderID. The procedure never references it, and it doesn't create backorders.",
+  "PickStockForCustomerOrders: UPDATE Sales.Orders SET PickingCompletedWhen = @StartingWhen, PickedByPersonID = @PickingPersonID, LastEditedBy = @PickingPersonID, LastEditedWhen = @StartingWhen WHERE OrderID = @OrderID; runs only when no lines remain unpicked for that order.",
+  "CreateCustomerOrders: INSERT Sales.Orders with BackorderOrderID, PickedByPersonID and PickingCompletedWhen all NULL; 1 to 4 order lines per order, PickingCompletedWhen NULL."
+ ],
+ "id": "ecb87399219a74ce",
+ "inputs": {
+  "urls": [
+   "https://raw.githubusercontent.com/microsoft/sql-server-samples/master/samples/databases/wide-world-importers/wwi-ssdt/wwi-ssdt/DataLoadSimulation/Stored%20Procedures/PickStockForCustomerOrders.sql",
+   "https://raw.githubusercontent.com/microsoft/sql-server-samples/master/samples/databases/wide-world-importers/wwi-ssdt/wwi-ssdt/DataLoadSimulation/Stored%20Procedures/CreateCustomerOrders.sql"
+  ]
+ },
+ "kind": "web source",
+ "ran_at": "2026-10-18T10:00:00Z",
+ "result": {
+  "BackorderOrderID_set_by_daily_simulation": false,
+  "header_picking_set_when_all_lines_picked": true
+ },
+ "tool": "WebFetch (a summarising fetch: a model's reading, not the full text)",
+ "tool_version": "n/a"
+}

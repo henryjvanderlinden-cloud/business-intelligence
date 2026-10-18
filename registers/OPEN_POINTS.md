@@ -2190,10 +2190,11 @@ What is open:
    [`analysis/README.md`](../analysis/README.md): a folder per source and per table, a file per item and per column
    (not a folder per column, and no topic folders except for the four cross-table items), evidence as JSON
    aggregates, a confidence scale. Not ruled; unenforced by the checker until it is.
-2. **The trial.** Started on `Sales.Orders`, minimum items only
-   ([`analysis/wwi/tables/Sales.Orders/`](../analysis/wwi/tables/Sales.Orders/),
-   [`prototypes/information_analysis/`](../prototypes/information_analysis/)). Owed: the other tables, the best-effort
-   items, the cross-table items, and what it cost.
+2. **The trial.** `Sales.Orders` redone on 2026-10-18 in the ruled layout (ADR-0018): the six minimum items, item 27
+   and two column files, 53 claims on 11 evidence files
+   ([`analysis/wwi/tables/Sales/Orders/`](../analysis/wwi/tables/Sales/Orders/),
+   [`prototypes/information_analysis/`](../prototypes/information_analysis/)); the first layout of c7b7aa2 was moved
+   out of the repository. Owed: the other tables, the best-effort items, the cross-table items, and what it cost.
 3. **Review.** Sent 2026-10-18: sol on 129's inventory (nothing written after two hours, re-sent once; sol answers
    a test call, so the run itself is lost or still going), astra on the record layout. Astra's verdict,
    [XREV_2026-10-18_information-analysis-record_astra](../docs/30_research/notes/XREV_2026-10-18_information-analysis-record_astra.md):

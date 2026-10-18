@@ -1,0 +1,97 @@
+{
+ "id": "ff8e0436f358f23e",
+ "inputs": {
+  "database": "WideWorldImporters",
+  "request": "20261018T1215-agent-ia-orders-ids",
+  "run_as": "nsdn_reader",
+  "simulation_clock": "2016-06-01",
+  "source": "wwi"
+ },
+ "kind": "catalogue query",
+ "query": "SELECT OBJECT_ID('Sales.Orders') AS object_id, c.column_id, c.name FROM sys.columns c WHERE c.object_id=OBJECT_ID('Sales.Orders') ORDER BY c.column_id",
+ "ran_at": "2026-10-18T12:14:42Z",
+ "result": [
+  {
+   "column_id": "1",
+   "name": "OrderID",
+   "object_id": "1154103152"
+  },
+  {
+   "column_id": "2",
+   "name": "CustomerID",
+   "object_id": "1154103152"
+  },
+  {
+   "column_id": "3",
+   "name": "SalespersonPersonID",
+   "object_id": "1154103152"
+  },
+  {
+   "column_id": "4",
+   "name": "PickedByPersonID",
+   "object_id": "1154103152"
+  },
+  {
+   "column_id": "5",
+   "name": "ContactPersonID",
+   "object_id": "1154103152"
+  },
+  {
+   "column_id": "6",
+   "name": "BackorderOrderID",
+   "object_id": "1154103152"
+  },
+  {
+   "column_id": "7",
+   "name": "OrderDate",
+   "object_id": "1154103152"
+  },
+  {
+   "column_id": "8",
+   "name": "ExpectedDeliveryDate",
+   "object_id": "1154103152"
+  },
+  {
+   "column_id": "9",
+   "name": "CustomerPurchaseOrderNumber",
+   "object_id": "1154103152"
+  },
+  {
+   "column_id": "10",
+   "name": "IsUndersupplyBackordered",
+   "object_id": "1154103152"
+  },
+  {
+   "column_id": "11",
+   "name": "Comments",
+   "object_id": "1154103152"
+  },
+  {
+   "column_id": "12",
+   "name": "DeliveryInstructions",
+   "object_id": "1154103152"
+  },
+  {
+   "column_id": "13",
+   "name": "InternalComments",
+   "object_id": "1154103152"
+  },
+  {
+   "column_id": "14",
+   "name": "PickingCompletedWhen",
+   "object_id": "1154103152"
+  },
+  {
+   "column_id": "15",
+   "name": "LastEditedBy",
+   "object_id": "1154103152"
+  },
+  {
+   "column_id": "16",
+   "name": "LastEditedWhen",
+   "object_id": "1154103152"
+  }
+ ],
+ "tool": "sandbox request folder (job.ps1 query action)",
+ "tool_version": "pinned job in C:\\ProgramData\\nsdn-wwi"
+}

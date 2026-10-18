@@ -31,4 +31,5 @@ describe options; only an ADR adopts one.
 | [0014](0014-step-log.md) | Record every step of the work in a classified step log | Accepted |
 | [0015](0015-sandbox-warehouse-dbt-duckdb.md) | The Wide World Importers sandbox's warehouse is DuckDB, transformed with dbt-core | Accepted |
 | [0016](0016-regulatory-requirements-from-production.md) | Regulatory requirements are kept in mind from the start and apply from production | Accepted |
-| [0017](0017-information-analysis-before-building.md) | Information analysis precedes building: hard effort on a minimum, best effort on the rest, never a hard gate | Accepted |
+| [0017](0017-information-analysis-before-building.md) | Information analysis precedes building: hard effort on a minimum, best effort on the rest, never a hard gate | Accepted (amended by 0018) |
+| [0018](0018-information-analysis-record.md) | The information-analysis record: a folder per table and per column, a file per item, a line per claim, content-addressed evidence and provenance in every file | Accepted |

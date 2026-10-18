@@ -1,20 +1,23 @@
 {
- "id": "E002",
- "written_at": "2026-10-18T09:51:50+00:00",
+ "id": "b8b837693651efad",
+ "inputs": {
+  "database": "WideWorldImporters",
+  "request": "20261018T0955-agent-ia-orders-pk",
+  "run_as": "nsdn_reader",
+  "simulation_clock": "2016-06-01",
+  "source": "wwi"
+ },
  "kind": "catalogue query",
- "tool": "sandbox request folder, query as nsdn_reader",
- "request": "20261018T0955-agent-ia-orders-pk",
  "query": "SELECT tc.CONSTRAINT_TYPE, tc.CONSTRAINT_NAME, kcu.COLUMN_NAME, kcu.ORDINAL_POSITION FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS tc JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE kcu ON kcu.CONSTRAINT_NAME=tc.CONSTRAINT_NAME AND kcu.TABLE_SCHEMA=tc.TABLE_SCHEMA WHERE tc.TABLE_SCHEMA='Sales' AND tc.TABLE_NAME='Orders' AND tc.CONSTRAINT_TYPE IN ('PRIMARY KEY','UNIQUE')",
+ "ran_at": "2026-10-18T09:42:43Z",
  "result": [
   {
-   "CONSTRAINT_TYPE": "PRIMARY KEY",
-   "CONSTRAINT_NAME": "PK_Sales_Orders",
    "COLUMN_NAME": "OrderID",
+   "CONSTRAINT_NAME": "PK_Sales_Orders",
+   "CONSTRAINT_TYPE": "PRIMARY KEY",
    "ORDINAL_POSITION": "1"
   }
  ],
- "as_of": {
-  "source": "wwi",
-  "database": "WideWorldImporters, live, 2026-10-18"
- }
+ "tool": "sandbox request folder (job.ps1 query action)",
+ "tool_version": "pinned job in C:\\ProgramData\\nsdn-wwi"
 }

@@ -1,0 +1,90 @@
+{
+ "code": "def profile():\n    o = load(DAY, \"Sales.Orders\")\n    cols = list(o[0].keys())\n    by = {int(r[\"OrderID\"]): r for r in o}\n    ids = sorted(by)\n    return {\n        \"rows\": len(o), \"distinct_OrderID\": len(by), \"OrderID_min\": ids[0], \"OrderID_max\": ids[-1],\n        \"OrderID_gaps\": ids[-1] - ids[0] + 1 - len(ids),\n        \"OrderID_inversions_against_OrderDate\": sum(\n            1 for i, j in zip(ids, ids[1:]) if by[j][\"OrderDate\"] < by[i][\"OrderDate\"]),\n        \"empty_per_column\": {c: sum(1 for r in o if r[c] == \"\") for c in cols},\n        \"distinct_per_column\": {c: len(set(r[c] for r in o)) for c in cols},\n        \"OrderDate_min\": min(r[\"OrderDate\"] for r in o), \"OrderDate_max\": max(r[\"OrderDate\"] for r in o),\n        \"OrderDate_time_parts\": dict(collections.Counter(r[\"OrderDate\"][10:] for r in o)),\n        \"orders_per_year\": dict(sorted(collections.Counter(r[\"OrderDate\"][:4] for r in o).items())),\n        \"orders_per_weekday_mon0\": dict(sorted(collections.Counter(\n            datetime.date.fromisoformat(r[\"OrderDate\"][:10]).weekday() for r in o).items())),\n        \"IsUndersupplyBackordered_values\": dict(collections.Counter(r[\"IsUndersupplyBackordered\"] for r in o)),\n        \"ExpectedDeliveryDate_before_OrderDate\": sum(1 for r in o if r[\"ExpectedDeliveryDate\"] < r[\"OrderDate\"]),\n        \"LastEditedWhen_before_OrderDate\": sum(1 for r in o if r[\"LastEditedWhen\"][:10] < r[\"OrderDate\"][:10]),\n        \"unpicked\": sum(1 for r in o if r[\"PickingCompletedWhen\"] == \"\"),\n        \"unpicked_OrderDate_min\": min(r[\"OrderDate\"] for r in o if r[\"PickingCompletedWhen\"] == \"\"),\n        \"unpicked_per_year\": dict(sorted(collections.Counter(\n            r[\"OrderDate\"][:4] for r in o if r[\"PickingCompletedWhen\"] == \"\").items())),\n        \"picked_without_PickedByPersonID\": sum(1 for r in o if r[\"PickingCompletedWhen\"] and not r[\"PickedByPersonID\"]),\n    }\n",
+ "id": "77ee039bf95c3ee8",
+ "inputs": {
+  "extract": "2016-06-01",
+  "manifest_sha256": "35b71b2e3ff4bb9ef4e24afc9c56f914e8386df4060a794b862e7f5a00d2774f",
+  "source": "wwi"
+ },
+ "kind": "profile",
+ "ran_at": "2026-10-18T12:22:16Z",
+ "result": {
+  "ExpectedDeliveryDate_before_OrderDate": 0,
+  "IsUndersupplyBackordered_values": {
+   "1": 73653
+  },
+  "LastEditedWhen_before_OrderDate": 0,
+  "OrderDate_max": "2016-06-01T00:00:00.0000000",
+  "OrderDate_min": "2013-01-01T00:00:00.0000000",
+  "OrderDate_time_parts": {
+   "T00:00:00.0000000": 73653
+  },
+  "OrderID_gaps": 0,
+  "OrderID_inversions_against_OrderDate": 215,
+  "OrderID_max": 73653,
+  "OrderID_min": 1,
+  "distinct_OrderID": 73653,
+  "distinct_per_column": {
+   "BackorderOrderID": 7547,
+   "Comments": 1,
+   "ContactPersonID": 663,
+   "CustomerID": 663,
+   "CustomerPurchaseOrderNumber": 9984,
+   "DeliveryInstructions": 1,
+   "ExpectedDeliveryDate": 892,
+   "InternalComments": 1,
+   "IsUndersupplyBackordered": 1,
+   "LastEditedBy": 20,
+   "LastEditedWhen": 2131,
+   "OrderDate": 1070,
+   "OrderID": 73653,
+   "PickedByPersonID": 20,
+   "PickingCompletedWhen": 2127,
+   "SalespersonPersonID": 10
+  },
+  "empty_per_column": {
+   "BackorderOrderID": 66107,
+   "Comments": 73653,
+   "ContactPersonID": 0,
+   "CustomerID": 0,
+   "CustomerPurchaseOrderNumber": 0,
+   "DeliveryInstructions": 73653,
+   "ExpectedDeliveryDate": 0,
+   "InternalComments": 73653,
+   "IsUndersupplyBackordered": 0,
+   "LastEditedBy": 0,
+   "LastEditedWhen": 0,
+   "OrderDate": 0,
+   "OrderID": 0,
+   "PickedByPersonID": 10633,
+   "PickingCompletedWhen": 3087,
+   "SalespersonPersonID": 0
+  },
+  "orders_per_weekday_mon0": {
+   "0": 13223,
+   "1": 13737,
+   "2": 13500,
+   "3": 13421,
+   "4": 13208,
+   "5": 6564
+  },
+  "orders_per_year": {
+   "2013": 19450,
+   "2014": 21199,
+   "2015": 23329,
+   "2016": 9675
+  },
+  "picked_without_PickedByPersonID": 7546,
+  "rows": 73653,
+  "unpicked": 3087,
+  "unpicked_OrderDate_min": "2013-01-12T00:00:00.0000000",
+  "unpicked_per_year": {
+   "2013": 438,
+   "2014": 786,
+   "2015": 1203,
+   "2016": 660
+  }
+ },
+ "tool": "prototypes/information_analysis/evidence_orders.py",
+ "tool_version": "5b39164821d92e89109688e68c204752d9edeff5"
+}

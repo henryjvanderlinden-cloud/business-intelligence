@@ -17,7 +17,7 @@ verdict:       FAILS [two compliant item writers can allocate the same local evi
                conflict or silently ambiguous evidence references]
 ```
 
-Astra's answer, verbatim (relative links re-based from scratch/ to this folder):
+Astra's answer, verbatim (relative links re-based from scratch/ to this folder; the link to the example's first layout, since moved, is given as text):
 
 1. **Concurrency.** Two agents start from the example's eight evidence files and both read the table folder before writing. Agent A analyses item 15 and creates `E009_profile.json`; agent B analyses item 17 and independently creates `E009_profile.json`. Both runs are new, neither agent edits an existing evidence file, and each changes only its own item document and supporting evidence. Their branches produce an add/add conflict. The README supplies neither an allocation rule for evidence IDs nor a reservation mechanism. If they instead choose `E009_quality.json` and `E009_volume.json`, git can merge cleanly, but both item files contain `evidence: [E009]`, which now resolves to two files in the same evidence directory. This is a silent inconsistency under the stated naming rules.
 
@@ -31,7 +31,7 @@ Astra's answer, verbatim (relative links re-based from scratch/ to this folder):
 
    Even the advertised simple topic query is incomplete: `analysis/wwi/tables/*/19_sensitivity.md` does not find sensitivity recorded only in a column's item-19 section, which the column-file rule permits. Searching column bodies as well can repair candidate retrieval, so this is a defect in the advertised query, not proof that all topic searches require an index. Likewise, the presence of a column file establishes that *some* topic was analysed, not which remaining column topics are complete.
 
-4. **Example compliance.** The following deviations are present in [the example](../../../analysis/wwi/tables/Sales.Orders/) relative to [the README](../../../analysis/README.md).
+4. **Example compliance.** The following deviations are present in the example (`analysis/wwi/tables/Sales.Orders/` in the first layout, commit c7b7aa2, since moved) relative to [the README](../../../analysis/README.md).
 
    - **The column front matter is not the promised same front matter with `item: column`.** `columns/BackorderOrderID.md` omits `topic` and `tier`. Its topic confidences are embedded in headings such as `## 02 Meaning — confidence: high`, rather than given their own `confidence` lines. The README also leaves unresolved what one `tier` should mean for a column containing both minimum and best-effort items; omission does not implement the stated format.
    - **Authored text is not ASCII.** `03_temporal.md` contains em dashes and a section sign; `06_keys.md`, `07_population.md`, `19_sensitivity.md` and `columns/BackorderOrderID.md` contain em dashes. These are authored punctuation, not non-ASCII values quoted from the source, so the stated exception does not apply.

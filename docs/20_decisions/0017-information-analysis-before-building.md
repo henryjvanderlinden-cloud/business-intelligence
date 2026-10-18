@@ -4,6 +4,7 @@
 - **Date:** 2026-10-18
 - **Supersedes:** —
 - **Superseded by:** —
+- **Amended by:** [ADR-0018](0018-information-analysis-record.md) (item 27's grain tests join the minimum)
 
 ## Context
 

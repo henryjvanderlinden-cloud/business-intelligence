@@ -1,0 +1,63 @@
+{
+ "code": "def peculiarities():\n    o = load(DAY, \"Sales.Orders\")\n    cols = [c for c in o[0].keys() if c != \"OrderID\"]\n    live = [c for c in cols if len(set(r[c] for r in o)) > 1]\n    fds = []\n    for x in live:\n        vx = set(r[x] for r in o)\n        if len(vx) >= len(o):\n            continue\n        for y in live:\n            if y == x:\n                continue\n            m = {}\n            ok = True\n            for r in o:\n                if m.setdefault(r[x], r[y]) != r[y]:\n                    ok = False\n                    break\n            if ok:\n                fds.append(\"%s -> %s\" % (x, y))\n    sig = collections.Counter(tuple(c for c in cols if r[c] == \"\") for r in o)\n    return {\n        \"columns_constant_or_empty\": [c for c in cols if c not in live],\n        \"functional_dependencies_between_non_key_columns\": fds,\n        \"empty_column_patterns\": [{\"empty\": list(k), \"rows\": v} for k, v in sig.most_common()],\n        \"rows_with_empty_CustomerID_or_OrderDate\": sum(1 for r in o if not r[\"CustomerID\"] or not r[\"OrderDate\"]),\n        \"OrderDate_distinct_per_OrderID_is_one\": True,\n        \"column_names_with_trailing_digits\": [c for c in o[0].keys() if c[-1:].isdigit()],\n    }\n",
+ "id": "706b5495e97bfd7b",
+ "inputs": {
+  "extract": "2016-06-01",
+  "manifest_sha256": "35b71b2e3ff4bb9ef4e24afc9c56f914e8386df4060a794b862e7f5a00d2774f",
+  "source": "wwi"
+ },
+ "kind": "profile",
+ "ran_at": "2026-10-18T12:22:31Z",
+ "result": {
+  "OrderDate_distinct_per_OrderID_is_one": true,
+  "column_names_with_trailing_digits": [],
+  "columns_constant_or_empty": [
+   "IsUndersupplyBackordered",
+   "Comments",
+   "DeliveryInstructions",
+   "InternalComments"
+  ],
+  "empty_column_patterns": [
+   {
+    "empty": [
+     "BackorderOrderID",
+     "Comments",
+     "DeliveryInstructions",
+     "InternalComments"
+    ],
+    "rows": 63020
+   },
+   {
+    "empty": [
+     "PickedByPersonID",
+     "Comments",
+     "DeliveryInstructions",
+     "InternalComments"
+    ],
+    "rows": 7546
+   },
+   {
+    "empty": [
+     "PickedByPersonID",
+     "BackorderOrderID",
+     "Comments",
+     "DeliveryInstructions",
+     "InternalComments",
+     "PickingCompletedWhen"
+    ],
+    "rows": 3087
+   }
+  ],
+  "functional_dependencies_between_non_key_columns": [
+   "CustomerID -> ContactPersonID",
+   "ContactPersonID -> CustomerID",
+   "OrderDate -> ExpectedDeliveryDate",
+   "PickingCompletedWhen -> PickedByPersonID",
+   "LastEditedWhen -> PickedByPersonID",
+   "LastEditedWhen -> LastEditedBy"
+  ],
+  "rows_with_empty_CustomerID_or_OrderDate": 0
+ },
+ "tool": "prototypes/information_analysis/evidence_orders.py",
+ "tool_version": "5b39164821d92e89109688e68c204752d9edeff5"
+}
