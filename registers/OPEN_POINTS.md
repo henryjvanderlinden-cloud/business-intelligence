@@ -2216,7 +2216,24 @@ What is open:
      by owner and reader once (663 each, `data/wwi/inventory/inventory.json`).
    - **R16. A new item 28, arithmetic policy**: precision, rounding mode, where rounding happens (line or document)
      and how residues are treated; best effort, since it decides whether recomputed values reconcile rather than what
-     the grain is. Astra's verdict,
+     the grain is.
+
+   **Ruled 2026-10-18, 14:38**, in [ADR-0019](../docs/20_decisions/0019-information-analysis-in-two-rounds.md): the
+   analysis runs in two rounds, round 1 per table (the brief), round 2 across tables (how tables relate, warnings,
+   the meaning of assumed or proven joins), R14 belonging to round 2; R16 accepted as item 28. Still open from this
+   batch:
+   - **Round 2's folder structure**, proposed in [`analysis/README.md`](../analysis/README.md) section 9: an
+     `across/` tree with a folder per relation holding item files 01, 02, 03, 06, 07 and 27, folders for processes,
+     terms, entities and cross-table reconciliations, and a generated list of candidate relations; minimum per
+     relation 01, 02, 06, 07, 27.
+   - **R15, explained to the author on 2026-10-18 and awaiting his ruling.** A database can show different accounts
+     different rows (row-level security) or blank out column values (dynamic data masking). An extract made through a
+     restricted account can then look complete while it is not, and every count, total and orphan rate computed on it
+     is quietly wrong. The check: does the table carry a security policy or masked columns, and do the extracting
+     account and an unrestricted account see the same row count? In WWI, Microsoft's simulator applies row-level
+     security to customers; setup compared the customers seen by owner and reader once (663 each). On 2026-10-18,
+     queried as `nsdn_reader`, the catalogue showed no security policy at all — which either means there is none, or
+     that the account cannot see them, and that ambiguity is the point of the check. Astra's verdict,
    [XREV_2026-10-18_information-analysis-record_astra](../docs/30_research/notes/XREV_2026-10-18_information-analysis-record_astra.md):
    **FAILS** — two agents following the rules can allocate the same evidence id. Its other findings: a column file
    is shared by every item about that column, so item ownership is not file ownership; source names break as file

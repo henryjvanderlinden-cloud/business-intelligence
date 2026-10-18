@@ -25,6 +25,11 @@ they are not an analysis of the sandbox.
 
 ## What the phase is
 
+*Ruled 2026-10-18, [ADR-0019](../20_decisions/0019-information-analysis-in-two-rounds.md): the analysis runs in two
+rounds.* Round 1 is per table and per column: items 1 to 3, 5 to 23, 27 and 28, with a table's declared foreign keys
+under item 6. Round 2 is across tables: item 4, the cross-table part of item 16, and items 24 to 26 — how tables
+relate, if at all, which cross-table peculiarities deserve a warning, and what an assumed or proven join means.
+
 Before a load, a vault structure or a mart is built on a table, the table would be analysed and
 what is found recorded. This is the information analysis an experienced practitioner does by
 hand, partly mechanised along the division of [070](../00_concept/070_task-allocation.md):
@@ -282,6 +287,13 @@ a kind of row.
     stock item, so a sum of quantity across items adds unlike units.
 18. **A grain that changes at a date**: one row per order before a cutover, one per shipment after. Test: the
     multiplicity of the key per period. Not observed in WWI.
+
+**28. Arithmetic policy.** Added 2026-10-18 on sol's review
+([XREV](../30_research/notes/XREV_2026-10-18_information-analysis-inventory-gaps_sol.md)) and the author's agreement
+(ADR-0019): the precision the source calculates with, its rounding mode, where it rounds (per line or per document),
+and how residues are treated. Best effort. It decides whether recomputed values (item 9) reconcile with the source's
+own: recomputing tax per line and summing, where the source rounds tax per invoice, gives wrong tax, gross revenue and
+margin.
 
 Findings under tests 1 to 9 and 11 to 13 bear directly on granularity, which is a minimum item; whether they are
 done with the minimum's hard effort is put to the author (`ARC-OP-36`).

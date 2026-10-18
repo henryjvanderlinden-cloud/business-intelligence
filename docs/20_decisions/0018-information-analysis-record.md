@@ -4,6 +4,7 @@
 - **Date:** 2026-10-18
 - **Supersedes:** —
 - **Superseded by:** —
+- **Amended by:** [ADR-0019](0019-information-analysis-in-two-rounds.md) (round 2 takes the cross-table folders)
 - **Amends:** [ADR-0017](0017-information-analysis-before-building.md) (item 27's grain tests join the minimum)
 
 ## Context

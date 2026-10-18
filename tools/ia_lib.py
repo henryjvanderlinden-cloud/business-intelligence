@@ -16,9 +16,10 @@ ITEMS = {
     "13": "hierarchies", "14": "provenance", "15": "quality", "16": "reconciliation", "17": "volume",
     "18": "documentation", "19": "sensitivity", "20": "ownership", "21": "demand", "22": "stability",
     "23": "extraction", "24": "processes", "25": "terms", "26": "entities", "27": "peculiarities",
+    "28": "arithmetic",
 }
 TABLE_ITEMS = set(ITEMS) - {"04", "24", "25", "26"}
-COLUMN_ITEMS = {"02", "03", "06", "07", "08", "09", "10", "11", "12", "13", "15", "18", "19", "21", "22", "27"}
+COLUMN_ITEMS = {"02", "03", "06", "07", "08", "09", "10", "11", "12", "13", "15", "18", "19", "21", "22", "27", "28"}
 MINIMUM = {"01", "03", "05", "06", "07", "19"}
 
 CLAIM_TYPES = {"declared", "observed", "implemented", "intended", "certified"}

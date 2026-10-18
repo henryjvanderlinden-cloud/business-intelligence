@@ -1,6 +1,8 @@
 # Information analysis - how it is recorded
 
-> **STATUS: RULED** 2026-10-18 in [ADR-0018](../docs/20_decisions/0018-information-analysis-record.md), after review
+> **STATUS: RULED** 2026-10-18 in [ADR-0018](../docs/20_decisions/0018-information-analysis-record.md) and, for the two
+> rounds and item 28, [ADR-0019](../docs/20_decisions/0019-information-analysis-in-two-rounds.md); **section 9, the
+> layout of round 2, is proposed and not ruled.** After review
 > by astra ([XREV](../docs/30_research/notes/XREV_2026-10-18_information-analysis-record_astra.md)). Enforced by
 > `python tools/check_repo.py`; summarised by `python tools/ia_status.py`.
 
@@ -20,6 +22,9 @@ and, on metadata:
 > we we can see if claims are stale or fresh.
 
 ## 1. Layout
+
+Round 1 (ADR-0019) is per table and per column: the `tables/` tree and `_source/`. Round 2, across tables, is section 9;
+the cross-table folders shown here are replaced by its proposal once that is ruled.
 
 ```
 analysis/
@@ -64,7 +69,7 @@ The number is the item's number in 129 and never changes. Column-level files use
 | 11 | formats | table, c | | 25 | terms | `terms/` |
 | 12 | copies | table, c | | 26 | entities | `entities/` |
 | 13 | hierarchies | table, c | | 27 | peculiarities | table, c; tests 1-9, 11-13 minimum |
-| 14 | provenance | table, source | | | | |
+| 14 | provenance | table, source | | 28 | arithmetic | table, c |
 
 ## 3. Names
 
@@ -189,3 +194,36 @@ was read, and the excerpt relied on.
 6. Log the work in the step log (`task_type: profiling` for measuring, `modelling` for proposing meaning).
 7. "What must be rechecked if this changes" is a question for a generated dependency index, not for grep; none
    exists yet.
+
+## 9. Round 2: across tables (PROPOSED, not ruled)
+
+Round 2 asks how tables relate, if at all; which cross-table peculiarities deserve a warning; and what an assumed or
+proven join means (ADR-0019). It would get its own tree, built like round 1 so an agent needs to learn one shape:
+
+```
+analysis/<source>/across/
+  relations/<rel>/                  one folder per relation; <rel> as in section 3, composite keys as more columns
+    01_granularity.md               the grain of each side and of the joined result; cardinality both ways,
+                                    declared, observed and asserted (128)
+    02_meaning.md                   what the join means: which question it answers, the role of each side
+                                    (customer or bill-to customer), and which candidate key it targets
+    03_temporal.md                  whether it holds as of a time: point-in-time joins, late-arriving parents
+    06_keys.md                      key roles on each side; enforced or not
+    07_population.md                orphans both ways, optionality, the filters under which the cardinality holds
+    27_peculiarities.md             warnings: fan-out, double counting, chasm and fan traps, many-to-many through a
+                                    bridge, ambiguous key targets, several paths between the same two tables
+    evidence/<hash>.json
+  processes/<slug>/                 item 24, the same item files where they apply
+  terms/<slug>/                     item 25
+  entities/<slug>/                  item 26
+  reconciliations/<slug>/           item 16 across tables
+  candidates.md                     generated, not hand-edited: relations to analyse, from declared foreign keys,
+                                    observed value inclusion and names, each marked assumed or proven
+```
+
+The minimum for a relation would be items 01, 02, 06, 07 and 27: the cardinality, the meaning, the key roles, the
+orphans and the warnings, with the same hard effort as round 1's minimum (R14). Sol's counterexample — two candidate
+keys a foreign key could point to, both giving a clean one-to-one join — is caught by 02 and 06 together. A relation
+nobody has proven stays a folder whose claims say `type=observed` or `intended` with their confidence; "assumed" is a
+confidence, not a separate kind of file.
+
