@@ -262,6 +262,90 @@ def main_more():
     print("coldroom", h, json.dumps(rec["result"])[:900])
 
 
+def editors_and_system_time(table):
+    """Who edits the rows (LastEditedBy against Application.People) and how ValidFrom relates to LastEditedWhen and
+    to the extract's simulated date. Counts only; no person's name except person 1's, a technical label."""
+    import collections
+    f, head, rows = reader(DAY, "Application.People")
+    pi = {c: head.index(c) for c in head}
+    people = {r[pi["PersonID"]]: r for r in rows}
+    f.close()
+    f, head, rows = reader(DAY, table)
+    i = {c: head.index(c) for c in head}
+    n, by_editor_kind, editors = 0, collections.Counter(), set()
+    vf_lo = vf_hi = None
+    same_second = same_day = after_extract_day = vf_before_edit = 0
+    for r in rows:
+        n += 1
+        if "LastEditedBy" in i:
+            e = r[i["LastEditedBy"]]
+            editors.add(e)
+            p = people.get(e)
+            by_editor_kind["person 1" if e == "1" else "unknown person" if p is None else
+                           "employee" if p[pi["IsEmployee"]] == "1" else "not an employee"] += 1
+        if "ValidFrom" in i:
+            v = r[i["ValidFrom"]]
+            vf_lo = v if vf_lo is None or v < vf_lo else vf_lo
+            vf_hi = v if vf_hi is None or v > vf_hi else vf_hi
+            after_extract_day += v[:10] > DAY
+            if "LastEditedWhen" in i:
+                w = r[i["LastEditedWhen"]]
+                same_second += v[:19] == w[:19]
+                same_day += v[:10] == w[:10]
+                vf_before_edit += v[:19] < w[:19]
+    f.close()
+    out = {"rows": n}
+    if "LastEditedBy" in i:
+        out["last_edited_by"] = {"distinct_editors": len(editors), "rows_by_editor_kind": dict(by_editor_kind),
+                                 "person_1_full_name": people["1"][pi["FullName"]]}
+    if "ValidFrom" in i:
+        out["valid_from"] = {"min": vf_lo, "max": vf_hi, "rows_after_the_extract_day": after_extract_day}
+        if "LastEditedWhen" in i:
+            out["valid_from"].update(equals_last_edited_when_to_the_second=same_second,
+                                     same_day_as_last_edited_when=same_day, before_last_edited_when=vf_before_edit)
+    return out
+
+
+def main_columns():
+    import json
+    base = {"kind": "profile", "tool": SCRIPT, "tool_version": blob(SCRIPT), "ran_at": now()}
+    inp = {"source": "wwi", "extract": DAY, "manifest_sha256": sha(os.path.join(RAW, DAY, "manifest.json"))}
+    for fn in sorted(os.listdir(os.path.join(RAW, DAY))):
+        if not fn.endswith(".csv.gz") or "_Archive" in fn:
+            continue
+        t = fn[:-7]
+        f, head, rows = reader(DAY, t)
+        f.close()
+        if "LastEditedBy" not in head and "ValidFrom" not in head:
+            continue
+        s, n = t.split(".")
+        rec = dict(base, code=inspect.getsource(editors_and_system_time), inputs=dict(inp, table=t), result=editors_and_system_time(t))
+        print(t, "editors", write(os.path.join(ROOT, "analysis", "wwi", "tables", ia.escape(s), ia.escape(n), "evidence"), rec),
+              json.dumps(rec["result"])[:300])
+    rec = dict(base, code=inspect.getsource(logon_names), inputs=dict(inp, table="Application.People"), result=logon_names())
+    print("Application.People logon", write(os.path.join(ROOT, "analysis", "wwi", "tables", "Application", "People", "evidence"), rec), rec["result"])
+
+
+def logon_names():
+    """How LogonName values are shared, by IsPermittedToLogon and IsEmployee. Counts only; the one value named is the
+    placeholder."""
+    import collections
+    f, head, rows = reader(DAY, "Application.People")
+    i = {c: head.index(c) for c in head}
+    rows = list(rows)
+    f.close()
+    c = collections.Counter(r[i["LogonName"]] for r in rows)
+    top, top_n = c.most_common(1)[0]
+    return {"rows": len(rows), "distinct": len(c),
+            "values_by_number_of_people_sharing": {str(k): v for k, v in sorted(collections.Counter(c.values()).items())},
+            "most_shared_value": top, "most_shared_value_people": top_n,
+            "people_by_sharing_and_flags": {"shared_by_%d|permitted=%s|employee=%s" % (k[0], k[1], k[2]): v for k, v in sorted(
+                collections.Counter((c[r[i["LogonName"]]], r[i["IsPermittedToLogon"]], r[i["IsEmployee"]]) for r in rows).items())}}
+
+
 if __name__ == "__main__" and len(sys.argv) > 1 and sys.argv[1] == "more":
     import json
     main_more()
+
+if __name__ == "__main__" and len(sys.argv) > 1 and sys.argv[1] == "columns":
+    main_columns()

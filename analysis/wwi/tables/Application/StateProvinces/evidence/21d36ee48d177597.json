@@ -1,0 +1,30 @@
+{
+ "code": "def editors_and_system_time(table):\n    \"\"\"Who edits the rows (LastEditedBy against Application.People) and how ValidFrom relates to LastEditedWhen and\n    to the extract's simulated date. Counts only; no person's name except person 1's, a technical label.\"\"\"\n    import collections\n    f, head, rows = reader(DAY, \"Application.People\")\n    pi = {c: head.index(c) for c in head}\n    people = {r[pi[\"PersonID\"]]: r for r in rows}\n    f.close()\n    f, head, rows = reader(DAY, table)\n    i = {c: head.index(c) for c in head}\n    n, by_editor_kind, editors = 0, collections.Counter(), set()\n    vf_lo = vf_hi = None\n    same_second = same_day = after_extract_day = vf_before_edit = 0\n    for r in rows:\n        n += 1\n        if \"LastEditedBy\" in i:\n            e = r[i[\"LastEditedBy\"]]\n            editors.add(e)\n            p = people.get(e)\n            by_editor_kind[\"person 1\" if e == \"1\" else \"unknown person\" if p is None else\n                           \"employee\" if p[pi[\"IsEmployee\"]] == \"1\" else \"not an employee\"] += 1\n        if \"ValidFrom\" in i:\n            v = r[i[\"ValidFrom\"]]\n            vf_lo = v if vf_lo is None or v < vf_lo else vf_lo\n            vf_hi = v if vf_hi is None or v > vf_hi else vf_hi\n            after_extract_day += v[:10] > DAY\n            if \"LastEditedWhen\" in i:\n                w = r[i[\"LastEditedWhen\"]]\n                same_second += v[:19] == w[:19]\n                same_day += v[:10] == w[:10]\n                vf_before_edit += v[:19] < w[:19]\n    f.close()\n    out = {\"rows\": n}\n    if \"LastEditedBy\" in i:\n        out[\"last_edited_by\"] = {\"distinct_editors\": len(editors), \"rows_by_editor_kind\": dict(by_editor_kind),\n                                 \"person_1_full_name\": people[\"1\"][pi[\"FullName\"]]}\n    if \"ValidFrom\" in i:\n        out[\"valid_from\"] = {\"min\": vf_lo, \"max\": vf_hi, \"rows_after_the_extract_day\": after_extract_day}\n        if \"LastEditedWhen\" in i:\n            out[\"valid_from\"].update(equals_last_edited_when_to_the_second=same_second,\n                                     same_day_as_last_edited_when=same_day, before_last_edited_when=vf_before_edit)\n    return out\n",
+ "id": "21d36ee48d177597",
+ "inputs": {
+  "extract": "2016-06-01",
+  "manifest_sha256": "35b71b2e3ff4bb9ef4e24afc9c56f914e8386df4060a794b862e7f5a00d2774f",
+  "source": "wwi",
+  "table": "Application.StateProvinces"
+ },
+ "kind": "profile",
+ "ran_at": "2026-10-19T09:18:41Z",
+ "result": {
+  "last_edited_by": {
+   "distinct_editors": 4,
+   "person_1_full_name": "Data Conversion Only",
+   "rows_by_editor_kind": {
+    "employee": 34,
+    "person 1": 19
+   }
+  },
+  "rows": 53,
+  "valid_from": {
+   "max": "2015-07-01T16:00:00.0000000",
+   "min": "2013-01-01T00:00:00.0000000",
+   "rows_after_the_extract_day": 0
+  }
+ },
+ "tool": "prototypes/information_analysis/evidence_shared.py",
+ "tool_version": "4174839b1036cd70f0c837acdee322e7071ca4b0"
+}

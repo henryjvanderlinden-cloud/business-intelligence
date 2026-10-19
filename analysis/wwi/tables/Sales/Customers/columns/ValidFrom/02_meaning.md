@@ -4,18 +4,18 @@ subject: wwi/tables/Sales/Customers/columns/ValidFrom
 item: 02
 topic: meaning
 tier: best-effort
-summary: The moment this version of the row became current, set by SQL Server's system-versioning (period start). It is the clock time of the change, which in WWI usually but not always matches simulated time (Application.Countries has a version stamped 2022-10-07).
+summary: The moment this version of the row became current: the period start of SQL Server's system-versioning, which the server sets from its own clock at the time of the change.
 confidence: high
-claims: 3
+claims: 4
 written_by: claude-opus-5-5
-written_at: 2026-10-19T07:28:00Z
-step: S08-067
-method: mechanical claims by prototypes/information_analysis/write_column_meanings.py from the catalogue and profile evidence; readings by claude-opus-5-5 from that evidence and Microsoft's description of the business (evidence 0f9e0d3eb9dd8048); script blob write_column_meanings.py ab6eb04a93fb24b0da04e43e0e5426fa51442758
+written_at: 2026-10-19T09:21:00Z
+step: S08-072
+method: mechanical claims by prototypes/information_analysis/write_column_meanings.py from the catalogue and profile evidence; readings by claude-opus-5-5 from that evidence and Microsoft's description of the business (evidence 0f9e0d3eb9dd8048); script blob write_column_meanings.py d323750bb7f53a5d89ef6436d25f033e9ecfabd0
 input_source: wwi
 input_extract: 2016-06-01
 input_manifest_sha256: 35b71b2e3ff4bb9ef4e24afc9c56f914e8386df4060a794b862e7f5a00d2774f
 input_schema_sha256: f54b9d7dd163d0d1e3ce34f4adf4d1a76e8caeebe545ad0831277bb0e5b89fb6
-last_checked_at: 2026-10-19T07:28:00Z
+last_checked_at: 2026-10-19T09:21:00Z
 last_checked_by: claude-opus-5-5
 last_checked_against: 2016-06-01
 reviewed_by: none
@@ -31,7 +31,8 @@ recheck_when: the description changes, or every new extract
 
 - C1 | type=declared | status=proposed | confidence=high | effective=2016-06-01 | observed=2026-10-18 | checked=2026-10-18 | evidence=4ffc9f716d8c1e42 | recheck=a column type changes | text: Declared as datetime2, not nullable, system-time period start.
 - C2 | type=observed | status=proposed | confidence=high | effective=2016-06-01 | observed=2026-10-18 | checked=2026-10-18 | evidence=0cbc424f80836d13 | recheck=every new extract | text: Observed: filled on 663 of 663 rows; 58 distinct values; from 2013-01-01T00:00:00 to 2016-05-07T00:00:00.
-- C3 | type=intended | status=proposed | confidence=high | effective=2016-06-01 | observed=2026-10-18 | checked=2026-10-18 | evidence=4ffc9f716d8c1e42,0cbc424f80836d13 | recheck=a description is found | text: The moment this version of the row became current, set by SQL Server's system-versioning (period start). It is the clock time of the change, which in WWI usually but not always matches simulated time (Application.Countries has a version stamped 2022-10-07).
+- C3 | type=declared | status=proposed | confidence=high | effective=2016-06-01 | observed=2026-10-18 | checked=2026-10-18 | evidence=4ffc9f716d8c1e42 | recheck=a description is found | text: The moment this version of the row became current: the period start of SQL Server's system-versioning, which the server sets from its own clock at the time of the change.
+- C4 | type=observed | status=proposed | confidence=high | effective=2016-06-01 | observed=2026-10-18 | checked=2026-10-18 | evidence=34b0d99034da92d7 | recheck=every new extract | text: Every ValidFrom lies on or before the extract's simulated date 2016-06-01 (from 2013-01-01T00:00:00 to 2016-05-07T00:00:00).
 
 ## Reasoning
 

@@ -17,16 +17,53 @@ import ia_lib as ia  # noqa: E402
 from evidence_orders import blob  # noqa: E402
 
 CODE_TYPES = {"int", "bigint", "smallint", "tinyint", "bit", "decimal", "numeric"}
+# Fixed readings for the audit and system-time columns, which the source never describes: (type, text, confidence,
+# evidence keys). Revised 2026-10-19 after sol's and astra's review: a reading from a name is low; the period columns'
+# meaning is declared by the catalogue; what the data shows comes from the editors evidence (claims built in audit()).
 AUDIT = {
-    "LastEditedBy": ("The person who last changed the row: a staff member of Application.People, or person 1 (Data Conversion Only), the technical user of the initial load.",
-                     "medium"),
-    "LastEditedWhen": ("When the row was last changed, in the source's own (simulated) business time: its range falls within the simulated period.",
-                       "medium"),
-    "ValidFrom": ("The moment this version of the row became current, set by SQL Server's system-versioning (period start). It is the clock time of the change, which in WWI usually but not always matches simulated time (Application.Countries has a version stamped 2022-10-07).",
-                  "high"),
-    "ValidTo": ("The moment this version stopped being current (period end); 9999-12-31 23:59:59.9999999 for the current version, so in a base table it is always that value.",
-                "high"),
+    "LastEditedBy": ("intended", "By its name and its foreign key to Application.People: the person who last changed the row.", "low", ["catalogue"]),
+    "LastEditedWhen": ("intended", "By its name: when the row was last changed.", "low", ["catalogue"]),
+    "ValidFrom": ("declared", "The moment this version of the row became current: the period start of SQL Server's system-versioning, which the server sets from its own clock at the time of the change.", "high", ["catalogue"]),
+    "ValidTo": ("declared", "The moment this version stopped being current: the period end of system-versioning; a current row carries the maximum value 9999-12-31 23:59:59.9999999.", "high", ["catalogue"]),
 }
+EXTRA_EVIDENCE = {"editors_and_system_time": "editors", "logon_names": "logon"}
+
+
+def find_extra(evdir):
+    """Evidence written by evidence_shared.py's column mode, found by the function it ran."""
+    out = {}
+    for f in sorted(os.listdir(evdir)) if os.path.isdir(evdir) else []:
+        with open(os.path.join(evdir, f), encoding="utf-8") as fh:
+            rec = json.load(fh)
+        for fn, key in EXTRA_EVIDENCE.items():
+            if (rec.get("code") or "").startswith("def %s(" % fn):
+                if key not in out or rec["ran_at"] > out[key][1]:
+                    out[key] = (f[:-5], rec["ran_at"], rec["result"])
+    return out
+
+
+def audit(it, col, extra, day):
+    """Observed claims on the audit and system-time columns from the editors evidence."""
+    ed = extra.get("editors")
+    if not ed:
+        return
+    r = ed[2]
+    if col == "LastEditedBy" and "last_edited_by" in r:
+        k = r["last_edited_by"]["rows_by_editor_kind"]
+        parts = ["%s rows by %s" % (format(v, ","), {"employee": "employees (IsEmployee = 1 in Application.People)",
+                                                    "person 1": "person 1, whose FullName is %s" % r["last_edited_by"]["person_1_full_name"],
+                                                    "not an employee": "people who are not employees",
+                                                    "unknown person": "ids not in Application.People"}[n]) for n, v in sorted(k.items(), key=lambda x: -x[1])]
+        it.add("observed", "high", ["editors"], "every new extract",
+               "%s distinct editors: %s." % (r["last_edited_by"]["distinct_editors"], "; ".join(parts)))
+    if col == "ValidFrom" and "valid_from" in r:
+        v = r["valid_from"]
+        if v["rows_after_the_extract_day"]:
+            it.add("observed", "high", ["editors"], "every new extract",
+                   "%s row(s) carry a ValidFrom after the extract's simulated date %s (latest %s): here system time is the clock of the change, not the simulated business time." % (v["rows_after_the_extract_day"], day, v["max"][:19]))
+        else:
+            it.add("observed", "high", ["editors"], "every new extract",
+                   "Every ValidFrom lies on or before the extract's simulated date %s (from %s to %s)." % (day, v["min"][:19], v["max"][:19]))
 
 
 def mech(it, d, col):
@@ -117,6 +154,8 @@ def main(argv):
         evmap = dict(d["evidence"])
         evmap.update(notes.EVIDENCE.get(table, {}))
         evmap["doc"] = notes.DOC
+        extra = find_extra(os.path.join(base, "evidence"))
+        evmap.update({k: v[0] for k, v in extra.items()})
         for x in d["catalogue"]["columns"]:
             col = x["column_name"]
             if (table, col) in notes.SKIP:
@@ -125,13 +164,15 @@ def main(argv):
             mech(it, d, col)
             note = notes.NOTES.get((table, col), {})
             if col in AUDIT and not note.get("replace_audit"):
-                text, conf = AUDIT[col]
-                it.add("intended", conf, ["catalogue", "profile"], "a description is found", text)
+                typ, text, conf, ev = AUDIT[col]
+                it.add(typ, conf, ev, "a description is found", text)
+            if col in AUDIT:
+                audit(it, col, extra, notes.COMMON["input_extract"])
             for cl in note.get("claims", []):
                 it.add(*cl)
             summary = note.get("summary")
             if not summary:
-                summary = (x.get("description") or "").strip() or (AUDIT[col][0] if col in AUDIT else "No description; see the claims.")
+                summary = (x.get("description") or "").strip() or (AUDIT[col][1] if col in AUDIT else "No description; see the claims.")
             front = dict(notes.COMMON, method=method, id="wwi:object:%s:column:%s" % (tb["object_id"], x["column_id"]),
                          subject="wwi/tables/%s/%s/columns/%s" % (ia.escape(schema), ia.escape(name), ia.escape(col)),
                          input_schema_sha256=d["profile"]["schema_sha256"], item="02", topic="meaning", tier="best-effort",

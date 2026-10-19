@@ -5,17 +5,17 @@ item: 02
 topic: meaning
 tier: best-effort
 summary: The name of a customer category, such as Novelty Shop, Supermarket or Agent.
-confidence: medium
+confidence: low
 claims: 4
 written_by: claude-opus-5-5
-written_at: 2026-10-19T07:28:00Z
-step: S08-067
-method: mechanical claims by prototypes/information_analysis/write_column_meanings.py from the catalogue and profile evidence; readings by claude-opus-5-5 from that evidence and Microsoft's description of the business (evidence 0f9e0d3eb9dd8048); script blob write_column_meanings.py ab6eb04a93fb24b0da04e43e0e5426fa51442758
+written_at: 2026-10-19T09:21:00Z
+step: S08-072
+method: mechanical claims by prototypes/information_analysis/write_column_meanings.py from the catalogue and profile evidence; readings by claude-opus-5-5 from that evidence and Microsoft's description of the business (evidence 0f9e0d3eb9dd8048); script blob write_column_meanings.py d323750bb7f53a5d89ef6436d25f033e9ecfabd0
 input_source: wwi
 input_extract: 2016-06-01
 input_manifest_sha256: 35b71b2e3ff4bb9ef4e24afc9c56f914e8386df4060a794b862e7f5a00d2774f
 input_schema_sha256: 3516219cd265a59d10aca95bacfbb1f3cf6b0bbbc898bec3a420ea5dff35f98e
-last_checked_at: 2026-10-19T07:28:00Z
+last_checked_at: 2026-10-19T09:21:00Z
 last_checked_by: claude-opus-5-5
 last_checked_against: 2016-06-01
 reviewed_by: none
@@ -32,7 +32,7 @@ recheck_when: the description changes, or every new extract
 - C1 | type=declared | status=proposed | confidence=medium | effective=2016-06-01 | observed=2026-10-18 | checked=2026-10-18 | evidence=1da3725d368ce960 | recheck=the description changes | text: The source describes it as "Full name of the category that customers can be assigned to" (declared, not verified against behaviour beyond the claims below).
 - C2 | type=declared | status=proposed | confidence=high | effective=2016-06-01 | observed=2026-10-18 | checked=2026-10-18 | evidence=1da3725d368ce960 | recheck=a column type changes | text: Declared as nvarchar(50), not nullable.
 - C3 | type=observed | status=proposed | confidence=high | effective=2016-06-01 | observed=2026-10-18 | checked=2026-10-18 | evidence=0d7f5b9d8f038cc9 | recheck=every new extract | text: Observed: filled on 8 of 8 rows; 8 distinct values.
-- C4 | type=declared | status=proposed | confidence=medium | effective=2016-06-01 | observed=2026-10-18 | checked=2026-10-18 | evidence=0f9e0d3eb9dd8048 | recheck=Microsoft's description changes | text: Microsoft: "WWI also sells to other wholesalers via a network of agents who promote the products on WWI's behalf."
+- C4 | type=declared | status=proposed | confidence=low | effective=2016-06-01 | observed=2026-10-18 | checked=2026-10-18 | evidence=0f9e0d3eb9dd8048 | recheck=Microsoft's description changes | text: Context, not a description of this column: Microsoft: "WWI also sells to other wholesalers via a network of agents who promote the products on WWI's behalf."
 
 ## Reasoning
 

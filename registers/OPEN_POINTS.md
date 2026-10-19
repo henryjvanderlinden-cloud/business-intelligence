@@ -2227,7 +2227,15 @@ What is open:
    generalised from it (medium). **Column meanings** done: item 02 for all 368 columns of the 31 base tables, best-effort
    tier (21 at unknown, 312 medium, 35 high), cross-referenced with Microsoft's description of the business, which
    documents the business and not the columns ([`_source/18_documentation.md`](../analysis/wwi/_source/18_documentation.md)).
-   Totals: 606 item files, 2,383 claims, 178 evidence files. Not reviewed by a second model yet.
+   Totals then: 606 item files, 2,383 claims, 178 evidence files. Reviewed the same day by sol (Sales.Invoices, Customers,
+   Orders) and astra (SupplierTransactions, People, VehicleTemperatures, StockItems), both **FAILS**
+   ([sol](../docs/30_research/notes/XREV_2026-10-19_column-meanings_sol.md),
+   [astra](../docs/30_research/notes/XREV_2026-10-19_column-meanings_astra.md)): the audit-column templates asserted
+   more than their evidence; LogonName's placeholder claim was contradicted by the profile; one Microsoft quotation was
+   written from memory and is not in the evidence. All fixed in every table, with new evidence on editors, system time
+   and logon names; Microsoft's text is now cited only as low-confidence context. Now 606 item files, 2,435 claims,
+   209 evidence files; columns 34 high, 256 medium, 56 low, 22 unknown. New finding: two logon names are each shared by
+   two people permitted to log on.
 3. **Review.** Astra on the record layout (below, R1-R11, ruled in ADR-0018). Sol on 129's inventory: the first,
    large pass never wrote an answer; re-sent in two parts, both returned.
    [Gaps and minimum](../docs/30_research/notes/XREV_2026-10-18_information-analysis-inventory-gaps_sol.md):

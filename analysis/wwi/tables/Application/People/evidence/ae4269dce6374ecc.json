@@ -1,0 +1,32 @@
+{
+ "code": "def logon_names():\n    \"\"\"How LogonName values are shared, by IsPermittedToLogon and IsEmployee. Counts only; the one value named is the\n    placeholder.\"\"\"\n    import collections\n    f, head, rows = reader(DAY, \"Application.People\")\n    i = {c: head.index(c) for c in head}\n    rows = list(rows)\n    f.close()\n    c = collections.Counter(r[i[\"LogonName\"]] for r in rows)\n    top, top_n = c.most_common(1)[0]\n    return {\"rows\": len(rows), \"distinct\": len(c),\n            \"values_by_number_of_people_sharing\": {str(k): v for k, v in sorted(collections.Counter(c.values()).items())},\n            \"most_shared_value\": top, \"most_shared_value_people\": top_n,\n            \"people_by_sharing_and_flags\": {\"shared_by_%d|permitted=%s|employee=%s\" % (k[0], k[1], k[2]): v for k, v in sorted(\n                collections.Counter((c[r[i[\"LogonName\"]]], r[i[\"IsPermittedToLogon\"]], r[i[\"IsEmployee\"]]) for r in rows).items())}}\n",
+ "id": "ae4269dce6374ecc",
+ "inputs": {
+  "extract": "2016-06-01",
+  "manifest_sha256": "35b71b2e3ff4bb9ef4e24afc9c56f914e8386df4060a794b862e7f5a00d2774f",
+  "source": "wwi",
+  "table": "Application.People"
+ },
+ "kind": "profile",
+ "ran_at": "2026-10-19T09:18:41Z",
+ "result": {
+  "distinct": 156,
+  "most_shared_value": "NO LOGON",
+  "most_shared_value_people": 954,
+  "people_by_sharing_and_flags": {
+   "shared_by_1|permitted=0|employee=1": 2,
+   "shared_by_1|permitted=1|employee=0": 134,
+   "shared_by_1|permitted=1|employee=1": 17,
+   "shared_by_2|permitted=1|employee=0": 4,
+   "shared_by_954|permitted=0|employee=0": 954
+  },
+  "rows": 1111,
+  "values_by_number_of_people_sharing": {
+   "1": 153,
+   "2": 2,
+   "954": 1
+  }
+ },
+ "tool": "prototypes/information_analysis/evidence_shared.py",
+ "tool_version": "4174839b1036cd70f0c837acdee322e7071ca4b0"
+}
