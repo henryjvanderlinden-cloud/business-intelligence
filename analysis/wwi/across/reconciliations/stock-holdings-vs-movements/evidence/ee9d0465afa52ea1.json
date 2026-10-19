@@ -1,0 +1,43 @@
+{
+ "code": "def stock_holdings_vs_movements():\n    \"\"\"QuantityOnHand against the stock movements: the level against the sum of all movements, and the change between\n    the two extracts against the movements added between them.\"\"\"\n    h1 = {r[\"StockItemID\"]: r for r in rows(\"Warehouse.StockItemHoldings\")}\n    h0 = {r[\"StockItemID\"]: r for r in rows(\"Warehouse.StockItemHoldings\", PREV)}\n    total, added = collections.defaultdict(lambda: D(0)), collections.defaultdict(lambda: D(0))\n    before = {r[\"StockItemTransactionID\"]: r[\"Quantity\"] for r in rows(\"Warehouse.StockItemTransactions\", PREV)}\n    new_types = collections.Counter()\n    seen, changed = set(), 0\n    for r in rows(\"Warehouse.StockItemTransactions\"):\n        total[r[\"StockItemID\"]] += D(r[\"Quantity\"])\n        seen.add(r[\"StockItemTransactionID\"])\n        if r[\"StockItemTransactionID\"] not in before:\n            added[r[\"StockItemID\"]] += D(r[\"Quantity\"])\n            new_types[r[\"TransactionTypeID\"]] += 1\n        elif D(before[r[\"StockItemTransactionID\"]]) != D(r[\"Quantity\"]):\n            changed += 1\n    level = collections.Counter(cmp(D(h1[i][\"QuantityOnHand\"]), total[i]) for i in h1)\n    change = collections.Counter()\n    direction = collections.Counter()\n    for i in h1:\n        d = D(h1[i][\"QuantityOnHand\"]) - D(h0[i][\"QuantityOnHand\"]) if i in h0 else None\n        if d is None:\n            change[\"item not in the earlier extract\"] += 1\n            continue\n        change[\"change \" + cmp(d, added[i]) + \" movements added\"] += 1\n        direction[\"QuantityOnHand \" + (\"rose\" if d > 0 else \"fell\" if d < 0 else \"unchanged\")] += 1\n    return {\"items\": len(h1), \"level_against_sum_of_all_movements\": dict(level), \"movements_added_between_extracts\": dict(new_types),\n            \"earlier_movements_with_changed_quantity\": changed, \"earlier_movements_deleted\": sum(1 for k in before if k not in seen),\n            \"change_against_movements_added\": dict(change), \"change_direction\": dict(direction),\n            \"items_with_negative_QuantityOnHand\": sum(1 for i in h1 if D(h1[i][\"QuantityOnHand\"]) < 0),\n            \"LastStocktakeQuantity_equals_QuantityOnHand\": sum(1 for i in h1 if h1[i][\"LastStocktakeQuantity\"] == h1[i][\"QuantityOnHand\"])}\n",
+ "id": "ee9d0465afa52ea1",
+ "inputs": {
+  "extracts": {
+   "2016-05-31": "e1997891e919ac1a4f9af533db9a0e938ce53588406814e2119af0b164641ca2",
+   "2016-06-01": "35b71b2e3ff4bb9ef4e24afc9c56f914e8386df4060a794b862e7f5a00d2774f"
+  },
+  "source": "wwi",
+  "tables": [
+   "Warehouse.StockItemHoldings",
+   "Warehouse.StockItemTransactions"
+  ]
+ },
+ "kind": "profile",
+ "ran_at": "2026-10-19T21:25:41Z",
+ "result": {
+  "LastStocktakeQuantity_equals_QuantityOnHand": 2,
+  "change_against_movements_added": {
+   "change greater than movements added": 218,
+   "change less than movements added": 9
+  },
+  "change_direction": {
+   "QuantityOnHand fell": 15,
+   "QuantityOnHand rose": 211,
+   "QuantityOnHand unchanged": 1
+  },
+  "earlier_movements_deleted": 0,
+  "earlier_movements_with_changed_quantity": 0,
+  "items": 227,
+  "items_with_negative_QuantityOnHand": 0,
+  "level_against_sum_of_all_movements": {
+   "greater than": 218,
+   "less than": 9
+  },
+  "movements_added_between_extracts": {
+   "10": 167,
+   "11": 9
+  }
+ },
+ "tool": "prototypes/information_analysis/reconcile.py",
+ "tool_version": "09e7143e7fb2f20127e019cb64133674e1b89c41"
+}

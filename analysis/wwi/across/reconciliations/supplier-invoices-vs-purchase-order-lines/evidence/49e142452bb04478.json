@@ -1,0 +1,31 @@
+{
+ "code": "def supplier_invoices_vs_purchase_order_lines():\n    \"\"\"Each supplier invoice against its purchase order's lines at the expected price per outer.\"\"\"\n    agg = collections.defaultdict(lambda: [D(0), D(0), D(0)])\n    for l in rows(\"Purchasing.PurchaseOrderLines\"):\n        p = D(l[\"ExpectedUnitPricePerOuter\"])\n        agg[l[\"PurchaseOrderID\"]][0] += D(l[\"ReceivedOuters\"]) * p\n        agg[l[\"PurchaseOrderID\"]][1] += D(l[\"OrderedOuters\"]) * p\n        agg[l[\"PurchaseOrderID\"]][2] += (D(l[\"ReceivedOuters\"]) * p * D(\"0.15\")).quantize(D(\"0.01\"), ROUND_HALF_UP)\n    out = collections.Counter()\n    for t in rows(\"Purchasing.SupplierTransactions\"):\n        if t[\"TransactionTypeID\"] != \"5\":\n            continue\n        ex = D(t[\"AmountExcludingTax\"])\n        a = agg[t[\"PurchaseOrderID\"]]\n        out[\"AmountExcludingTax \" + cmp(ex, a[0]) + \" sum of ReceivedOuters x ExpectedUnitPricePerOuter\"] += 1\n        out[\"AmountExcludingTax \" + cmp(ex, a[1]) + \" sum of OrderedOuters x ExpectedUnitPricePerOuter\"] += 1\n        out[\"TaxAmount \" + cmp(D(t[\"TaxAmount\"]), (ex * D(\"0.15\")).quantize(D(\"0.01\"), ROUND_HALF_UP)) + \" 15% of AmountExcludingTax, rounded half up\"] += 1\n        out[\"TaxAmount \" + cmp(D(t[\"TaxAmount\"]), a[2]) + \" the sum over lines of 15% of ReceivedOuters x ExpectedUnitPricePerOuter, each rounded half up\"] += 1\n        out[\"TransactionAmount \" + cmp(D(t[\"TransactionAmount\"]), ex + D(t[\"TaxAmount\"])) + \" AmountExcludingTax + TaxAmount\"] += 1\n    return {\"supplier_invoices\": sum(1 for t in rows(\"Purchasing.SupplierTransactions\") if t[\"TransactionTypeID\"] == \"5\"),\n            \"comparisons\": dict(sorted(out.items()))}\n",
+ "id": "49e142452bb04478",
+ "inputs": {
+  "extracts": {
+   "2016-06-01": "35b71b2e3ff4bb9ef4e24afc9c56f914e8386df4060a794b862e7f5a00d2774f"
+  },
+  "source": "wwi",
+  "tables": [
+   "Purchasing.SupplierTransactions",
+   "Purchasing.PurchaseOrderLines"
+  ]
+ },
+ "kind": "profile",
+ "ran_at": "2026-10-19T21:25:41Z",
+ "result": {
+  "comparisons": {
+   "AmountExcludingTax equal to sum of OrderedOuters x ExpectedUnitPricePerOuter": 2074,
+   "AmountExcludingTax equal to sum of ReceivedOuters x ExpectedUnitPricePerOuter": 2074,
+   "TaxAmount equal to 15% of AmountExcludingTax, rounded half up": 2061,
+   "TaxAmount equal to the sum over lines of 15% of ReceivedOuters x ExpectedUnitPricePerOuter, each rounded half up": 2069,
+   "TaxAmount greater than 15% of AmountExcludingTax, rounded half up": 8,
+   "TaxAmount less than 15% of AmountExcludingTax, rounded half up": 5,
+   "TaxAmount less than the sum over lines of 15% of ReceivedOuters x ExpectedUnitPricePerOuter, each rounded half up": 5,
+   "TransactionAmount equal to AmountExcludingTax + TaxAmount": 2074
+  },
+  "supplier_invoices": 2074
+ },
+ "tool": "prototypes/information_analysis/reconcile.py",
+ "tool_version": "09e7143e7fb2f20127e019cb64133674e1b89c41"
+}

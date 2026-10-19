@@ -1,0 +1,35 @@
+{
+ "code": "def invoice_lines_vs_stock_issues():\n    \"\"\"Each stock issue against the invoice line it belongs to (InvoiceID, StockItemID): quantity and date.\"\"\"\n    lines = {(r[\"InvoiceID\"], r[\"StockItemID\"]): r for r in rows(\"Sales.InvoiceLines\")}\n    inv = {r[\"InvoiceID\"]: r[\"InvoiceDate\"][:10] for r in rows(\"Sales.Invoices\")}\n    qty, date, kinds, per_key = collections.Counter(), collections.Counter(), collections.Counter(), collections.Counter()\n    for s in rows(\"Warehouse.StockItemTransactions\"):\n        if not s[\"InvoiceID\"]:\n            continue\n        kinds[s[\"TransactionTypeID\"]] += 1\n        per_key[(s[\"InvoiceID\"], s[\"StockItemID\"])] += 1\n        line = lines.get((s[\"InvoiceID\"], s[\"StockItemID\"]))\n        if line is None:\n            qty[\"no line\"] += 1\n            continue\n        q, lq = D(s[\"Quantity\"]), D(line[\"Quantity\"])\n        qty[\"movement = -line quantity\" if q == -lq else \"movement = line quantity\" if q == lq else \"other\"] += 1\n        date[\"movement date \" + cmp(s[\"TransactionOccurredWhen\"][:10], inv[s[\"InvoiceID\"]]) + \" invoice date\"] += 1\n    line_rows = len(rows(\"Sales.InvoiceLines\"))\n    return {\"movements_with_invoice\": sum(kinds.values()), \"by_transaction_type\": dict(kinds), \"quantity\": dict(qty),\n            \"date_against_invoice_date\": dict(date), \"invoice_line_rows\": line_rows, \"distinct_line_keys\": len(lines),\n            \"line_keys_with_more_than_one_movement\": sum(1 for k, v in per_key.items() if v > 1),\n            \"lines_without_movement\": sum(1 for k in lines if k not in per_key)}\n",
+ "id": "a4ab20d7bf9e7c25",
+ "inputs": {
+  "extracts": {
+   "2016-06-01": "35b71b2e3ff4bb9ef4e24afc9c56f914e8386df4060a794b862e7f5a00d2774f"
+  },
+  "source": "wwi",
+  "tables": [
+   "Sales.InvoiceLines",
+   "Sales.Invoices",
+   "Warehouse.StockItemTransactions"
+  ]
+ },
+ "kind": "profile",
+ "ran_at": "2026-10-19T21:25:41Z",
+ "result": {
+  "by_transaction_type": {
+   "10": 228432
+  },
+  "date_against_invoice_date": {
+   "movement date equal to invoice date": 228432
+  },
+  "distinct_line_keys": 228432,
+  "invoice_line_rows": 228432,
+  "line_keys_with_more_than_one_movement": 0,
+  "lines_without_movement": 0,
+  "movements_with_invoice": 228432,
+  "quantity": {
+   "movement = -line quantity": 228432
+  }
+ },
+ "tool": "prototypes/information_analysis/reconcile.py",
+ "tool_version": "09e7143e7fb2f20127e019cb64133674e1b89c41"
+}

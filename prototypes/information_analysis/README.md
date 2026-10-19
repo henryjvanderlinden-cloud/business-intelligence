@@ -34,6 +34,7 @@ python prototypes/information_analysis/write_dossiers.py <specification module>
 python prototypes/information_analysis/write_column_meanings.py <notes module>
 python prototypes/information_analysis/relations.py
 python prototypes/information_analysis/write_relations.py <notes module>
+python prototypes/information_analysis/reconcile.py <notes module>
 ```
 
 `documentation` records which published Microsoft documentation of WWI was read and what it says, as one evidence per
@@ -49,7 +50,10 @@ undeclared composite relations it lists (orphans both ways, optionality, childre
 accepting the values, two routes to the same parent, people's flags, transaction types, extraction visibility, the
 header-join count) and writes `analysis/wwi/across/candidates.md`; `write_relations.py` writes items 01, 02, 06, 07 and
 27 of each relation from that evidence plus the agent's readings from a notes module. `evidence_shared.py columns`
-writes the editors, system-time and logon-name evidence that the column meanings cite.
+writes the editors, system-time and logon-name evidence that the column meanings cite. `reconcile.py` compares what two
+or more tables say about the same amounts, quantities and dates (item 16 across tables) and writes
+`across/reconciliations/<slug>/16_reconciliation.md` with its evidence; it is slow on the desktop's Linux shell and
+was run in the agent's cloud workspace on staged copies of the same extracts.
 
 **Answer, first part:** the inventory works on a real source. The catalogue took 7 queries (one per job run), the
 profiles about two minutes of machine time for 48 tables and 5.4 million rows, and the author's hands not at all; the

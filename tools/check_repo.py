@@ -552,6 +552,11 @@ def check_analysis():
         parts = rel_dir.split("/")
         under_tables = "tables" in parts
         under_rel = "across" in parts and "relations" in parts
+        under_rec = "across" in parts and "reconciliations" in parts
+        if under_rec and parts[-1] == "reconciliations":
+            for d in dirnames:
+                if not re.match(r"^[a-z0-9]+(-[a-z0-9]+)*$", d):
+                    err("%s/%s" % (rel_dir, d), "a reconciliation folder is named by a lower-case slug (analysis/README.md 9)")
         if under_rel and parts[-1] == "relations":
             for d in dirnames:
                 if ia.parse_relation(d) is None:
@@ -587,7 +592,7 @@ def check_analysis():
                     err(rel, "evidence holds no code, query or excerpt")
                 continue
             under_source = "_source" in parts
-            if not (under_tables or under_source or under_rel) or not f.endswith(".md"):
+            if not (under_tables or under_source or under_rel or under_rec) or not f.endswith(".md"):
                 continue
             m = ia.ITEM_FILE_RE.match(f)
             if not m:
@@ -597,7 +602,7 @@ def check_analysis():
             is_column = "columns" in parts
             if ia.ITEMS.get(nn) != slug:
                 err(rel, "item %s is %r, not %r" % (nn, ia.ITEMS.get(nn), slug))
-            allowed = (ia.RELATION_ITEMS if under_rel else ia.SOURCE_ITEMS if under_source else
+            allowed = (ia.RELATION_ITEMS if under_rel else {"16"} if under_rec else ia.SOURCE_ITEMS if under_source else
                        ia.COLUMN_ITEMS if is_column else ia.TABLE_ITEMS)
             if nn not in allowed:
                 err(rel, "item %s is not recorded at this level" % nn)

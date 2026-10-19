@@ -236,3 +236,25 @@ keys a foreign key could point to, both giving a clean one-to-one join — is ca
 nobody has proven stays a folder whose claims say `type=observed` or `intended` with their confidence; "assumed" is a
 confidence, not a separate kind of file.
 
+**The tests per relation** (guideline, added 2026-10-19 at the author's request; `relations.py` runs them, the item
+named holds the result):
+
+| test | what it shows | item |
+|---|---|---|
+| orphans, child to parent | **referential integrity**: rows naming a parent that does not exist | 07 |
+| unreferenced parents | parent rows no child names (a parent without children, or children not yet loaded) | 07 |
+| optionality | rows where the referring column is empty, by transaction type where the table has one | 07 |
+| extraction visibility | whether the extract holds every row the owner sees, for both tables (R15) | 07 |
+| children per parent | the cardinality as observed, against the declared one; one-to-one that nothing enforces | 01, 27 |
+| other accepting keys | other unique columns of the parent that hold every value: an ambiguous key target | 06 |
+| several paths | other foreign keys from the same child to the same parent: roles that a join must name | 27 |
+| fan-out and chasm | how often a parent row repeats; other children of the same parent that multiply against it | 27 |
+| current versions | a system-versioned parent gives its attributes as of the extract, not as of the child row | 27 |
+| two routes | a second path to the same parent through another table: agreement shows a copy, disagreement a role | 27 |
+| header join | for a relation on several columns, the rows a join on the first column alone would give | 27 |
+
+Referential integrity holds by construction where the source declares an enabled and trusted foreign key; it is still
+measured, because an extract can break it (tables extracted at different moments, rows hidden from the extracting
+account) and because an undeclared relation has no such guarantee. Item 16 across tables, in `reconciliations/`,
+compares what two tables say about the same amounts, quantities or dates (`reconcile.py`).
+

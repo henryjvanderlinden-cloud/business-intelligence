@@ -1,0 +1,30 @@
+{
+ "code": "def ledger_invoices_vs_invoice_lines():\n    \"\"\"Each customer-ledger invoice entry against the sum of its invoice lines: amounts, tax and date.\"\"\"\n    agg = collections.defaultdict(lambda: [D(0), D(0), D(0), 0])\n    for l in rows(\"Sales.InvoiceLines\"):\n        a = agg[l[\"InvoiceID\"]]\n        a[0] += D(l[\"Quantity\"]) * D(l[\"UnitPrice\"])\n        a[1] += D(l[\"TaxAmount\"])\n        a[2] += D(l[\"ExtendedPrice\"])\n        a[3] += D(l[\"ExtendedPrice\"]) == D(l[\"Quantity\"]) * D(l[\"UnitPrice\"]) + D(l[\"TaxAmount\"])\n    inv = {r[\"InvoiceID\"]: r[\"InvoiceDate\"][:10] for r in rows(\"Sales.Invoices\")}\n    out = collections.Counter()\n    n = 0\n    for t in rows(\"Sales.CustomerTransactions\"):\n        if not t[\"InvoiceID\"]:\n            continue\n        n += 1\n        a = agg[t[\"InvoiceID\"]]\n        out[\"AmountExcludingTax \" + cmp(D(t[\"AmountExcludingTax\"]), a[0]) + \" sum of Quantity x UnitPrice\"] += 1\n        out[\"TaxAmount \" + cmp(D(t[\"TaxAmount\"]), a[1]) + \" sum of line TaxAmount\"] += 1\n        out[\"TransactionAmount \" + cmp(D(t[\"TransactionAmount\"]), a[2]) + \" sum of ExtendedPrice\"] += 1\n        out[\"TransactionDate \" + cmp(t[\"TransactionDate\"][:10], inv[t[\"InvoiceID\"]]) + \" InvoiceDate\"] += 1\n    lines = sum(1 for _ in rows(\"Sales.InvoiceLines\"))\n    return {\"invoice_entries\": n, \"comparisons\": dict(sorted(out.items())), \"invoice_lines\": lines,\n            \"lines_where_ExtendedPrice_is_Quantity_x_UnitPrice_plus_TaxAmount\": sum(a[3] for a in agg.values())}\n",
+ "id": "984fa6c9a59d0522",
+ "inputs": {
+  "extracts": {
+   "2016-06-01": "35b71b2e3ff4bb9ef4e24afc9c56f914e8386df4060a794b862e7f5a00d2774f"
+  },
+  "source": "wwi",
+  "tables": [
+   "Sales.CustomerTransactions",
+   "Sales.InvoiceLines",
+   "Sales.Invoices"
+  ]
+ },
+ "kind": "profile",
+ "ran_at": "2026-10-19T21:25:41Z",
+ "result": {
+  "comparisons": {
+   "AmountExcludingTax equal to sum of Quantity x UnitPrice": 70566,
+   "TaxAmount equal to sum of line TaxAmount": 70566,
+   "TransactionAmount equal to sum of ExtendedPrice": 70566,
+   "TransactionDate equal to InvoiceDate": 70566
+  },
+  "invoice_entries": 70566,
+  "invoice_lines": 228432,
+  "lines_where_ExtendedPrice_is_Quantity_x_UnitPrice_plus_TaxAmount": 228432
+ },
+ "tool": "prototypes/information_analysis/reconcile.py",
+ "tool_version": "09e7143e7fb2f20127e019cb64133674e1b89c41"
+}

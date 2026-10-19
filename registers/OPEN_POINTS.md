@@ -2253,6 +2253,25 @@ What is open:
    [astra](../docs/30_research/notes/XREV_2026-10-19_relations_astra.md)); all findings fixed in every relation. Owed:
    item 03 (point-in-time) per relation, the reconciliations (invoice totals against lines, stock movements against
    holdings, quantities of lines against movements), processes, terms and entities.
+
+   **2026-10-19, 23:11**, the author, verbatim in step S08-080: the orphan test is referential integrity and should be
+   written down as a guideline (done: analysis/README.md section 9, "The tests per relation"); the two customer roles
+   are "more for the next phase", where the two may be grouped if a relation is found and it adds value - parked here
+   under ADR-0020. The data refines the roles: the order and the invoice's CustomerID name the customer delivered to,
+   the ledger the customer billed (the head office where there is one), so who placed the order is the delivered-to
+   customer. **Reconciliations** (item 16 across tables, six, best-effort tier, under
+   [`across/reconciliations/`](../analysis/wwi/across/reconciliations/)): each stock issue equals its invoice line's
+   quantity negated, on the invoice date, one to one; each ledger invoice entry equals the sum of its lines exactly;
+   payment matching (afletteren) leaves no key, but in this extract each payment equals the bill-to customer's invoices
+   finalized that day, a customer pays at most once a day, and no invoice is part paid or overpaid - every paid invoice
+   was settled in full one day after its date, up to 47 invoices by one payment; the supplier side is the same with 0
+   to 6 days' delay; supplier invoices equal their purchase orders at the expected price, tax 15% per line except on 5;
+   stock holdings cannot be derived from the movements, neither in level nor in one day's change. So the one-to-one of
+   lines and stock issues (goods) and the many-to-one of invoices and payments (money) do not contradict each other;
+   instalments and overpayments do not occur in this test data, and how the source would record them is unknown.
+   Reviewed by sol and astra, both **FAILS**
+   ([sol](../docs/30_research/notes/XREV_2026-10-19_reconciliations_sol.md),
+   [astra](../docs/30_research/notes/XREV_2026-10-19_reconciliations_astra.md)); all findings fixed.
 3. **Review.** Astra on the record layout (below, R1-R11, ruled in ADR-0018). Sol on 129's inventory: the first,
    large pass never wrote an answer; re-sent in two parts, both returned.
    [Gaps and minimum](../docs/30_research/notes/XREV_2026-10-18_information-analysis-inventory-gaps_sol.md):

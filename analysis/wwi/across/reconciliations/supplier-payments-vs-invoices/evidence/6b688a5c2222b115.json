@@ -1,0 +1,48 @@
+{
+ "code": "def supplier_payments_vs_invoices():\n    return payments_vs_invoices(\"Purchasing.SupplierTransactions\", \"SupplierID\", \"5\", \"7\")\n\ndef payments_vs_invoices(table, party, invoice_type, payment_type):\n    \"\"\"Ledger payments against the same party's invoice entries finalized on the payment's date: whether the payment\n    equals their total, how many invoices it settles, and how long after its date an invoice is finalized.\"\"\"\n    t = rows(table)\n    invs = [r for r in t if r[\"TransactionTypeID\"] == invoice_type]\n    pays = [r for r in t if r[\"TransactionTypeID\"] == payment_type]\n    fin_sum, fin_n = collections.defaultdict(lambda: D(0)), collections.Counter()\n    for r in invs:\n        if r[\"FinalizationDate\"]:\n            k = (r[party], r[\"FinalizationDate\"][:10])\n            fin_sum[k] += D(r[\"TransactionAmount\"])\n            fin_n[k] += 1\n    pay_keys = collections.Counter((p[party], p[\"TransactionDate\"][:10]) for p in pays)\n    match, per_payment = collections.Counter(), collections.Counter()\n    for p in pays:\n        k = (p[party], p[\"TransactionDate\"][:10])\n        match[\"payment = -(invoices finalized that day)\" if fin_sum.get(k) == -D(p[\"TransactionAmount\"]) else\n              \"no invoice finalized that day\" if k not in fin_sum else \"amounts differ\"] += 1\n        per_payment[fin_n.get(k, 0)] += 1\n    lag = collections.Counter((datetime.date.fromisoformat(r[\"FinalizationDate\"][:10]) -\n                               datetime.date.fromisoformat(r[\"TransactionDate\"][:10])).days for r in invs if r[\"FinalizationDate\"])\n    state = collections.Counter(\"IsFinalized=%s|FinalizationDate=%s|OutstandingBalance=%s\" % (\n        r[\"IsFinalized\"], \"set\" if r[\"FinalizationDate\"] else \"empty\", \"0\" if D(r[\"OutstandingBalance\"]) == 0 else\n        \"the full amount\" if D(r[\"OutstandingBalance\"]) == D(r[\"TransactionAmount\"]) else \"partial\") for r in invs)\n    pstate = collections.Counter(\"IsFinalized=%s|OutstandingBalance=%s\" % (r[\"IsFinalized\"], \"0\" if D(r[\"OutstandingBalance\"]) == 0 else \"not 0\")\n                                 for r in pays)\n    return {\"invoices\": len(invs), \"payments\": len(pays), \"payments_per_party_and_day_max\": max(pay_keys.values()) if pay_keys else 0,\n            \"payment_against_invoices_finalized_that_day\": dict(match),\n            \"invoices_finalized_on_the_payments_party_and_day\": {str(k): v for k, v in sorted(per_payment.items())},\n            \"party_days_with_finalized_invoices_but_no_payment\": sum(1 for k in fin_sum if k not in pay_keys),\n            \"days_from_invoice_to_finalization\": {str(k): v for k, v in sorted(lag.items())},\n            \"invoice_states\": dict(state), \"payment_states\": dict(pstate)}\n",
+ "id": "6b688a5c2222b115",
+ "inputs": {
+  "extracts": {
+   "2016-06-01": "35b71b2e3ff4bb9ef4e24afc9c56f914e8386df4060a794b862e7f5a00d2774f"
+  },
+  "source": "wwi",
+  "tables": [
+   "Purchasing.SupplierTransactions"
+  ]
+ },
+ "kind": "profile",
+ "ran_at": "2026-10-19T21:25:41Z",
+ "result": {
+  "days_from_invoice_to_finalization": {
+   "0": 641,
+   "3": 356,
+   "4": 358,
+   "5": 358,
+   "6": 357
+  },
+  "invoice_states": {
+   "IsFinalized=0|FinalizationDate=empty|OutstandingBalance=the full amount": 4,
+   "IsFinalized=1|FinalizationDate=set|OutstandingBalance=0": 2070
+  },
+  "invoices": 2074,
+  "invoices_finalized_on_the_payments_party_and_day": {
+   "1": 4,
+   "2": 4,
+   "3": 2,
+   "4": 3,
+   "5": 78,
+   "6": 275
+  },
+  "party_days_with_finalized_invoices_but_no_payment": 0,
+  "payment_against_invoices_finalized_that_day": {
+   "payment = -(invoices finalized that day)": 366
+  },
+  "payment_states": {
+   "IsFinalized=1|OutstandingBalance=0": 366
+  },
+  "payments": 366,
+  "payments_per_party_and_day_max": 1
+ },
+ "tool": "prototypes/information_analysis/reconcile.py",
+ "tool_version": "09e7143e7fb2f20127e019cb64133674e1b89c41"
+}
