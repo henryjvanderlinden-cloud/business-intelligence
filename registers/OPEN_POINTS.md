@@ -2236,6 +2236,23 @@ What is open:
    and logon names; Microsoft's text is now cited only as low-confidence context. Now 606 item files, 2,435 claims,
    209 evidence files; columns 34 high, 256 medium, 56 low, 22 unknown. New finding: two logon names are each shared by
    two people permitted to log on.
+
+   **Round 2 begun 2026-10-19** (approved 22:01, "okay, go ahead."): the minimum (01, 02, 06, 07, 27) for all 100
+   relations between the 31 base tables - the 98 declared foreign keys and two undeclared composite relations of stock
+   movements to document lines - under [`analysis/wwi/across/`](../analysis/wwi/across/), with the generated
+   [`candidates.md`](../analysis/wwi/across/candidates.md): 500 item files. No orphan in any relation; no undeclared
+   ...ID column; 38 column names shared between tables, left as assumed. Findings: the customer ledger is booked on the
+   bill-to customer on every invoice entry, while stock movements, orders and invoices' CustomerID name the customer
+   delivered to, so "CustomerID" means two roles across tables; payments name no invoice, so which invoices a payment
+   settles is not recorded by key, for customers and suppliers alike; each invoice line has exactly one stock issue,
+   and a join on InvoiceID alone gives 847,672 rows instead of 228,432; several columns repeat a parent's value on
+   every row (invoice contact, accounts person, salesperson, delivery method, package types); purchase-order lines count
+   outer packages and sales lines unit packages; the purchase-order "contact" is a WWI salesperson, never the
+   supplier's contact. Reviewed by sol and astra, both **FAILS**
+   ([sol](../docs/30_research/notes/XREV_2026-10-19_relations_sol.md),
+   [astra](../docs/30_research/notes/XREV_2026-10-19_relations_astra.md)); all findings fixed in every relation. Owed:
+   item 03 (point-in-time) per relation, the reconciliations (invoice totals against lines, stock movements against
+   holdings, quantities of lines against movements), processes, terms and entities.
 3. **Review.** Astra on the record layout (below, R1-R11, ruled in ADR-0018). Sol on 129's inventory: the first,
    large pass never wrote an answer; re-sent in two parts, both returned.
    [Gaps and minimum](../docs/30_research/notes/XREV_2026-10-18_information-analysis-inventory-gaps_sol.md):

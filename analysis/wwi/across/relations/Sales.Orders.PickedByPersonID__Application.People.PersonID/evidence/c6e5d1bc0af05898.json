@@ -1,0 +1,35 @@
+{
+ "code": "def backorders():\n    o = load(DAY, \"Sales.Orders\")\n    by = {int(r[\"OrderID\"]): r for r in o}\n    bo = [(int(r[\"OrderID\"]), int(r[\"BackorderOrderID\"])) for r in o if r[\"BackorderOrderID\"]]\n    nxt = dict(bo)\n    targets = set(nxt.values())\n    depth = collections.Counter()\n    for s in nxt:\n        if s in targets:\n            continue\n        n, cur = 0, s\n        while cur in nxt:\n            n, cur = n + 1, nxt[cur]\n        depth[n] += 1\n    return {\n        \"rows_with_BackorderOrderID\": len(bo), \"distinct_targets\": len(targets),\n        \"targets_not_in_table\": sum(1 for s, t in bo if t not in by),\n        \"target_id_greater_than_own_id\": sum(1 for s, t in bo if t > s),\n        \"target_OrderDate_on_or_after_own\": sum(1 for s, t in bo if by[t][\"OrderDate\"] >= by[s][\"OrderDate\"]),\n        \"same_CustomerID\": sum(1 for s, t in bo if by[t][\"CustomerID\"] == by[s][\"CustomerID\"]),\n        \"same_CustomerPurchaseOrderNumber\": sum(\n            1 for s, t in bo if by[t][\"CustomerPurchaseOrderNumber\"] == by[s][\"CustomerPurchaseOrderNumber\"]),\n        \"own_order_picked_without_PickedByPersonID\": sum(\n            1 for s, t in bo if by[s][\"PickingCompletedWhen\"] and not by[s][\"PickedByPersonID\"]),\n        \"target_also_has_BackorderOrderID\": len(set(nxt) & targets),\n        \"chains_by_number_of_backorders\": dict(sorted(depth.items())),\n        \"sources_per_OrderDate_year\": dict(sorted(collections.Counter(by[s][\"OrderDate\"][:4] for s, t in bo).items())),\n    }\n",
+ "id": "c6e5d1bc0af05898",
+ "inputs": {
+  "extract": "2016-06-01",
+  "manifest_sha256": "35b71b2e3ff4bb9ef4e24afc9c56f914e8386df4060a794b862e7f5a00d2774f",
+  "source": "wwi"
+ },
+ "kind": "profile",
+ "ran_at": "2026-10-18T12:22:23Z",
+ "result": {
+  "chains_by_number_of_backorders": {
+   "1": 7066,
+   "2": 234,
+   "3": 4
+  },
+  "distinct_targets": 7546,
+  "own_order_picked_without_PickedByPersonID": 7546,
+  "rows_with_BackorderOrderID": 7546,
+  "same_CustomerID": 7546,
+  "same_CustomerPurchaseOrderNumber": 7546,
+  "sources_per_OrderDate_year": {
+   "2013": 1872,
+   "2014": 2174,
+   "2015": 2488,
+   "2016": 1012
+  },
+  "target_OrderDate_on_or_after_own": 7546,
+  "target_also_has_BackorderOrderID": 242,
+  "target_id_greater_than_own_id": 7546,
+  "targets_not_in_table": 0
+ },
+ "tool": "prototypes/information_analysis/evidence_orders.py",
+ "tool_version": "5b39164821d92e89109688e68c204752d9edeff5"
+}

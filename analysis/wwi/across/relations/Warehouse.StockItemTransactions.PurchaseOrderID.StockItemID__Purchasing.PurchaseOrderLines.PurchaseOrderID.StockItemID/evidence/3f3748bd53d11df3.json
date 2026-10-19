@@ -1,0 +1,67 @@
+{
+ "code": "def composite_profile(child, ccols, parent, pcols):\n    \"\"\"An undeclared relation on several columns: inclusion of the child's combinations in the parent's, both ways.\"\"\"\n    ck = list(zip(*[column(child, c) for c in ccols]))\n    pk = list(zip(*[column(parent, c) for c in pcols]))\n    pset = collections.Counter(pk)\n    filled = [k for k in ck if all(v != \"\" for v in k)]\n    per = collections.Counter(filled)\n    return {\"child_rows\": len(ck), \"child_filled\": len(filled), \"child_empty\": len(ck) - len(filled),\n            \"child_distinct\": len(per), \"orphan_rows\": sum(n for k, n in per.items() if k not in pset),\n            \"orphan_distinct\": sum(1 for k in per if k not in pset), \"parent_rows\": len(pk),\n            \"parent_combination_distinct\": len(pset), \"parent_combination_unique\": len(pset) == len(pk),\n            \"parents_referenced\": sum(1 for k in pset if k in per), \"parents_unreferenced\": sum(1 for k in pset if k not in per),\n            \"children_per_referenced_parent\": stats([n for k, n in per.items() if k in pset]),\n            \"rows_if_joined_on_%s_only\" % ccols[0]: header_join_rows(child, ccols[0], parent, pcols[0]),\n            \"rows_if_joined_on_all_columns\": sum(n * pset[k] for k, n in per.items() if k in pset)}\n\ndef header_join_rows(child, ccol, parent, pcol):\n    \"\"\"Rows an inner join on one column alone would produce: the sum over its values of child rows times parent rows.\"\"\"\n    a = collections.Counter(v for v in column(child, ccol) if v != \"\")\n    b = collections.Counter(v for v in column(parent, pcol) if v != \"\")\n    return sum(n * b[v] for v, n in a.items() if v in b)\n\ndef by_transaction_type(child, ccol):\n    \"\"\"The child's rows counted by TransactionTypeID and by whether ccol is filled.\"\"\"\n    names = dict(zip(column(\"Application.TransactionTypes\", \"TransactionTypeID\"), column(\"Application.TransactionTypes\", \"TransactionTypeName\")))\n    return {\"%s %s|%s\" % (t, names.get(t, \"?\"), \"filled\" if v != \"\" else \"empty\"): k for (t, v), k in sorted(collections.Counter(\n        (t, \"x\" if v != \"\" else \"\") for t, v in zip(column(child, \"TransactionTypeID\"), column(child, ccol))).items())}\n",
+ "id": "3f3748bd53d11df3",
+ "inputs": {
+  "child": "Warehouse.StockItemTransactions",
+  "child_columns": [
+   "PurchaseOrderID",
+   "StockItemID"
+  ],
+  "extract": "2016-06-01",
+  "manifest_sha256": "35b71b2e3ff4bb9ef4e24afc9c56f914e8386df4060a794b862e7f5a00d2774f",
+  "parent": "Purchasing.PurchaseOrderLines",
+  "parent_columns": [
+   "PurchaseOrderID",
+   "StockItemID"
+  ],
+  "source": "wwi"
+ },
+ "kind": "profile",
+ "ran_at": "2026-10-19T20:31:09Z",
+ "result": {
+  "child_distinct": 8367,
+  "child_empty": 228476,
+  "child_filled": 8367,
+  "child_rows": 236843,
+  "child_rows_by_transaction_type": {
+   "10 Stock Issue|empty": 228432,
+   "11 Stock Receipt|filled": 8367,
+   "12 Stock Adjustment at Stocktake|empty": 44
+  },
+  "children_per_referenced_parent": {
+   "max": 1,
+   "mean": 1.0,
+   "median": 1,
+   "min": 1,
+   "p90": 1,
+   "parents_with_exactly_one": 8367
+  },
+  "extraction_visibility": {
+   "Purchasing.PurchaseOrderLines": {
+    "masked_columns": [],
+    "rows_in_extract": 8376,
+    "rows_seen_by_nsdn_reader": 8376,
+    "rows_seen_by_owner": 8376,
+    "security_policies_visible_to_reader": 0
+   },
+   "Warehouse.StockItemTransactions": {
+    "masked_columns": [],
+    "rows_in_extract": 236843,
+    "rows_seen_by_nsdn_reader": 236843,
+    "rows_seen_by_owner": 236843,
+    "security_policies_visible_to_reader": 0
+   }
+  },
+  "orphan_distinct": 0,
+  "orphan_rows": 0,
+  "parent_combination_distinct": 8376,
+  "parent_combination_unique": true,
+  "parent_rows": 8376,
+  "parents_referenced": 8367,
+  "parents_unreferenced": 9,
+  "rows_if_joined_on_PurchaseOrderID_only": 43007,
+  "rows_if_joined_on_all_columns": 8367
+ },
+ "tool": "prototypes/information_analysis/relations.py",
+ "tool_version": "937b9635cee638e0b539af9910312f142304e964"
+}

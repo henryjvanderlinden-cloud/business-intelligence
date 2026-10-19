@@ -32,6 +32,8 @@ python prototypes/information_analysis/evidence_shared.py documentation
 python prototypes/information_analysis/evidence_shared.py more
 python prototypes/information_analysis/write_dossiers.py <specification module>
 python prototypes/information_analysis/write_column_meanings.py <notes module>
+python prototypes/information_analysis/relations.py
+python prototypes/information_analysis/write_relations.py <notes module>
 ```
 
 `documentation` records which published Microsoft documentation of WWI was read and what it says, as one evidence per
@@ -41,6 +43,13 @@ delivery events of Sales.Invoices and a profile of the cold-room history table, 
 table, `columns/<column>/02_meaning.md`, best-effort tier: declared description, type and keys and the observed filling
 and values mechanically, fixed readings for the audit and system-time columns, and the agent's reading per column from
 a notes module, each with its confidence; a column the source and the documentation leave unexplained says so.
+
+**Round 2, relations** (2026-10-19): `relations.py` profiles every declared foreign key between base tables and the
+undeclared composite relations it lists (orphans both ways, optionality, children per parent, other unique columns
+accepting the values, two routes to the same parent, people's flags, transaction types, extraction visibility, the
+header-join count) and writes `analysis/wwi/across/candidates.md`; `write_relations.py` writes items 01, 02, 06, 07 and
+27 of each relation from that evidence plus the agent's readings from a notes module. `evidence_shared.py columns`
+writes the editors, system-time and logon-name evidence that the column meanings cite.
 
 **Answer, first part:** the inventory works on a real source. The catalogue took 7 queries (one per job run), the
 profiles about two minutes of machine time for 48 tables and 5.4 million rows, and the author's hands not at all; the

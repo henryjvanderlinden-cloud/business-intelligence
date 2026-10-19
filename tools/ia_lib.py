@@ -20,6 +20,8 @@ ITEMS = {
 }
 TABLE_ITEMS = set(ITEMS) - {"04", "24", "25", "26"}
 SOURCE_ITEMS = {"14", "18", "20", "22", "23"}   # analysis/README.md section 1: source-wide items in _source/
+RELATION_ITEMS = {"01", "02", "03", "06", "07", "27"}   # analysis/README.md section 9
+RELATION_MINIMUM = {"01", "02", "06", "07", "27"}
 COLUMN_ITEMS = {"02", "03", "06", "07", "08", "09", "10", "11", "12", "13", "15", "18", "19", "21", "22", "27", "28"}
 MINIMUM = {"01", "03", "05", "06", "07", "19"}
 
@@ -104,3 +106,23 @@ def parse_item(text):
             fields["text"] = m.group(3)
             claims.append(fields)
     return front, claims, errs
+
+
+def parse_relation(name):
+    """A relation folder name (analysis/README.md sections 3 and 9) as two (schema, table, [columns]) sides, unescaped;
+    None if it does not parse or is not reversibly escaped."""
+    sides = name.split("__")
+    if len(sides) != 2:
+        return None
+    out = []
+    for side in sides:
+        parts = side.split(".")
+        if len(parts) < 3 or not all(is_escaped(p) for p in parts):
+            return None
+        out.append((unescape(parts[0]), unescape(parts[1]), [unescape(p) for p in parts[2:]]))
+    return tuple(out)
+
+
+def relation_schema_hash(child_schema_sha256, parent_schema_sha256):
+    """input_schema_sha256 of a relation's item files: both tables' column lists, so either changing makes it stale."""
+    return hashlib.sha256((child_schema_sha256 + "\n" + parent_schema_sha256).encode("ascii")).hexdigest()

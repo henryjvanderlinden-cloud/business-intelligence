@@ -1,0 +1,105 @@
+{
+ "code": "def relation_profile(child, ccol, parent, pcol, pd):\n    \"\"\"Orphans both ways, optionality, children per referenced parent, other accepting unique columns.\"\"\"\n    cv = column(child, ccol)\n    pv = column(parent, pcol)\n    pset = set(pv)\n    filled = [v for v in cv if v != \"\"]\n    per = collections.Counter(filled)\n    orphan_vals = {v for v in per if v not in pset}\n    alt = {}\n    for c, declared in unique_columns(parent, pd).items():\n        if c == pcol or not per:\n            continue\n        s = set(column(parent, c))\n        if all(v in s for v in per):\n            alt[c] = {\"declared_unique\": declared}\n    return {\n        \"child_rows\": len(cv), \"child_filled\": len(filled), \"child_empty\": len(cv) - len(filled),\n        \"child_distinct\": len(per),\n        \"orphan_rows\": sum(per[v] for v in orphan_vals), \"orphan_distinct\": len(orphan_vals),\n        \"parent_rows\": len(pv), \"parent_key_distinct\": len(pset), \"parent_key_empty\": sum(1 for v in pv if v == \"\"),\n        \"parents_referenced\": len(set(per) & pset), \"parents_unreferenced\": len(pset - set(per)),\n        \"children_per_referenced_parent\": stats([k for v, k in per.items() if v in pset]),\n        \"other_unique_parent_columns_accepting_all_values\": alt,\n        \"inner_join_rows\": sum(per[v] for v in per if v in pset),\n    }\n\ndef unique_columns(table, d):\n    \"\"\"Columns of the parent whose values are unique and never empty in the extract, with whether declared unique.\"\"\"\n    declared = collections.defaultdict(list)\n    for k in d[\"catalogue\"][\"keys\"]:\n        if k[\"is_unique\"] == \"1\" or k[\"is_primary_key\"] == \"1\":\n            declared[k[\"index_name\"]].append(k[\"column_name\"])\n    single = {cols[0] for cols in declared.values() if len(cols) == 1}\n    out = {}\n    n = d[\"profile\"][\"rows\"]\n    for c, s in d[\"profile\"][\"columns\"].items():\n        if s.get(\"distinct\") == n and s.get(\"empty\") == 0:\n            out[c] = c in single\n    return out\n\ndef stats(counts):\n    v = sorted(counts)\n    if not v:\n        return {}\n    return {\"min\": v[0], \"median\": statistics.median(v), \"p90\": v[int(0.9 * (len(v) - 1))], \"max\": v[-1],\n            \"mean\": round(sum(v) / len(v), 3), \"parents_with_exactly_one\": sum(1 for x in v if x == 1)}\n\ndef path_agreement(a, a1, a2, c, c_key, cx):\n    \"\"\"Two routes from table a to the same parent: a.a1 directly, and a.a2 -> c (on c_key), then c.cx. Counts the\n    rows of a where both routes name a parent, and how often they name the same one.\"\"\"\n    v1, v2 = column(a, a1), column(a, a2)\n    look = dict(zip(column(c, c_key), column(c, cx)))\n    both = agree = 0\n    for x, y in zip(v1, v2):\n        if x == \"\" or y == \"\" or y not in look or look[y] == \"\":\n            continue\n        both += 1\n        agree += look[y] == x\n    return {\"rows\": len(v1), \"rows_with_both_routes\": both, \"agree\": agree, \"disagree\": both - agree}\n\ndef people_flags(child, ccol):\n    \"\"\"For a relation to Application.People: the referring rows counted by the flags of the person they name.\"\"\"\n    flags = (\"IsEmployee\", \"IsSalesperson\", \"IsPermittedToLogon\")\n    who = {pid: \"|\".join(\"%s=%s\" % (f, v) for f, v in zip(flags, vals))\n           for pid, *vals in zip(column(\"Application.People\", \"PersonID\"), *[column(\"Application.People\", f) for f in flags])}\n    return dict(collections.Counter(who.get(v, \"not found\") for v in column(child, ccol) if v != \"\"))\n\ndef by_transaction_type(child, ccol):\n    \"\"\"The child's rows counted by TransactionTypeID and by whether ccol is filled.\"\"\"\n    names = dict(zip(column(\"Application.TransactionTypes\", \"TransactionTypeID\"), column(\"Application.TransactionTypes\", \"TransactionTypeName\")))\n    return {\"%s %s|%s\" % (t, names.get(t, \"?\"), \"filled\" if v != \"\" else \"empty\"): k for (t, v), k in sorted(collections.Counter(\n        (t, \"x\" if v != \"\" else \"\") for t, v in zip(column(child, \"TransactionTypeID\"), column(child, ccol))).items())}\n",
+ "id": "9c9fbd6f0f518f2f",
+ "inputs": {
+  "child": "Warehouse.StockItemTransactions",
+  "child_column": "LastEditedBy",
+  "extract": "2016-06-01",
+  "manifest_sha256": "35b71b2e3ff4bb9ef4e24afc9c56f914e8386df4060a794b862e7f5a00d2774f",
+  "parent": "Application.People",
+  "parent_column": "PersonID",
+  "source": "wwi"
+ },
+ "kind": "profile",
+ "ran_at": "2026-10-19T20:31:09Z",
+ "result": {
+  "child_distinct": 19,
+  "child_empty": 0,
+  "child_filled": 236843,
+  "child_rows": 236843,
+  "child_rows_by_flags_of_person_named": {
+   "IsEmployee=1|IsSalesperson=0|IsPermittedToLogon=0": 12964,
+   "IsEmployee=1|IsSalesperson=0|IsPermittedToLogon=1": 99715,
+   "IsEmployee=1|IsSalesperson=1|IsPermittedToLogon=0": 14688,
+   "IsEmployee=1|IsSalesperson=1|IsPermittedToLogon=1": 109476
+  },
+  "child_rows_by_transaction_type": {
+   "10 Stock Issue|filled": 228432,
+   "11 Stock Receipt|filled": 8367,
+   "12 Stock Adjustment at Stocktake|filled": 44
+  },
+  "children_per_referenced_parent": {
+   "max": 15224,
+   "mean": 12465.421,
+   "median": 12186,
+   "min": 10261,
+   "p90": 14396,
+   "parents_with_exactly_one": 0
+  },
+  "declaration": {
+   "child_column": {
+    "description": "",
+    "is_nullable": "0",
+    "type_name": "int"
+   },
+   "child_temporal_type": "NON_TEMPORAL_TABLE",
+   "foreign_key": {
+    "column_name": "LastEditedBy",
+    "constraint_column_id": "1",
+    "delete_referential_action_desc": "NO_ACTION",
+    "fk_name": "FK_Warehouse_StockItemTransactions_Application_People",
+    "is_disabled": "0",
+    "is_not_trusted": "0",
+    "ref_column": "PersonID",
+    "ref_schema": "Application",
+    "ref_table": "People",
+    "schema_name": "Warehouse",
+    "table_name": "StockItemTransactions"
+   },
+   "parent_temporal_type": "SYSTEM_VERSIONED_TEMPORAL_TABLE"
+  },
+  "extraction_visibility": {
+   "Application.People": {
+    "masked_columns": [],
+    "rows_in_extract": 1111,
+    "rows_seen_by_nsdn_reader": 1111,
+    "rows_seen_by_owner": 1111,
+    "security_policies_visible_to_reader": 0
+   },
+   "Warehouse.StockItemTransactions": {
+    "masked_columns": [],
+    "rows_in_extract": 236843,
+    "rows_seen_by_nsdn_reader": 236843,
+    "rows_seen_by_owner": 236843,
+    "security_policies_visible_to_reader": 0
+   }
+  },
+  "inner_join_rows": 236843,
+  "orphan_distinct": 0,
+  "orphan_rows": 0,
+  "other_children_of_parent": {
+   "Purchasing.PurchaseOrders.ContactPersonID": 2076,
+   "Purchasing.Suppliers.AlternateContactPersonID": 1,
+   "Purchasing.Suppliers.PrimaryContactPersonID": 1,
+   "Sales.Customers.AlternateContactPersonID": 1,
+   "Sales.Customers.PrimaryContactPersonID": 1,
+   "Sales.Invoices.AccountsPersonID": 22333,
+   "Sales.Invoices.ContactPersonID": 144,
+   "Sales.Invoices.PackedByPersonID": 4817,
+   "Sales.Invoices.SalespersonPersonID": 7191,
+   "Sales.Orders.ContactPersonID": 150,
+   "Sales.Orders.PickedByPersonID": 4042,
+   "Sales.Orders.SalespersonPersonID": 7539
+  },
+  "other_unique_parent_columns_accepting_all_values": {},
+  "parent_key_distinct": 1111,
+  "parent_key_empty": 0,
+  "parent_rows": 1111,
+  "parents_referenced": 19,
+  "parents_unreferenced": 1092,
+  "same_child_same_parent": [],
+  "two_routes_to_parent": {}
+ },
+ "tool": "prototypes/information_analysis/relations.py",
+ "tool_version": "937b9635cee638e0b539af9910312f142304e964"
+}

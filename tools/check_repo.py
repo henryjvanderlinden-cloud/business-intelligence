@@ -551,6 +551,11 @@ def check_analysis():
                 err(rel_dir, "names differ only in case: %s" % ", ".join(group))
         parts = rel_dir.split("/")
         under_tables = "tables" in parts
+        under_rel = "across" in parts and "relations" in parts
+        if under_rel and parts[-1] == "relations":
+            for d in dirnames:
+                if ia.parse_relation(d) is None:
+                    err("%s/%s" % (rel_dir, d), "folder name is not a relation name of escaped parts (analysis/README.md 3, 9)")
         for d in dirnames:
             if under_tables and not ia.is_escaped(d):
                 err("%s/%s" % (rel_dir, d), "folder name is not a reversibly escaped source name (ADR-0018)")
@@ -582,7 +587,7 @@ def check_analysis():
                     err(rel, "evidence holds no code, query or excerpt")
                 continue
             under_source = "_source" in parts
-            if not (under_tables or under_source) or not f.endswith(".md"):
+            if not (under_tables or under_source or under_rel) or not f.endswith(".md"):
                 continue
             m = ia.ITEM_FILE_RE.match(f)
             if not m:
@@ -592,7 +597,8 @@ def check_analysis():
             is_column = "columns" in parts
             if ia.ITEMS.get(nn) != slug:
                 err(rel, "item %s is %r, not %r" % (nn, ia.ITEMS.get(nn), slug))
-            allowed = ia.SOURCE_ITEMS if under_source else ia.COLUMN_ITEMS if is_column else ia.TABLE_ITEMS
+            allowed = (ia.RELATION_ITEMS if under_rel else ia.SOURCE_ITEMS if under_source else
+                       ia.COLUMN_ITEMS if is_column else ia.TABLE_ITEMS)
             if nn not in allowed:
                 err(rel, "item %s is not recorded at this level" % nn)
             text = read(rel)
@@ -610,7 +616,7 @@ def check_analysis():
                 err(rel, "item and topic must match the file name")
             if front.get("tier") not in ia.TIERS:
                 err(rel, "tier %r not in %s" % (front.get("tier"), sorted(ia.TIERS)))
-            elif nn in ia.MINIMUM and front.get("tier") != "minimum":
+            elif (nn in ia.RELATION_MINIMUM if under_rel else nn in ia.MINIMUM) and front.get("tier") != "minimum":
                 err(rel, "item %s is a minimum item (ADR-0017)" % nn)
             for k in ("written_by", "last_checked_by"):
                 if front.get(k) not in agents:

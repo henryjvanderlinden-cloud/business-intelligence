@@ -1,0 +1,84 @@
+{
+ "code": "def code_labels(table):\n    \"\"\"For each code column of the table, the codes used and their names in the code table.\"\"\"\n    f, head, rows = reader(DAY, table)\n    rows = list(rows)\n    f.close()\n    out = {}\n    for col, (ct, name_col) in CODE_TABLES.items():\n        if col not in head:\n            continue\n        g, h2, r2 = reader(DAY, ct)\n        names = {r[0]: r[h2.index(name_col)] for r in r2}\n        g.close()\n        i = head.index(col)\n        used = {}\n        for r in rows:\n            used[r[i]] = used.get(r[i], 0) + 1\n        out[col] = {\"code_table\": ct, \"used\": {v or \"(empty)\": {\"rows\": k, \"name\": names.get(v)} for v, k in sorted(used.items())},\n                    \"defined_but_unused\": {c: n for c, n in names.items() if c not in used}}\n    return out\n",
+ "id": "09d66348f676d4b5",
+ "inputs": {
+  "extract": "2016-06-01",
+  "manifest_sha256": "35b71b2e3ff4bb9ef4e24afc9c56f914e8386df4060a794b862e7f5a00d2774f",
+  "source": "wwi",
+  "table": "Sales.Customers"
+ },
+ "kind": "profile",
+ "ran_at": "2026-10-19T07:19:31Z",
+ "result": {
+  "BuyingGroupID": {
+   "code_table": "Sales.BuyingGroups",
+   "defined_but_unused": {},
+   "used": {
+    "(empty)": {
+     "name": null,
+     "rows": 261
+    },
+    "1": {
+     "name": "Tailspin Toys",
+     "rows": 201
+    },
+    "2": {
+     "name": "Wingtip Toys",
+     "rows": 201
+    }
+   }
+  },
+  "CustomerCategoryID": {
+   "code_table": "Sales.CustomerCategories",
+   "defined_but_unused": {
+    "1": "Agent",
+    "2": "Wholesaler",
+    "8": "General Retailer"
+   },
+   "used": {
+    "3": {
+     "name": "Novelty Shop",
+     "rows": 459
+    },
+    "4": {
+     "name": "Supermarket",
+     "rows": 58
+    },
+    "5": {
+     "name": "Computer Store",
+     "rows": 51
+    },
+    "6": {
+     "name": "Gift Store",
+     "rows": 48
+    },
+    "7": {
+     "name": "Corporate",
+     "rows": 47
+    }
+   }
+  },
+  "DeliveryMethodID": {
+   "code_table": "Application.DeliveryMethods",
+   "defined_but_unused": {
+    "1": "Post",
+    "10": "Refrigerated Air Freight",
+    "2": "Courier",
+    "4": "Customer Collect",
+    "5": "Chilled Van",
+    "6": "Customer Courier to Collect",
+    "7": "Road Freight",
+    "8": "Air Freight",
+    "9": "Refrigerated Road Freight"
+   },
+   "used": {
+    "3": {
+     "name": "Delivery Van",
+     "rows": 663
+    }
+   }
+  }
+ },
+ "tool": "prototypes/information_analysis/evidence_shared.py",
+ "tool_version": "35cdfcd24713d6e9eb43784f7e3be5b8228ce8bb"
+}

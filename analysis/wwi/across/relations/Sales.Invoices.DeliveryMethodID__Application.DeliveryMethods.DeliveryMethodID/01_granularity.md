@@ -1,0 +1,46 @@
+---
+id: wwi:fk:FK_Sales_Invoices_DeliveryMethodID_Application_DeliveryMethods
+subject: wwi/across/relations/Sales.Invoices.DeliveryMethodID__Application.DeliveryMethods.DeliveryMethodID
+item: 01
+topic: granularity
+tier: minimum
+summary: Many-to-one from Sales.Invoices to Application.DeliveryMethods; up to 70,566 rows of Sales.Invoices per row of Application.DeliveryMethods.
+confidence: high
+claims: 3
+written_by: claude-opus-5-5
+written_at: 2026-10-19T20:31:00Z
+step: S08-079
+method: mechanical claims by prototypes/information_analysis/write_relations.py (blob e1598587ca50051cb5e35244cfdae309e6e1c028) from the relation's evidence by relations.py; readings by claude-opus-5-5 from that evidence, the catalogue's column descriptions and round 1's files
+input_source: wwi
+input_extract: 2016-06-01
+input_manifest_sha256: 35b71b2e3ff4bb9ef4e24afc9c56f914e8386df4060a794b862e7f5a00d2774f
+input_schema_sha256: 2799a4e040de3e031ea0c4c2cec4dc92926a83019371d8f7fbb5a840647c2fae
+last_checked_at: 2026-10-19T20:31:00Z
+last_checked_by: claude-opus-5-5
+last_checked_against: 2016-06-01
+reviewed_by: none
+reviewed_at: none
+ruled_by: none
+ruled_at: none
+supersedes: none
+superseded_by: none
+recheck_when: every new extract, or a schema change of either table
+---
+
+## Claims
+
+- C1 | type=declared | status=proposed | confidence=high | effective=2016-06-01 | observed=2026-10-19 | checked=2026-10-19 | evidence=f85aff68471e48d6 | recheck=the foreign key changes | text: Declared foreign key FK_Sales_Invoices_DeliveryMethodID_Application_DeliveryMethods from Sales.Invoices.DeliveryMethodID to Application.DeliveryMethods.DeliveryMethodID, the primary key of Application.DeliveryMethods: each row of Sales.Invoices names at most one row of Application.DeliveryMethods.
+- C2 | type=observed | status=proposed | confidence=high | effective=2016-06-01 | observed=2026-10-19 | checked=2026-10-19 | evidence=f85aff68471e48d6 | recheck=every new extract | text: In this extract 70,566 of 70,566 rows of Sales.Invoices name one of 1 referenced rows of Application.DeliveryMethods (of 10); children per referenced parent: from 70,566 to 70,566, median 70,566; 0 parents have exactly one.
+- C3 | type=declared | status=proposed | confidence=high | effective=2016-06-01 | observed=2026-10-19 | checked=2026-10-19 | evidence=f85aff68471e48d6 | recheck=every new extract | text: Joined from Sales.Invoices to Application.DeliveryMethods, the result keeps the grain of Sales.Invoices: one row per row of Sales.Invoices. Joined the other way, each row of Application.DeliveryMethods repeats once per row of Sales.Invoices that names it (C2).
+
+## Reasoning
+
+Mechanical claims from the relation's evidence (relations.py); readings, where present, are the writer's, with their confidence.
+
+## Uncertainties
+
+None.
+
+## For a person
+
+None.

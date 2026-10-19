@@ -1,0 +1,223 @@
+{
+ "code": "def main():\n    import inspect\n    cats = load_catalogues()\n    base = {\"kind\": \"profile\", \"tool\": SCRIPT, \"tool_version\": blob(SCRIPT), \"ran_at\": now()}\n    inp = {\"source\": \"wwi\", \"extract\": DAY, \"manifest_sha256\": sha(os.path.join(RAW, DAY, \"manifest.json\"))}\n    code = \"\\n\".join(inspect.getsource(f) for f in (relation_profile, unique_columns, stats, path_agreement, people_flags,\n                                                   by_transaction_type))\n    fks = []\n    for t, d in cats.items():\n        for k in d[\"catalogue\"][\"foreign_keys_out\"]:\n            fks.append((\"%s.%s\" % (k[\"schema_name\"], k[\"table_name\"]), k[\"column_name\"],\n                        \"%s.%s\" % (k[\"ref_schema\"], k[\"ref_table\"]), k[\"ref_column\"], k))\n    declared, in_fk, pending = [], set(), []\n    for child, ccol, parent, pcol, k in fks:\n        d = cats[child]\n        in_fk.add((child, ccol))\n        name = rel_name(k[\"schema_name\"], k[\"table_name\"], ccol, k[\"ref_schema\"], k[\"ref_table\"], pcol)\n        res = relation_profile(child, ccol, parent, pcol, cats[parent])\n        ccat = next(x for x in d[\"catalogue\"][\"columns\"] if x[\"column_name\"] == ccol)\n        pcat = cats[parent][\"catalogue\"]\n        res[\"declaration\"] = {\"foreign_key\": k, \"child_column\": {x: ccat[x] for x in (\"type_name\", \"is_nullable\", \"description\")},\n                              \"parent_temporal_type\": pcat[\"table\"][0][\"temporal_type_desc\"],\n                              \"child_temporal_type\": d[\"catalogue\"][\"table\"][0][\"temporal_type_desc\"]}\n        # structure: other foreign keys from the same child to the same parent (roles), other children of the parent\n        res[\"same_child_same_parent\"] = sorted(c2 for ch, c2, p2, _, _ in fks if ch == child and p2 == parent and c2 != ccol)\n        # two routes to the same parent: child.ccol directly, and child.a2 -> c -> c.cx\n        routes = {}\n        if ccol != \"LastEditedBy\":\n            for ch, a2, c, c_key, _ in fks:\n                if ch != child or a2 == ccol or a2 == \"LastEditedBy\" or c == child:\n                    continue\n                for ch2, cx, p2, _, _ in fks:\n                    if ch2 == c and p2 == parent and cx != \"LastEditedBy\":\n                        routes[\"%s -> %s.%s\" % (a2, c, cx)] = path_agreement(child, ccol, a2, c, c_key, cx)\n        res[\"two_routes_to_parent\"] = routes\n        if parent == \"Application.People\":\n            res[\"child_rows_by_flags_of_person_named\"] = people_flags(child, ccol)\n        if \"TransactionTypeID\" in column_names(child) and ccol != \"TransactionTypeID\":\n            res[\"child_rows_by_transaction_type\"] = by_transaction_type(child, ccol)\n        res[\"extraction_visibility\"] = {t: {x: cats[t][\"catalogue\"][x] for x in VISIBILITY} for t in sorted({child, parent})}\n        pending.append((name, child, ccol, parent, pcol, k, res))\n    # after all relations are profiled: the multiplicity of the parent's other referring columns (chasm traps)\n    most = {(ch, cc): r[\"children_per_referenced_parent\"].get(\"max\", 0) for _, ch, cc, _, _, _, r in pending}\n    for name, child, ccol, parent, pcol, k, res in pending:\n        res[\"other_children_of_parent\"] = {\"%s.%s\" % (ch, c2): most[(ch, c2)] for ch, c2, p2, _, _ in fks\n                                           if p2 == parent and (ch, c2) != (child, ccol) and c2 != \"LastEditedBy\"}\n        h = write_evidence(os.path.join(ACROSS, \"relations\", name, \"evidence\"),\n                           dict(base, code=code, inputs=dict(inp, child=child, child_column=ccol,\n                                                             parent=parent, parent_column=pcol), result=res))\n        declared.append((name, child, ccol, parent, pcol, k[\"fk_name\"], h, res))\n        print(name, h, res[\"orphan_rows\"], res[\"child_empty\"], res[\"children_per_referenced_parent\"].get(\"max\"))\n    composite = []\n    for child, ccols, parent, pcols in COMPOSITE:\n        cs, ct = child.split(\".\")\n        ps, pt = parent.split(\".\")\n        name = \"%s.%s.%s__%s.%s.%s\" % (ia.escape(cs), ia.escape(ct), \".\".join(ia.escape(c) for c in ccols),\n                                       ia.escape(ps), ia.escape(pt), \".\".join(ia.escape(c) for c in pcols))\n        res = composite_profile(child, ccols, parent, pcols)\n        if \"TransactionTypeID\" in column_names(child):\n            res[\"child_rows_by_transaction_type\"] = by_transaction_type(child, ccols[0])\n        res[\"extraction_visibility\"] = {t: {x: cats[t][\"catalogue\"][x] for x in VISIBILITY} for t in sorted({child, parent})}\n        h = write_evidence(os.path.join(ACROSS, \"relations\", name, \"evidence\"),\n                           dict(base, code=inspect.getsource(composite_profile) + \"\\n\" + inspect.getsource(header_join_rows) + \"\\n\" + inspect.getsource(by_transaction_type), inputs=dict(inp, child=child, child_columns=list(ccols),\n                                                                                         parent=parent, parent_columns=list(pcols)), result=res))\n        composite.append((name, h, res))\n        print(name, h, res)\n    # undeclared: integer columns named ...ID, not a foreign key, not the table's own single-column primary key\n    pks = {}\n    for t, d in cats.items():\n        pk = [k[\"column_name\"] for k in d[\"catalogue\"][\"keys\"] if k[\"is_primary_key\"] == \"1\"]\n        if len(pk) == 1:\n            pks[t] = pk[0]\n    undeclared = []\n    for t, d in cats.items():\n        for x in d[\"catalogue\"][\"columns\"]:\n            c = x[\"column_name\"]\n            if not c.endswith(\"ID\") or x[\"type_name\"] not in INT_TYPES or (t, c) in in_fk or pks.get(t) == c:\n                continue\n            vals = {v for v in column(t, c) if v != \"\"}\n            if not vals:\n                undeclared.append((t, c, None, 0, 0, False))\n                continue\n            for p, pc in pks.items():\n                ps = set(column(p, pc))\n                hit = len(vals & ps)\n                if hit:\n                    undeclared.append((t, c, \"%s.%s\" % (p, pc), hit, len(vals), c.endswith(pc)))\n    # columns of the same name in several tables, other than keys, foreign keys and audit columns: possible copies\n    keyish = {(t, c) for t, c in in_fk} | {(t, c) for t, c in pks.items()} | {(p, c) for p, c in pks.items()}\n    names = collections.defaultdict(list)\n    for t, d in cats.items():\n        for x in d[\"catalogue\"][\"columns\"]:\n            c = x[\"column_name\"]\n            if c in AUDIT_COLUMNS or (t, c) in keyish or c in pks.values():\n                continue\n            names[c].append(t)\n    same_name = {c: sorted(ts) for c, ts in names.items() if len(ts) > 1}\n    rec = dict(base, code=inspect.getsource(main), inputs=dict(inp, tables=sorted(cats)),\n               result={\"undeclared_inclusion\": [list(u) for u in undeclared], \"same_name_columns\": same_name})\n    h = write_evidence(os.path.join(ACROSS, \"evidence\"), rec)\n    write_candidates(declared, undeclared, same_name, composite, h, base[\"ran_at\"])\n",
+ "id": "132ae6199f53c95f",
+ "inputs": {
+  "extract": "2016-06-01",
+  "manifest_sha256": "35b71b2e3ff4bb9ef4e24afc9c56f914e8386df4060a794b862e7f5a00d2774f",
+  "source": "wwi",
+  "tables": [
+   "Application.Cities",
+   "Application.Countries",
+   "Application.DeliveryMethods",
+   "Application.PaymentMethods",
+   "Application.People",
+   "Application.StateProvinces",
+   "Application.SystemParameters",
+   "Application.TransactionTypes",
+   "Purchasing.PurchaseOrderLines",
+   "Purchasing.PurchaseOrders",
+   "Purchasing.SupplierCategories",
+   "Purchasing.SupplierTransactions",
+   "Purchasing.Suppliers",
+   "Sales.BuyingGroups",
+   "Sales.CustomerCategories",
+   "Sales.CustomerTransactions",
+   "Sales.Customers",
+   "Sales.InvoiceLines",
+   "Sales.Invoices",
+   "Sales.OrderLines",
+   "Sales.Orders",
+   "Sales.SpecialDeals",
+   "Warehouse.ColdRoomTemperatures",
+   "Warehouse.Colors",
+   "Warehouse.PackageTypes",
+   "Warehouse.StockGroups",
+   "Warehouse.StockItemHoldings",
+   "Warehouse.StockItemStockGroups",
+   "Warehouse.StockItemTransactions",
+   "Warehouse.StockItems",
+   "Warehouse.VehicleTemperatures"
+  ]
+ },
+ "kind": "profile",
+ "ran_at": "2026-10-19T20:31:09Z",
+ "result": {
+  "same_name_columns": {
+   "AmountExcludingTax": [
+    "Purchasing.SupplierTransactions",
+    "Sales.CustomerTransactions"
+   ],
+   "Border": [
+    "Application.Countries",
+    "Application.StateProvinces"
+   ],
+   "Comments": [
+    "Purchasing.PurchaseOrders",
+    "Sales.Invoices",
+    "Sales.Orders"
+   ],
+   "CustomFields": [
+    "Application.People",
+    "Warehouse.StockItems"
+   ],
+   "CustomerPurchaseOrderNumber": [
+    "Sales.Invoices",
+    "Sales.Orders"
+   ],
+   "DeliveryAddressLine1": [
+    "Application.SystemParameters",
+    "Purchasing.Suppliers",
+    "Sales.Customers"
+   ],
+   "DeliveryAddressLine2": [
+    "Application.SystemParameters",
+    "Purchasing.Suppliers",
+    "Sales.Customers"
+   ],
+   "DeliveryInstructions": [
+    "Sales.Invoices",
+    "Sales.Orders"
+   ],
+   "DeliveryLocation": [
+    "Application.SystemParameters",
+    "Purchasing.Suppliers",
+    "Sales.Customers"
+   ],
+   "DeliveryPostalCode": [
+    "Application.SystemParameters",
+    "Purchasing.Suppliers",
+    "Sales.Customers"
+   ],
+   "DeliveryRun": [
+    "Sales.Customers",
+    "Sales.Invoices"
+   ],
+   "Description": [
+    "Purchasing.PurchaseOrderLines",
+    "Sales.InvoiceLines",
+    "Sales.OrderLines"
+   ],
+   "ExpectedDeliveryDate": [
+    "Purchasing.PurchaseOrders",
+    "Sales.Orders"
+   ],
+   "FaxNumber": [
+    "Application.People",
+    "Purchasing.Suppliers",
+    "Sales.Customers"
+   ],
+   "FinalizationDate": [
+    "Purchasing.SupplierTransactions",
+    "Sales.CustomerTransactions"
+   ],
+   "InternalComments": [
+    "Purchasing.PurchaseOrders",
+    "Purchasing.Suppliers",
+    "Sales.Invoices",
+    "Sales.Orders",
+    "Warehouse.StockItems"
+   ],
+   "IsFinalized": [
+    "Purchasing.SupplierTransactions",
+    "Sales.CustomerTransactions"
+   ],
+   "LatestRecordedPopulation": [
+    "Application.Cities",
+    "Application.Countries",
+    "Application.StateProvinces"
+   ],
+   "OrderDate": [
+    "Purchasing.PurchaseOrders",
+    "Sales.Orders"
+   ],
+   "OutstandingBalance": [
+    "Purchasing.SupplierTransactions",
+    "Sales.CustomerTransactions"
+   ],
+   "PaymentDays": [
+    "Purchasing.Suppliers",
+    "Sales.Customers"
+   ],
+   "PhoneNumber": [
+    "Application.People",
+    "Purchasing.Suppliers",
+    "Sales.Customers"
+   ],
+   "Photo": [
+    "Application.People",
+    "Warehouse.StockItems"
+   ],
+   "PickingCompletedWhen": [
+    "Sales.OrderLines",
+    "Sales.Orders"
+   ],
+   "PostalAddressLine1": [
+    "Application.SystemParameters",
+    "Purchasing.Suppliers",
+    "Sales.Customers"
+   ],
+   "PostalAddressLine2": [
+    "Application.SystemParameters",
+    "Purchasing.Suppliers",
+    "Sales.Customers"
+   ],
+   "PostalPostalCode": [
+    "Application.SystemParameters",
+    "Purchasing.Suppliers",
+    "Sales.Customers"
+   ],
+   "Quantity": [
+    "Sales.InvoiceLines",
+    "Sales.OrderLines",
+    "Warehouse.StockItemTransactions"
+   ],
+   "RecordedWhen": [
+    "Warehouse.ColdRoomTemperatures",
+    "Warehouse.VehicleTemperatures"
+   ],
+   "RunPosition": [
+    "Sales.Customers",
+    "Sales.Invoices"
+   ],
+   "SupplierReference": [
+    "Purchasing.PurchaseOrders",
+    "Purchasing.Suppliers"
+   ],
+   "TaxAmount": [
+    "Purchasing.SupplierTransactions",
+    "Sales.CustomerTransactions",
+    "Sales.InvoiceLines"
+   ],
+   "TaxRate": [
+    "Sales.InvoiceLines",
+    "Sales.OrderLines",
+    "Warehouse.StockItems"
+   ],
+   "Temperature": [
+    "Warehouse.ColdRoomTemperatures",
+    "Warehouse.VehicleTemperatures"
+   ],
+   "TransactionAmount": [
+    "Purchasing.SupplierTransactions",
+    "Sales.CustomerTransactions"
+   ],
+   "TransactionDate": [
+    "Purchasing.SupplierTransactions",
+    "Sales.CustomerTransactions"
+   ],
+   "UnitPrice": [
+    "Sales.InvoiceLines",
+    "Sales.OrderLines",
+    "Sales.SpecialDeals",
+    "Warehouse.StockItems"
+   ],
+   "WebsiteURL": [
+    "Purchasing.Suppliers",
+    "Sales.Customers"
+   ]
+  },
+  "undeclared_inclusion": []
+ },
+ "tool": "prototypes/information_analysis/relations.py",
+ "tool_version": "937b9635cee638e0b539af9910312f142304e964"
+}
