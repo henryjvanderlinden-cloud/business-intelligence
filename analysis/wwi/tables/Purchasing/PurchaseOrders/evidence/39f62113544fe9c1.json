@@ -1,0 +1,48 @@
+{
+ "code": "def code_labels(table):\n    \"\"\"For each code column of the table, the codes used and their names in the code table.\"\"\"\n    f, head, rows = reader(DAY, table)\n    rows = list(rows)\n    f.close()\n    out = {}\n    for col, (ct, name_col) in CODE_TABLES.items():\n        if col not in head:\n            continue\n        g, h2, r2 = reader(DAY, ct)\n        names = {r[0]: r[h2.index(name_col)] for r in r2}\n        g.close()\n        i = head.index(col)\n        used = {}\n        for r in rows:\n            used[r[i]] = used.get(r[i], 0) + 1\n        out[col] = {\"code_table\": ct, \"used\": {v or \"(empty)\": {\"rows\": k, \"name\": names.get(v)} for v, k in sorted(used.items())},\n                    \"defined_but_unused\": {c: n for c, n in names.items() if c not in used}}\n    return out\n",
+ "id": "39f62113544fe9c1",
+ "inputs": {
+  "extract": "2016-06-01",
+  "manifest_sha256": "35b71b2e3ff4bb9ef4e24afc9c56f914e8386df4060a794b862e7f5a00d2774f",
+  "source": "wwi",
+  "table": "Purchasing.PurchaseOrders"
+ },
+ "kind": "profile",
+ "ran_at": "2026-10-19T07:19:31Z",
+ "result": {
+  "DeliveryMethodID": {
+   "code_table": "Application.DeliveryMethods",
+   "defined_but_unused": {
+    "1": "Post",
+    "3": "Delivery Van",
+    "4": "Customer Collect",
+    "5": "Chilled Van",
+    "6": "Customer Courier to Collect"
+   },
+   "used": {
+    "10": {
+     "name": "Refrigerated Air Freight",
+     "rows": 13
+    },
+    "2": {
+     "name": "Courier",
+     "rows": 986
+    },
+    "7": {
+     "name": "Road Freight",
+     "rows": 1066
+    },
+    "8": {
+     "name": "Air Freight",
+     "rows": 10
+    },
+    "9": {
+     "name": "Refrigerated Road Freight",
+     "rows": 1
+    }
+   }
+  }
+ },
+ "tool": "prototypes/information_analysis/evidence_shared.py",
+ "tool_version": "35cdfcd24713d6e9eb43784f7e3be5b8228ce8bb"
+}

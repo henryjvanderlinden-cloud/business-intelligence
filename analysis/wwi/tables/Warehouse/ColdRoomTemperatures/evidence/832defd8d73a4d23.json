@@ -1,0 +1,64 @@
+{
+ "code": "def coldroom_history():\n    \"\"\"The cold-room current table against its history table, and the sensors across the two extracts.\"\"\"\n    import collections\n    out = {}\n    for day in (PREV, DAY):\n        f, head, rows = reader(day, \"Warehouse.ColdRoomTemperatures\")\n        rows = list(rows)\n        f.close()\n        out[\"current_\" + day] = {\"ids\": sorted(int(r[0]) for r in rows), \"sensors\": sorted(r[head.index(\"ColdRoomSensorNumber\")] for r in rows),\n                                 \"recorded_when\": sorted(set(r[head.index(\"RecordedWhen\")] for r in rows))}\n    f, head, rows = reader(DAY, \"Warehouse.ColdRoomTemperatures_Archive\")\n    i = {c: head.index(c) for c in head}\n    n, sensors, lo, hi, vf_eq = 0, collections.Counter(), None, None, 0\n    idmin, idmax = None, None\n    for r in rows:\n        n += 1\n        sensors[r[i[\"ColdRoomSensorNumber\"]]] += 1\n        w = r[i[\"RecordedWhen\"]]\n        lo = w if lo is None or w < lo else lo\n        hi = w if hi is None or w > hi else hi\n        vf_eq += r[i[\"ValidFrom\"]][:19] == w[:19]\n        k = int(r[0])\n        idmin = k if idmin is None or k < idmin else idmin\n        idmax = k if idmax is None or k > idmax else idmax\n    f.close()\n    out[\"history\"] = {\"rows\": n, \"rows_per_sensor\": dict(sensors), \"recorded_when_min\": lo, \"recorded_when_max\": hi,\n                      \"valid_from_equals_recorded_when_to_the_second\": vf_eq, \"id_min\": idmin, \"id_max\": idmax}\n    return out\n",
+ "id": "832defd8d73a4d23",
+ "inputs": {
+  "extract": "2016-06-01",
+  "manifest_sha256": "35b71b2e3ff4bb9ef4e24afc9c56f914e8386df4060a794b862e7f5a00d2774f",
+  "previous_extract": "2016-05-31",
+  "source": "wwi"
+ },
+ "kind": "profile",
+ "ran_at": "2026-10-19T07:19:31Z",
+ "result": {
+  "current_2016-05-31": {
+   "ids": [
+    3654737,
+    3654738,
+    3654739,
+    3654740
+   ],
+   "recorded_when": [
+    "2016-05-31T23:59:24.0000000"
+   ],
+   "sensors": [
+    "1",
+    "2",
+    "3",
+    "4"
+   ]
+  },
+  "current_2016-06-01": {
+   "ids": [
+    3676805,
+    3676806,
+    3676807,
+    3676808
+   ],
+   "recorded_when": [
+    "2016-06-01T23:59:29.0000000"
+   ],
+   "sensors": [
+    "1",
+    "2",
+    "3",
+    "4"
+   ]
+  },
+  "history": {
+   "id_max": 3676804,
+   "id_min": 1,
+   "recorded_when_max": "2016-06-01T23:59:20.0000000",
+   "recorded_when_min": "2015-12-20T00:00:00.0000000",
+   "rows": 3676804,
+   "rows_per_sensor": {
+    "1": 919201,
+    "2": 919201,
+    "3": 919201,
+    "4": 919201
+   },
+   "valid_from_equals_recorded_when_to_the_second": 3676804
+  }
+ },
+ "tool": "prototypes/information_analysis/evidence_shared.py",
+ "tool_version": "35cdfcd24713d6e9eb43784f7e3be5b8228ce8bb"
+}

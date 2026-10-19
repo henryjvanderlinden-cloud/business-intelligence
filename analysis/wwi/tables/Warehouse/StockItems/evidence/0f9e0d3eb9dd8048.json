@@ -1,0 +1,54 @@
+{
+ "excerpt": {
+  "chilled": [
+   "Now, to meet food handling requirements, they must monitor the temperature in their chiller room and any of their trucks that have chiller sections.",
+   "Perishable goods are stored in refrigerated rooms. Sensor data from these rooms is ingested into the database for monitoring and analytics.",
+   "Vehicles that transport goods for WWI include sensors that track their location. This location is also ingested into the database for monitoring and further analytics."
+  ],
+  "credit_notes": [
+   "WWI issues credit notes when a customer doesn't receive goods for some reason, or when goods are faulty. These notes are treated as negative invoices."
+  ],
+  "customer_orders": [
+   "If possible, WWI fills the customer order with stock items in the warehouse. When they don't have sufficient stock, they order the additional stock from the suppliers.",
+   "Some customers don't want to wait for items that aren't in stock. If they order, for example, five different stock items, and four are available, they want to receive the four items and backorder the remaining item. The item is then sent later in a separate shipment."
+  ],
+  "customers": [
+   "WWI is a wholesaler. Its customers are mostly companies that resell to individuals. WWI sells to retail customers across the United States, including specialty stores, supermarkets, computing stores, tourist attraction shops, and some individuals.",
+   "WWI also sells to other wholesalers via a network of agents who promote the products on WWI's behalf."
+  ],
+  "delivery": [
+   "WWI delivers stock items to customers either via their own delivery vans or via other couriers or freight methods."
+  ],
+  "fiscal_year": [
+   "The company operates with a financial year that starts on November 1."
+  ],
+  "invoicing": [
+   "WWI invoices customers for the stock items, typically by converting the order to an invoice."
+  ],
+  "payments": [
+   "Customers pay invoices to WWI."
+  ],
+  "purchasing": [
+   "WWI creates purchase orders and submits the orders to the suppliers.",
+   "Periodically, WWI pays suppliers for items that were on purchase orders. The payments often occur some time after they receive the goods."
+  ],
+  "stocking": [
+   "Suppliers send the items. WWI receives them and stocks them in their warehouse."
+  ],
+  "stocktakes": [
+   "WWI periodically counts the on-hand quantities of stock items to ensure that the stock quantities shown as available in their system are accurate. (This process is called a stocktake.)"
+  ]
+ },
+ "id": "0f9e0d3eb9dd8048",
+ "inputs": {
+  "title": "What is Wide World Importers (Microsoft Learn)",
+  "url": "https://learn.microsoft.com/en-us/sql/samples/wide-world-importers-what-is?view=sql-server-ver17"
+ },
+ "kind": "web source",
+ "ran_at": "2026-10-18T20:40:00Z",
+ "result": {
+  "describes": "the business and its workflows; no schema, table or column documentation"
+ },
+ "tool": "WebFetch (a summarising fetch; the excerpts were returned as verbatim quotations, not checked against the page by hand)",
+ "tool_version": "n/a"
+}

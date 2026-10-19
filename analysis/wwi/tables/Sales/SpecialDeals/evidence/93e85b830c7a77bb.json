@@ -1,0 +1,69 @@
+{
+ "code": "def code_labels(table):\n    \"\"\"For each code column of the table, the codes used and their names in the code table.\"\"\"\n    f, head, rows = reader(DAY, table)\n    rows = list(rows)\n    f.close()\n    out = {}\n    for col, (ct, name_col) in CODE_TABLES.items():\n        if col not in head:\n            continue\n        g, h2, r2 = reader(DAY, ct)\n        names = {r[0]: r[h2.index(name_col)] for r in r2}\n        g.close()\n        i = head.index(col)\n        used = {}\n        for r in rows:\n            used[r[i]] = used.get(r[i], 0) + 1\n        out[col] = {\"code_table\": ct, \"used\": {v or \"(empty)\": {\"rows\": k, \"name\": names.get(v)} for v, k in sorted(used.items())},\n                    \"defined_but_unused\": {c: n for c, n in names.items() if c not in used}}\n    return out\n",
+ "id": "93e85b830c7a77bb",
+ "inputs": {
+  "extract": "2016-06-01",
+  "manifest_sha256": "35b71b2e3ff4bb9ef4e24afc9c56f914e8386df4060a794b862e7f5a00d2774f",
+  "source": "wwi",
+  "table": "Sales.SpecialDeals"
+ },
+ "kind": "profile",
+ "ran_at": "2026-10-19T07:19:31Z",
+ "result": {
+  "BuyingGroupID": {
+   "code_table": "Sales.BuyingGroups",
+   "defined_but_unused": {},
+   "used": {
+    "1": {
+     "name": "Tailspin Toys",
+     "rows": 1
+    },
+    "2": {
+     "name": "Wingtip Toys",
+     "rows": 1
+    }
+   }
+  },
+  "CustomerCategoryID": {
+   "code_table": "Sales.CustomerCategories",
+   "defined_but_unused": {
+    "1": "Agent",
+    "2": "Wholesaler",
+    "3": "Novelty Shop",
+    "4": "Supermarket",
+    "5": "Computer Store",
+    "6": "Gift Store",
+    "7": "Corporate",
+    "8": "General Retailer"
+   },
+   "used": {
+    "(empty)": {
+     "name": null,
+     "rows": 2
+    }
+   }
+  },
+  "StockGroupID": {
+   "code_table": "Warehouse.StockGroups",
+   "defined_but_unused": {
+    "1": "Novelty Items",
+    "10": "Packaging Materials",
+    "2": "Clothing",
+    "3": "Mugs",
+    "4": "T-Shirts",
+    "5": "Airline Novelties",
+    "6": "Computing Novelties",
+    "8": "Furry Footwear",
+    "9": "Toys"
+   },
+   "used": {
+    "7": {
+     "name": "USB Novelties",
+     "rows": 2
+    }
+   }
+  }
+ },
+ "tool": "prototypes/information_analysis/evidence_shared.py",
+ "tool_version": "35cdfcd24713d6e9eb43784f7e3be5b8228ce8bb"
+}

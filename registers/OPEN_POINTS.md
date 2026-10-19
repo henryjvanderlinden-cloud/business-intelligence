@@ -2216,6 +2216,18 @@ What is open:
    questions belong to a later stage and were retracted from the dossiers, with design advice removed from their
    claims; that "order" means two things is recorded as a peculiarity of `Sales.Orders` (27, C12). He asked for the
    column meanings (item 2) for every column, and for sol's review to be tried again.
+
+   **2026-10-19.** Sol's retried review, in two passes, returned **FAILS** on both
+   ([A: Invoices, CustomerTransactions](../docs/30_research/notes/XREV_2026-10-18_round1-dossiers-a_sol.md);
+   [B: ColdRoomTemperatures and its history](../docs/30_research/notes/XREV_2026-10-18_round1-dossiers-b_sol.md)): code
+   labels, the contents of the delivery events and the history table's readings were asserted from evidence that does not
+   observe them; uniqueness seen in one extract was rated high; one design statement remained. All eleven findings fixed,
+   and their kind in every table: new evidence for code labels, delivery events and the cold-room history; uniqueness
+   not declared is medium everywhere; README section 5 now separates a count over an extract (high) from a rule
+   generalised from it (medium). **Column meanings** done: item 02 for all 368 columns of the 31 base tables, best-effort
+   tier (21 at unknown, 312 medium, 35 high), cross-referenced with Microsoft's description of the business, which
+   documents the business and not the columns ([`_source/18_documentation.md`](../analysis/wwi/_source/18_documentation.md)).
+   Totals: 606 item files, 2,383 claims, 178 evidence files. Not reviewed by a second model yet.
 3. **Review.** Astra on the record layout (below, R1-R11, ruled in ADR-0018). Sol on 129's inventory: the first,
    large pass never wrote an answer; re-sent in two parts, both returned.
    [Gaps and minimum](../docs/30_research/notes/XREV_2026-10-18_information-analysis-inventory-gaps_sol.md):

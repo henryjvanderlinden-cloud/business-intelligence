@@ -28,8 +28,19 @@ python prototypes/information_analysis/profile_tables.py
 python prototypes/information_analysis/evidence_shared.py
 python prototypes/information_analysis/evidence_shared.py candidates
 python prototypes/information_analysis/evidence_shared.py arithmetic
+python prototypes/information_analysis/evidence_shared.py documentation
+python prototypes/information_analysis/evidence_shared.py more
 python prototypes/information_analysis/write_dossiers.py <specification module>
+python prototypes/information_analysis/write_column_meanings.py <notes module>
 ```
+
+`documentation` records which published Microsoft documentation of WWI was read and what it says, as one evidence per
+table; `more` adds the code labels per table (counts per code with the code table's name), the keys inside the
+delivery events of Sales.Invoices and a profile of the cold-room history table, added after sol's review of
+2026-10-18. **Column meanings** (2026-10-19): `write_column_meanings.py` writes item 02 for every column of every base
+table, `columns/<column>/02_meaning.md`, best-effort tier: declared description, type and keys and the observed filling
+and values mechanically, fixed readings for the audit and system-time columns, and the agent's reading per column from
+a notes module, each with its confidence; a column the source and the documentation leave unexplained says so.
 
 **Answer, first part:** the inventory works on a real source. The catalogue took 7 queries (one per job run), the
 profiles about two minutes of machine time for 48 tables and 5.4 million rows, and the author's hands not at all; the

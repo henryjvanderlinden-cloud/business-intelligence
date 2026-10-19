@@ -581,7 +581,8 @@ def check_analysis():
                 if not (rec.get("code") or rec.get("query") or rec.get("excerpt")):
                     err(rel, "evidence holds no code, query or excerpt")
                 continue
-            if not under_tables or not f.endswith(".md"):
+            under_source = "_source" in parts
+            if not (under_tables or under_source) or not f.endswith(".md"):
                 continue
             m = ia.ITEM_FILE_RE.match(f)
             if not m:
@@ -591,7 +592,7 @@ def check_analysis():
             is_column = "columns" in parts
             if ia.ITEMS.get(nn) != slug:
                 err(rel, "item %s is %r, not %r" % (nn, ia.ITEMS.get(nn), slug))
-            allowed = ia.COLUMN_ITEMS if is_column else ia.TABLE_ITEMS
+            allowed = ia.SOURCE_ITEMS if under_source else ia.COLUMN_ITEMS if is_column else ia.TABLE_ITEMS
             if nn not in allowed:
                 err(rel, "item %s is not recorded at this level" % nn)
             text = read(rel)

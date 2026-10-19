@@ -157,6 +157,11 @@ Confidence measures evidence, not authority.
 - **low** - inferred from names, descriptions, documentation, a sample or a second-hand summary.
 - **unknown** - not established; the claim says what would settle it.
 
+A count over an extract, stated as a fact about that extract, is high: the evidence shows it. A rule generalised from
+it - a value that is unique, a code that never occurs, one row per something - is medium unless a declared constraint
+or a mechanism explains it; the claim says "in this extract" and, where true, that no constraint enforces it. A
+reading from names alone is low.
+
 A ruling sets `status=accepted` and the file's `ruled_by` and `ruled_at`; it does not raise confidence.
 
 ## 6. Freshness

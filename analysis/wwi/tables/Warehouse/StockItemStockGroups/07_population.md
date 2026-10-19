@@ -8,14 +8,14 @@ summary: 442 memberships of 227 items in 9 of the 10 groups; nothing filtered fr
 confidence: unknown
 claims: 6
 written_by: claude-opus-5-5
-written_at: 2026-10-18T20:32:00Z
-step: S08-061
-method: mechanical claims by prototypes/information_analysis/write_dossiers.py from the evidence of profile_tables.py and evidence_shared.py; judgement claims (type intended, or interpretations) by claude-opus-5-5 reading that evidence; script blobs: write_dossiers.py 102dceeb7d85ec3db493afa75ff1e907c8b3f3a6, profile_tables.py e61ada2547265905e3558722cd127e81fa5cd770, evidence_shared.py 03d3dfbc0522d76aef793a33dc2bc491abc70529
+written_at: 2026-10-19T07:26:00Z
+step: S08-066
+method: mechanical claims by prototypes/information_analysis/write_dossiers.py from the evidence of profile_tables.py and evidence_shared.py; judgement claims (type intended, or interpretations) by claude-opus-5-5 reading that evidence; script blobs: write_dossiers.py 102dceeb7d85ec3db493afa75ff1e907c8b3f3a6, profile_tables.py e61ada2547265905e3558722cd127e81fa5cd770, evidence_shared.py 35cdfcd24713d6e9eb43784f7e3be5b8228ce8bb
 input_source: wwi
 input_extract: 2016-06-01
 input_manifest_sha256: 35b71b2e3ff4bb9ef4e24afc9c56f914e8386df4060a794b862e7f5a00d2774f
 input_schema_sha256: 23fe48be9f74d8f7bea0cbb7358f263f7629a9dbcb4cb3e1f1262124d74b3ea0
-last_checked_at: 2026-10-18T20:32:00Z
+last_checked_at: 2026-10-19T07:26:00Z
 last_checked_by: claude-opus-5-5
 last_checked_against: 2016-06-01
 reviewed_by: none
@@ -34,7 +34,7 @@ recheck_when: every new extract, or a schema change
 - C3 | type=declared | status=proposed | confidence=high | effective=2016-06-01 | observed=2026-10-18 | checked=2026-10-18 | evidence=e2eab62afe77be4c | recheck=a masking rule appears | text: No column is masked.
 - C4 | type=declared | status=proposed | confidence=unknown | effective=2016-06-01 | observed=2026-10-18 | checked=2026-10-18 | evidence=e2eab62afe77be4c | recheck=permission to read security policies is granted | text: Whether a row-level security policy exists is not established: the catalogue shows nsdn_reader none, which it may not be allowed to see; the equal row counts above show none takes effect on this account.
 - C5 | type=observed | status=proposed | confidence=high | effective=2016-06-01 | observed=2026-10-18 | checked=2026-10-18 | evidence=90af3c1b08589cf1 | recheck=the technical user's share changes | text: 442 rows last edited by person 1, Data Conversion Only, a technical user.
-- C6 | type=observed | status=proposed | confidence=high | effective=2016-06-01 | observed=2026-10-18 | checked=2026-10-18 | evidence=90af3c1b08589cf1 | recheck=every new extract, or a schema change | text: StockGroupID takes 9 values: one stock group has no item.
+- C6 | type=observed | status=proposed | confidence=high | effective=2016-06-01 | observed=2026-10-18 | checked=2026-10-18 | evidence=90af3c1b08589cf1,30da59f244aad28f | recheck=every new extract, or a schema change | text: StockGroupID takes 9 values: one stock group, Airline Novelties, has no item.
 
 ## Reasoning
 

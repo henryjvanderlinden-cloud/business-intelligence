@@ -1,0 +1,40 @@
+{
+ "code": "def delivery_json_keys():\n    \"\"\"Keys inside the delivery JSON of Sales.Invoices, counted over all invoices.\"\"\"\n    import collections, json as js\n    f, head, rows = reader(DAY, \"Sales.Invoices\")\n    i = head.index(\"ReturnedDeliveryData\")\n    top, ev, ev_n = collections.Counter(), collections.Counter(), collections.Counter()\n    status = collections.Counter()\n    for r in rows:\n        o = js.loads(r[i])\n        top.update(o.keys())\n        ev_n[len(o.get(\"Events\", []))] += 1\n        for e in o.get(\"Events\", []):\n            ev.update(e.keys())\n            status[e.get(\"Event\", \"\") + \"/\" + str(e.get(\"Status\", \"\"))] += 1\n    f.close()\n    return {\"top_level_keys\": dict(top), \"events_per_invoice\": dict(ev_n), \"event_keys\": dict(ev), \"event_and_status\": dict(status)}\n",
+ "id": "3163d80faa939828",
+ "inputs": {
+  "extract": "2016-06-01",
+  "manifest_sha256": "35b71b2e3ff4bb9ef4e24afc9c56f914e8386df4060a794b862e7f5a00d2774f",
+  "source": "wwi",
+  "table": "Sales.Invoices"
+ },
+ "kind": "profile",
+ "ran_at": "2026-10-19T07:19:31Z",
+ "result": {
+  "event_and_status": {
+   "DeliveryAttempt/": 7171,
+   "DeliveryAttempt/Delivered": 63339,
+   "Ready for collection/": 70566
+  },
+  "event_keys": {
+   "Comment": 7171,
+   "ConNote": 141076,
+   "DriverID": 70510,
+   "Event": 141076,
+   "EventTime": 141076,
+   "Latitude": 70510,
+   "Longitude": 70510,
+   "Status": 63339
+  },
+  "events_per_invoice": {
+   "1": 56,
+   "2": 70510
+  },
+  "top_level_keys": {
+   "DeliveredWhen": 70510,
+   "Events": 70566,
+   "ReceivedBy": 70510
+  }
+ },
+ "tool": "prototypes/information_analysis/evidence_shared.py",
+ "tool_version": "35cdfcd24713d6e9eb43784f7e3be5b8228ce8bb"
+}

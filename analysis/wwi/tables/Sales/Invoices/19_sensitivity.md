@@ -8,14 +8,14 @@ summary: Names of the people who received deliveries, with GPS positions and tim
 confidence: low
 claims: 6
 written_by: claude-opus-5-5
-written_at: 2026-10-18T20:32:00Z
-step: S08-061
-method: mechanical claims by prototypes/information_analysis/write_dossiers.py from the evidence of profile_tables.py and evidence_shared.py; judgement claims (type intended, or interpretations) by claude-opus-5-5 reading that evidence; script blobs: write_dossiers.py 102dceeb7d85ec3db493afa75ff1e907c8b3f3a6, profile_tables.py e61ada2547265905e3558722cd127e81fa5cd770, evidence_shared.py 03d3dfbc0522d76aef793a33dc2bc491abc70529
+written_at: 2026-10-19T07:26:00Z
+step: S08-066
+method: mechanical claims by prototypes/information_analysis/write_dossiers.py from the evidence of profile_tables.py and evidence_shared.py; judgement claims (type intended, or interpretations) by claude-opus-5-5 reading that evidence; script blobs: write_dossiers.py 102dceeb7d85ec3db493afa75ff1e907c8b3f3a6, profile_tables.py e61ada2547265905e3558722cd127e81fa5cd770, evidence_shared.py 35cdfcd24713d6e9eb43784f7e3be5b8228ce8bb
 input_source: wwi
 input_extract: 2016-06-01
 input_manifest_sha256: 35b71b2e3ff4bb9ef4e24afc9c56f914e8386df4060a794b862e7f5a00d2774f
 input_schema_sha256: d89a1e72bf72f1577926929cb7c514b71af6cf08eb13a8181f4f8688da7f99ce
-last_checked_at: 2026-10-18T20:32:00Z
+last_checked_at: 2026-10-19T07:26:00Z
 last_checked_by: claude-opus-5-5
 last_checked_against: 2016-06-01
 reviewed_by: none
@@ -32,7 +32,7 @@ recheck_when: every new extract, or a schema change
 - C1 | type=declared | status=proposed | confidence=medium | effective=2016-06-01 | observed=2026-10-18 | checked=2026-10-18 | evidence=98f988a2bfe42550 | recheck=a column is added or renamed | text: Columns whose names or descriptions point to personal, contact, location, credential or free-text content: Comments, DeliveryInstructions, InternalComments, ConfirmedReceivedBy.
 - C2 | type=declared | status=proposed | confidence=high | effective=2016-06-01 | observed=2026-10-18 | checked=2026-10-18 | evidence=98f988a2bfe42550 | recheck=a foreign key changes | text: Every row names the person who last edited it (LastEditedBy -> Application.People): attribution of work to identifiable staff, employee data whatever the table's content.
 - C3 | type=declared | status=proposed | confidence=high | effective=2016-06-01 | observed=2026-10-18 | checked=2026-10-18 | evidence=98f988a2bfe42550 | recheck=a foreign key changes | text: Columns referring to people in Application.People (names, contact details): AccountsPersonID, ContactPersonID, PackedByPersonID, SalespersonPersonID, besides the audit column LastEditedBy.
-- C4 | type=observed | status=proposed | confidence=high | effective=2016-06-01 | observed=2026-10-18 | checked=2026-10-18 | evidence=b7b43b18cf6be97a | recheck=every new extract, or a schema change | text: ConfirmedReceivedBy holds a person's name on 70,510 invoices (663 distinct names); the delivery JSON repeats it with event times, a driver id and latitude and longitude.
+- C4 | type=observed | status=proposed | confidence=high | effective=2016-06-01 | observed=2026-10-18 | checked=2026-10-18 | evidence=b7b43b18cf6be97a,3163d80faa939828 | recheck=every new extract, or a schema change | text: ConfirmedReceivedBy holds a person's name on 70,510 invoices (663 distinct names); the delivery JSON repeats it, and its 70,510 delivery events carry a DriverID, a Latitude and a Longitude.
 - C5 | type=observed | status=proposed | confidence=high | effective=2016-06-01 | observed=2026-10-18 | checked=2026-10-18 | evidence=b7b43b18cf6be97a | recheck=every new extract, or a schema change | text: DeliveryInstructions holds an address, one per customer (663 distinct values).
 - C6 | type=intended | status=proposed | confidence=low | effective=2016-06-01 | observed=2026-10-18 | checked=2026-10-18 | evidence=98f988a2bfe42550 | recheck=the author rules | text: Proposed reading, not legal advice: the receiver's name with time and place of delivery is personal data, as is the driver's movement.
 

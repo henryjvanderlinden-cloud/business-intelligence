@@ -19,6 +19,7 @@ ITEMS = {
     "28": "arithmetic",
 }
 TABLE_ITEMS = set(ITEMS) - {"04", "24", "25", "26"}
+SOURCE_ITEMS = {"14", "18", "20", "22", "23"}   # analysis/README.md section 1: source-wide items in _source/
 COLUMN_ITEMS = {"02", "03", "06", "07", "08", "09", "10", "11", "12", "13", "15", "18", "19", "21", "22", "27", "28"}
 MINIMUM = {"01", "03", "05", "06", "07", "19"}
 
