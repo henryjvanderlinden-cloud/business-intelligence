@@ -2301,6 +2301,18 @@ What is open:
    ends. The other files keep describing 2016-06-01 and show as ageing. Reviewed by astra and sol, both **FAILS**
    ([astra](../docs/30_research/notes/XREV_2026-10-20_second-extract-readings_astra.md),
    [sol](../docs/30_research/notes/XREV_2026-10-20_second-extract-counts_sol.md)); all findings fixed.
+
+   **Position in the schema, item 29, 2026-10-20** (asked 11:25; ruled 18:55 in
+   [ADR-0021](../docs/20_decisions/0021-position-in-the-schema.md): a new item, the method recorded for reuse, the
+   classification adopted in full, and "be cautious and sensitive to excluding attributes etc. that give a distorted
+   picture of reality"). The method is [131](../docs/10_architecture/131_structural-position.md); the record is
+   [`_source/29_position.md`](../analysis/wwi/_source/29_position.md) and a `29_position.md` for each of the 48 tables.
+   Without the audit column `LastEditedBy` the hubs are StockItems, Suppliers, Customers and Cities, and People falls from
+   rank 1 to 12, central through 12 roles rather than paths; the classes by rule agree with item 5's role on 27 of 31
+   base tables (not on the three geography tables and SpecialDeals, whose readings stand beside the class). Reviewed by
+   astra and sol, both **FAILS** ([astra](../docs/30_research/notes/XREV_2026-10-20_position-readings_astra.md),
+   [sol](../docs/30_research/notes/XREV_2026-10-20_position-code_sol.md)); all findings fixed, among them that behaviour
+   is now judged on business columns only, the distortion principle applied beyond links.
 3. **Review.** Astra on the record layout (below, R1-R11, ruled in ADR-0018). Sol on 129's inventory: the first,
    large pass never wrote an answer; re-sent in two parts, both returned.
    [Gaps and minimum](../docs/30_research/notes/XREV_2026-10-18_information-analysis-inventory-gaps_sol.md):

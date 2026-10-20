@@ -35,3 +35,4 @@ describe options; only an ADR adopts one.
 | [0018](0018-information-analysis-record.md) | The information-analysis record: a folder per table and per column, a file per item, a line per claim, content-addressed evidence and provenance in every file | Accepted (amended by 0019) |
 | [0019](0019-information-analysis-in-two-rounds.md) | Information analysis in two rounds: each table first, then what lies between tables | Accepted |
 | [0020](0020-analysis-describes-the-as-is.md) | While in the analysis stage, the analysis describes the as-is and does not look ahead | Accepted |
+| [0021](0021-position-in-the-schema.md) | Position in the schema is inventoried: measured on the declared keys, checked for distortion, classed by rules | Accepted |

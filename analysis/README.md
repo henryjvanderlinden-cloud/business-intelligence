@@ -32,7 +32,7 @@ analysis/
   README.md                                this file
   _landscape/<slug>.md                     findings spanning more than one source
   <source>/                                e.g. wwi
-    _source/<nn>_<slug>.md                 source-wide items (14, 18, 20, 22, 23)
+    _source/<nn>_<slug>.md                 source-wide items (14, 18, 20, 22, 23, 29)
     reconciliations/<slug>.md              item 16 when it spans tables
     relations/<rel>.md                     item 4, one file per relationship (name below)
     processes/<slug>.md                    item 24, one per business process
@@ -71,6 +71,7 @@ The number is the item's number in 129 and never changes. Column-level files use
 | 12 | copies | table, c | | 26 | entities | `entities/` |
 | 13 | hierarchies | table, c | | 27 | peculiarities | table, c; tests 1-9, 11-13 minimum |
 | 14 | provenance | table, source | | 28 | arithmetic | table, c |
+| | | | | 29 | position | table, source (ADR-0021) |
 
 ## 3. Names
 

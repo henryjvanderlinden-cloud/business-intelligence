@@ -40,6 +40,8 @@ python prototypes/information_analysis/processes.py <notes module>
 python prototypes/information_analysis/write_glossary.py <notes module>
 python prototypes/information_analysis/recheck.py <base day> <base previous> <new day> <new previous>
 python prototypes/information_analysis/write_stability.py <notes module>
+python prototypes/information_analysis/structure.py
+python prototypes/information_analysis/write_position.py <notes module>
 ```
 
 `documentation` records which published Microsoft documentation of WWI was read and what it says, as one evidence per
@@ -69,6 +71,14 @@ one, each in a fresh interpreter, plus follow-ups on what the base left open, an
 `analysis/wwi/_source/evidence/`; `write_stability.py` writes `_source/22_stability.md` (item 22). The record's other
 files keep describing the base extract and so show as ageing in `tools/ia_status.py`; the stability file says which of
 their rules the newer extract confirms or contradicts.
+
+**Position in the schema** (2026-10-20, item 29, ADR-0021, method in
+[131](../../docs/10_architecture/131_structural-position.md)): `structure.py` builds the graph of the base tables from
+their declared foreign keys, measures each table on it with all links and without the links named in `EXCLUDE` (each
+with its reason; both graphs are recorded), adds rows and behaviour over two transitions, classes each table by the
+rules of 131 and lists the master tables each event or state table reaches. `write_position.py` writes
+`29_position.md` per table and for the source, with readings beside the class from a notes module. It needs `networkx`
+and was run in the agent's cloud workspace on staged copies of the extracts.
 
 **Answer, first part:** the inventory works on a real source. The catalogue took 7 queries (one per job run), the
 profiles about two minutes of machine time for 48 tables and 5.4 million rows, and the author's hands not at all; the

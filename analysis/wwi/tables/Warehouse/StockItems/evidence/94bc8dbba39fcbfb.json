@@ -1,0 +1,2404 @@
+{
+ "code": "def links(cats, exclude):\n    out = []\n    for t, d in cats.items():\n        for k in d[\"catalogue\"][\"foreign_keys_out\"]:\n            if k[\"column_name\"] in exclude:\n                continue\n            out.append((t, k[\"column_name\"], \"%s.%s\" % (k[\"ref_schema\"], k[\"ref_table\"])))\n    return out\n\ndef measures(cats, rows_of, filled, exclude):\n    \"\"\"Position measures of every table on the graph without the excluded link columns.\"\"\"\n    L = links(cats, exclude)\n    G = nx.DiGraph()\n    G.add_nodes_from(cats)\n    for c, col, p in L:\n        if c != p:\n            G.add_edge(c, p)\n    U = G.to_undirected()\n    bt = nx.betweenness_centrality(U)\n    pr = nx.pagerank(G)\n    out = {}\n    for t in cats:\n        ins = [(c, col) for c, col, p in L if p == t and c != t]      # from other tables (131 section 4)\n        selfs = [col for c, col, p in L if p == t and c == t]\n        outs = [(col, p) for c, col, p in L if c == t]\n        tin, tout = {c for c, _ in ins if c != t}, {p for _, p in outs if p != t}\n        desc = nx.descendants(G, t)\n        longest = max((len(p) - 1 for x in desc for p in nx.all_simple_paths(G, t, x)), default=0)\n        out[t] = {\n            \"links_in\": len(ins), \"links_out\": len(outs), \"tables_in\": len(tin), \"tables_out\": len(tout),\n            \"self_references\": selfs,\n            \"position\": \"isolated\" if not tin and not tout else \"source\" if not tin else \"sink\" if not tout else \"middle\",\n            \"betweenness\": round(bt[t], 4), \"pagerank\": round(pr[t], 4),\n            \"roles\": len(ins), \"rows_referring\": sum(filled[(c, col)] for c, col in ins),\n            \"reaches\": len(desc), \"reached_by\": len(nx.ancestors(G, t)), \"longest_path_out\": longest}\n    order = sorted(cats, key=lambda t: -out[t][\"betweenness\"])\n    for i, t in enumerate(order, 1):\n        out[t][\"betweenness_rank\"] = i\n    return out, nx.number_connected_components(U), sorted(sorted(c) for c in nx.connected_components(U) if len(c) == 1)\n\ndef business_updates(t, pk, prev, day):\n    \"\"\"Rows present in both extracts whose values differ in a column other than the key and the audit columns\n    (131 section 3, point 5), and the rows in the later extract.\"\"\"\n    def load(x):\n        f, head, rows = pt.reader(x, t)\n        idx = [head.index(k) for k in pk]\n        out = {tuple(r[i] for i in idx): r for r in rows}\n        f.close()\n        return head, out\n    ha, a = load(prev)\n    hb, b = load(day)\n    if ha != hb:\n        return None\n    keep = [i for i, c in enumerate(hb) if c not in AUDIT and c not in pk]\n    return {\"rows\": sum(1 for k in a if k in b and any(a[k][i] != b[k][i] for i in keep)), \"rows_to\": len(b)}\n\ndef classify(t, d, m, tr, rows_of):\n    \"\"\"The class of a table by the rules of 131, in order; returns (class, rule that fired, behaviour).\"\"\"\n    c = d[\"catalogue\"]\n    cols = [x[\"column_name\"] for x in c[\"columns\"]]\n    pk = [k[\"column_name\"] for k in c[\"keys\"] if k[\"is_primary_key\"] == \"1\"]\n    fkcols = {k[\"column_name\"] for k in c[\"foreign_keys_out\"]}\n    descriptive = [x for x in cols if x not in pk and x not in fkcols and x not in AUDIT]\n    t1, t2 = tr\n\n    def business(x):   # rows updated in a column other than the key and the audit columns (131, distortion check)\n        return (x.get(\"business_updates\") or {}).get(\"rows\", 0)\n    grows = all(x.get(\"inserted\", 0) > 0 and x.get(\"deleted\", 0) == 0 for x in (t1, t2))\n    replaced = all(x.get(\"inserted\", 0) > 0 and x.get(\"inserted\") == x.get(\"deleted\") for x in (t1, t2))\n    updated_all = all(x.get(\"business_updates\") and business(x) == x[\"business_updates\"][\"rows_to\"] > 0 for x in (t1, t2))\n    static = all(not (x.get(\"inserted\") or x.get(\"updated\") or x.get(\"deleted\")) for x in (t1, t2))\n    audit_only = all(not (x.get(\"inserted\") or x.get(\"deleted\")) and business(x) == 0 and x.get(\"business_updates\") for x in (t1, t2))\n    behaviour = (\"grows\" if grows else \"replaced daily\" if replaced else \"every row updated daily\" if updated_all\n                 else \"unchanged\" if static else \"only audit or system-time columns change\" if audit_only\n                 else \"changes without growing\")\n    pk_is_fk = bool(pk) and all(p in fkcols for p in pk) and len({k[\"ref_table\"] for k in c[\"foreign_keys_out\"] if k[\"column_name\"] in pk}) == 1\n    if c[\"table\"][0][\"temporal_type_desc\"] == \"HISTORY_TABLE\":\n        return \"history\", \"a history table of system-versioning\", behaviour, descriptive\n    if rows_of[t] == 1 and m[\"tables_in\"] == 0:\n        return \"configuration\", \"one row, referred to by no table\", behaviour, descriptive\n    if m[\"tables_in\"] == 0 and m[\"tables_out\"] >= 2 and not descriptive:\n        return \"bridge\", \"refers to two or more tables, is referred to by none, has no attribute besides keys and audit columns\", behaviour, descriptive\n    if m[\"tables_in\"] == 0 and pk_is_fk:\n        return \"extension\", \"its primary key is a foreign key to one parent: at most one row per parent row\", behaviour, descriptive\n    if grows:\n        return \"event\", \"rows are added in both transitions and none deleted\", behaviour, descriptive\n    if replaced:\n        return \"state\", \"its rows are replaced in both transitions without growing\", behaviour, descriptive\n    if m[\"tables_out\"] == 0 and len(descriptive) <= LOOKUP_MAX_DESCRIPTIVE:\n        return \"lookup\", \"refers to no table and has at most %d attributes besides keys and audit columns\" % LOOKUP_MAX_DESCRIPTIVE, behaviour, descriptive\n    return \"master\", \"none of the rules above: does not grow, and has attributes or references of its own\", behaviour, descriptive\n\ndef history_tables(cats):\n    \"\"\"The history tables of system-versioning: outside the graph (they carry no declared keys), class history by rule 1\n    of 131; their rows in each extract, from the manifests.\"\"\"\n    owner = {d[\"catalogue\"][\"table\"][0][\"history_table\"]: t for t, d in cats.items() if d[\"catalogue\"][\"table\"][0][\"history_table\"]}\n    rows = {}\n    for day in DAYS:\n        with open(os.path.join(RAW, day, \"manifest.json\"), encoding=\"utf-8\") as fh:\n            rows[day] = {f[\"table\"]: f[\"rows\"] for f in json.load(fh)[\"files\"]}\n    out = {}\n    for f in sorted(os.listdir(os.path.join(ROOT, \"scratch\", \"ia_profile\"))):\n        with open(os.path.join(ROOT, \"scratch\", \"ia_profile\", f), encoding=\"utf-8\") as fh:\n            d = json.load(fh)\n        if d[\"catalogue\"][\"table\"][0][\"temporal_type_desc\"] != \"HISTORY_TABLE\":\n            continue\n        t = f[:-5]\n        n = [rows[day][t] for day in DAYS]\n        out[t] = {\"history_of\": owner.get(t), \"declared_links_out\": len(d[\"catalogue\"][\"foreign_keys_out\"]),\n                  \"declared_links_in\": len(d[\"catalogue\"][\"foreign_keys_in\"]), \"rows_by_extract\": dict(zip(DAYS, n)),\n                  \"behaviour\": \"rows added in both transitions\" if n[0] < n[1] < n[2] else \"row count unchanged\" if n[0] == n[1] == n[2]\n                  else \"row count changes\",\n                  \"class\": \"history\", \"rule\": \"a history table of system-versioning\"}\n    return out\n\ndef compute():\n    cats = load_catalogues()\n    rows_of = {t: d[\"profile\"][\"rows\"] for t, d in cats.items()}\n    filled = {}\n    for t, d in cats.items():\n        for k in d[\"catalogue\"][\"foreign_keys_out\"]:\n            filled[(t, k[\"column_name\"])] = d[\"profile\"][\"rows\"] - d[\"profile\"][\"columns\"][k[\"column_name\"]][\"empty\"]\n    full, comp_full, iso_full = measures(cats, rows_of, filled, set())\n    clean, comp_clean, iso_clean = measures(cats, rows_of, filled, set(EXCLUDE))\n    t1 = recheck.run(\"transitions\", DAYS[1], DAYS[0])\n    t2 = recheck.run(\"transitions\", DAYS[2], DAYS[1])\n    for t, d in cats.items():\n        pk = [k[\"column_name\"] for k in d[\"catalogue\"][\"keys\"] if k[\"is_primary_key\"] == \"1\"]\n        for tr, (prev, day) in ((t1, DAYS[0:2]), (t2, DAYS[1:3])):\n            if tr.get(t) and tr[t].get(\"updated\"):\n                tr[t][\"business_updates\"] = business_updates(t, pk, prev, day)\n    tables = {}\n    for t, d in cats.items():\n        cls, rule, behaviour, descriptive = classify(t, d, clean[t], (t1.get(t, {}), t2.get(t, {})), rows_of)\n        parent = None\n        if cls == \"extension\":\n            parent = \"%s.%s\" % next((k[\"ref_schema\"], k[\"ref_table\"]) for k in d[\"catalogue\"][\"foreign_keys_out\"] if k[\"column_name\"] not in EXCLUDE)\n        tables[t] = {\"rows\": rows_of[t], \"extension_of\": parent, \"parent_rows\": rows_of.get(parent), \"temporal\": d[\"catalogue\"][\"table\"][0][\"temporal_type_desc\"],\n                     \"descriptive_columns\": len(descriptive), \"transition_1\": t1.get(t), \"transition_2\": t2.get(t),\n                     \"all_links\": full[t], \"without_excluded\": clean[t], \"class\": cls, \"rule\": rule, \"behaviour\": behaviour}\n    for t, v in tables.items():\n        if v[\"class\"] == \"event\":\n            v[\"event_kind\"] = \"header\" if any(tables[c][\"class\"] == \"event\" for c, _, p in links(cats, set(EXCLUDE)) if p == t) else \"record\"\n    hist = history_tables(cats)\n    for v in hist.values():   # 131 section 2: a history table takes the position of the table it keeps versions of\n        o = tables.get(v[\"history_of\"])\n        v[\"owner\"] = {\"class\": o[\"class\"], \"position\": o[\"without_excluded\"][\"position\"],\n                      \"betweenness_rank\": o[\"without_excluded\"][\"betweenness_rank\"]} if o else None\n    G = nx.DiGraph()\n    for c, _, p in links(cats, set(EXCLUDE)):\n        if c != p:\n            G.add_edge(c, p)\n    masters = sorted(t for t, v in tables.items() if v[\"class\"] == \"master\")\n    bus = {t: sorted(m for m in masters if G.has_node(t) and m in nx.descendants(G, t))\n           for t, v in sorted(tables.items()) if v[\"class\"] in (\"event\", \"state\")}\n    return {\"days\": DAYS, \"base\": BASE, \"excluded_links\": EXCLUDE, \"hub_betweenness_threshold\": HUB_BETWEENNESS,\n            \"graph_all_links\": {\"links\": len(links(cats, set())), \"components\": comp_full, \"isolated\": iso_full},\n            \"graph_without_excluded\": {\"links\": len(links(cats, set(EXCLUDE))), \"components\": comp_clean, \"isolated\": iso_clean},\n            \"tables\": tables, \"bus_matrix\": bus, \"masters\": masters, \"history_tables\": hist}\n",
+ "id": "94bc8dbba39fcbfb",
+ "inputs": {
+  "catalogue": "scratch/ia_profile/*.json (catalogue and profile of the base extract)",
+  "extracts": {
+   "2016-05-31": "e1997891e919ac1a4f9af533db9a0e938ce53588406814e2119af0b164641ca2",
+   "2016-06-01": "35b71b2e3ff4bb9ef4e24afc9c56f914e8386df4060a794b862e7f5a00d2774f",
+   "2016-06-02": "b8de501a4089c476de29f8ca9eccef8c48e647bc604dfea9c7c57780b0b1a0c1"
+  },
+  "source": "wwi"
+ },
+ "kind": "profile",
+ "ran_at": "2026-10-20T17:40:31Z",
+ "result": {
+  "base": "2016-06-01",
+  "bus_matrix": {
+   "Purchasing.PurchaseOrderLines": [
+    "Application.Cities",
+    "Application.Countries",
+    "Application.People",
+    "Application.StateProvinces",
+    "Purchasing.Suppliers",
+    "Warehouse.StockItems"
+   ],
+   "Purchasing.PurchaseOrders": [
+    "Application.Cities",
+    "Application.Countries",
+    "Application.People",
+    "Application.StateProvinces",
+    "Purchasing.Suppliers"
+   ],
+   "Purchasing.SupplierTransactions": [
+    "Application.Cities",
+    "Application.Countries",
+    "Application.People",
+    "Application.StateProvinces",
+    "Purchasing.Suppliers"
+   ],
+   "Sales.CustomerTransactions": [
+    "Application.Cities",
+    "Application.Countries",
+    "Application.People",
+    "Application.StateProvinces",
+    "Sales.Customers"
+   ],
+   "Sales.InvoiceLines": [
+    "Application.Cities",
+    "Application.Countries",
+    "Application.People",
+    "Application.StateProvinces",
+    "Purchasing.Suppliers",
+    "Sales.Customers",
+    "Warehouse.StockItems"
+   ],
+   "Sales.Invoices": [
+    "Application.Cities",
+    "Application.Countries",
+    "Application.People",
+    "Application.StateProvinces",
+    "Sales.Customers"
+   ],
+   "Sales.OrderLines": [
+    "Application.Cities",
+    "Application.Countries",
+    "Application.People",
+    "Application.StateProvinces",
+    "Purchasing.Suppliers",
+    "Sales.Customers",
+    "Warehouse.StockItems"
+   ],
+   "Sales.Orders": [
+    "Application.Cities",
+    "Application.Countries",
+    "Application.People",
+    "Application.StateProvinces",
+    "Sales.Customers"
+   ],
+   "Warehouse.ColdRoomTemperatures": [],
+   "Warehouse.StockItemTransactions": [
+    "Application.Cities",
+    "Application.Countries",
+    "Application.People",
+    "Application.StateProvinces",
+    "Purchasing.Suppliers",
+    "Sales.Customers",
+    "Warehouse.StockItems"
+   ],
+   "Warehouse.VehicleTemperatures": []
+  },
+  "days": [
+   "2016-05-31",
+   "2016-06-01",
+   "2016-06-02"
+  ],
+  "excluded_links": {
+   "LastEditedBy": "audit column: every table names the person who last changed a row, which makes the people table the centre of the graph for a reason that says nothing about the business"
+  },
+  "graph_all_links": {
+   "components": 3,
+   "isolated": [
+    [
+     "Warehouse.ColdRoomTemperatures"
+    ],
+    [
+     "Warehouse.VehicleTemperatures"
+    ]
+   ],
+   "links": 98
+  },
+  "graph_without_excluded": {
+   "components": 3,
+   "isolated": [
+    [
+     "Warehouse.ColdRoomTemperatures"
+    ],
+    [
+     "Warehouse.VehicleTemperatures"
+    ]
+   ],
+   "links": 69
+  },
+  "history_tables": {
+   "Application.Cities_Archive": {
+    "behaviour": "row count unchanged",
+    "class": "history",
+    "declared_links_in": 0,
+    "declared_links_out": 0,
+    "history_of": "Application.Cities",
+    "owner": {
+     "betweenness_rank": 4,
+     "class": "master",
+     "position": "middle"
+    },
+    "rows_by_extract": {
+     "2016-05-31": 28,
+     "2016-06-01": 28,
+     "2016-06-02": 28
+    },
+    "rule": "a history table of system-versioning"
+   },
+   "Application.Countries_Archive": {
+    "behaviour": "row count unchanged",
+    "class": "history",
+    "declared_links_in": 0,
+    "declared_links_out": 0,
+    "history_of": "Application.Countries",
+    "owner": {
+     "betweenness_rank": 23,
+     "class": "master",
+     "position": "sink"
+    },
+    "rows_by_extract": {
+     "2016-05-31": 37,
+     "2016-06-01": 37,
+     "2016-06-02": 37
+    },
+    "rule": "a history table of system-versioning"
+   },
+   "Application.DeliveryMethods_Archive": {
+    "behaviour": "row count unchanged",
+    "class": "history",
+    "declared_links_in": 0,
+    "declared_links_out": 0,
+    "history_of": "Application.DeliveryMethods",
+    "owner": {
+     "betweenness_rank": 17,
+     "class": "lookup",
+     "position": "sink"
+    },
+    "rows_by_extract": {
+     "2016-05-31": 1,
+     "2016-06-01": 1,
+     "2016-06-02": 1
+    },
+    "rule": "a history table of system-versioning"
+   },
+   "Application.PaymentMethods_Archive": {
+    "behaviour": "row count unchanged",
+    "class": "history",
+    "declared_links_in": 0,
+    "declared_links_out": 0,
+    "history_of": "Application.PaymentMethods",
+    "owner": {
+     "betweenness_rank": 22,
+     "class": "lookup",
+     "position": "sink"
+    },
+    "rows_by_extract": {
+     "2016-05-31": 1,
+     "2016-06-01": 1,
+     "2016-06-02": 1
+    },
+    "rule": "a history table of system-versioning"
+   },
+   "Application.People_Archive": {
+    "behaviour": "rows added in both transitions",
+    "class": "history",
+    "declared_links_in": 0,
+    "declared_links_out": 0,
+    "history_of": "Application.People",
+    "owner": {
+     "betweenness_rank": 12,
+     "class": "master",
+     "position": "sink"
+    },
+    "rows_by_extract": {
+     "2016-05-31": 961,
+     "2016-06-01": 962,
+     "2016-06-02": 963
+    },
+    "rule": "a history table of system-versioning"
+   },
+   "Application.StateProvinces_Archive": {
+    "behaviour": "row count unchanged",
+    "class": "history",
+    "declared_links_in": 0,
+    "declared_links_out": 0,
+    "history_of": "Application.StateProvinces",
+    "owner": {
+     "betweenness_rank": 7,
+     "class": "master",
+     "position": "middle"
+    },
+    "rows_by_extract": {
+     "2016-05-31": 104,
+     "2016-06-01": 104,
+     "2016-06-02": 104
+    },
+    "rule": "a history table of system-versioning"
+   },
+   "Application.TransactionTypes_Archive": {
+    "behaviour": "row count unchanged",
+    "class": "history",
+    "declared_links_in": 0,
+    "declared_links_out": 0,
+    "history_of": "Application.TransactionTypes",
+    "owner": {
+     "betweenness_rank": 19,
+     "class": "lookup",
+     "position": "sink"
+    },
+    "rows_by_extract": {
+     "2016-05-31": 1,
+     "2016-06-01": 1,
+     "2016-06-02": 1
+    },
+    "rule": "a history table of system-versioning"
+   },
+   "Purchasing.SupplierCategories_Archive": {
+    "behaviour": "row count unchanged",
+    "class": "history",
+    "declared_links_in": 0,
+    "declared_links_out": 0,
+    "history_of": "Purchasing.SupplierCategories",
+    "owner": {
+     "betweenness_rank": 25,
+     "class": "lookup",
+     "position": "sink"
+    },
+    "rows_by_extract": {
+     "2016-05-31": 1,
+     "2016-06-01": 1,
+     "2016-06-02": 1
+    },
+    "rule": "a history table of system-versioning"
+   },
+   "Purchasing.Suppliers_Archive": {
+    "behaviour": "row count unchanged",
+    "class": "history",
+    "declared_links_in": 0,
+    "declared_links_out": 0,
+    "history_of": "Purchasing.Suppliers",
+    "owner": {
+     "betweenness_rank": 2,
+     "class": "master",
+     "position": "middle"
+    },
+    "rows_by_extract": {
+     "2016-05-31": 13,
+     "2016-06-01": 13,
+     "2016-06-02": 13
+    },
+    "rule": "a history table of system-versioning"
+   },
+   "Sales.BuyingGroups_Archive": {
+    "behaviour": "row count unchanged",
+    "class": "history",
+    "declared_links_in": 0,
+    "declared_links_out": 0,
+    "history_of": "Sales.BuyingGroups",
+    "owner": {
+     "betweenness_rank": 26,
+     "class": "lookup",
+     "position": "sink"
+    },
+    "rows_by_extract": {
+     "2016-05-31": 0,
+     "2016-06-01": 0,
+     "2016-06-02": 0
+    },
+    "rule": "a history table of system-versioning"
+   },
+   "Sales.CustomerCategories_Archive": {
+    "behaviour": "row count unchanged",
+    "class": "history",
+    "declared_links_in": 0,
+    "declared_links_out": 0,
+    "history_of": "Sales.CustomerCategories",
+    "owner": {
+     "betweenness_rank": 27,
+     "class": "lookup",
+     "position": "sink"
+    },
+    "rows_by_extract": {
+     "2016-05-31": 1,
+     "2016-06-01": 1,
+     "2016-06-02": 1
+    },
+    "rule": "a history table of system-versioning"
+   },
+   "Sales.Customers_Archive": {
+    "behaviour": "row count unchanged",
+    "class": "history",
+    "declared_links_in": 0,
+    "declared_links_out": 0,
+    "history_of": "Sales.Customers",
+    "owner": {
+     "betweenness_rank": 3,
+     "class": "master",
+     "position": "middle"
+    },
+    "rows_by_extract": {
+     "2016-05-31": 51,
+     "2016-06-01": 51,
+     "2016-06-02": 51
+    },
+    "rule": "a history table of system-versioning"
+   },
+   "Warehouse.ColdRoomTemperatures_Archive": {
+    "behaviour": "rows added in both transitions",
+    "class": "history",
+    "declared_links_in": 0,
+    "declared_links_out": 0,
+    "history_of": "Warehouse.ColdRoomTemperatures",
+    "owner": {
+     "betweenness_rank": 28,
+     "class": "state",
+     "position": "isolated"
+    },
+    "rows_by_extract": {
+     "2016-05-31": 3654736,
+     "2016-06-01": 3676804,
+     "2016-06-02": 3699272
+    },
+    "rule": "a history table of system-versioning"
+   },
+   "Warehouse.Colors_Archive": {
+    "behaviour": "row count unchanged",
+    "class": "history",
+    "declared_links_in": 0,
+    "declared_links_out": 0,
+    "history_of": "Warehouse.Colors",
+    "owner": {
+     "betweenness_rank": 29,
+     "class": "lookup",
+     "position": "sink"
+    },
+    "rows_by_extract": {
+     "2016-05-31": 1,
+     "2016-06-01": 1,
+     "2016-06-02": 1
+    },
+    "rule": "a history table of system-versioning"
+   },
+   "Warehouse.PackageTypes_Archive": {
+    "behaviour": "row count unchanged",
+    "class": "history",
+    "declared_links_in": 0,
+    "declared_links_out": 0,
+    "history_of": "Warehouse.PackageTypes",
+    "owner": {
+     "betweenness_rank": 20,
+     "class": "lookup",
+     "position": "sink"
+    },
+    "rows_by_extract": {
+     "2016-05-31": 0,
+     "2016-06-01": 0,
+     "2016-06-02": 0
+    },
+    "rule": "a history table of system-versioning"
+   },
+   "Warehouse.StockGroups_Archive": {
+    "behaviour": "row count unchanged",
+    "class": "history",
+    "declared_links_in": 0,
+    "declared_links_out": 0,
+    "history_of": "Warehouse.StockGroups",
+    "owner": {
+     "betweenness_rank": 21,
+     "class": "lookup",
+     "position": "sink"
+    },
+    "rows_by_extract": {
+     "2016-05-31": 1,
+     "2016-06-01": 1,
+     "2016-06-02": 1
+    },
+    "rule": "a history table of system-versioning"
+   },
+   "Warehouse.StockItems_Archive": {
+    "behaviour": "row count unchanged",
+    "class": "history",
+    "declared_links_in": 0,
+    "declared_links_out": 0,
+    "history_of": "Warehouse.StockItems",
+    "owner": {
+     "betweenness_rank": 1,
+     "class": "master",
+     "position": "middle"
+    },
+    "rows_by_extract": {
+     "2016-05-31": 444,
+     "2016-06-01": 444,
+     "2016-06-02": 444
+    },
+    "rule": "a history table of system-versioning"
+   }
+  },
+  "hub_betweenness_threshold": 0.1,
+  "masters": [
+   "Application.Cities",
+   "Application.Countries",
+   "Application.People",
+   "Application.StateProvinces",
+   "Purchasing.Suppliers",
+   "Sales.Customers",
+   "Sales.SpecialDeals",
+   "Warehouse.StockItems"
+  ],
+  "tables": {
+   "Application.Cities": {
+    "all_links": {
+     "betweenness": 0.0063,
+     "betweenness_rank": 8,
+     "links_in": 6,
+     "links_out": 2,
+     "longest_path_out": 3,
+     "pagerank": 0.0342,
+     "position": "middle",
+     "reached_by": 16,
+     "reaches": 3,
+     "roles": 6,
+     "rows_referring": 1354,
+     "self_references": [],
+     "tables_in": 3,
+     "tables_out": 2
+    },
+    "behaviour": "unchanged",
+    "class": "master",
+    "descriptive_columns": 3,
+    "extension_of": null,
+    "parent_rows": null,
+    "rows": 37940,
+    "rule": "none of the rules above: does not grow, and has attributes or references of its own",
+    "temporal": "SYSTEM_VERSIONED_TEMPORAL_TABLE",
+    "transition_1": {
+     "deleted": 0,
+     "inserted": 0,
+     "rows_from": 37940,
+     "rows_to": 37940,
+     "updated": 0,
+     "updated_columns": {}
+    },
+    "transition_2": {
+     "deleted": 0,
+     "inserted": 0,
+     "rows_from": 37940,
+     "rows_to": 37940,
+     "updated": 0,
+     "updated_columns": {}
+    },
+    "without_excluded": {
+     "betweenness": 0.1811,
+     "betweenness_rank": 4,
+     "links_in": 6,
+     "links_out": 1,
+     "longest_path_out": 2,
+     "pagerank": 0.0509,
+     "position": "middle",
+     "reached_by": 16,
+     "reaches": 2,
+     "roles": 6,
+     "rows_referring": 1354,
+     "self_references": [],
+     "tables_in": 3,
+     "tables_out": 1
+    }
+   },
+   "Application.Countries": {
+    "all_links": {
+     "betweenness": 0.0,
+     "betweenness_rank": 23,
+     "links_in": 1,
+     "links_out": 1,
+     "longest_path_out": 1,
+     "pagerank": 0.0272,
+     "position": "middle",
+     "reached_by": 18,
+     "reaches": 1,
+     "roles": 1,
+     "rows_referring": 53,
+     "self_references": [],
+     "tables_in": 1,
+     "tables_out": 1
+    },
+    "behaviour": "unchanged",
+    "class": "master",
+    "descriptive_columns": 10,
+    "extension_of": null,
+    "parent_rows": null,
+    "rows": 190,
+    "rule": "none of the rules above: does not grow, and has attributes or references of its own",
+    "temporal": "SYSTEM_VERSIONED_TEMPORAL_TABLE",
+    "transition_1": {
+     "deleted": 0,
+     "inserted": 0,
+     "rows_from": 190,
+     "rows_to": 190,
+     "updated": 0,
+     "updated_columns": {}
+    },
+    "transition_2": {
+     "deleted": 0,
+     "inserted": 0,
+     "rows_from": 190,
+     "rows_to": 190,
+     "updated": 0,
+     "updated_columns": {}
+    },
+    "without_excluded": {
+     "betweenness": 0.0,
+     "betweenness_rank": 23,
+     "links_in": 1,
+     "links_out": 0,
+     "longest_path_out": 0,
+     "pagerank": 0.0695,
+     "position": "sink",
+     "reached_by": 18,
+     "reaches": 0,
+     "roles": 1,
+     "rows_referring": 53,
+     "self_references": [],
+     "tables_in": 1,
+     "tables_out": 0
+    }
+   },
+   "Application.DeliveryMethods": {
+    "all_links": {
+     "betweenness": 0.0029,
+     "betweenness_rank": 12,
+     "links_in": 4,
+     "links_out": 1,
+     "longest_path_out": 1,
+     "pagerank": 0.039,
+     "position": "middle",
+     "reached_by": 15,
+     "reaches": 1,
+     "roles": 4,
+     "rows_referring": 73314,
+     "self_references": [],
+     "tables_in": 4,
+     "tables_out": 1
+    },
+    "behaviour": "unchanged",
+    "class": "lookup",
+    "descriptive_columns": 1,
+    "extension_of": null,
+    "parent_rows": null,
+    "rows": 10,
+    "rule": "refers to no table and has at most 2 attributes besides keys and audit columns",
+    "temporal": "SYSTEM_VERSIONED_TEMPORAL_TABLE",
+    "transition_1": {
+     "deleted": 0,
+     "inserted": 0,
+     "rows_from": 10,
+     "rows_to": 10,
+     "updated": 0,
+     "updated_columns": {}
+    },
+    "transition_2": {
+     "deleted": 0,
+     "inserted": 0,
+     "rows_from": 10,
+     "rows_to": 10,
+     "updated": 0,
+     "updated_columns": {}
+    },
+    "without_excluded": {
+     "betweenness": 0.0129,
+     "betweenness_rank": 17,
+     "links_in": 4,
+     "links_out": 0,
+     "longest_path_out": 0,
+     "pagerank": 0.0503,
+     "position": "sink",
+     "reached_by": 15,
+     "reaches": 0,
+     "roles": 4,
+     "rows_referring": 73314,
+     "self_references": [],
+     "tables_in": 4,
+     "tables_out": 0
+    }
+   },
+   "Application.PaymentMethods": {
+    "all_links": {
+     "betweenness": 0.0008,
+     "betweenness_rank": 20,
+     "links_in": 2,
+     "links_out": 1,
+     "longest_path_out": 1,
+     "pagerank": 0.0198,
+     "position": "middle",
+     "reached_by": 2,
+     "reaches": 1,
+     "roles": 2,
+     "rows_referring": 29116,
+     "self_references": [],
+     "tables_in": 2,
+     "tables_out": 1
+    },
+    "behaviour": "unchanged",
+    "class": "lookup",
+    "descriptive_columns": 1,
+    "extension_of": null,
+    "parent_rows": null,
+    "rows": 4,
+    "rule": "refers to no table and has at most 2 attributes besides keys and audit columns",
+    "temporal": "SYSTEM_VERSIONED_TEMPORAL_TABLE",
+    "transition_1": {
+     "deleted": 0,
+     "inserted": 0,
+     "rows_from": 4,
+     "rows_to": 4,
+     "updated": 0,
+     "updated_columns": {}
+    },
+    "transition_2": {
+     "deleted": 0,
+     "inserted": 0,
+     "rows_from": 4,
+     "rows_to": 4,
+     "updated": 0,
+     "updated_columns": {}
+    },
+    "without_excluded": {
+     "betweenness": 0.0029,
+     "betweenness_rank": 22,
+     "links_in": 2,
+     "links_out": 0,
+     "longest_path_out": 0,
+     "pagerank": 0.0252,
+     "position": "sink",
+     "reached_by": 2,
+     "reaches": 0,
+     "roles": 2,
+     "rows_referring": 29116,
+     "self_references": [],
+     "tables_in": 2,
+     "tables_out": 0
+    }
+   },
+   "Application.People": {
+    "all_links": {
+     "betweenness": 0.5966,
+     "betweenness_rank": 1,
+     "links_in": 40,
+     "links_out": 1,
+     "longest_path_out": 0,
+     "pagerank": 0.3328,
+     "position": "sink",
+     "reached_by": 28,
+     "reaches": 0,
+     "roles": 40,
+     "rows_referring": 1486830,
+     "self_references": [
+      "LastEditedBy"
+     ],
+     "tables_in": 28,
+     "tables_out": 0
+    },
+    "behaviour": "only audit or system-time columns change",
+    "class": "master",
+    "descriptive_columns": 17,
+    "extension_of": null,
+    "parent_rows": null,
+    "rows": 1111,
+    "rule": "none of the rules above: does not grow, and has attributes or references of its own",
+    "temporal": "SYSTEM_VERSIONED_TEMPORAL_TABLE",
+    "transition_1": {
+     "business_updates": {
+      "rows": 0,
+      "rows_to": 1111
+     },
+     "deleted": 0,
+     "inserted": 0,
+     "rows_from": 1111,
+     "rows_to": 1111,
+     "updated": 1,
+     "updated_columns": {
+      "ValidFrom": 1
+     }
+    },
+    "transition_2": {
+     "business_updates": {
+      "rows": 0,
+      "rows_to": 1111
+     },
+     "deleted": 0,
+     "inserted": 0,
+     "rows_from": 1111,
+     "rows_to": 1111,
+     "updated": 1,
+     "updated_columns": {
+      "ValidFrom": 1
+     }
+    },
+    "without_excluded": {
+     "betweenness": 0.0234,
+     "betweenness_rank": 12,
+     "links_in": 12,
+     "links_out": 0,
+     "longest_path_out": 0,
+     "pagerank": 0.0625,
+     "position": "sink",
+     "reached_by": 15,
+     "reaches": 0,
+     "roles": 12,
+     "rows_referring": 495757,
+     "self_references": [],
+     "tables_in": 5,
+     "tables_out": 0
+    }
+   },
+   "Application.StateProvinces": {
+    "all_links": {
+     "betweenness": 0.0011,
+     "betweenness_rank": 19,
+     "links_in": 1,
+     "links_out": 2,
+     "longest_path_out": 2,
+     "pagerank": 0.0293,
+     "position": "middle",
+     "reached_by": 17,
+     "reaches": 2,
+     "roles": 1,
+     "rows_referring": 37940,
+     "self_references": [],
+     "tables_in": 1,
+     "tables_out": 2
+    },
+    "behaviour": "unchanged",
+    "class": "master",
+    "descriptive_columns": 5,
+    "extension_of": null,
+    "parent_rows": null,
+    "rows": 53,
+    "rule": "none of the rules above: does not grow, and has attributes or references of its own",
+    "temporal": "SYSTEM_VERSIONED_TEMPORAL_TABLE",
+    "transition_1": {
+     "deleted": 0,
+     "inserted": 0,
+     "rows_from": 53,
+     "rows_to": 53,
+     "updated": 0,
+     "updated_columns": {}
+    },
+    "transition_2": {
+     "deleted": 0,
+     "inserted": 0,
+     "rows_from": 53,
+     "rows_to": 53,
+     "updated": 0,
+     "updated_columns": {}
+    },
+    "without_excluded": {
+     "betweenness": 0.0621,
+     "betweenness_rank": 7,
+     "links_in": 1,
+     "links_out": 1,
+     "longest_path_out": 1,
+     "pagerank": 0.061,
+     "position": "middle",
+     "reached_by": 17,
+     "reaches": 1,
+     "roles": 1,
+     "rows_referring": 37940,
+     "self_references": [],
+     "tables_in": 1,
+     "tables_out": 1
+    }
+   },
+   "Application.SystemParameters": {
+    "all_links": {
+     "betweenness": 0.0,
+     "betweenness_rank": 24,
+     "links_in": 0,
+     "links_out": 3,
+     "longest_path_out": 4,
+     "pagerank": 0.0148,
+     "position": "source",
+     "reached_by": 0,
+     "reaches": 4,
+     "roles": 0,
+     "rows_referring": 0,
+     "self_references": [],
+     "tables_in": 0,
+     "tables_out": 2
+    },
+    "behaviour": "unchanged",
+    "class": "configuration",
+    "descriptive_columns": 8,
+    "extension_of": null,
+    "parent_rows": null,
+    "rows": 1,
+    "rule": "one row, referred to by no table",
+    "temporal": "NON_TEMPORAL_TABLE",
+    "transition_1": {
+     "deleted": 0,
+     "inserted": 0,
+     "rows_from": 1,
+     "rows_to": 1,
+     "updated": 0,
+     "updated_columns": {}
+    },
+    "transition_2": {
+     "deleted": 0,
+     "inserted": 0,
+     "rows_from": 1,
+     "rows_to": 1,
+     "updated": 0,
+     "updated_columns": {}
+    },
+    "without_excluded": {
+     "betweenness": 0.0,
+     "betweenness_rank": 24,
+     "links_in": 0,
+     "links_out": 2,
+     "longest_path_out": 3,
+     "pagerank": 0.0177,
+     "position": "source",
+     "reached_by": 0,
+     "reaches": 3,
+     "roles": 0,
+     "rows_referring": 0,
+     "self_references": [],
+     "tables_in": 0,
+     "tables_out": 1
+    }
+   },
+   "Application.TransactionTypes": {
+    "all_links": {
+     "betweenness": 0.0019,
+     "betweenness_rank": 16,
+     "links_in": 3,
+     "links_out": 1,
+     "longest_path_out": 1,
+     "pagerank": 0.0216,
+     "position": "middle",
+     "reached_by": 3,
+     "reaches": 1,
+     "roles": 3,
+     "rows_referring": 336525,
+     "self_references": [],
+     "tables_in": 3,
+     "tables_out": 1
+    },
+    "behaviour": "unchanged",
+    "class": "lookup",
+    "descriptive_columns": 1,
+    "extension_of": null,
+    "parent_rows": null,
+    "rows": 13,
+    "rule": "refers to no table and has at most 2 attributes besides keys and audit columns",
+    "temporal": "SYSTEM_VERSIONED_TEMPORAL_TABLE",
+    "transition_1": {
+     "deleted": 0,
+     "inserted": 0,
+     "rows_from": 13,
+     "rows_to": 13,
+     "updated": 0,
+     "updated_columns": {}
+    },
+    "transition_2": {
+     "deleted": 0,
+     "inserted": 0,
+     "rows_from": 13,
+     "rows_to": 13,
+     "updated": 0,
+     "updated_columns": {}
+    },
+    "without_excluded": {
+     "betweenness": 0.0089,
+     "betweenness_rank": 19,
+     "links_in": 3,
+     "links_out": 0,
+     "longest_path_out": 0,
+     "pagerank": 0.0277,
+     "position": "sink",
+     "reached_by": 3,
+     "reaches": 0,
+     "roles": 3,
+     "rows_referring": 336525,
+     "self_references": [],
+     "tables_in": 3,
+     "tables_out": 0
+    }
+   },
+   "Purchasing.PurchaseOrderLines": {
+    "all_links": {
+     "betweenness": 0.0017,
+     "betweenness_rank": 18,
+     "links_in": 0,
+     "links_out": 4,
+     "longest_path_out": 6,
+     "pagerank": 0.0148,
+     "position": "source",
+     "reached_by": 0,
+     "reaches": 11,
+     "roles": 0,
+     "rows_referring": 0,
+     "self_references": [],
+     "tables_in": 0,
+     "tables_out": 4
+    },
+    "behaviour": "grows",
+    "class": "event",
+    "descriptive_columns": 6,
+    "event_kind": "record",
+    "extension_of": null,
+    "parent_rows": null,
+    "rows": 8376,
+    "rule": "rows are added in both transitions and none deleted",
+    "temporal": "NON_TEMPORAL_TABLE",
+    "transition_1": {
+     "business_updates": {
+      "rows": 9,
+      "rows_to": 8376
+     },
+     "deleted": 0,
+     "inserted": 9,
+     "rows_from": 8367,
+     "rows_to": 8376,
+     "updated": 9,
+     "updated_columns": {
+      "IsOrderLineFinalized": 9,
+      "LastEditedBy": 9,
+      "LastEditedWhen": 9,
+      "LastReceiptDate": 9,
+      "ReceivedOuters": 9
+     }
+    },
+    "transition_2": {
+     "business_updates": {
+      "rows": 9,
+      "rows_to": 8385
+     },
+     "deleted": 0,
+     "inserted": 9,
+     "rows_from": 8376,
+     "rows_to": 8385,
+     "updated": 9,
+     "updated_columns": {
+      "IsOrderLineFinalized": 9,
+      "LastEditedWhen": 9,
+      "LastReceiptDate": 9,
+      "ReceivedOuters": 9
+     }
+    },
+    "without_excluded": {
+     "betweenness": 0.0111,
+     "betweenness_rank": 18,
+     "links_in": 0,
+     "links_out": 3,
+     "longest_path_out": 5,
+     "pagerank": 0.0177,
+     "position": "source",
+     "reached_by": 0,
+     "reaches": 11,
+     "roles": 0,
+     "rows_referring": 0,
+     "self_references": [],
+     "tables_in": 0,
+     "tables_out": 3
+    }
+   },
+   "Purchasing.PurchaseOrders": {
+    "all_links": {
+     "betweenness": 0.0056,
+     "betweenness_rank": 9,
+     "links_in": 3,
+     "links_out": 4,
+     "longest_path_out": 5,
+     "pagerank": 0.0222,
+     "position": "middle",
+     "reached_by": 3,
+     "reaches": 7,
+     "roles": 3,
+     "rows_referring": 18817,
+     "self_references": [],
+     "tables_in": 3,
+     "tables_out": 3
+    },
+    "behaviour": "grows",
+    "class": "event",
+    "descriptive_columns": 6,
+    "event_kind": "header",
+    "extension_of": null,
+    "parent_rows": null,
+    "rows": 2076,
+    "rule": "rows are added in both transitions and none deleted",
+    "temporal": "NON_TEMPORAL_TABLE",
+    "transition_1": {
+     "business_updates": {
+      "rows": 2,
+      "rows_to": 2076
+     },
+     "deleted": 0,
+     "inserted": 2,
+     "rows_from": 2074,
+     "rows_to": 2076,
+     "updated": 2,
+     "updated_columns": {
+      "IsOrderFinalized": 2,
+      "LastEditedBy": 2,
+      "LastEditedWhen": 2
+     }
+    },
+    "transition_2": {
+     "business_updates": {
+      "rows": 2,
+      "rows_to": 2078
+     },
+     "deleted": 0,
+     "inserted": 2,
+     "rows_from": 2076,
+     "rows_to": 2078,
+     "updated": 2,
+     "updated_columns": {
+      "IsOrderFinalized": 2,
+      "LastEditedBy": 2,
+      "LastEditedWhen": 2
+     }
+    },
+    "without_excluded": {
+     "betweenness": 0.038,
+     "betweenness_rank": 11,
+     "links_in": 3,
+     "links_out": 3,
+     "longest_path_out": 4,
+     "pagerank": 0.029,
+     "position": "middle",
+     "reached_by": 3,
+     "reaches": 7,
+     "roles": 3,
+     "rows_referring": 18817,
+     "self_references": [],
+     "tables_in": 3,
+     "tables_out": 3
+    }
+   },
+   "Purchasing.SupplierCategories": {
+    "all_links": {
+     "betweenness": 0.0,
+     "betweenness_rank": 25,
+     "links_in": 1,
+     "links_out": 1,
+     "longest_path_out": 1,
+     "pagerank": 0.0219,
+     "position": "middle",
+     "reached_by": 11,
+     "reaches": 1,
+     "roles": 1,
+     "rows_referring": 13,
+     "self_references": [],
+     "tables_in": 1,
+     "tables_out": 1
+    },
+    "behaviour": "unchanged",
+    "class": "lookup",
+    "descriptive_columns": 1,
+    "extension_of": null,
+    "parent_rows": null,
+    "rows": 9,
+    "rule": "refers to no table and has at most 2 attributes besides keys and audit columns",
+    "temporal": "SYSTEM_VERSIONED_TEMPORAL_TABLE",
+    "transition_1": {
+     "deleted": 0,
+     "inserted": 0,
+     "rows_from": 9,
+     "rows_to": 9,
+     "updated": 0,
+     "updated_columns": {}
+    },
+    "transition_2": {
+     "deleted": 0,
+     "inserted": 0,
+     "rows_from": 9,
+     "rows_to": 9,
+     "updated": 0,
+     "updated_columns": {}
+    },
+    "without_excluded": {
+     "betweenness": 0.0,
+     "betweenness_rank": 25,
+     "links_in": 1,
+     "links_out": 0,
+     "longest_path_out": 0,
+     "pagerank": 0.0282,
+     "position": "sink",
+     "reached_by": 11,
+     "reaches": 0,
+     "roles": 1,
+     "rows_referring": 13,
+     "self_references": [],
+     "tables_in": 1,
+     "tables_out": 0
+    }
+   },
+   "Purchasing.SupplierTransactions": {
+    "all_links": {
+     "betweenness": 0.0046,
+     "betweenness_rank": 10,
+     "links_in": 0,
+     "links_out": 5,
+     "longest_path_out": 6,
+     "pagerank": 0.0148,
+     "position": "source",
+     "reached_by": 0,
+     "reaches": 10,
+     "roles": 0,
+     "rows_referring": 0,
+     "self_references": [],
+     "tables_in": 0,
+     "tables_out": 5
+    },
+    "behaviour": "grows",
+    "class": "event",
+    "descriptive_columns": 8,
+    "event_kind": "record",
+    "extension_of": null,
+    "parent_rows": null,
+    "rows": 2440,
+    "rule": "rows are added in both transitions and none deleted",
+    "temporal": "NON_TEMPORAL_TABLE",
+    "transition_1": {
+     "deleted": 0,
+     "inserted": 2,
+     "rows_from": 2438,
+     "rows_to": 2440,
+     "updated": 0,
+     "updated_columns": {}
+    },
+    "transition_2": {
+     "deleted": 0,
+     "inserted": 2,
+     "rows_from": 2440,
+     "rows_to": 2442,
+     "updated": 0,
+     "updated_columns": {}
+    },
+    "without_excluded": {
+     "betweenness": 0.0393,
+     "betweenness_rank": 10,
+     "links_in": 0,
+     "links_out": 4,
+     "longest_path_out": 5,
+     "pagerank": 0.0177,
+     "position": "source",
+     "reached_by": 0,
+     "reaches": 10,
+     "roles": 0,
+     "rows_referring": 0,
+     "self_references": [],
+     "tables_in": 0,
+     "tables_out": 4
+    }
+   },
+   "Purchasing.Suppliers": {
+    "all_links": {
+     "betweenness": 0.0166,
+     "betweenness_rank": 4,
+     "links_in": 4,
+     "links_out": 7,
+     "longest_path_out": 4,
+     "pagerank": 0.0336,
+     "position": "middle",
+     "reached_by": 10,
+     "reaches": 6,
+     "roles": 4,
+     "rows_referring": 13110,
+     "self_references": [],
+     "tables_in": 4,
+     "tables_out": 4
+    },
+    "behaviour": "unchanged",
+    "class": "master",
+    "descriptive_columns": 19,
+    "extension_of": null,
+    "parent_rows": null,
+    "rows": 13,
+    "rule": "none of the rules above: does not grow, and has attributes or references of its own",
+    "temporal": "SYSTEM_VERSIONED_TEMPORAL_TABLE",
+    "transition_1": {
+     "deleted": 0,
+     "inserted": 0,
+     "rows_from": 13,
+     "rows_to": 13,
+     "updated": 0,
+     "updated_columns": {}
+    },
+    "transition_2": {
+     "deleted": 0,
+     "inserted": 0,
+     "rows_from": 13,
+     "rows_to": 13,
+     "updated": 0,
+     "updated_columns": {}
+    },
+    "without_excluded": {
+     "betweenness": 0.2357,
+     "betweenness_rank": 2,
+     "links_in": 4,
+     "links_out": 6,
+     "longest_path_out": 3,
+     "pagerank": 0.0494,
+     "position": "middle",
+     "reached_by": 10,
+     "reaches": 6,
+     "roles": 4,
+     "rows_referring": 13110,
+     "self_references": [],
+     "tables_in": 4,
+     "tables_out": 4
+    }
+   },
+   "Sales.BuyingGroups": {
+    "all_links": {
+     "betweenness": 0.0,
+     "betweenness_rank": 26,
+     "links_in": 2,
+     "links_out": 1,
+     "longest_path_out": 1,
+     "pagerank": 0.0229,
+     "position": "middle",
+     "reached_by": 8,
+     "reaches": 1,
+     "roles": 2,
+     "rows_referring": 404,
+     "self_references": [],
+     "tables_in": 2,
+     "tables_out": 1
+    },
+    "behaviour": "unchanged",
+    "class": "lookup",
+    "descriptive_columns": 1,
+    "extension_of": null,
+    "parent_rows": null,
+    "rows": 2,
+    "rule": "refers to no table and has at most 2 attributes besides keys and audit columns",
+    "temporal": "SYSTEM_VERSIONED_TEMPORAL_TABLE",
+    "transition_1": {
+     "deleted": 0,
+     "inserted": 0,
+     "rows_from": 2,
+     "rows_to": 2,
+     "updated": 0,
+     "updated_columns": {}
+    },
+    "transition_2": {
+     "deleted": 0,
+     "inserted": 0,
+     "rows_from": 2,
+     "rows_to": 2,
+     "updated": 0,
+     "updated_columns": {}
+    },
+    "without_excluded": {
+     "betweenness": 0.0,
+     "betweenness_rank": 26,
+     "links_in": 2,
+     "links_out": 0,
+     "longest_path_out": 0,
+     "pagerank": 0.0284,
+     "position": "sink",
+     "reached_by": 8,
+     "reaches": 0,
+     "roles": 2,
+     "rows_referring": 404,
+     "self_references": [],
+     "tables_in": 2,
+     "tables_out": 0
+    }
+   },
+   "Sales.CustomerCategories": {
+    "all_links": {
+     "betweenness": 0.0,
+     "betweenness_rank": 27,
+     "links_in": 2,
+     "links_out": 1,
+     "longest_path_out": 1,
+     "pagerank": 0.0229,
+     "position": "middle",
+     "reached_by": 8,
+     "reaches": 1,
+     "roles": 2,
+     "rows_referring": 663,
+     "self_references": [],
+     "tables_in": 2,
+     "tables_out": 1
+    },
+    "behaviour": "unchanged",
+    "class": "lookup",
+    "descriptive_columns": 1,
+    "extension_of": null,
+    "parent_rows": null,
+    "rows": 8,
+    "rule": "refers to no table and has at most 2 attributes besides keys and audit columns",
+    "temporal": "SYSTEM_VERSIONED_TEMPORAL_TABLE",
+    "transition_1": {
+     "deleted": 0,
+     "inserted": 0,
+     "rows_from": 8,
+     "rows_to": 8,
+     "updated": 0,
+     "updated_columns": {}
+    },
+    "transition_2": {
+     "deleted": 0,
+     "inserted": 0,
+     "rows_from": 8,
+     "rows_to": 8,
+     "updated": 0,
+     "updated_columns": {}
+    },
+    "without_excluded": {
+     "betweenness": 0.0,
+     "betweenness_rank": 27,
+     "links_in": 2,
+     "links_out": 0,
+     "longest_path_out": 0,
+     "pagerank": 0.0284,
+     "position": "sink",
+     "reached_by": 8,
+     "reaches": 0,
+     "roles": 2,
+     "rows_referring": 663,
+     "self_references": [],
+     "tables_in": 2,
+     "tables_out": 0
+    }
+   },
+   "Sales.CustomerTransactions": {
+    "all_links": {
+     "betweenness": 0.0046,
+     "betweenness_rank": 11,
+     "links_in": 0,
+     "links_out": 5,
+     "longest_path_out": 7,
+     "pagerank": 0.0148,
+     "position": "source",
+     "reached_by": 0,
+     "reaches": 12,
+     "roles": 0,
+     "rows_referring": 0,
+     "self_references": [],
+     "tables_in": 0,
+     "tables_out": 5
+    },
+    "behaviour": "grows",
+    "class": "event",
+    "descriptive_columns": 7,
+    "event_kind": "record",
+    "extension_of": null,
+    "parent_rows": null,
+    "rows": 97242,
+    "rule": "rows are added in both transitions and none deleted",
+    "temporal": "NON_TEMPORAL_TABLE",
+    "transition_1": {
+     "business_updates": {
+      "rows": 84,
+      "rows_to": 97242
+     },
+     "deleted": 0,
+     "inserted": 95,
+     "rows_from": 97147,
+     "rows_to": 97242,
+     "updated": 84,
+     "updated_columns": {
+      "FinalizationDate": 84,
+      "IsFinalized": 84,
+      "LastEditedBy": 84,
+      "LastEditedWhen": 84,
+      "OutstandingBalance": 84
+     }
+    },
+    "transition_2": {
+     "business_updates": {
+      "rows": 56,
+      "rows_to": 97371
+     },
+     "deleted": 0,
+     "inserted": 129,
+     "rows_from": 97242,
+     "rows_to": 97371,
+     "updated": 56,
+     "updated_columns": {
+      "FinalizationDate": 56,
+      "IsFinalized": 56,
+      "LastEditedBy": 56,
+      "LastEditedWhen": 56,
+      "OutstandingBalance": 56
+     }
+    },
+    "without_excluded": {
+     "betweenness": 0.043,
+     "betweenness_rank": 9,
+     "links_in": 0,
+     "links_out": 4,
+     "longest_path_out": 6,
+     "pagerank": 0.0177,
+     "position": "source",
+     "reached_by": 0,
+     "reaches": 12,
+     "roles": 0,
+     "rows_referring": 0,
+     "self_references": [],
+     "tables_in": 0,
+     "tables_out": 4
+    }
+   },
+   "Sales.Customers": {
+    "all_links": {
+     "betweenness": 0.0302,
+     "betweenness_rank": 3,
+     "links_in": 6,
+     "links_out": 9,
+     "longest_path_out": 4,
+     "pagerank": 0.0355,
+     "position": "middle",
+     "reached_by": 7,
+     "reaches": 7,
+     "roles": 6,
+     "rows_referring": 540459,
+     "self_references": [
+      "BillToCustomerID"
+     ],
+     "tables_in": 5,
+     "tables_out": 5
+    },
+    "behaviour": "unchanged",
+    "class": "master",
+    "descriptive_columns": 19,
+    "extension_of": null,
+    "parent_rows": null,
+    "rows": 663,
+    "rule": "none of the rules above: does not grow, and has attributes or references of its own",
+    "temporal": "SYSTEM_VERSIONED_TEMPORAL_TABLE",
+    "transition_1": {
+     "deleted": 0,
+     "inserted": 0,
+     "rows_from": 663,
+     "rows_to": 663,
+     "updated": 0,
+     "updated_columns": {}
+    },
+    "transition_2": {
+     "deleted": 0,
+     "inserted": 0,
+     "rows_from": 663,
+     "rows_to": 663,
+     "updated": 0,
+     "updated_columns": {}
+    },
+    "without_excluded": {
+     "betweenness": 0.2125,
+     "betweenness_rank": 3,
+     "links_in": 6,
+     "links_out": 8,
+     "longest_path_out": 3,
+     "pagerank": 0.0454,
+     "position": "middle",
+     "reached_by": 7,
+     "reaches": 7,
+     "roles": 6,
+     "rows_referring": 540459,
+     "self_references": [
+      "BillToCustomerID"
+     ],
+     "tables_in": 5,
+     "tables_out": 5
+    }
+   },
+   "Sales.InvoiceLines": {
+    "all_links": {
+     "betweenness": 0.0019,
+     "betweenness_rank": 17,
+     "links_in": 0,
+     "links_out": 4,
+     "longest_path_out": 7,
+     "pagerank": 0.0148,
+     "position": "source",
+     "reached_by": 0,
+     "reaches": 15,
+     "roles": 0,
+     "rows_referring": 0,
+     "self_references": [],
+     "tables_in": 0,
+     "tables_out": 4
+    },
+    "behaviour": "grows",
+    "class": "event",
+    "descriptive_columns": 7,
+    "event_kind": "record",
+    "extension_of": null,
+    "parent_rows": null,
+    "rows": 228432,
+    "rule": "rows are added in both transitions and none deleted",
+    "temporal": "NON_TEMPORAL_TABLE",
+    "transition_1": {
+     "deleted": 0,
+     "inserted": 167,
+     "rows_from": 228265,
+     "rows_to": 228432,
+     "updated": 0,
+     "updated_columns": {}
+    },
+    "transition_2": {
+     "deleted": 0,
+     "inserted": 362,
+     "rows_from": 228432,
+     "rows_to": 228794,
+     "updated": 0,
+     "updated_columns": {}
+    },
+    "without_excluded": {
+     "betweenness": 0.0147,
+     "betweenness_rank": 14,
+     "links_in": 0,
+     "links_out": 3,
+     "longest_path_out": 6,
+     "pagerank": 0.0177,
+     "position": "source",
+     "reached_by": 0,
+     "reaches": 15,
+     "roles": 0,
+     "rows_referring": 0,
+     "self_references": [],
+     "tables_in": 0,
+     "tables_out": 3
+    }
+   },
+   "Sales.Invoices": {
+    "all_links": {
+     "betweenness": 0.0095,
+     "betweenness_rank": 5,
+     "links_in": 3,
+     "links_out": 9,
+     "longest_path_out": 6,
+     "pagerank": 0.0222,
+     "position": "middle",
+     "reached_by": 3,
+     "reaches": 9,
+     "roles": 3,
+     "rows_referring": 527430,
+     "self_references": [],
+     "tables_in": 3,
+     "tables_out": 4
+    },
+    "behaviour": "grows",
+    "class": "event",
+    "descriptive_columns": 14,
+    "event_kind": "header",
+    "extension_of": null,
+    "parent_rows": null,
+    "rows": 70566,
+    "rule": "rows are added in both transitions and none deleted",
+    "temporal": "NON_TEMPORAL_TABLE",
+    "transition_1": {
+     "business_updates": {
+      "rows": 84,
+      "rows_to": 70566
+     },
+     "deleted": 0,
+     "inserted": 56,
+     "rows_from": 70510,
+     "rows_to": 70566,
+     "updated": 84,
+     "updated_columns": {
+      "ConfirmedDeliveryTime": 84,
+      "ConfirmedReceivedBy": 84,
+      "LastEditedBy": 84,
+      "LastEditedWhen": 84,
+      "ReturnedDeliveryData": 84
+     }
+    },
+    "transition_2": {
+     "business_updates": {
+      "rows": 56,
+      "rows_to": 70673
+     },
+     "deleted": 0,
+     "inserted": 107,
+     "rows_from": 70566,
+     "rows_to": 70673,
+     "updated": 56,
+     "updated_columns": {
+      "ConfirmedDeliveryTime": 56,
+      "ConfirmedReceivedBy": 56,
+      "LastEditedBy": 56,
+      "LastEditedWhen": 56,
+      "ReturnedDeliveryData": 56
+     }
+    },
+    "without_excluded": {
+     "betweenness": 0.0518,
+     "betweenness_rank": 8,
+     "links_in": 3,
+     "links_out": 8,
+     "longest_path_out": 5,
+     "pagerank": 0.029,
+     "position": "middle",
+     "reached_by": 3,
+     "reaches": 9,
+     "roles": 3,
+     "rows_referring": 527430,
+     "self_references": [],
+     "tables_in": 3,
+     "tables_out": 4
+    }
+   },
+   "Sales.OrderLines": {
+    "all_links": {
+     "betweenness": 0.0023,
+     "betweenness_rank": 13,
+     "links_in": 0,
+     "links_out": 4,
+     "longest_path_out": 6,
+     "pagerank": 0.0148,
+     "position": "source",
+     "reached_by": 0,
+     "reaches": 14,
+     "roles": 0,
+     "rows_referring": 0,
+     "self_references": [],
+     "tables_in": 0,
+     "tables_out": 4
+    },
+    "behaviour": "grows",
+    "class": "event",
+    "descriptive_columns": 6,
+    "event_kind": "record",
+    "extension_of": null,
+    "parent_rows": null,
+    "rows": 231581,
+    "rule": "rows are added in both transitions and none deleted",
+    "temporal": "NON_TEMPORAL_TABLE",
+    "transition_1": {
+     "business_updates": {
+      "rows": 6,
+      "rows_to": 231581
+     },
+     "deleted": 0,
+     "inserted": 169,
+     "rows_from": 231412,
+     "rows_to": 231581,
+     "updated": 6,
+     "updated_columns": {
+      "LastEditedBy": 5,
+      "LastEditedWhen": 6,
+      "PickedQuantity": 6,
+      "PickingCompletedWhen": 6
+     }
+    },
+    "transition_2": {
+     "business_updates": {
+      "rows": 4,
+      "rows_to": 231951
+     },
+     "deleted": 0,
+     "inserted": 370,
+     "rows_from": 231581,
+     "rows_to": 231951,
+     "updated": 4,
+     "updated_columns": {
+      "LastEditedBy": 3,
+      "LastEditedWhen": 4,
+      "PickedQuantity": 4,
+      "PickingCompletedWhen": 4
+     }
+    },
+    "without_excluded": {
+     "betweenness": 0.0142,
+     "betweenness_rank": 15,
+     "links_in": 0,
+     "links_out": 3,
+     "longest_path_out": 5,
+     "pagerank": 0.0177,
+     "position": "source",
+     "reached_by": 0,
+     "reaches": 14,
+     "roles": 0,
+     "rows_referring": 0,
+     "self_references": [],
+     "tables_in": 0,
+     "tables_out": 3
+    }
+   },
+   "Sales.Orders": {
+    "all_links": {
+     "betweenness": 0.0023,
+     "betweenness_rank": 14,
+     "links_in": 2,
+     "links_out": 6,
+     "longest_path_out": 5,
+     "pagerank": 0.0226,
+     "position": "middle",
+     "reached_by": 5,
+     "reaches": 8,
+     "roles": 2,
+     "rows_referring": 302147,
+     "self_references": [
+      "BackorderOrderID"
+     ],
+     "tables_in": 2,
+     "tables_out": 2
+    },
+    "behaviour": "grows",
+    "class": "event",
+    "descriptive_columns": 8,
+    "event_kind": "header",
+    "extension_of": null,
+    "parent_rows": null,
+    "rows": 73653,
+    "rule": "rows are added in both transitions and none deleted",
+    "temporal": "NON_TEMPORAL_TABLE",
+    "transition_1": {
+     "business_updates": {
+      "rows": 6,
+      "rows_to": 73653
+     },
+     "deleted": 0,
+     "inserted": 58,
+     "rows_from": 73595,
+     "rows_to": 73653,
+     "updated": 6,
+     "updated_columns": {
+      "LastEditedBy": 5,
+      "LastEditedWhen": 6,
+      "PickedByPersonID": 6,
+      "PickingCompletedWhen": 6
+     }
+    },
+    "transition_2": {
+     "business_updates": {
+      "rows": 4,
+      "rows_to": 73768
+     },
+     "deleted": 0,
+     "inserted": 115,
+     "rows_from": 73653,
+     "rows_to": 73768,
+     "updated": 4,
+     "updated_columns": {
+      "LastEditedBy": 3,
+      "LastEditedWhen": 4,
+      "PickedByPersonID": 4,
+      "PickingCompletedWhen": 4
+     }
+    },
+    "without_excluded": {
+     "betweenness": 0.0208,
+     "betweenness_rank": 13,
+     "links_in": 2,
+     "links_out": 5,
+     "longest_path_out": 4,
+     "pagerank": 0.0289,
+     "position": "middle",
+     "reached_by": 5,
+     "reaches": 8,
+     "roles": 2,
+     "rows_referring": 302147,
+     "self_references": [
+      "BackorderOrderID"
+     ],
+     "tables_in": 2,
+     "tables_out": 2
+    }
+   },
+   "Sales.SpecialDeals": {
+    "all_links": {
+     "betweenness": 0.008,
+     "betweenness_rank": 7,
+     "links_in": 0,
+     "links_out": 6,
+     "longest_path_out": 6,
+     "pagerank": 0.0148,
+     "position": "source",
+     "reached_by": 0,
+     "reaches": 14,
+     "roles": 0,
+     "rows_referring": 0,
+     "self_references": [],
+     "tables_in": 0,
+     "tables_out": 6
+    },
+    "behaviour": "unchanged",
+    "class": "master",
+    "descriptive_columns": 6,
+    "extension_of": null,
+    "parent_rows": null,
+    "rows": 2,
+    "rule": "none of the rules above: does not grow, and has attributes or references of its own",
+    "temporal": "NON_TEMPORAL_TABLE",
+    "transition_1": {
+     "deleted": 0,
+     "inserted": 0,
+     "rows_from": 2,
+     "rows_to": 2,
+     "updated": 0,
+     "updated_columns": {}
+    },
+    "transition_2": {
+     "deleted": 0,
+     "inserted": 0,
+     "rows_from": 2,
+     "rows_to": 2,
+     "updated": 0,
+     "updated_columns": {}
+    },
+    "without_excluded": {
+     "betweenness": 0.0901,
+     "betweenness_rank": 5,
+     "links_in": 0,
+     "links_out": 5,
+     "longest_path_out": 5,
+     "pagerank": 0.0177,
+     "position": "source",
+     "reached_by": 0,
+     "reaches": 14,
+     "roles": 0,
+     "rows_referring": 0,
+     "self_references": [],
+     "tables_in": 0,
+     "tables_out": 5
+    }
+   },
+   "Warehouse.ColdRoomTemperatures": {
+    "all_links": {
+     "betweenness": 0.0,
+     "betweenness_rank": 28,
+     "links_in": 0,
+     "links_out": 0,
+     "longest_path_out": 0,
+     "pagerank": 0.0148,
+     "position": "isolated",
+     "reached_by": 0,
+     "reaches": 0,
+     "roles": 0,
+     "rows_referring": 0,
+     "self_references": [],
+     "tables_in": 0,
+     "tables_out": 0
+    },
+    "behaviour": "replaced daily",
+    "class": "state",
+    "descriptive_columns": 3,
+    "extension_of": null,
+    "parent_rows": null,
+    "rows": 4,
+    "rule": "its rows are replaced in both transitions without growing",
+    "temporal": "SYSTEM_VERSIONED_TEMPORAL_TABLE",
+    "transition_1": {
+     "deleted": 4,
+     "inserted": 4,
+     "rows_from": 4,
+     "rows_to": 4,
+     "updated": 0,
+     "updated_columns": {}
+    },
+    "transition_2": {
+     "deleted": 4,
+     "inserted": 4,
+     "rows_from": 4,
+     "rows_to": 4,
+     "updated": 0,
+     "updated_columns": {}
+    },
+    "without_excluded": {
+     "betweenness": 0.0,
+     "betweenness_rank": 28,
+     "links_in": 0,
+     "links_out": 0,
+     "longest_path_out": 0,
+     "pagerank": 0.0177,
+     "position": "isolated",
+     "reached_by": 0,
+     "reaches": 0,
+     "roles": 0,
+     "rows_referring": 0,
+     "self_references": [],
+     "tables_in": 0,
+     "tables_out": 0
+    }
+   },
+   "Warehouse.Colors": {
+    "all_links": {
+     "betweenness": 0.0,
+     "betweenness_rank": 29,
+     "links_in": 1,
+     "links_out": 1,
+     "longest_path_out": 1,
+     "pagerank": 0.023,
+     "position": "middle",
+     "reached_by": 8,
+     "reaches": 1,
+     "roles": 1,
+     "rows_referring": 128,
+     "self_references": [],
+     "tables_in": 1,
+     "tables_out": 1
+    },
+    "behaviour": "unchanged",
+    "class": "lookup",
+    "descriptive_columns": 1,
+    "extension_of": null,
+    "parent_rows": null,
+    "rows": 36,
+    "rule": "refers to no table and has at most 2 attributes besides keys and audit columns",
+    "temporal": "SYSTEM_VERSIONED_TEMPORAL_TABLE",
+    "transition_1": {
+     "deleted": 0,
+     "inserted": 0,
+     "rows_from": 36,
+     "rows_to": 36,
+     "updated": 0,
+     "updated_columns": {}
+    },
+    "transition_2": {
+     "deleted": 0,
+     "inserted": 0,
+     "rows_from": 36,
+     "rows_to": 36,
+     "updated": 0,
+     "updated_columns": {}
+    },
+    "without_excluded": {
+     "betweenness": 0.0,
+     "betweenness_rank": 29,
+     "links_in": 1,
+     "links_out": 0,
+     "longest_path_out": 0,
+     "pagerank": 0.0349,
+     "position": "sink",
+     "reached_by": 8,
+     "reaches": 0,
+     "roles": 1,
+     "rows_referring": 128,
+     "self_references": [],
+     "tables_in": 1,
+     "tables_out": 0
+    }
+   },
+   "Warehouse.PackageTypes": {
+    "all_links": {
+     "betweenness": 0.0023,
+     "betweenness_rank": 15,
+     "links_in": 5,
+     "links_out": 1,
+     "longest_path_out": 1,
+     "pagerank": 0.0324,
+     "position": "middle",
+     "reached_by": 8,
+     "reaches": 1,
+     "roles": 5,
+     "rows_referring": 468843,
+     "self_references": [],
+     "tables_in": 4,
+     "tables_out": 1
+    },
+    "behaviour": "unchanged",
+    "class": "lookup",
+    "descriptive_columns": 1,
+    "extension_of": null,
+    "parent_rows": null,
+    "rows": 14,
+    "rule": "refers to no table and has at most 2 attributes besides keys and audit columns",
+    "temporal": "SYSTEM_VERSIONED_TEMPORAL_TABLE",
+    "transition_1": {
+     "deleted": 0,
+     "inserted": 0,
+     "rows_from": 14,
+     "rows_to": 14,
+     "updated": 0,
+     "updated_columns": {}
+    },
+    "transition_2": {
+     "deleted": 0,
+     "inserted": 0,
+     "rows_from": 14,
+     "rows_to": 14,
+     "updated": 0,
+     "updated_columns": {}
+    },
+    "without_excluded": {
+     "betweenness": 0.0055,
+     "betweenness_rank": 20,
+     "links_in": 5,
+     "links_out": 0,
+     "longest_path_out": 0,
+     "pagerank": 0.05,
+     "position": "sink",
+     "reached_by": 8,
+     "reaches": 0,
+     "roles": 5,
+     "rows_referring": 468843,
+     "self_references": [],
+     "tables_in": 4,
+     "tables_out": 0
+    }
+   },
+   "Warehouse.StockGroups": {
+    "all_links": {
+     "betweenness": 0.0008,
+     "betweenness_rank": 21,
+     "links_in": 2,
+     "links_out": 1,
+     "longest_path_out": 1,
+     "pagerank": 0.0211,
+     "position": "middle",
+     "reached_by": 2,
+     "reaches": 1,
+     "roles": 2,
+     "rows_referring": 444,
+     "self_references": [],
+     "tables_in": 2,
+     "tables_out": 1
+    },
+    "behaviour": "unchanged",
+    "class": "lookup",
+    "descriptive_columns": 1,
+    "extension_of": null,
+    "parent_rows": null,
+    "rows": 10,
+    "rule": "refers to no table and has at most 2 attributes besides keys and audit columns",
+    "temporal": "SYSTEM_VERSIONED_TEMPORAL_TABLE",
+    "transition_1": {
+     "deleted": 0,
+     "inserted": 0,
+     "rows_from": 10,
+     "rows_to": 10,
+     "updated": 0,
+     "updated_columns": {}
+    },
+    "transition_2": {
+     "deleted": 0,
+     "inserted": 0,
+     "rows_from": 10,
+     "rows_to": 10,
+     "updated": 0,
+     "updated_columns": {}
+    },
+    "without_excluded": {
+     "betweenness": 0.0046,
+     "betweenness_rank": 21,
+     "links_in": 2,
+     "links_out": 0,
+     "longest_path_out": 0,
+     "pagerank": 0.0282,
+     "position": "sink",
+     "reached_by": 2,
+     "reaches": 0,
+     "roles": 2,
+     "rows_referring": 444,
+     "self_references": [],
+     "tables_in": 2,
+     "tables_out": 0
+    }
+   },
+   "Warehouse.StockItemHoldings": {
+    "all_links": {
+     "betweenness": 0.0,
+     "betweenness_rank": 30,
+     "links_in": 0,
+     "links_out": 2,
+     "longest_path_out": 6,
+     "pagerank": 0.0148,
+     "position": "source",
+     "reached_by": 0,
+     "reaches": 10,
+     "roles": 0,
+     "rows_referring": 0,
+     "self_references": [],
+     "tables_in": 0,
+     "tables_out": 2
+    },
+    "behaviour": "changes without growing",
+    "class": "extension",
+    "descriptive_columns": 6,
+    "extension_of": "Warehouse.StockItems",
+    "parent_rows": 227,
+    "rows": 227,
+    "rule": "its primary key is a foreign key to one parent: at most one row per parent row",
+    "temporal": "NON_TEMPORAL_TABLE",
+    "transition_1": {
+     "business_updates": {
+      "rows": 226,
+      "rows_to": 227
+     },
+     "deleted": 0,
+     "inserted": 0,
+     "rows_from": 227,
+     "rows_to": 227,
+     "updated": 227,
+     "updated_columns": {
+      "LastEditedBy": 227,
+      "LastEditedWhen": 227,
+      "QuantityOnHand": 226
+     }
+    },
+    "transition_2": {
+     "business_updates": {
+      "rows": 225,
+      "rows_to": 227
+     },
+     "deleted": 0,
+     "inserted": 0,
+     "rows_from": 227,
+     "rows_to": 227,
+     "updated": 227,
+     "updated_columns": {
+      "LastEditedBy": 130,
+      "LastEditedWhen": 227,
+      "QuantityOnHand": 225
+     }
+    },
+    "without_excluded": {
+     "betweenness": 0.0,
+     "betweenness_rank": 30,
+     "links_in": 0,
+     "links_out": 1,
+     "longest_path_out": 5,
+     "pagerank": 0.0177,
+     "position": "source",
+     "reached_by": 0,
+     "reaches": 10,
+     "roles": 0,
+     "rows_referring": 0,
+     "self_references": [],
+     "tables_in": 0,
+     "tables_out": 1
+    }
+   },
+   "Warehouse.StockItemStockGroups": {
+    "all_links": {
+     "betweenness": 0.0008,
+     "betweenness_rank": 22,
+     "links_in": 0,
+     "links_out": 3,
+     "longest_path_out": 6,
+     "pagerank": 0.0148,
+     "position": "source",
+     "reached_by": 0,
+     "reaches": 11,
+     "roles": 0,
+     "rows_referring": 0,
+     "self_references": [],
+     "tables_in": 0,
+     "tables_out": 3
+    },
+    "behaviour": "unchanged",
+    "class": "bridge",
+    "descriptive_columns": 0,
+    "extension_of": null,
+    "parent_rows": null,
+    "rows": 442,
+    "rule": "refers to two or more tables, is referred to by none, has no attribute besides keys and audit columns",
+    "temporal": "NON_TEMPORAL_TABLE",
+    "transition_1": {
+     "deleted": 0,
+     "inserted": 0,
+     "rows_from": 442,
+     "rows_to": 442,
+     "updated": 0,
+     "updated_columns": {}
+    },
+    "transition_2": {
+     "deleted": 0,
+     "inserted": 0,
+     "rows_from": 442,
+     "rows_to": 442,
+     "updated": 0,
+     "updated_columns": {}
+    },
+    "without_excluded": {
+     "betweenness": 0.0136,
+     "betweenness_rank": 16,
+     "links_in": 0,
+     "links_out": 2,
+     "longest_path_out": 5,
+     "pagerank": 0.0177,
+     "position": "source",
+     "reached_by": 0,
+     "reaches": 11,
+     "roles": 0,
+     "rows_referring": 0,
+     "self_references": [],
+     "tables_in": 0,
+     "tables_out": 2
+    }
+   },
+   "Warehouse.StockItemTransactions": {
+    "all_links": {
+     "betweenness": 0.0092,
+     "betweenness_rank": 6,
+     "links_in": 0,
+     "links_out": 7,
+     "longest_path_out": 7,
+     "pagerank": 0.0148,
+     "position": "source",
+     "reached_by": 0,
+     "reaches": 17,
+     "roles": 0,
+     "rows_referring": 0,
+     "self_references": [],
+     "tables_in": 0,
+     "tables_out": 7
+    },
+    "behaviour": "grows",
+    "class": "event",
+    "descriptive_columns": 2,
+    "event_kind": "record",
+    "extension_of": null,
+    "parent_rows": null,
+    "rows": 236843,
+    "rule": "rows are added in both transitions and none deleted",
+    "temporal": "NON_TEMPORAL_TABLE",
+    "transition_1": {
+     "deleted": 0,
+     "inserted": 176,
+     "rows_from": 236667,
+     "rows_to": 236843,
+     "updated": 0,
+     "updated_columns": {}
+    },
+    "transition_2": {
+     "deleted": 0,
+     "inserted": 371,
+     "rows_from": 236843,
+     "rows_to": 237214,
+     "updated": 0,
+     "updated_columns": {}
+    },
+    "without_excluded": {
+     "betweenness": 0.0716,
+     "betweenness_rank": 6,
+     "links_in": 0,
+     "links_out": 6,
+     "longest_path_out": 6,
+     "pagerank": 0.0177,
+     "position": "source",
+     "reached_by": 0,
+     "reaches": 17,
+     "roles": 0,
+     "rows_referring": 0,
+     "self_references": [],
+     "tables_in": 0,
+     "tables_out": 6
+    }
+   },
+   "Warehouse.StockItems": {
+    "all_links": {
+     "betweenness": 0.0441,
+     "betweenness_rank": 2,
+     "links_in": 7,
+     "links_out": 5,
+     "longest_path_out": 5,
+     "pagerank": 0.0385,
+     "position": "middle",
+     "reached_by": 7,
+     "reaches": 9,
+     "roles": 7,
+     "rows_referring": 705901,
+     "self_references": [],
+     "tables_in": 7,
+     "tables_out": 4
+    },
+    "behaviour": "unchanged",
+    "class": "master",
+    "descriptive_columns": 17,
+    "extension_of": null,
+    "parent_rows": null,
+    "rows": 227,
+    "rule": "none of the rules above: does not grow, and has attributes or references of its own",
+    "temporal": "SYSTEM_VERSIONED_TEMPORAL_TABLE",
+    "transition_1": {
+     "deleted": 0,
+     "inserted": 0,
+     "rows_from": 227,
+     "rows_to": 227,
+     "updated": 0,
+     "updated_columns": {}
+    },
+    "transition_2": {
+     "deleted": 0,
+     "inserted": 0,
+     "rows_from": 227,
+     "rows_to": 227,
+     "updated": 0,
+     "updated_columns": {}
+    },
+    "without_excluded": {
+     "betweenness": 0.2996,
+     "betweenness_rank": 1,
+     "links_in": 7,
+     "links_out": 4,
+     "longest_path_out": 4,
+     "pagerank": 0.0608,
+     "position": "middle",
+     "reached_by": 7,
+     "reaches": 9,
+     "roles": 7,
+     "rows_referring": 705901,
+     "self_references": [],
+     "tables_in": 7,
+     "tables_out": 3
+    }
+   },
+   "Warehouse.VehicleTemperatures": {
+    "all_links": {
+     "betweenness": 0.0,
+     "betweenness_rank": 31,
+     "links_in": 0,
+     "links_out": 0,
+     "longest_path_out": 0,
+     "pagerank": 0.0148,
+     "position": "isolated",
+     "reached_by": 0,
+     "reaches": 0,
+     "roles": 0,
+     "rows_referring": 0,
+     "self_references": [],
+     "tables_in": 0,
+     "tables_out": 0
+    },
+    "behaviour": "grows",
+    "class": "event",
+    "descriptive_columns": 7,
+    "event_kind": "record",
+    "extension_of": null,
+    "parent_rows": null,
+    "rows": 66430,
+    "rule": "rows are added in both transitions and none deleted",
+    "temporal": "NON_TEMPORAL_TABLE",
+    "transition_1": {
+     "deleted": 0,
+     "inserted": 432,
+     "rows_from": 65998,
+     "rows_to": 66430,
+     "updated": 0,
+     "updated_columns": {}
+    },
+    "transition_2": {
+     "deleted": 0,
+     "inserted": 418,
+     "rows_from": 66430,
+     "rows_to": 66848,
+     "updated": 0,
+     "updated_columns": {}
+    },
+    "without_excluded": {
+     "betweenness": 0.0,
+     "betweenness_rank": 31,
+     "links_in": 0,
+     "links_out": 0,
+     "longest_path_out": 0,
+     "pagerank": 0.0177,
+     "position": "isolated",
+     "reached_by": 0,
+     "reaches": 0,
+     "roles": 0,
+     "rows_referring": 0,
+     "self_references": [],
+     "tables_in": 0,
+     "tables_out": 0
+    }
+   }
+  }
+ },
+ "tool": "prototypes/information_analysis/structure.py",
+ "tool_version": "d233c4ccad6463612e1d19890d508485eb6b0fc4"
+}

@@ -301,6 +301,15 @@ and how residues are treated. Best effort. It decides whether recomputed values 
 own: recomputing tax per line and summing, where the source rounds tax per invoice, gives wrong tax, gross revenue and
 margin.
 
+**29. Position in the schema.** Added 2026-10-20 on the author's question about the centrality of tables and his
+ruling the same day ([ADR-0021](../20_decisions/0021-position-in-the-schema.md)), best effort: where each table stands
+in the graph of declared foreign keys (links in and out, betweenness, roles, reach), measured with and without links
+that would distort the picture; how it behaves over two transitions; and its class by the rules of
+[131](131_structural-position.md) (history, configuration, bridge, extension, event, state, lookup, master), with any
+business-sense reading recorded beside the class. WWI: without the audit column `LastEditedBy`, `Warehouse.StockItems`,
+`Purchasing.Suppliers`, `Sales.Customers` and `Application.Cities` lie between the most tables, and
+`Application.People` falls from rank 1 to rank 12.
+
 Findings under tests 1 to 9 and 11 to 13 bear directly on granularity, which is a minimum item; whether they are
 done with the minimum's hard effort is put to the author (`ARC-OP-36`).
 
