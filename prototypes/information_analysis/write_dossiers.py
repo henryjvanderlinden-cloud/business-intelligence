@@ -178,8 +178,8 @@ def mech_population(it, d, date_col):
     if "LastEditedBy" in p["columns"] and "values" in p["columns"]["LastEditedBy"]:
         k = p["columns"]["LastEditedBy"]["values"].get("1")
         if k:
-            it.add("observed", "high", ["profile"], "the technical user's share changes",
-                   "%s last edited by person 1, Data Conversion Only, a technical user." % plural(k, "row"))
+            it.add("observed", "high", ["profile"], "person 1's share changes",
+                   "%s last edited by person 1 (who person 1 is: columns/LastEditedBy/02_meaning.md)." % plural(k, "row"))
 
 
 def mech_sensitivity(it, d):

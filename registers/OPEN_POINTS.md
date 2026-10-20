@@ -2272,6 +2272,22 @@ What is open:
    Reviewed by sol and astra, both **FAILS**
    ([sol](../docs/30_research/notes/XREV_2026-10-19_reconciliations_sol.md),
    [astra](../docs/30_research/notes/XREV_2026-10-19_reconciliations_astra.md)); all findings fixed.
+
+   **2026-10-20** (approved 07:31, "Okay go ahead."): round 2 completed to best effort. **Point in time** (item 03) for
+   98 relations: joined in the extract, a row gets its parent's current version; at their own dates, nearly all sales
+   and purchase lines and stock movements named an earlier version of their stock item, which differs only in
+   CustomFields and Tags, and 1,868 invoices an earlier customer version, differing in CreditLimit; orders, invoices and
+   purchase orders are not versioned; no gaps between versions. **Processes** (item 24): order-to-cash (picked,
+   invoiced and issued on one day, delivered and paid the next; backorders keep the original's date and are invoiced
+   up to 1,116 days later), procure-to-pay (received in full 1 to 3 days after ordering, mostly 19 days before the
+   expected date, invoiced on receipt, paid 0 to 6 days later), stocktake (quarterly, on the last day of January,
+   April, July and October: the quarter ends of a financial year starting 1 November). **Terms** (item 25: order,
+   customer, invoice, payment, transaction, quantity, contact person, finalized) and **entities** (item 26: customer,
+   supplier, person, stock item, location), which link the claims that own each fact. Reviewed by sol and astra, both
+   **FAILS** ([sol](../docs/30_research/notes/XREV_2026-10-20_point-in-time_sol.md),
+   [astra](../docs/30_research/notes/XREV_2026-10-20_stocktake_astra.md)); all findings fixed. The record now holds
+   1,226 item files. Open: the questions left unknown in the files (generated list: `grep -rl "confidence: unknown"
+   analysis/`), a second extract to turn one-extract observations into rules, and the next phase.
 3. **Review.** Astra on the record layout (below, R1-R11, ruled in ADR-0018). Sol on 129's inventory: the first,
    large pass never wrote an answer; re-sent in two parts, both returned.
    [Gaps and minimum](../docs/30_research/notes/XREV_2026-10-18_information-analysis-inventory-gaps_sol.md):

@@ -59,14 +59,81 @@ def write_item(path, front, claims, evmap, observed, reasoning, uncert):
         f.write(txt)
 
 
-def latest_evidence(folder):
+def latest_evidence(folder, tool="prototypes/information_analysis/relations.py"):
     best = None
     for f in sorted(os.listdir(os.path.join(folder, "evidence"))):
         with open(os.path.join(folder, "evidence", f), encoding="utf-8") as fh:
             rec = json.load(fh)
-        if rec.get("tool") == "prototypes/information_analysis/relations.py" and (best is None or rec["ran_at"] > best["ran_at"]):
+        if rec.get("tool") == tool and (best is None or rec["ran_at"] > best["ran_at"]):
             best = rec
     return best
+
+
+def temporal_item(it, t, child, parent, cc):
+    """Item 03 from relations_temporal.py's evidence; returns the summary."""
+    r = t["result"]
+    src = r.get("child_date_column")
+    summ = []
+    if r["parent_temporal_type"] == "SYSTEM_VERSIONED_TEMPORAL_TABLE":
+        it.add("declared", "high", "the temporal type changes",
+               "%s is system-versioned: the version of a row current at a given time is in %s_Archive or the table itself, "
+               "by ValidFrom and ValidTo." % (parent, parent), ev=("tmp",))
+    else:
+        it.add("declared", "high", "the temporal type changes",
+               "%s is not system-versioned: an earlier state of a row is not kept, so a row of %s can only be joined to the "
+               "row as it is in the extract." % (parent, child), ev=("tmp",))
+        summ.append("parent not versioned")
+    if src is None:
+        it.add("observed", "high", "a date column is added", "%s has no date column, so the relation cannot be placed in time." % child, ev=("tmp",))
+        return "No date on the child side."
+    a = r.get("as_of")
+    if a:
+        v = a["parent_version_at_end_of_child_date"]
+        parts = ["the current version on %s" % n(v.get("the current version", 0)),
+                 "an earlier version on %s" % n(v.get("an earlier version", 0))]
+        if v.get("no version yet at the child's date"):
+            parts.append("no version yet on %s" % n(v["no version yet at the child's date"]))
+        if v.get("no version current at the child's date (a gap between versions)"):
+            parts.append("in a gap between versions on %s" % n(v["no version current at the child's date (a gap between versions)"]))
+        if v.get("no key or no date"):
+            parts.append("no key or no date on %s" % n(v["no key or no date"]))
+        it.add("observed", "high", "every new extract",
+               "As of the end of each row's date (%s), the row of %s it names was: %s." % (src, parent, "; ".join(parts)), ev=("tmp",))
+        d = a["attributes_that_differ_rows"]
+        if d:
+            it.add("observed", "high", "every new extract",
+                   "On %s of those earlier versions some attributes differ from the current version: %s. Joined in the extract, "
+                   "these rows get the current values of these columns, not the values of their date." % (
+                       n(v.get("an earlier version whose attributes differ from the current", 0)),
+                       ", ".join("%s (%s rows)" % (k, n(x)) for k, x in d.items())), ev=("tmp",))
+            it.add("observed", "high", "every new extract",
+                   "No other attribute of %s differs between the version current at a row's date and the current version "
+                   "(LastEditedBy, LastEditedWhen and the period columns are not compared)." % parent, ev=("tmp",))
+            summ.append("earlier parent version on %s rows, differing in %s" % (n(v.get("an earlier version", 0)), ", ".join(d)))
+        elif v.get("an earlier version"):
+            it.add("observed", "high", "every new extract",
+                   "The earlier versions have the same attributes as the current one (LastEditedBy, LastEditedWhen and the period "
+                   "columns not compared): joined in the extract, no attribute differs from the one of the row's date.", ev=("tmp",))
+            summ.append("earlier versions without differences")
+        else:
+            summ.append("always the current parent version")
+        it.add("intended", "medium", "a ValidFrom far from simulated time appears",
+               "The comparison places business dates against system time (ValidFrom), which is the server's clock at the change; "
+               "in WWI it follows the simulated dates except for one version of Application.Countries stamped 2022 (round 1), "
+               "so it holds as far as the two clocks agree.", ev=())
+    o = r.get("date_order")
+    if o and o.get("rows"):
+        dd = o["days_child_minus_parent"]
+        it.add("observed", "high", "every new extract",
+               "Date order on %s rows: %s; days from %s.%s to %s: from %s to %s, median %s." % (
+                   n(o["rows"]), "; ".join("%s %s" % (k, n(x)) for k, x in sorted(o["order"].items())),
+                   parent, o["parent_date_column"], src, n(dd["min"]), n(dd["max"]), n(dd["median"])), ev=("tmp",))
+        summ.append("dates: %s" % "; ".join("%s %s" % (k, n(x)) for k, x in sorted(o["order"].items())))
+    bb = r.get("date_order_by_backorder")
+    if bb:
+        it.add("observed", "high", "every new extract", "By whether the order is a backorder: %s." % "; ".join(
+            "%s, %s: %s" % (k.split("|")[0], k.split("|")[1], n(x)) for k, x in bb.items()), ev=("tmp",))
+    return ("Point in time: " + "; ".join(summ) + ".") if summ else "Point in time: see the claims."
 
 
 def schema_sha(table):
@@ -103,6 +170,9 @@ def main(argv):
         cc, pc = " + ".join(ccols), " + ".join(pcols)
         C, P = "%s.%s" % (child, cc), "%s.%s" % (parent, pc)
         evmap = {"rel": rec["id"]}
+        trec = latest_evidence(os.path.join(REL_DIR, name), "prototypes/information_analysis/relations_temporal.py")
+        if trec:
+            evmap["tmp"] = trec["id"]
         note = notes.NOTES.get(name, {})
         # round-1 evidence a reading relies on is copied into the relation's folder (content-addressed: same file, same name)
         for key in note.get("copy", ()):
@@ -179,6 +249,14 @@ def main(argv):
                    "By the names: the join answers which row of %s is the one %s names for each row of %s." % (parent, cc, child))
         items["02"] = (it, note.get("summary_02") or (decl["child_column"]["description"] if decl and decl["child_column"]["description"] else
                                                       "What the join means is read from the names; see the claims."))
+
+        # ---------------------------------------------------------------- 03 temporal (best effort)
+        if trec:
+            it = Item()
+            summary = temporal_item(it, trec, child, parent, cc)
+            for cl in note.get("03", []):
+                it.add(*cl)
+            items["03"] = (it, note.get("summary_03") or summary)
 
         # ---------------------------------------------------------------- 06 keys
         it = Item()
@@ -320,7 +398,7 @@ def main(argv):
         rid = ("wwi:fk:%s" % decl["foreign_key"]["fk_name"]) if decl else ("wwi:relation:%s" % name)
         for nn, (it, summary) in items.items():
             front = dict(notes.COMMON, id=rid, subject="wwi/across/relations/%s" % name, item=nn, topic=ia.ITEMS[nn],
-                         tier="minimum", summary=ascii_only(summary), method=method,
+                         tier="best-effort" if nn == "03" else "minimum", summary=ascii_only(summary), method=method,
                          input_schema_sha256=ia.relation_schema_hash(schema_sha(child), schema_sha(parent)),
                          recheck_when=ascii_only(note.get("recheck_" + nn, "every new extract, or a schema change of either table")))
             default = ("Mechanical claims from the relation's evidence (relations.py); readings, where present, are the writer's, "

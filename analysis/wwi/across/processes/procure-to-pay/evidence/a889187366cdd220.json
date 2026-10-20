@@ -1,0 +1,157 @@
+{
+ "code": "def procure_to_pay():\n    \"\"\"Purchase order, receipt (stock movement and line), supplier invoice, payment: rows reaching each step, days.\"\"\"\n    pos = rows(\"Purchasing.PurchaseOrders\")\n    receipts = collections.defaultdict(list)\n    for s in rows(\"Warehouse.StockItemTransactions\"):\n        if s[\"PurchaseOrderID\"]:\n            receipts[s[\"PurchaseOrderID\"]].append(s[\"TransactionOccurredWhen\"])\n    lines = collections.defaultdict(list)\n    for l in rows(\"Purchasing.PurchaseOrderLines\"):\n        lines[l[\"PurchaseOrderID\"]].append(l)\n    inv = {t[\"PurchaseOrderID\"]: t for t in rows(\"Purchasing.SupplierTransactions\") if t[\"PurchaseOrderID\"]}\n    steps, lag = collections.Counter(), collections.defaultdict(list)\n    for p in pos:\n        steps[\"1 purchase order\"] += 1\n        lag[\"order to expected delivery\"].append(days(p[\"OrderDate\"], p[\"ExpectedDeliveryDate\"]))\n        if p[\"IsOrderFinalized\"] == \"1\":\n            steps[\"1a order finalized\"] += 1\n        if receipts.get(p[\"PurchaseOrderID\"]):\n            steps[\"2 received (stock movement)\"] += 1\n            first = min(receipts[p[\"PurchaseOrderID\"]])\n            lag[\"order to first receipt\"].append(days(p[\"OrderDate\"], first))\n            lag[\"expected delivery to first receipt\"].append(days(p[\"ExpectedDeliveryDate\"], first))\n        ls = lines.get(p[\"PurchaseOrderID\"], [])\n        if ls and all(l[\"IsOrderLineFinalized\"] == \"1\" for l in ls):\n            steps[\"2a every line finalized\"] += 1\n        if ls and all(l[\"ReceivedOuters\"] == l[\"OrderedOuters\"] for l in ls):\n            steps[\"2b every line received in full (ReceivedOuters = OrderedOuters)\"] += 1\n        for l in ls:\n            steps[\"lines\"] += 1\n            if receipts.get(p[\"PurchaseOrderID\"]) and l[\"ReceivedOuters\"] != l[\"OrderedOuters\"]:\n                steps[\"lines of received orders with ReceivedOuters different from OrderedOuters\"] += 1\n        t = inv.get(p[\"PurchaseOrderID\"])\n        if t:\n            steps[\"3 supplier invoice\"] += 1\n            lag[\"order to supplier invoice\"].append(days(p[\"OrderDate\"], t[\"TransactionDate\"]))\n            if receipts.get(p[\"PurchaseOrderID\"]):\n                lag[\"first receipt to supplier invoice\"].append(days(min(receipts[p[\"PurchaseOrderID\"]]), t[\"TransactionDate\"]))\n            if t[\"FinalizationDate\"]:\n                steps[\"4 paid (invoice finalized)\"] += 1\n                lag[\"supplier invoice to payment\"].append(days(t[\"TransactionDate\"], t[\"FinalizationDate\"]))\n    return {\"steps\": dict(sorted(steps.items())), \"days\": {k: dist(v) for k, v in sorted(lag.items())}}\n\ndef days(a, b):\n    return (datetime.date.fromisoformat(b[:10]) - datetime.date.fromisoformat(a[:10])).days\n\ndef dist(v):\n    if not v:\n        return {\"rows\": 0}\n    v = sorted(v)\n    return {\"rows\": len(v), \"min\": v[0], \"median\": statistics.median(v), \"max\": v[-1],\n            \"most_common\": collections.Counter(v).most_common(4)}\n",
+ "id": "a889187366cdd220",
+ "inputs": {
+  "extract": "2016-06-01",
+  "manifest_sha256": "35b71b2e3ff4bb9ef4e24afc9c56f914e8386df4060a794b862e7f5a00d2774f",
+  "source": "wwi",
+  "tables": [
+   "Purchasing.PurchaseOrders",
+   "Purchasing.PurchaseOrderLines",
+   "Warehouse.StockItemTransactions",
+   "Purchasing.SupplierTransactions"
+  ]
+ },
+ "kind": "profile",
+ "ran_at": "2026-10-20T05:50:48Z",
+ "result": {
+  "days": {
+   "expected delivery to first receipt": {
+    "max": -2,
+    "median": -19.0,
+    "min": -19,
+    "most_common": [
+     [
+      -19,
+      1410
+     ],
+     [
+      -17,
+      344
+     ],
+     [
+      -18,
+      130
+     ],
+     [
+      -12,
+      96
+     ]
+    ],
+    "rows": 2074
+   },
+   "first receipt to supplier invoice": {
+    "max": 0,
+    "median": 0.0,
+    "min": 0,
+    "most_common": [
+     [
+      0,
+      2074
+     ]
+    ],
+    "rows": 2074
+   },
+   "order to expected delivery": {
+    "max": 20,
+    "median": 20.0,
+    "min": 3,
+    "most_common": [
+     [
+      20,
+      1886
+     ],
+     [
+      14,
+      109
+     ],
+     [
+      7,
+      74
+     ],
+     [
+      12,
+      6
+     ]
+    ],
+    "rows": 2076
+   },
+   "order to first receipt": {
+    "max": 3,
+    "median": 1.0,
+    "min": 1,
+    "most_common": [
+     [
+      1,
+      1434
+     ],
+     [
+      3,
+      355
+     ],
+     [
+      2,
+      285
+     ]
+    ],
+    "rows": 2074
+   },
+   "order to supplier invoice": {
+    "max": 3,
+    "median": 1.0,
+    "min": 1,
+    "most_common": [
+     [
+      1,
+      1434
+     ],
+     [
+      3,
+      355
+     ],
+     [
+      2,
+      285
+     ]
+    ],
+    "rows": 2074
+   },
+   "supplier invoice to payment": {
+    "max": 6,
+    "median": 4.0,
+    "min": 0,
+    "most_common": [
+     [
+      0,
+      641
+     ],
+     [
+      4,
+      358
+     ],
+     [
+      5,
+      358
+     ],
+     [
+      6,
+      357
+     ]
+    ],
+    "rows": 2070
+   }
+  },
+  "steps": {
+   "1 purchase order": 2076,
+   "1a order finalized": 2074,
+   "2 received (stock movement)": 2074,
+   "2a every line finalized": 2074,
+   "2b every line received in full (ReceivedOuters = OrderedOuters)": 2074,
+   "3 supplier invoice": 2074,
+   "4 paid (invoice finalized)": 2070,
+   "lines": 8376
+  }
+ },
+ "tool": "prototypes/information_analysis/processes.py",
+ "tool_version": "e3fc85d3ce7b1ef3ef3c73adff0cb80ee7681f8e"
+}

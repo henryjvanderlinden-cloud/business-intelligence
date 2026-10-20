@@ -530,6 +530,9 @@ def check_records():
         print("records: maintenance baseline is %s" % baseline.get("status"))
     print("records: author %d responses, %d words, %d large acts" % (len(responses), h_words[0], h_large[0]))
 
+ACROSS_ITEMS = {"reconciliations": {"16"}, "processes": {"24"}, "terms": {"25"}, "entities": {"26"}}
+
+
 def check_analysis():
     """The information-analysis record of ADR-0018: see analysis/README.md."""
     adir = os.path.join(ROOT, "analysis")
@@ -552,11 +555,12 @@ def check_analysis():
         parts = rel_dir.split("/")
         under_tables = "tables" in parts
         under_rel = "across" in parts and "relations" in parts
-        under_rec = "across" in parts and "reconciliations" in parts
-        if under_rec and parts[-1] == "reconciliations":
+        kind = next((k for k in ("reconciliations", "processes", "terms", "entities") if k in parts), None)
+        under_rec = "across" in parts and kind is not None
+        if under_rec and parts[-1] == kind:
             for d in dirnames:
                 if not re.match(r"^[a-z0-9]+(-[a-z0-9]+)*$", d):
-                    err("%s/%s" % (rel_dir, d), "a reconciliation folder is named by a lower-case slug (analysis/README.md 9)")
+                    err("%s/%s" % (rel_dir, d), "a %s folder is named by a lower-case slug (analysis/README.md 9)" % kind)
         if under_rel and parts[-1] == "relations":
             for d in dirnames:
                 if ia.parse_relation(d) is None:
@@ -602,7 +606,7 @@ def check_analysis():
             is_column = "columns" in parts
             if ia.ITEMS.get(nn) != slug:
                 err(rel, "item %s is %r, not %r" % (nn, ia.ITEMS.get(nn), slug))
-            allowed = (ia.RELATION_ITEMS if under_rel else {"16"} if under_rec else ia.SOURCE_ITEMS if under_source else
+            allowed = (ia.RELATION_ITEMS if under_rel else ACROSS_ITEMS[kind] if under_rec else ia.SOURCE_ITEMS if under_source else
                        ia.COLUMN_ITEMS if is_column else ia.TABLE_ITEMS)
             if nn not in allowed:
                 err(rel, "item %s is not recorded at this level" % nn)

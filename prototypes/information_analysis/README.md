@@ -35,6 +35,9 @@ python prototypes/information_analysis/write_column_meanings.py <notes module>
 python prototypes/information_analysis/relations.py
 python prototypes/information_analysis/write_relations.py <notes module>
 python prototypes/information_analysis/reconcile.py <notes module>
+python prototypes/information_analysis/relations_temporal.py
+python prototypes/information_analysis/processes.py <notes module>
+python prototypes/information_analysis/write_glossary.py <notes module>
 ```
 
 `documentation` records which published Microsoft documentation of WWI was read and what it says, as one evidence per
@@ -53,7 +56,10 @@ header-join count) and writes `analysis/wwi/across/candidates.md`; `write_relati
 writes the editors, system-time and logon-name evidence that the column meanings cite. `reconcile.py` compares what two
 or more tables say about the same amounts, quantities and dates (item 16 across tables) and writes
 `across/reconciliations/<slug>/16_reconciliation.md` with its evidence; it is slow on the desktop's Linux shell and
-was run in the agent's cloud workspace on staged copies of the same extracts.
+was run in the agent's cloud workspace on staged copies of the same extracts, as were `relations_temporal.py` (item 03
+per relation: the parent version current at the child's date, from the history tables) and `processes.py` (item 24:
+steps reached and days between them). `write_glossary.py` writes terms and entities (items 25 and 26) from a notes
+module; they measure nothing and link the claims that own each fact.
 
 **Answer, first part:** the inventory works on a real source. The catalogue took 7 queries (one per job run), the
 profiles about two minutes of machine time for 48 tables and 5.4 million rows, and the author's hands not at all; the

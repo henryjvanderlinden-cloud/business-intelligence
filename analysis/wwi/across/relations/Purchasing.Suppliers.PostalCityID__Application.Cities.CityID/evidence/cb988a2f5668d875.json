@@ -1,0 +1,28 @@
+{
+ "code": "def child_dates(child):\n    \"\"\"The date each child row is about, and the name of the column it comes from.\"\"\"\n    head, _ = table(child)\n    if child in DATE_COLS:\n        return col(child, DATE_COLS[child]), DATE_COLS[child]\n    if child in HEADER_DATE:\n        lc, ht, hk = HEADER_DATE[child]\n        d = dict(zip(col(ht, hk), col(ht, DATE_COLS[ht])))\n        return [d.get(v, \"\") for v in col(child, lc)], \"%s.%s via %s\" % (ht, DATE_COLS[ht], lc)\n    for c in (\"ValidFrom\", \"LastEditedWhen\"):\n        if c in head:\n            return col(child, c), c\n    return None, None\n\ndef end_of_day(d):\n    return d if \"T\" in d else d + \"T23:59:59.9999999\"\n\ndef versions(parent, pcol):\n    \"\"\"Per parent key, its versions sorted by ValidFrom: (ValidFrom, attributes), current version last.\"\"\"\n    head, rows = table(parent)\n    hhead, hrows = table(parent + \"_Archive\")\n    attrs = [c for c in head if c not in PERIOD]\n    out = collections.defaultdict(list)\n    for h, rs, cur in ((hhead, hrows, False), (head, rows, True)):\n        ix = {c: h.index(c) for c in h}\n        for r in rs:\n            out[r[ix[pcol]]].append((r[ix[\"ValidFrom\"]], r[ix[\"ValidTo\"]], tuple(r[ix[c]] for c in attrs), cur))\n    for k in out:\n        out[k].sort()\n    return out, attrs\n\ndef as_of(child, ccol, parent, pcol, cats):\n    \"\"\"Which version of the parent was current at the end of the child row's date: the last version with\n    ValidFrom <= t, provided t < its ValidTo; otherwise the date falls in a gap between versions.\"\"\"\n    dates, source = child_dates(child)\n    keys = col(child, ccol)\n    vs, attrs = versions(parent, pcol)\n    res = collections.Counter()\n    differ = collections.Counter()\n    for k, d in zip(keys, dates):\n        if not k or not d:\n            res[\"no key or no date\"] += 1\n            continue\n        t = end_of_day(d)\n        v = vs.get(k, [])\n        froms = [x[0] for x in v]\n        i = bisect.bisect_right(froms, t) - 1\n        if i < 0:\n            res[\"no version yet at the child's date\"] += 1\n            continue\n        if t >= v[i][1]:\n            res[\"no version current at the child's date (a gap between versions)\"] += 1\n            continue\n        if v[i][3]:\n            res[\"the current version\"] += 1\n            continue\n        res[\"an earlier version\"] += 1\n        cur = v[-1][2]\n        diff = [a for a, x, y in zip(attrs, v[i][2], cur) if x != y]\n        if diff:\n            res[\"an earlier version whose attributes differ from the current\"] += 1\n            for a in diff:\n                differ[a] += 1\n        else:\n            res[\"an earlier version with the same attributes\"] += 1\n    return {\"child_date_column\": source, \"parent_version_at_end_of_child_date\": dict(res),\n            \"attributes_that_differ_rows\": dict(differ.most_common())}\n\ndef date_order(child, ccol, parent, pcol):\n    \"\"\"The child row's date against the parent row's own business date.\"\"\"\n    dates, source = child_dates(child)\n    pd = dict(zip(col(parent, pcol), col(parent, DATE_COLS[parent])))\n    order, lag = collections.Counter(), []\n    for k, d in zip(col(child, ccol), dates):\n        if not k or not d or k not in pd or not pd[k]:\n            continue\n        a, b = d[:10], pd[k][:10]\n        order[\"child date \" + (\"before\" if a < b else \"same day as\" if a == b else \"after\") + \" parent date\"] += 1\n        lag.append((datetime.date.fromisoformat(a) - datetime.date.fromisoformat(b)).days)\n    if not lag:\n        return {\"child_date_column\": source, \"parent_date_column\": DATE_COLS[parent], \"rows\": 0}\n    lag.sort()\n    return {\"child_date_column\": source, \"parent_date_column\": DATE_COLS[parent], \"rows\": len(lag), \"order\": dict(order),\n            \"days_child_minus_parent\": {\"min\": lag[0], \"median\": statistics.median(lag), \"max\": lag[-1],\n                                        \"most_common\": collections.Counter(lag).most_common(5)}}\n\ndef order_dates_by_backorder(child, ccol):\n    \"\"\"For a relation to Sales.Orders: the child's date against the order date, split by whether the order is a\n    backorder (named by another order's BackorderOrderID).\"\"\"\n    targets = {v for v in col(\"Sales.Orders\", \"BackorderOrderID\") if v}\n    od = dict(zip(col(\"Sales.Orders\", \"OrderID\"), col(\"Sales.Orders\", \"OrderDate\")))\n    dates, _ = child_dates(child)\n    c = collections.Counter()\n    for k, d in zip(col(child, ccol), dates):\n        if k and d and k in od:\n            c[\"%s|%s\" % (\"backorder\" if k in targets else \"not a backorder\",\n                         \"child date after order date\" if d[:10] > od[k][:10] else \"same day or before\")] += 1\n    return dict(sorted(c.items()))\n",
+ "id": "cb988a2f5668d875",
+ "inputs": {
+  "child": "Purchasing.Suppliers",
+  "child_column": "PostalCityID",
+  "extract": "2016-06-01",
+  "manifest_sha256": "35b71b2e3ff4bb9ef4e24afc9c56f914e8386df4060a794b862e7f5a00d2774f",
+  "parent": "Application.Cities",
+  "parent_column": "CityID",
+  "source": "wwi"
+ },
+ "kind": "profile",
+ "ran_at": "2026-10-20T05:50:31Z",
+ "result": {
+  "as_of": {
+   "attributes_that_differ_rows": {},
+   "child_date_column": "ValidFrom",
+   "parent_version_at_end_of_child_date": {
+    "the current version": 13
+   }
+  },
+  "child_date_column": "ValidFrom",
+  "parent_temporal_type": "SYSTEM_VERSIONED_TEMPORAL_TABLE"
+ },
+ "tool": "prototypes/information_analysis/relations_temporal.py",
+ "tool_version": "2b498a4a9cb3cb58aaeefccd4a5a2f4de7143afd"
+}
