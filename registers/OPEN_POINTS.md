@@ -2964,6 +2964,25 @@ the object is meant to meet — what it is for and what it is explicitly not for
 against that standard, not against completeness. Closes when the author rules and 510 is amended or the proposal is
 declined.
 
+### PRC-OP-8 — The procedures of the work are not yet skills
+**⚠ STATE: HELD**
+Opened 2026-10-20, session 08, on the author's instruction, verbatim:
+
+> That's a good point, about the skills. Maybe we should distill all the analytical work we have done into skills. I
+> think we should record that somewhere in the open points register. It goes for all activities. Having said that,
+> it's not something I want to do immediately.
+
+The point arose from item 29, whose method was written to be reused
+([131](../docs/10_architecture/131_structural-position.md)) and which the model offered to turn into a skill: a packaged
+set of instructions that an agent loads when a task of that kind comes up, so that the next source or project starts
+from the procedure rather than from the conversation that produced it. The author widened it to all activities. So far
+the procedures live in documents and scripts (129, 131, `analysis/README.md`, `prototypes/information_analysis/`,
+[510](../docs/50_process/510_external-review.md), [520](../docs/50_process/520_record-keeping.md), the step log and this
+register's conventions) and in the agent's working practice, which is not written down anywhere.
+
+Which activities become skills, how a skill relates to the document that describes the same method, and where skills are
+kept are **not decided**. **Held** until the author asks to resume it.
+
 ## §5 — Commercial premises (`BIZ`)
 
 ### BIZ-OP-1 — The adjudication hedge may not be priced
