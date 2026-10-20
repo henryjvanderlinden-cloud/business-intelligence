@@ -16,7 +16,9 @@ analysis is never a hard gate; the first trial is the Wide World Importers sandb
 proposed in [`analysis/README.md`](../../analysis/README.md) and not ruled; the open questions are in `ARC-OP-36`.
 The document is **under review** ([510](../50_process/510_external-review.md)). The author's point is practitioner
 input and unsourced under [AGENTS.md](../../AGENTS.md) rule 8. Apart from the first trial on `Sales.Orders`, nothing
-here is built.
+here is built. *Since then:* the first full trial, on the Wide World Importers sandbox, ran from 2026-10-18 and its
+analysis stage closed on 2026-10-20 ([ADR-0022](../20_decisions/0022-the-analysis-stage-closes.md)); its coverage is
+stated in `ARC-OP-36`.
 
 The Wide World Importers examples are **observed**: read on 2026-10-18 from the header and first
 data row of each named file in the extract `data/raw/wwi/2016-06-01/`, from its `manifest.json`,

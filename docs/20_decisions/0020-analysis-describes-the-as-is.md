@@ -4,6 +4,8 @@
 - **Date:** 2026-10-18
 - **Supersedes:** —
 - **Superseded by:** —
+- **Amended by:** [ADR-0022](0022-the-analysis-stage-closes.md) (the analysis stage of the first trial closes; the record
+  stays a description of the as-is and stays open)
 
 ## Context
 

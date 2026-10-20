@@ -1,0 +1,166 @@
+{
+ "code": "def rows_of(t):\n    f, head, rows = reader(DAY, t)\n    out = [dict(zip(head, r)) for r in rows]\n    f.close()\n    return out\n\ndef decimals(v):\n    if \".\" not in v:\n        return 0\n    return len(v.split(\".\")[1].rstrip(\"0\"))\n\ndef rounding(exact, stored):\n    \"\"\"How often a computed exact value, rounded to cents by each mode, equals the stored value.\"\"\"\n    out = {\"compared\": 0, \"exact\": 0}\n    for m in MODES:\n        out[m] = 0\n    worst = Decimal(0)\n    for e, s in zip(exact, stored):\n        if e is None or s is None:\n            continue\n        out[\"compared\"] += 1\n        out[\"exact\"] += e == s\n        for m, mode in MODES.items():\n            out[m] += e.quantize(CENT, mode) == s\n        worst = max(worst, abs(e - s))\n    out[\"largest_difference\"] = str(worst)\n    return out\n\ndef columns(t, cat, rows, types):\n    \"\"\"Profile of the numeric non-key columns of one table.\"\"\"\n    c = cat[\"catalogue\"]\n    pk = {k[\"column_name\"] for k in c[\"keys\"] if k[\"is_primary_key\"] == \"1\"}\n    fk = {k[\"column_name\"] for k in c[\"foreign_keys_out\"]}\n    out = {}\n    for x in c[\"columns\"]:\n        n = x[\"column_name\"]\n        if x[\"type_name\"] not in NUMERIC or n in pk | fk | AUDIT:\n            continue\n        vals = [r[n] for r in rows if r[n] != \"\"]\n        nums = [Decimal(v) for v in vals]\n        col = {\"type\": x[\"type_name\"], \"precision\": int(x[\"precision\"]), \"scale\": int(x[\"scale\"]), \"description\": x[\"description\"],\n               \"rows\": len(rows), \"filled\": len(vals), \"distinct\": len(set(nums)),\n               \"min\": str(min(nums)) if nums else None, \"max\": str(max(nums)) if nums else None,\n               \"negative\": sum(1 for v in nums if v < 0), \"zero\": sum(1 for v in nums if v == 0),\n               \"positive\": sum(1 for v in nums if v > 0), \"max_decimals_used\": max((decimals(v) for v in vals), default=0),\n               \"non_integer\": sum(1 for v in nums if v != v.to_integral_value())}\n        if col[\"distinct\"] <= 12:\n            col[\"values\"] = {str(k): v for k, v in sorted(collections.Counter(nums).items())}\n        if \"TransactionTypeID\" in rows[0] if rows else False:\n            by = collections.defaultdict(lambda: collections.Counter())\n            for r in rows:\n                v = D(r[n])\n                by[types.get(r[\"TransactionTypeID\"], r[\"TransactionTypeID\"])][\"empty\" if v is None else\n                                                                              \"negative\" if v < 0 else \"zero\" if v == 0 else \"positive\"] += 1\n            col[\"sign_by_transaction_type\"] = {k: dict(v) for k, v in sorted(by.items())}\n        out[n] = col\n    return out\n\ndef t_invoice_lines(rows, ref):\n    q = [D(r[\"Quantity\"]) for r in rows]\n    up = [D(r[\"UnitPrice\"]) for r in rows]\n    tr = [D(r[\"TaxRate\"]) for r in rows]\n    tax = [D(r[\"TaxAmount\"]) for r in rows]\n    ext = [D(r[\"ExtendedPrice\"]) for r in rows]\n    lp = [D(r[\"LineProfit\"]) for r in rows]\n    si, h = ref[\"Warehouse.StockItems\"], ref[\"Warehouse.StockItemHoldings\"]\n    cost = [h.get(r[\"StockItemID\"], {}).get(\"LastCostPrice\") for r in rows]\n    return {\n        \"TaxAmount = Quantity x UnitPrice x TaxRate / 100\": rounding([a * b * c / 100 for a, b, c in zip(q, up, tr)], tax),\n        \"ExtendedPrice = Quantity x UnitPrice + TaxAmount\": sum(a * b + c == e for a, b, c, e in zip(q, up, tax, ext)),\n        \"LineProfit = Quantity x (UnitPrice - current LastCostPrice of the item)\": sum(\n            1 for a, b, c, p in zip(q, up, cost, lp) if c is not None and a * (b - Decimal(c)) == p),\n        \"LineProfit sign\": dict(collections.Counter(\"negative\" if p < 0 else \"zero\" if p == 0 else \"positive\" for p in lp)),\n        \"UnitPrice equals the item's current UnitPrice\": sum(1 for r, b in zip(rows, up) if D(si[r[\"StockItemID\"]][\"UnitPrice\"]) == b),\n        \"TaxRate equals the item's current TaxRate\": sum(1 for r, c in zip(rows, tr) if D(si[r[\"StockItemID\"]][\"TaxRate\"]) == c),\n        \"lines\": len(rows)}\n\ndef t_order_lines(rows, ref):\n    si = ref[\"Warehouse.StockItems\"]\n    picked = [r for r in rows if r[\"PickingCompletedWhen\"] != \"\"]\n    open_ = [r for r in rows if r[\"PickingCompletedWhen\"] == \"\"]\n    return {\n        \"lines\": len(rows), \"picked lines (PickingCompletedWhen filled)\": len(picked),\n        \"picked lines with PickedQuantity = Quantity\": sum(r[\"PickedQuantity\"] == r[\"Quantity\"] for r in picked),\n        \"picked lines with PickedQuantity < Quantity\": sum(int(r[\"PickedQuantity\"]) < int(r[\"Quantity\"]) for r in picked),\n        \"unpicked lines with PickedQuantity = 0\": sum(r[\"PickedQuantity\"] == \"0\" for r in open_),\n        \"unpicked lines with 0 < PickedQuantity < Quantity\": sum(0 < int(r[\"PickedQuantity\"]) < int(r[\"Quantity\"]) for r in open_),\n        \"UnitPrice equals the item's current UnitPrice\": sum(D(si[r[\"StockItemID\"]][\"UnitPrice\"]) == D(r[\"UnitPrice\"]) for r in rows),\n        \"TaxRate equals the item's current TaxRate\": sum(D(si[r[\"StockItemID\"]][\"TaxRate\"]) == D(r[\"TaxRate\"]) for r in rows),\n        \"columns holding an amount\": [c for c in rows[0] if c in (\"TaxAmount\", \"ExtendedPrice\", \"LineTotal\", \"LineProfit\")]}\n\ndef t_ledger(rows, ref, types):\n    by = collections.defaultdict(collections.Counter)\n    tax15 = collections.defaultdict(lambda: [[], []])\n    for r in rows:\n        k = types[r[\"TransactionTypeID\"]]\n        a, tx, t, ob = D(r[\"AmountExcludingTax\"]), D(r[\"TaxAmount\"]), D(r[\"TransactionAmount\"]), D(r[\"OutstandingBalance\"])\n        b = by[k]\n        b[\"rows\"] += 1\n        b[\"TransactionAmount = AmountExcludingTax + TaxAmount\"] += a + tx == t\n        b[\"OutstandingBalance = 0\"] += ob == 0\n        b[\"OutstandingBalance = TransactionAmount\"] += ob == t and ob != 0\n        b[\"OutstandingBalance other\"] += ob != 0 and ob != t\n        b[\"IsFinalized = 1\"] += r[\"IsFinalized\"] == \"1\"\n        b[\"IsFinalized = 1 and OutstandingBalance = 0\"] += r[\"IsFinalized\"] == \"1\" and ob == 0\n        tax15[k][0].append(a * Decimal(\"0.15\"))\n        tax15[k][1].append(tx)\n    party = \"CustomerID\" if \"CustomerID\" in rows[0] else \"SupplierID\"\n    tot, ob = collections.Counter(), collections.Counter()\n    for r in rows:\n        tot[r[party]] += D(r[\"TransactionAmount\"])\n        ob[r[party]] += D(r[\"OutstandingBalance\"])\n    return {\"parties\": len(tot), \"parties whose TransactionAmount sums to their OutstandingBalance sum\": sum(tot[k] == ob[k] for k in tot),\n            \"by_transaction_type\": {k: dict(v) for k, v in sorted(by.items())},\n            \"TaxAmount = 15% of AmountExcludingTax\": {k: rounding(*v) for k, v in sorted(tax15.items())}}\n\ndef t_purchase_order_lines(rows, ref):\n    si, h = ref[\"Warehouse.StockItems\"], ref[\"Warehouse.StockItemHoldings\"]\n    fin = [r for r in rows if r[\"IsOrderLineFinalized\"] == \"1\"]\n    open_ = [r for r in rows if r[\"IsOrderLineFinalized\"] != \"1\"]\n    per_outer_price = sum(D(si[r[\"StockItemID\"]][\"UnitPrice\"]) * int(si[r[\"StockItemID\"]][\"QuantityPerOuter\"]) == D(r[\"ExpectedUnitPricePerOuter\"]) for r in rows)\n    per_outer_cost = sum(D(h[r[\"StockItemID\"]][\"LastCostPrice\"]) * int(si[r[\"StockItemID\"]][\"QuantityPerOuter\"]) == D(r[\"ExpectedUnitPricePerOuter\"]) for r in rows)\n    return {\"lines\": len(rows), \"finalized lines\": len(fin),\n            \"finalized lines with ReceivedOuters = OrderedOuters\": sum(r[\"ReceivedOuters\"] == r[\"OrderedOuters\"] for r in fin),\n            \"open lines with ReceivedOuters = 0\": sum(r[\"ReceivedOuters\"] == \"0\" for r in open_),\n            \"lines with 0 < ReceivedOuters < OrderedOuters\": sum(0 < int(r[\"ReceivedOuters\"]) < int(r[\"OrderedOuters\"]) for r in rows),\n            \"lines with ReceivedOuters > OrderedOuters\": sum(int(r[\"ReceivedOuters\"]) > int(r[\"OrderedOuters\"]) for r in rows),\n            \"ExpectedUnitPricePerOuter = item UnitPrice x QuantityPerOuter\": per_outer_price,\n            \"ExpectedUnitPricePerOuter = item LastCostPrice x QuantityPerOuter\": per_outer_cost}\n\ndef t_stock_items(rows, ref):\n    ratio = collections.Counter()\n    for r in rows:\n        up, rrp = D(r[\"UnitPrice\"]), D(r[\"RecommendedRetailPrice\"])\n        ratio[str((rrp / up).quantize(Decimal(\"0.0001\")))] += 1\n    rrp_rule = rounding([D(r[\"UnitPrice\"]) * Decimal(\"1.3\") * (1 + D(r[\"TaxRate\"]) / 100) for r in rows],\n                        [D(r[\"RecommendedRetailPrice\"]) for r in rows])\n    h = ref[\"Warehouse.StockItemHoldings\"]\n    from fractions import Fraction\n    cost_ratio = collections.Counter(str((D(h[r[\"StockItemID\"]][\"LastCostPrice\"]) / D(r[\"UnitPrice\"])).quantize(Decimal(\"0.01\")))\n                                     for r in rows if r[\"StockItemID\"] in h)\n    exact = {Fraction(h[r[\"StockItemID\"]][\"LastCostPrice\"]) / Fraction(r[\"UnitPrice\"]) for r in rows if r[\"StockItemID\"] in h}\n    return {\"items\": len(rows), \"RecommendedRetailPrice / UnitPrice, 4 decimals\": dict(ratio.most_common(5)),\n            \"RecommendedRetailPrice = UnitPrice x 1.3 x (1 + TaxRate / 100)\": rrp_rule,\n            \"LastCostPrice / UnitPrice, 2 decimals (most common)\": dict(cost_ratio.most_common(5)),\n            \"distinct LastCostPrice / UnitPrice ratios, rounded to 2 decimals\": len(cost_ratio),\n            \"distinct LastCostPrice / UnitPrice ratios, exact\": len(exact)}\n\ndef t_holdings(rows, ref):\n    return {\"items\": len(rows),\n            \"QuantityOnHand = LastStocktakeQuantity\": sum(r[\"QuantityOnHand\"] == r[\"LastStocktakeQuantity\"] for r in rows),\n            \"ReorderLevel <= TargetStockLevel\": sum(int(r[\"ReorderLevel\"]) <= int(r[\"TargetStockLevel\"]) for r in rows),\n            \"QuantityOnHand < ReorderLevel\": sum(int(r[\"QuantityOnHand\"]) < int(r[\"ReorderLevel\"]) for r in rows)}\n\ndef t_special_deals(rows, ref):\n    return {\"deals\": len(rows), \"filled pattern (DiscountAmount, DiscountPercentage, UnitPrice)\": dict(collections.Counter(\n        \"\".join(\"x\" if r[c] != \"\" else \"-\" for c in (\"DiscountAmount\", \"DiscountPercentage\", \"UnitPrice\")) for r in rows))}\n\ndef t_population(rows, ref):\n    \"\"\"Does a parent's LatestRecordedPopulation equal the sum over its children?\"\"\"\n    out = {}\n    for child, key, parent, pkey in ((\"Application.Cities\", \"StateProvinceID\", \"Application.StateProvinces\", \"StateProvinceID\"),\n                                     (\"Application.StateProvinces\", \"CountryID\", \"Application.Countries\", \"CountryID\")):\n        tot = collections.Counter()\n        for r in ref[\"rows:\" + child]:\n            if r[\"LatestRecordedPopulation\"] != \"\":\n                tot[r[key]] += int(r[\"LatestRecordedPopulation\"])\n        par = {r[pkey]: r[\"LatestRecordedPopulation\"] for r in ref[\"rows:\" + parent]}\n        cmp_ = [(k, int(par[k]), v) for k, v in tot.items() if par.get(k, \"\") != \"\"]\n        out[\"%s vs sum over %s\" % (parent, child)] = {\"parents compared\": len(cmp_), \"equal\": sum(a == b for _, a, b in cmp_),\n                                                      \"parent greater\": sum(a > b for _, a, b in cmp_), \"parent smaller\": sum(a < b for _, a, b in cmp_)}\n    return out\n",
+ "id": "8458a397c5208387",
+ "inputs": {
+  "extract": "2016-06-01",
+  "manifest_sha256": "35b71b2e3ff4bb9ef4e24afc9c56f914e8386df4060a794b862e7f5a00d2774f",
+  "source": "wwi",
+  "table": "Purchasing.SupplierTransactions"
+ },
+ "kind": "profile",
+ "ran_at": "2026-10-20T20:06:37Z",
+ "result": {
+  "columns": {
+   "AmountExcludingTax": {
+    "description": "Transaction amount (excluding tax)",
+    "distinct": 1970,
+    "filled": 2440,
+    "max": "1630506.00",
+    "max_decimals_used": 2,
+    "min": "0.00",
+    "negative": 0,
+    "non_integer": 790,
+    "positive": 2074,
+    "precision": 18,
+    "rows": 2440,
+    "scale": 2,
+    "sign_by_transaction_type": {
+     "Supplier Invoice": {
+      "positive": 2074
+     },
+     "Supplier Payment Issued": {
+      "zero": 366
+     }
+    },
+    "type": "decimal",
+    "zero": 366
+   },
+   "OutstandingBalance": {
+    "description": "Amount still outstanding for this transaction",
+    "distinct": 5,
+    "filled": 2440,
+    "max": "1875081.90",
+    "max_decimals_used": 2,
+    "min": "0.00",
+    "negative": 0,
+    "non_integer": 4,
+    "positive": 4,
+    "precision": 18,
+    "rows": 2440,
+    "scale": 2,
+    "sign_by_transaction_type": {
+     "Supplier Invoice": {
+      "positive": 4,
+      "zero": 2070
+     },
+     "Supplier Payment Issued": {
+      "zero": 366
+     }
+    },
+    "type": "decimal",
+    "values": {
+     "0.00": 2436,
+     "1871894.10": 1,
+     "1875081.90": 1,
+     "849784.11": 1,
+     "852596.89": 1
+    },
+    "zero": 2436
+   },
+   "TaxAmount": {
+    "description": "Tax amount calculated",
+    "distinct": 1971,
+    "filled": 2440,
+    "max": "244575.90",
+    "max_decimals_used": 2,
+    "min": "0.00",
+    "negative": 0,
+    "non_integer": 1910,
+    "positive": 2074,
+    "precision": 18,
+    "rows": 2440,
+    "scale": 2,
+    "sign_by_transaction_type": {
+     "Supplier Invoice": {
+      "positive": 2074
+     },
+     "Supplier Payment Issued": {
+      "zero": 366
+     }
+    },
+    "type": "decimal",
+    "zero": 366
+   },
+   "TransactionAmount": {
+    "description": "Transaction amount (including tax)",
+    "distinct": 2336,
+    "filled": 2440,
+    "max": "1875081.90",
+    "max_decimals_used": 2,
+    "min": "-9313012.80",
+    "negative": 366,
+    "non_integer": 2257,
+    "positive": 2074,
+    "precision": 18,
+    "rows": 2440,
+    "scale": 2,
+    "sign_by_transaction_type": {
+     "Supplier Invoice": {
+      "positive": 2074
+     },
+     "Supplier Payment Issued": {
+      "negative": 366
+     }
+    },
+    "type": "decimal",
+    "zero": 0
+   }
+  },
+  "tests": {
+   "TaxAmount = 15% of AmountExcludingTax": {
+    "Supplier Invoice": {
+     "compared": 2074,
+     "exact": 1778,
+     "half_down": 1780,
+     "half_even": 1923,
+     "half_up": 2061,
+     "largest_difference": "427.5000",
+     "truncate": 1779
+    },
+    "Supplier Payment Issued": {
+     "compared": 366,
+     "exact": 366,
+     "half_down": 366,
+     "half_even": 366,
+     "half_up": 366,
+     "largest_difference": "0",
+     "truncate": 366
+    }
+   },
+   "by_transaction_type": {
+    "Supplier Invoice": {
+     "IsFinalized = 1": 2070,
+     "IsFinalized = 1 and OutstandingBalance = 0": 2070,
+     "OutstandingBalance = 0": 2070,
+     "OutstandingBalance = TransactionAmount": 4,
+     "OutstandingBalance other": 0,
+     "TransactionAmount = AmountExcludingTax + TaxAmount": 2074,
+     "rows": 2074
+    },
+    "Supplier Payment Issued": {
+     "IsFinalized = 1": 366,
+     "IsFinalized = 1 and OutstandingBalance = 0": 366,
+     "OutstandingBalance = 0": 366,
+     "OutstandingBalance = TransactionAmount": 0,
+     "OutstandingBalance other": 0,
+     "TransactionAmount = AmountExcludingTax + TaxAmount": 0,
+     "rows": 366
+    }
+   },
+   "parties": 7,
+   "parties whose TransactionAmount sums to their OutstandingBalance sum": 7
+  }
+ },
+ "tool": "prototypes/information_analysis/measures.py",
+ "tool_version": "89f3c0d7d2fd53e7e60d4575675beeac0ebb43e8"
+}

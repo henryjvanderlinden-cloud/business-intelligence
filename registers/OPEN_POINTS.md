@@ -2313,6 +2313,34 @@ What is open:
    astra and sol, both **FAILS** ([astra](../docs/30_research/notes/XREV_2026-10-20_position-readings_astra.md),
    [sol](../docs/30_research/notes/XREV_2026-10-20_position-code_sol.md)); all findings fixed, among them that behaviour
    is now judged on business columns only, the distortion principle applied beyond links.
+
+   **Measures, derived columns and arithmetic, items 8, 9 and 28, 2026-10-20** (asked 21:51, "Yes, do items 8,9 and 29
+   before we close", 29 read as 28): `measures.py` profiled the numeric columns of the 17 tables that have any and tested
+   the formulas and rounding they suggest; `08_measures.md` for 17 tables, `09_derived.md` for 8, `28_arithmetic.md` for 4.
+   Among the findings, each on every row of the extract: tax per invoice line reproduced by rounding half up to cents;
+   LineProfit = Quantity x (UnitPrice - the item's current LastCostPrice); RecommendedRetailPrice = UnitPrice x 1.3 x
+   (1 + TaxRate / 100); ExpectedUnitPricePerOuter = LastCostPrice x QuantityPerOuter; an invoice's tax is the sum of its
+   rounded line taxes, not 15% of its amount; no amount is stored on an order line; picking and receiving are all or
+   nothing. Reviewed by astra and sol, both **FAILS**
+   ([astra](../docs/30_research/notes/XREV_2026-10-20_measures-readings_astra.md),
+   [sol](../docs/30_research/notes/XREV_2026-10-20_measures-code_sol.md)); all findings fixed.
+
+   **Close of the analysis stage, 2026-10-20** ([ADR-0022](../docs/20_decisions/0022-the-analysis-stage-closes.md)).
+   *Coverage* (counts from the record as committed): the minimum items and item 27 for all 31 base tables; role (item 5)
+   and position (item 29) also for the 17 history tables; the meaning (item 2) of 368 columns; measures (item 8) for the
+   17 tables with numeric columns, derived columns (item 9) for 8, arithmetic (item 28) for 4; across tables, 100
+   relations with their five minimum items, 98 of them with point-in-time behaviour, 6 reconciliations, 3 processes, 8
+   terms and 5 entities; documentation (18), stability against a second day (22) and position (29) for the source. In
+   all 1,303 item files and 4,892 claims; 187 files have at least one claim of unknown confidence, the open questions of
+   the record (`grep -rl "confidence: unknown" analysis/`). *Not covered*, with the reason: codes, formats, copies,
+   hierarchies, quality, volume and per-table reconciliation (items 10 to 13, 15 to 17) as items of their own - parts of
+   them sit in items 7, 27 and the column meanings - because they bear less on an integration layer and ADR-0017 makes
+   them best effort; provenance, ownership and demand (14, 20, 21) because they need people the sandbox does not have;
+   extraction (23) beyond what item 7 records of the extracting account. *As of*: the files describe the extract of
+   2016-06-01; `_source/22_stability.md` rechecks them against 2016-06-02. *Parked for the next phase*: the two customer
+   roles (above), and the warning that "orders" means two things (item 27). *Lessons*:
+   [2026-10-20-information-analysis-trial-lessons](../docs/30_research/notes/2026-10-20-information-analysis-trial-lessons.md).
+   This row stays open for the questions of unknown confidence and for what modelling adds to the record.
 3. **Review.** Astra on the record layout (below, R1-R11, ruled in ADR-0018). Sol on 129's inventory: the first,
    large pass never wrote an answer; re-sent in two parts, both returned.
    [Gaps and minimum](../docs/30_research/notes/XREV_2026-10-18_information-analysis-inventory-gaps_sol.md):

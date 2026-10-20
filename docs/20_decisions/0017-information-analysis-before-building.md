@@ -5,7 +5,8 @@
 - **Supersedes:** —
 - **Superseded by:** —
 - **Amended by:** [ADR-0018](0018-information-analysis-record.md) (item 27's grain tests join the minimum);
-  [ADR-0019](0019-information-analysis-in-two-rounds.md) (two rounds; item 28)
+  [ADR-0019](0019-information-analysis-in-two-rounds.md) (two rounds; item 28);
+  [ADR-0021](0021-position-in-the-schema.md) (item 29)
 
 ## Context
 

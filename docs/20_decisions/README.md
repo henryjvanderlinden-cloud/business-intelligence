@@ -34,5 +34,6 @@ describe options; only an ADR adopts one.
 | [0017](0017-information-analysis-before-building.md) | Information analysis precedes building: hard effort on a minimum, best effort on the rest, never a hard gate | Accepted (amended by 0018) |
 | [0018](0018-information-analysis-record.md) | The information-analysis record: a folder per table and per column, a file per item, a line per claim, content-addressed evidence and provenance in every file | Accepted (amended by 0019) |
 | [0019](0019-information-analysis-in-two-rounds.md) | Information analysis in two rounds: each table first, then what lies between tables | Accepted |
-| [0020](0020-analysis-describes-the-as-is.md) | While in the analysis stage, the analysis describes the as-is and does not look ahead | Accepted |
+| [0020](0020-analysis-describes-the-as-is.md) | While in the analysis stage, the analysis describes the as-is and does not look ahead | Accepted (amended by 0022) |
 | [0021](0021-position-in-the-schema.md) | Position in the schema is inventoried: measured on the declared keys, checked for distortion, classed by rules | Accepted |
+| [0022](0022-the-analysis-stage-closes.md) | The analysis stage of the first trial closes; its record stays a description of the as-is and stays open | Accepted |
