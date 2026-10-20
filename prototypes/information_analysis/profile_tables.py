@@ -31,7 +31,7 @@ RAW = os.path.join(ROOT, "data", "raw", "wwi")
 RESP = os.path.join(ROOT, "data", "wwi", "responses")
 PROC = os.path.join(ROOT, "data", "wwi", "processed")
 SCRIPT = "prototypes/information_analysis/profile_tables.py"
-DAY, PREV = "2016-06-01", "2016-05-31"
+DAY, PREV = os.environ.get("IA_DAY", "2016-06-01"), os.environ.get("IA_PREV", "2016-05-31")   # recheck.py sets them
 CAT = {"columns": "20261018T1301-agent-ia-cat-columns", "keys": "20261018T1302-agent-ia-cat-keys",
        "fks": "20261018T1303-agent-ia-cat-fks", "tables": None, "checks": "20261018T1301-agent-ia-cat-checks",
        "masked": None, "reader_counts": None, "rls": "20261018T1240-agent-ia-rls"}

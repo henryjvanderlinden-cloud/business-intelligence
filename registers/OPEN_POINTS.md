@@ -2288,6 +2288,19 @@ What is open:
    [astra](../docs/30_research/notes/XREV_2026-10-20_stocktake_astra.md)); all findings fixed. The record now holds
    1,226 item files. Open: the questions left unknown in the files (generated list: `grep -rl "confidence: unknown"
    analysis/`), a second extract to turn one-extract observations into rules, and the next phase.
+
+   **Second extract, 2026-10-20** (asked 10:08, "allright, please continue with the second extract"): the agent advanced
+   the sandbox one day through the request folder, with no act by the author; 2016-06-02 was simulated and extracted.
+   [`_source/22_stability.md`](../analysis/wwi/_source/22_stability.md) records the recheck: no rule tested is
+   contradicted - the same 13 tables change in both transitions in the same way, every candidate key is still unique,
+   no relation has an orphan, the one-to-one relations stay one-to-one, the copies along two routes agree, the six
+   reconciliations are exact again, the process timing is the same - so the medium claims stay medium, now observed on
+   two days. Narrowed: almost all never-picked orders are backorders not yet supplied; the two open purchase orders were
+   received in full the next day, one movement per line; the 56 open customer invoices were paid in full the next day.
+   Still open: part payments and part receipts (none on either day), the 4 open supplier invoices, weekends and period
+   ends. The other files keep describing 2016-06-01 and show as ageing. Reviewed by astra and sol, both **FAILS**
+   ([astra](../docs/30_research/notes/XREV_2026-10-20_second-extract-readings_astra.md),
+   [sol](../docs/30_research/notes/XREV_2026-10-20_second-extract-counts_sol.md)); all findings fixed.
 3. **Review.** Astra on the record layout (below, R1-R11, ruled in ADR-0018). Sol on 129's inventory: the first,
    large pass never wrote an answer; re-sent in two parts, both returned.
    [Gaps and minimum](../docs/30_research/notes/XREV_2026-10-18_information-analysis-inventory-gaps_sol.md):

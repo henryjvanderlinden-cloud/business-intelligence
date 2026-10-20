@@ -1,0 +1,353 @@
+{
+ "code": "\nimport json\nimport reconcile as rc\nprint(json.dumps({slug: fn() for slug, (fn, _, _) in rc.RECONCILIATIONS.items()}))\n",
+ "id": "7da8041565c8ce0d",
+ "inputs": {
+  "base_extract": "2016-06-01",
+  "base_previous": "2016-05-31",
+  "manifests": {
+   "2016-05-31": "e1997891e919ac1a4f9af533db9a0e938ce53588406814e2119af0b164641ca2",
+   "2016-06-01": "35b71b2e3ff4bb9ef4e24afc9c56f914e8386df4060a794b862e7f5a00d2774f",
+   "2016-06-02": "b8de501a4089c476de29f8ca9eccef8c48e647bc604dfea9c7c57780b0b1a0c1"
+  },
+  "new_extract": "2016-06-02",
+  "new_previous": "2016-06-01",
+  "probe": "reconciliations",
+  "source": "wwi"
+ },
+ "kind": "profile",
+ "ran_at": "2026-10-20T08:46:53Z",
+ "result": {
+  "base": {
+   "customer-payments-vs-invoices": {
+    "days_from_invoice_to_finalization": {
+     "1": 70510
+    },
+    "invoice_states": {
+     "IsFinalized=0|FinalizationDate=empty|OutstandingBalance=the full amount": 56,
+     "IsFinalized=1|FinalizationDate=set|OutstandingBalance=0": 70510
+    },
+    "invoices": 70566,
+    "invoices_finalized_on_the_payments_party_and_day": {
+     "1": 23113,
+     "10": 56,
+     "11": 65,
+     "12": 78,
+     "13": 98,
+     "14": 98,
+     "15": 85,
+     "16": 85,
+     "17": 64,
+     "18": 71,
+     "19": 99,
+     "2": 1361,
+     "20": 62,
+     "21": 96,
+     "22": 74,
+     "23": 81,
+     "24": 74,
+     "25": 81,
+     "26": 88,
+     "27": 72,
+     "28": 71,
+     "29": 61,
+     "3": 71,
+     "30": 67,
+     "31": 80,
+     "32": 59,
+     "33": 29,
+     "34": 40,
+     "35": 27,
+     "36": 18,
+     "37": 13,
+     "38": 8,
+     "39": 14,
+     "4": 12,
+     "40": 9,
+     "41": 7,
+     "42": 2,
+     "43": 3,
+     "44": 1,
+     "45": 2,
+     "46": 3,
+     "47": 1,
+     "5": 15,
+     "6": 20,
+     "7": 39,
+     "8": 55,
+     "9": 48
+    },
+    "party_days_with_finalized_invoices_but_no_payment": 0,
+    "payment_against_invoices_finalized_that_day": {
+     "payment = -(invoices finalized that day)": 26676
+    },
+    "payment_states": {
+     "IsFinalized=1|OutstandingBalance=0": 26676
+    },
+    "payments": 26676,
+    "payments_per_party_and_day_max": 1
+   },
+   "invoice-lines-vs-stock-issues": {
+    "by_transaction_type": {
+     "10": 228432
+    },
+    "date_against_invoice_date": {
+     "movement date equal to invoice date": 228432
+    },
+    "distinct_line_keys": 228432,
+    "invoice_line_rows": 228432,
+    "line_keys_with_more_than_one_movement": 0,
+    "lines_without_movement": 0,
+    "movements_with_invoice": 228432,
+    "quantity": {
+     "movement = -line quantity": 228432
+    }
+   },
+   "ledger-invoices-vs-invoice-lines": {
+    "comparisons": {
+     "AmountExcludingTax equal to sum of Quantity x UnitPrice": 70566,
+     "TaxAmount equal to sum of line TaxAmount": 70566,
+     "TransactionAmount equal to sum of ExtendedPrice": 70566,
+     "TransactionDate equal to InvoiceDate": 70566
+    },
+    "invoice_entries": 70566,
+    "invoice_lines": 228432,
+    "lines_where_ExtendedPrice_is_Quantity_x_UnitPrice_plus_TaxAmount": 228432
+   },
+   "stock-holdings-vs-movements": {
+    "LastStocktakeQuantity_equals_QuantityOnHand": 2,
+    "change_against_movements_added": {
+     "change greater than movements added": 218,
+     "change less than movements added": 9
+    },
+    "change_direction": {
+     "QuantityOnHand fell": 15,
+     "QuantityOnHand rose": 211,
+     "QuantityOnHand unchanged": 1
+    },
+    "earlier_movements_deleted": 0,
+    "earlier_movements_with_changed_quantity": 0,
+    "items": 227,
+    "items_with_negative_QuantityOnHand": 0,
+    "level_against_sum_of_all_movements": {
+     "greater than": 218,
+     "less than": 9
+    },
+    "movements_added_between_extracts": {
+     "10": 167,
+     "11": 9
+    }
+   },
+   "supplier-invoices-vs-purchase-order-lines": {
+    "comparisons": {
+     "AmountExcludingTax equal to sum of OrderedOuters x ExpectedUnitPricePerOuter": 2074,
+     "AmountExcludingTax equal to sum of ReceivedOuters x ExpectedUnitPricePerOuter": 2074,
+     "TaxAmount equal to 15% of AmountExcludingTax, rounded half up": 2061,
+     "TaxAmount equal to the sum over lines of 15% of ReceivedOuters x ExpectedUnitPricePerOuter, each rounded half up": 2069,
+     "TaxAmount greater than 15% of AmountExcludingTax, rounded half up": 8,
+     "TaxAmount less than 15% of AmountExcludingTax, rounded half up": 5,
+     "TaxAmount less than the sum over lines of 15% of ReceivedOuters x ExpectedUnitPricePerOuter, each rounded half up": 5,
+     "TransactionAmount equal to AmountExcludingTax + TaxAmount": 2074
+    },
+    "supplier_invoices": 2074
+   },
+   "supplier-payments-vs-invoices": {
+    "days_from_invoice_to_finalization": {
+     "0": 641,
+     "3": 356,
+     "4": 358,
+     "5": 358,
+     "6": 357
+    },
+    "invoice_states": {
+     "IsFinalized=0|FinalizationDate=empty|OutstandingBalance=the full amount": 4,
+     "IsFinalized=1|FinalizationDate=set|OutstandingBalance=0": 2070
+    },
+    "invoices": 2074,
+    "invoices_finalized_on_the_payments_party_and_day": {
+     "1": 4,
+     "2": 4,
+     "3": 2,
+     "4": 3,
+     "5": 78,
+     "6": 275
+    },
+    "party_days_with_finalized_invoices_but_no_payment": 0,
+    "payment_against_invoices_finalized_that_day": {
+     "payment = -(invoices finalized that day)": 366
+    },
+    "payment_states": {
+     "IsFinalized=1|OutstandingBalance=0": 366
+    },
+    "payments": 366,
+    "payments_per_party_and_day_max": 1
+   }
+  },
+  "new": {
+   "customer-payments-vs-invoices": {
+    "days_from_invoice_to_finalization": {
+     "1": 70566
+    },
+    "invoice_states": {
+     "IsFinalized=0|FinalizationDate=empty|OutstandingBalance=the full amount": 107,
+     "IsFinalized=1|FinalizationDate=set|OutstandingBalance=0": 70566
+    },
+    "invoices": 70673,
+    "invoices_finalized_on_the_payments_party_and_day": {
+     "1": 23132,
+     "10": 56,
+     "11": 65,
+     "12": 78,
+     "13": 98,
+     "14": 98,
+     "15": 85,
+     "16": 85,
+     "17": 65,
+     "18": 72,
+     "19": 99,
+     "2": 1362,
+     "20": 62,
+     "21": 96,
+     "22": 74,
+     "23": 81,
+     "24": 74,
+     "25": 81,
+     "26": 88,
+     "27": 72,
+     "28": 71,
+     "29": 61,
+     "3": 71,
+     "30": 67,
+     "31": 80,
+     "32": 59,
+     "33": 29,
+     "34": 40,
+     "35": 27,
+     "36": 18,
+     "37": 13,
+     "38": 8,
+     "39": 14,
+     "4": 12,
+     "40": 9,
+     "41": 7,
+     "42": 2,
+     "43": 3,
+     "44": 1,
+     "45": 2,
+     "46": 3,
+     "47": 1,
+     "5": 15,
+     "6": 20,
+     "7": 39,
+     "8": 55,
+     "9": 48
+    },
+    "party_days_with_finalized_invoices_but_no_payment": 0,
+    "payment_against_invoices_finalized_that_day": {
+     "payment = -(invoices finalized that day)": 26698
+    },
+    "payment_states": {
+     "IsFinalized=1|OutstandingBalance=0": 26698
+    },
+    "payments": 26698,
+    "payments_per_party_and_day_max": 1
+   },
+   "invoice-lines-vs-stock-issues": {
+    "by_transaction_type": {
+     "10": 228794
+    },
+    "date_against_invoice_date": {
+     "movement date equal to invoice date": 228794
+    },
+    "distinct_line_keys": 228794,
+    "invoice_line_rows": 228794,
+    "line_keys_with_more_than_one_movement": 0,
+    "lines_without_movement": 0,
+    "movements_with_invoice": 228794,
+    "quantity": {
+     "movement = -line quantity": 228794
+    }
+   },
+   "ledger-invoices-vs-invoice-lines": {
+    "comparisons": {
+     "AmountExcludingTax equal to sum of Quantity x UnitPrice": 70673,
+     "TaxAmount equal to sum of line TaxAmount": 70673,
+     "TransactionAmount equal to sum of ExtendedPrice": 70673,
+     "TransactionDate equal to InvoiceDate": 70673
+    },
+    "invoice_entries": 70673,
+    "invoice_lines": 228794,
+    "lines_where_ExtendedPrice_is_Quantity_x_UnitPrice_plus_TaxAmount": 228794
+   },
+   "stock-holdings-vs-movements": {
+    "LastStocktakeQuantity_equals_QuantityOnHand": 1,
+    "change_against_movements_added": {
+     "change greater than movements added": 218,
+     "change less than movements added": 9
+    },
+    "change_direction": {
+     "QuantityOnHand fell": 22,
+     "QuantityOnHand rose": 203,
+     "QuantityOnHand unchanged": 2
+    },
+    "earlier_movements_deleted": 0,
+    "earlier_movements_with_changed_quantity": 0,
+    "items": 227,
+    "items_with_negative_QuantityOnHand": 0,
+    "level_against_sum_of_all_movements": {
+     "greater than": 218,
+     "less than": 9
+    },
+    "movements_added_between_extracts": {
+     "10": 362,
+     "11": 9
+    }
+   },
+   "supplier-invoices-vs-purchase-order-lines": {
+    "comparisons": {
+     "AmountExcludingTax equal to sum of OrderedOuters x ExpectedUnitPricePerOuter": 2076,
+     "AmountExcludingTax equal to sum of ReceivedOuters x ExpectedUnitPricePerOuter": 2076,
+     "TaxAmount equal to 15% of AmountExcludingTax, rounded half up": 2063,
+     "TaxAmount equal to the sum over lines of 15% of ReceivedOuters x ExpectedUnitPricePerOuter, each rounded half up": 2071,
+     "TaxAmount greater than 15% of AmountExcludingTax, rounded half up": 8,
+     "TaxAmount less than 15% of AmountExcludingTax, rounded half up": 5,
+     "TaxAmount less than the sum over lines of 15% of ReceivedOuters x ExpectedUnitPricePerOuter, each rounded half up": 5,
+     "TransactionAmount equal to AmountExcludingTax + TaxAmount": 2076
+    },
+    "supplier_invoices": 2076
+   },
+   "supplier-payments-vs-invoices": {
+    "days_from_invoice_to_finalization": {
+     "0": 641,
+     "3": 356,
+     "4": 358,
+     "5": 358,
+     "6": 357
+    },
+    "invoice_states": {
+     "IsFinalized=0|FinalizationDate=empty|OutstandingBalance=the full amount": 6,
+     "IsFinalized=1|FinalizationDate=set|OutstandingBalance=0": 2070
+    },
+    "invoices": 2076,
+    "invoices_finalized_on_the_payments_party_and_day": {
+     "1": 4,
+     "2": 4,
+     "3": 2,
+     "4": 3,
+     "5": 78,
+     "6": 275
+    },
+    "party_days_with_finalized_invoices_but_no_payment": 0,
+    "payment_against_invoices_finalized_that_day": {
+     "payment = -(invoices finalized that day)": 366
+    },
+    "payment_states": {
+     "IsFinalized=1|OutstandingBalance=0": 366
+    },
+    "payments": 366,
+    "payments_per_party_and_day_max": 1
+   }
+  }
+ },
+ "tool": "prototypes/information_analysis/recheck.py",
+ "tool_version": "db10bb807ad1c2448e745562dd82d15c00ae7672"
+}

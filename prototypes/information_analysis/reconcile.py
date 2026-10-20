@@ -27,7 +27,7 @@ import ia_lib as ia  # noqa: E402
 
 SCRIPT = "prototypes/information_analysis/reconcile.py"
 RAW = os.path.join(ROOT, "data", "raw", "wwi")
-DAY, PREV = "2016-06-01", "2016-05-31"
+DAY, PREV = os.environ.get("IA_DAY", "2016-06-01"), os.environ.get("IA_PREV", "2016-05-31")   # recheck.py sets them
 OUT = os.path.join(ROOT, "analysis", "wwi", "across", "reconciliations")
 csv.field_size_limit(1 << 30)
 _cache = {}

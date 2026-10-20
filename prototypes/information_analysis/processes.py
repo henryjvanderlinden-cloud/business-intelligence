@@ -28,7 +28,7 @@ import ia_lib as ia  # noqa: E402
 
 SCRIPT = "prototypes/information_analysis/processes.py"
 RAW = os.path.join(ROOT, "data", "raw", "wwi")
-DAY = "2016-06-01"
+DAY = os.environ.get("IA_DAY", "2016-06-01")   # recheck.py sets it
 OUT = os.path.join(ROOT, "analysis", "wwi", "across", "processes")
 csv.field_size_limit(1 << 30)
 _cache = {}

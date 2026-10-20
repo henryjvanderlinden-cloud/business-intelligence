@@ -6,6 +6,8 @@ with no act from the author per day? (`EVI-OP-7`; route A of
 
 **Answer, first evidence (2026-10-07).** Yes for one day: after setup (three runs by the author, two defects fixed), the agent advanced 2016-06-01 and received its full extract with no act by him. Whether it holds over many days is not yet known.
 
+**Second day (2026-10-20).** The agent requested `advance` for one day at 08:09 UTC; the job simulated 2016-06-02 (a Thursday, 115 new orders) in 86 seconds and wrote its full extract by 08:17, with no act by the author. The newest three extracts (2016-05-31 to 2016-06-02) are all kept.
+
 ## The pieces
 
 `setup.ps1` is run once by the author, as administrator. It restores Microsoft's `WideWorldImporters-Full.bak` into the

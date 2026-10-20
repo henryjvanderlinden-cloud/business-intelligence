@@ -6,7 +6,7 @@ topic: population
 tier: minimum
 summary: All 73,653 orders of 2013-01-01 to 2016-06-01 for 663 customers, backorders included; no placeholder found; no cancellation status exists; 3,087 never picked.
 confidence: unknown
-claims: 11
+claims: 12
 written_by: claude-opus-5-5
 written_at: 2026-10-18T20:30:00Z
 step: S08-061
@@ -40,6 +40,7 @@ recheck_when: every new extract
 - C9 | type=observed | status=proposed | confidence=high | effective=2016-06-01 | observed=2026-10-18 | checked=2026-10-18 | evidence=f61ebb431b7b9012 | recheck=a security policy or a count difference appears | text: Extraction visibility (R15): the owner, the read-only account nsdn_reader and the extract each see 73,653 rows.
 - C10 | type=declared | status=proposed | confidence=high | effective=2016-06-01 | observed=2026-10-18 | checked=2026-10-18 | evidence=f61ebb431b7b9012 | recheck=a masking rule appears | text: No column is masked.
 - C11 | type=declared | status=proposed | confidence=unknown | effective=2016-06-01 | observed=2026-10-18 | checked=2026-10-18 | evidence=f61ebb431b7b9012 | recheck=permission to read security policies is granted | text: Whether a row-level security policy exists is not established: the catalogue shows nsdn_reader none, which it may not be allowed to see; the equal row counts above show none takes effect on this account.
+- C12 | type=observed | status=proposed | confidence=medium | effective=2016-06-02 | observed=2026-10-20 | checked=2026-10-20 | evidence=41b0d386ac38bf1e | recheck=a later extract | text: Narrowed by the extract of 2016-06-02: of the 3,087 orders unpicked on 2016-06-01, 3,078 are backorders not yet supplied and 4 more backorders were picked and invoiced the next day; 5 that are not backorders remain unpicked (analysis/wwi/_source/22_stability.md#C18). C7 stays open: why the backorders remain unpicked is not tested.
 
 ## Reasoning
 

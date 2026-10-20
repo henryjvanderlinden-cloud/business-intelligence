@@ -6,16 +6,16 @@ topic: meaning
 tier: minimum
 summary: A stock receipt is the receipt of one purchase-order line; 9 lines have no receipt yet. Undeclared.
 confidence: unknown
-claims: 2
+claims: 3
 written_by: claude-opus-5-5
-written_at: 2026-10-20T05:51:00Z
-step: S08-092
+written_at: 2026-10-20T08:31:00Z
+step: S08-095
 method: mechanical claims by prototypes/information_analysis/write_relations.py (blob 48ceba838b93a9eb864e3d0b8c559252980a0b6c) from the relation's evidence by relations.py; readings by claude-opus-5-5 from that evidence, the catalogue's column descriptions and round 1's files
 input_source: wwi
 input_extract: 2016-06-01
 input_manifest_sha256: 35b71b2e3ff4bb9ef4e24afc9c56f914e8386df4060a794b862e7f5a00d2774f
 input_schema_sha256: 664bf3ce1e6055fd58b043e3d15e68a5454133c32d67454d5cd298527fed3ba5
-last_checked_at: 2026-10-20T05:51:00Z
+last_checked_at: 2026-10-20T08:31:00Z
 last_checked_by: claude-opus-5-5
 last_checked_against: 2016-06-01
 reviewed_by: none
@@ -31,6 +31,7 @@ recheck_when: every new extract, or a schema change of either table
 
 - C1 | type=intended | status=proposed | confidence=medium | effective=2016-06-01 | observed=2026-10-20 | checked=2026-10-20 | evidence=3f3748bd53d11df3,a2e0c315ed6cbd6f,196f36476eced6f4 | recheck=every new extract, or a description changes | text: A stock receipt records the receipt of one purchase-order line: 8,367 receipts match 8,367 lines one-to-one on (PurchaseOrderID, StockItemID); 9 lines have no receipt in this extract. Nothing declares it; (PurchaseOrderID, StockItemID) is unique in both tables in this extract (round 1).
 - C2 | type=observed | status=proposed | confidence=unknown | effective=2016-06-01 | observed=2026-10-20 | checked=2026-10-20 | evidence=none | recheck=a second extract with a partial receipt, or the generating script, settles it | text: How a receipt in parts is recorded - several movements per line, one movement updated, or a movement only once the line is complete - is not established: one extract shows one movement per received line and nothing else.
+- C3 | type=observed | status=proposed | confidence=medium | effective=2016-06-01 | observed=2026-10-20 | checked=2026-10-20 | evidence=none | recheck=every new extract | text: Seen again in the extract of 2016-06-02 (analysis/wwi/_source/22_stability.md#C19): the 9 lines open on 2016-06-01 were received in full the next day with one movement each; still no receipt in parts.
 
 ## Reasoning
 

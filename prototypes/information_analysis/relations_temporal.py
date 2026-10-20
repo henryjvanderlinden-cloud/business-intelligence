@@ -29,7 +29,7 @@ import ia_lib as ia  # noqa: E402
 
 SCRIPT = "prototypes/information_analysis/relations_temporal.py"
 RAW = os.path.join(ROOT, "data", "raw", "wwi")
-DAY = "2016-06-01"
+DAY = os.environ.get("IA_DAY", "2016-06-01")   # recheck.py sets it
 REL_DIR = os.path.join(ROOT, "analysis", "wwi", "across", "relations")
 csv.field_size_limit(1 << 30)
 # business dates of event tables (round 1's date columns)

@@ -38,6 +38,8 @@ python prototypes/information_analysis/reconcile.py <notes module>
 python prototypes/information_analysis/relations_temporal.py
 python prototypes/information_analysis/processes.py <notes module>
 python prototypes/information_analysis/write_glossary.py <notes module>
+python prototypes/information_analysis/recheck.py <base day> <base previous> <new day> <new previous>
+python prototypes/information_analysis/write_stability.py <notes module>
 ```
 
 `documentation` records which published Microsoft documentation of WWI was read and what it says, as one evidence per
@@ -60,6 +62,13 @@ was run in the agent's cloud workspace on staged copies of the same extracts, as
 per relation: the parent version current at the child's date, from the history tables) and `processes.py` (item 24:
 steps reached and days between them). `write_glossary.py` writes terms and entities (items 25 and 26) from a notes
 module; they measure nothing and link the claims that own each fact.
+
+**Recheck against a newer extract** (2026-10-20): the scripts read the extract's date from `IA_DAY` and `IA_PREV`
+(default 2016-06-01 and 2016-05-31). `recheck.py` runs their measuring functions on the base extract and on the newer
+one, each in a fresh interpreter, plus follow-ups on what the base left open, and writes the evidence to
+`analysis/wwi/_source/evidence/`; `write_stability.py` writes `_source/22_stability.md` (item 22). The record's other
+files keep describing the base extract and so show as ageing in `tools/ia_status.py`; the stability file says which of
+their rules the newer extract confirms or contradicts.
 
 **Answer, first part:** the inventory works on a real source. The catalogue took 7 queries (one per job run), the
 profiles about two minutes of machine time for 48 tables and 5.4 million rows, and the author's hands not at all; the

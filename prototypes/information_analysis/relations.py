@@ -25,7 +25,7 @@ import ia_lib as ia  # noqa: E402
 
 SCRIPT = "prototypes/information_analysis/relations.py"
 RAW = os.path.join(ROOT, "data", "raw", "wwi")
-DAY = "2016-06-01"
+DAY = os.environ.get("IA_DAY", "2016-06-01")   # recheck.py sets it
 PROFILE_DIR = os.path.join(ROOT, "scratch", "ia_profile")
 ACROSS = os.path.join(ROOT, "analysis", "wwi", "across")
 INT_TYPES = {"int", "bigint", "smallint", "tinyint"}

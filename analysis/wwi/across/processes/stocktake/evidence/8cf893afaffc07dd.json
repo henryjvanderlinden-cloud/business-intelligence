@@ -1,6 +1,6 @@
 {
  "code": "def stocktake():\n    \"\"\"Stock adjustments at stocktake: when they occur, how many items, and the holdings' stocktake columns.\"\"\"\n    adj = [s for s in rows(\"Warehouse.StockItemTransactions\") if s[\"TransactionTypeID\"] == \"12\"]\n    when = collections.Counter(s[\"TransactionOccurredWhen\"][:10] for s in adj)\n    items_per_date = collections.defaultdict(set)\n    for s in adj:\n        items_per_date[s[\"TransactionOccurredWhen\"][:10]].add(s[\"StockItemID\"])\n    h = rows(\"Warehouse.StockItemHoldings\")\n    return {\"adjustments\": len(adj), \"dates\": dict(sorted(when.items())), \"items_adjusted\": len({s[\"StockItemID\"] for s in adj}),\n            \"distinct_items_per_date\": {d: len(v) for d, v in sorted(items_per_date.items())},\n            \"adjustment_sign\": dict(collections.Counter(\"positive\" if float(s[\"Quantity\"]) > 0 else \"negative\" if float(s[\"Quantity\"]) < 0 else \"zero\" for s in adj)),\n            \"holdings\": len(h), \"holdings_LastStocktakeQuantity_filled\": sum(1 for r in h if r[\"LastStocktakeQuantity\"] != \"\")}\n\ndef days(a, b):\n    return (datetime.date.fromisoformat(b[:10]) - datetime.date.fromisoformat(a[:10])).days\n\ndef dist(v):\n    if not v:\n        return {\"rows\": 0}\n    v = sorted(v)\n    return {\"rows\": len(v), \"min\": v[0], \"median\": statistics.median(v), \"max\": v[-1],\n            \"most_common\": collections.Counter(v).most_common(4)}\n",
- "id": "7f3415e8ec5c2a66",
+ "id": "8cf893afaffc07dd",
  "inputs": {
   "extract": "2016-06-01",
   "manifest_sha256": "35b71b2e3ff4bb9ef4e24afc9c56f914e8386df4060a794b862e7f5a00d2774f",
@@ -11,7 +11,7 @@
   ]
  },
  "kind": "profile",
- "ran_at": "2026-10-20T05:50:48Z",
+ "ran_at": "2026-10-20T08:30:44Z",
  "result": {
   "adjustment_sign": {
    "negative": 21,
@@ -56,5 +56,5 @@
   "items_adjusted": 41
  },
  "tool": "prototypes/information_analysis/processes.py",
- "tool_version": "e3fc85d3ce7b1ef3ef3c73adff0cb80ee7681f8e"
+ "tool_version": "b1a37f986a92a0860a190d3cc4c50e10a4b4ecf7"
 }

@@ -1,0 +1,133 @@
+{
+ "code": "\nimport json\nimport relations_temporal as rt\nfrom relations import load_catalogues\ncats = load_catalogues()\nout = {}\nfor child, cc, parent, pc in [(\"Sales.InvoiceLines\", \"StockItemID\", \"Warehouse.StockItems\", \"StockItemID\"),\n                              (\"Sales.Invoices\", \"CustomerID\", \"Sales.Customers\", \"CustomerID\"),\n                              (\"Sales.CustomerTransactions\", \"CustomerID\", \"Sales.Customers\", \"CustomerID\"),\n                              (\"Sales.Orders\", \"SalespersonPersonID\", \"Application.People\", \"PersonID\")]:\n    out[\"%s.%s\" % (child, cc)] = rt.as_of(child, cc, parent, pc, cats)\nout[\"Sales.Invoices.OrderID by backorder\"] = rt.order_dates_by_backorder(\"Sales.Invoices\", \"OrderID\")\nprint(json.dumps(out))\n",
+ "id": "1a7d2212768737f6",
+ "inputs": {
+  "base_extract": "2016-06-01",
+  "base_previous": "2016-05-31",
+  "manifests": {
+   "2016-05-31": "e1997891e919ac1a4f9af533db9a0e938ce53588406814e2119af0b164641ca2",
+   "2016-06-01": "35b71b2e3ff4bb9ef4e24afc9c56f914e8386df4060a794b862e7f5a00d2774f",
+   "2016-06-02": "b8de501a4089c476de29f8ca9eccef8c48e647bc604dfea9c7c57780b0b1a0c1"
+  },
+  "new_extract": "2016-06-02",
+  "new_previous": "2016-06-01",
+  "probe": "point_in_time",
+  "source": "wwi"
+ },
+ "kind": "profile",
+ "ran_at": "2026-10-20T08:46:53Z",
+ "result": {
+  "base": {
+   "Sales.CustomerTransactions.CustomerID": {
+    "attributes_that_differ_rows": {
+     "CreditLimit": 3624
+    },
+    "child_date_column": "TransactionDate",
+    "parent_version_at_end_of_child_date": {
+     "an earlier version": 3624,
+     "an earlier version whose attributes differ from the current": 3624,
+     "the current version": 93618
+    }
+   },
+   "Sales.InvoiceLines.StockItemID": {
+    "attributes_that_differ_rows": {
+     "CustomFields": 228265,
+     "Tags": 228265
+    },
+    "child_date_column": "Sales.Invoices.InvoiceDate via InvoiceID",
+    "parent_version_at_end_of_child_date": {
+     "an earlier version": 228265,
+     "an earlier version whose attributes differ from the current": 228265,
+     "the current version": 167
+    }
+   },
+   "Sales.Invoices.CustomerID": {
+    "attributes_that_differ_rows": {
+     "CreditLimit": 1868
+    },
+    "child_date_column": "InvoiceDate",
+    "parent_version_at_end_of_child_date": {
+     "an earlier version": 1868,
+     "an earlier version whose attributes differ from the current": 1868,
+     "the current version": 68698
+    }
+   },
+   "Sales.Invoices.OrderID by backorder": {
+    "backorder|child date after order date": 4464,
+    "not a backorder|child date after order date": 15,
+    "not a backorder|same day or before": 66087
+   },
+   "Sales.Orders.SalespersonPersonID": {
+    "attributes_that_differ_rows": {
+     "CustomFields": 73595,
+     "HashedPassword": 1063,
+     "OtherLanguages": 73595,
+     "UserPreferences": 73595
+    },
+    "child_date_column": "OrderDate",
+    "parent_version_at_end_of_child_date": {
+     "an earlier version": 73595,
+     "an earlier version whose attributes differ from the current": 73595,
+     "the current version": 58
+    }
+   }
+  },
+  "new": {
+   "Sales.CustomerTransactions.CustomerID": {
+    "attributes_that_differ_rows": {
+     "CreditLimit": 3624
+    },
+    "child_date_column": "TransactionDate",
+    "parent_version_at_end_of_child_date": {
+     "an earlier version": 3624,
+     "an earlier version whose attributes differ from the current": 3624,
+     "the current version": 93747
+    }
+   },
+   "Sales.InvoiceLines.StockItemID": {
+    "attributes_that_differ_rows": {
+     "CustomFields": 228265,
+     "Tags": 228265
+    },
+    "child_date_column": "Sales.Invoices.InvoiceDate via InvoiceID",
+    "parent_version_at_end_of_child_date": {
+     "an earlier version": 228265,
+     "an earlier version whose attributes differ from the current": 228265,
+     "the current version": 529
+    }
+   },
+   "Sales.Invoices.CustomerID": {
+    "attributes_that_differ_rows": {
+     "CreditLimit": 1868
+    },
+    "child_date_column": "InvoiceDate",
+    "parent_version_at_end_of_child_date": {
+     "an earlier version": 1868,
+     "an earlier version whose attributes differ from the current": 1868,
+     "the current version": 68805
+    }
+   },
+   "Sales.Invoices.OrderID by backorder": {
+    "backorder|child date after order date": 4468,
+    "not a backorder|child date after order date": 15,
+    "not a backorder|same day or before": 66190
+   },
+   "Sales.Orders.SalespersonPersonID": {
+    "attributes_that_differ_rows": {
+     "CustomFields": 73595,
+     "HashedPassword": 1063,
+     "OtherLanguages": 73595,
+     "UserPreferences": 73595
+    },
+    "child_date_column": "OrderDate",
+    "parent_version_at_end_of_child_date": {
+     "an earlier version": 73595,
+     "an earlier version whose attributes differ from the current": 73595,
+     "the current version": 173
+    }
+   }
+  }
+ },
+ "tool": "prototypes/information_analysis/recheck.py",
+ "tool_version": "db10bb807ad1c2448e745562dd82d15c00ae7672"
+}

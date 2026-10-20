@@ -1,0 +1,598 @@
+{
+ "code": "\nimport json, os, glob\nimport profile_tables as pt\nout = {}\nfor f in sorted(glob.glob(os.path.join(pt.ROOT, \"scratch\", \"ia_profile\", \"*.json\"))):\n    d = json.load(open(f))\n    pk = [k[\"column_name\"] for k in d[\"catalogue\"][\"keys\"] if k[\"is_primary_key\"] == \"1\"]\n    t = os.path.basename(f)[:-5]\n    if pk and d[\"catalogue\"][\"table\"][0][\"temporal_type_desc\"] != \"HISTORY_TABLE\":\n        out[t] = pt.transition(t, pk)\nprint(json.dumps(out))\n",
+ "id": "2132ae643ace72b3",
+ "inputs": {
+  "base_extract": "2016-06-01",
+  "base_previous": "2016-05-31",
+  "manifests": {
+   "2016-05-31": "e1997891e919ac1a4f9af533db9a0e938ce53588406814e2119af0b164641ca2",
+   "2016-06-01": "35b71b2e3ff4bb9ef4e24afc9c56f914e8386df4060a794b862e7f5a00d2774f",
+   "2016-06-02": "b8de501a4089c476de29f8ca9eccef8c48e647bc604dfea9c7c57780b0b1a0c1"
+  },
+  "new_extract": "2016-06-02",
+  "new_previous": "2016-06-01",
+  "probe": "transitions",
+  "source": "wwi"
+ },
+ "kind": "profile",
+ "ran_at": "2026-10-20T08:46:53Z",
+ "result": {
+  "base": {
+   "Application.Cities": {
+    "deleted": 0,
+    "inserted": 0,
+    "rows_from": 37940,
+    "rows_to": 37940,
+    "updated": 0,
+    "updated_columns": {}
+   },
+   "Application.Countries": {
+    "deleted": 0,
+    "inserted": 0,
+    "rows_from": 190,
+    "rows_to": 190,
+    "updated": 0,
+    "updated_columns": {}
+   },
+   "Application.DeliveryMethods": {
+    "deleted": 0,
+    "inserted": 0,
+    "rows_from": 10,
+    "rows_to": 10,
+    "updated": 0,
+    "updated_columns": {}
+   },
+   "Application.PaymentMethods": {
+    "deleted": 0,
+    "inserted": 0,
+    "rows_from": 4,
+    "rows_to": 4,
+    "updated": 0,
+    "updated_columns": {}
+   },
+   "Application.People": {
+    "deleted": 0,
+    "inserted": 0,
+    "rows_from": 1111,
+    "rows_to": 1111,
+    "updated": 1,
+    "updated_columns": {
+     "ValidFrom": 1
+    }
+   },
+   "Application.StateProvinces": {
+    "deleted": 0,
+    "inserted": 0,
+    "rows_from": 53,
+    "rows_to": 53,
+    "updated": 0,
+    "updated_columns": {}
+   },
+   "Application.SystemParameters": {
+    "deleted": 0,
+    "inserted": 0,
+    "rows_from": 1,
+    "rows_to": 1,
+    "updated": 0,
+    "updated_columns": {}
+   },
+   "Application.TransactionTypes": {
+    "deleted": 0,
+    "inserted": 0,
+    "rows_from": 13,
+    "rows_to": 13,
+    "updated": 0,
+    "updated_columns": {}
+   },
+   "Purchasing.PurchaseOrderLines": {
+    "deleted": 0,
+    "inserted": 9,
+    "rows_from": 8367,
+    "rows_to": 8376,
+    "updated": 9,
+    "updated_columns": {
+     "IsOrderLineFinalized": 9,
+     "LastEditedBy": 9,
+     "LastEditedWhen": 9,
+     "LastReceiptDate": 9,
+     "ReceivedOuters": 9
+    }
+   },
+   "Purchasing.PurchaseOrders": {
+    "deleted": 0,
+    "inserted": 2,
+    "rows_from": 2074,
+    "rows_to": 2076,
+    "updated": 2,
+    "updated_columns": {
+     "IsOrderFinalized": 2,
+     "LastEditedBy": 2,
+     "LastEditedWhen": 2
+    }
+   },
+   "Purchasing.SupplierCategories": {
+    "deleted": 0,
+    "inserted": 0,
+    "rows_from": 9,
+    "rows_to": 9,
+    "updated": 0,
+    "updated_columns": {}
+   },
+   "Purchasing.SupplierTransactions": {
+    "deleted": 0,
+    "inserted": 2,
+    "rows_from": 2438,
+    "rows_to": 2440,
+    "updated": 0,
+    "updated_columns": {}
+   },
+   "Purchasing.Suppliers": {
+    "deleted": 0,
+    "inserted": 0,
+    "rows_from": 13,
+    "rows_to": 13,
+    "updated": 0,
+    "updated_columns": {}
+   },
+   "Sales.BuyingGroups": {
+    "deleted": 0,
+    "inserted": 0,
+    "rows_from": 2,
+    "rows_to": 2,
+    "updated": 0,
+    "updated_columns": {}
+   },
+   "Sales.CustomerCategories": {
+    "deleted": 0,
+    "inserted": 0,
+    "rows_from": 8,
+    "rows_to": 8,
+    "updated": 0,
+    "updated_columns": {}
+   },
+   "Sales.CustomerTransactions": {
+    "deleted": 0,
+    "inserted": 95,
+    "rows_from": 97147,
+    "rows_to": 97242,
+    "updated": 84,
+    "updated_columns": {
+     "FinalizationDate": 84,
+     "IsFinalized": 84,
+     "LastEditedBy": 84,
+     "LastEditedWhen": 84,
+     "OutstandingBalance": 84
+    }
+   },
+   "Sales.Customers": {
+    "deleted": 0,
+    "inserted": 0,
+    "rows_from": 663,
+    "rows_to": 663,
+    "updated": 0,
+    "updated_columns": {}
+   },
+   "Sales.InvoiceLines": {
+    "deleted": 0,
+    "inserted": 167,
+    "rows_from": 228265,
+    "rows_to": 228432,
+    "updated": 0,
+    "updated_columns": {}
+   },
+   "Sales.Invoices": {
+    "deleted": 0,
+    "inserted": 56,
+    "rows_from": 70510,
+    "rows_to": 70566,
+    "updated": 84,
+    "updated_columns": {
+     "ConfirmedDeliveryTime": 84,
+     "ConfirmedReceivedBy": 84,
+     "LastEditedBy": 84,
+     "LastEditedWhen": 84,
+     "ReturnedDeliveryData": 84
+    }
+   },
+   "Sales.OrderLines": {
+    "deleted": 0,
+    "inserted": 169,
+    "rows_from": 231412,
+    "rows_to": 231581,
+    "updated": 6,
+    "updated_columns": {
+     "LastEditedBy": 5,
+     "LastEditedWhen": 6,
+     "PickedQuantity": 6,
+     "PickingCompletedWhen": 6
+    }
+   },
+   "Sales.Orders": {
+    "deleted": 0,
+    "inserted": 58,
+    "rows_from": 73595,
+    "rows_to": 73653,
+    "updated": 6,
+    "updated_columns": {
+     "LastEditedBy": 5,
+     "LastEditedWhen": 6,
+     "PickedByPersonID": 6,
+     "PickingCompletedWhen": 6
+    }
+   },
+   "Sales.SpecialDeals": {
+    "deleted": 0,
+    "inserted": 0,
+    "rows_from": 2,
+    "rows_to": 2,
+    "updated": 0,
+    "updated_columns": {}
+   },
+   "Warehouse.ColdRoomTemperatures": {
+    "deleted": 4,
+    "inserted": 4,
+    "rows_from": 4,
+    "rows_to": 4,
+    "updated": 0,
+    "updated_columns": {}
+   },
+   "Warehouse.Colors": {
+    "deleted": 0,
+    "inserted": 0,
+    "rows_from": 36,
+    "rows_to": 36,
+    "updated": 0,
+    "updated_columns": {}
+   },
+   "Warehouse.PackageTypes": {
+    "deleted": 0,
+    "inserted": 0,
+    "rows_from": 14,
+    "rows_to": 14,
+    "updated": 0,
+    "updated_columns": {}
+   },
+   "Warehouse.StockGroups": {
+    "deleted": 0,
+    "inserted": 0,
+    "rows_from": 10,
+    "rows_to": 10,
+    "updated": 0,
+    "updated_columns": {}
+   },
+   "Warehouse.StockItemHoldings": {
+    "deleted": 0,
+    "inserted": 0,
+    "rows_from": 227,
+    "rows_to": 227,
+    "updated": 227,
+    "updated_columns": {
+     "LastEditedBy": 227,
+     "LastEditedWhen": 227,
+     "QuantityOnHand": 226
+    }
+   },
+   "Warehouse.StockItemStockGroups": {
+    "deleted": 0,
+    "inserted": 0,
+    "rows_from": 442,
+    "rows_to": 442,
+    "updated": 0,
+    "updated_columns": {}
+   },
+   "Warehouse.StockItemTransactions": {
+    "deleted": 0,
+    "inserted": 176,
+    "rows_from": 236667,
+    "rows_to": 236843,
+    "updated": 0,
+    "updated_columns": {}
+   },
+   "Warehouse.StockItems": {
+    "deleted": 0,
+    "inserted": 0,
+    "rows_from": 227,
+    "rows_to": 227,
+    "updated": 0,
+    "updated_columns": {}
+   },
+   "Warehouse.VehicleTemperatures": {
+    "deleted": 0,
+    "inserted": 432,
+    "rows_from": 65998,
+    "rows_to": 66430,
+    "updated": 0,
+    "updated_columns": {}
+   }
+  },
+  "new": {
+   "Application.Cities": {
+    "deleted": 0,
+    "inserted": 0,
+    "rows_from": 37940,
+    "rows_to": 37940,
+    "updated": 0,
+    "updated_columns": {}
+   },
+   "Application.Countries": {
+    "deleted": 0,
+    "inserted": 0,
+    "rows_from": 190,
+    "rows_to": 190,
+    "updated": 0,
+    "updated_columns": {}
+   },
+   "Application.DeliveryMethods": {
+    "deleted": 0,
+    "inserted": 0,
+    "rows_from": 10,
+    "rows_to": 10,
+    "updated": 0,
+    "updated_columns": {}
+   },
+   "Application.PaymentMethods": {
+    "deleted": 0,
+    "inserted": 0,
+    "rows_from": 4,
+    "rows_to": 4,
+    "updated": 0,
+    "updated_columns": {}
+   },
+   "Application.People": {
+    "deleted": 0,
+    "inserted": 0,
+    "rows_from": 1111,
+    "rows_to": 1111,
+    "updated": 1,
+    "updated_columns": {
+     "ValidFrom": 1
+    }
+   },
+   "Application.StateProvinces": {
+    "deleted": 0,
+    "inserted": 0,
+    "rows_from": 53,
+    "rows_to": 53,
+    "updated": 0,
+    "updated_columns": {}
+   },
+   "Application.SystemParameters": {
+    "deleted": 0,
+    "inserted": 0,
+    "rows_from": 1,
+    "rows_to": 1,
+    "updated": 0,
+    "updated_columns": {}
+   },
+   "Application.TransactionTypes": {
+    "deleted": 0,
+    "inserted": 0,
+    "rows_from": 13,
+    "rows_to": 13,
+    "updated": 0,
+    "updated_columns": {}
+   },
+   "Purchasing.PurchaseOrderLines": {
+    "deleted": 0,
+    "inserted": 9,
+    "rows_from": 8376,
+    "rows_to": 8385,
+    "updated": 9,
+    "updated_columns": {
+     "IsOrderLineFinalized": 9,
+     "LastEditedWhen": 9,
+     "LastReceiptDate": 9,
+     "ReceivedOuters": 9
+    }
+   },
+   "Purchasing.PurchaseOrders": {
+    "deleted": 0,
+    "inserted": 2,
+    "rows_from": 2076,
+    "rows_to": 2078,
+    "updated": 2,
+    "updated_columns": {
+     "IsOrderFinalized": 2,
+     "LastEditedBy": 2,
+     "LastEditedWhen": 2
+    }
+   },
+   "Purchasing.SupplierCategories": {
+    "deleted": 0,
+    "inserted": 0,
+    "rows_from": 9,
+    "rows_to": 9,
+    "updated": 0,
+    "updated_columns": {}
+   },
+   "Purchasing.SupplierTransactions": {
+    "deleted": 0,
+    "inserted": 2,
+    "rows_from": 2440,
+    "rows_to": 2442,
+    "updated": 0,
+    "updated_columns": {}
+   },
+   "Purchasing.Suppliers": {
+    "deleted": 0,
+    "inserted": 0,
+    "rows_from": 13,
+    "rows_to": 13,
+    "updated": 0,
+    "updated_columns": {}
+   },
+   "Sales.BuyingGroups": {
+    "deleted": 0,
+    "inserted": 0,
+    "rows_from": 2,
+    "rows_to": 2,
+    "updated": 0,
+    "updated_columns": {}
+   },
+   "Sales.CustomerCategories": {
+    "deleted": 0,
+    "inserted": 0,
+    "rows_from": 8,
+    "rows_to": 8,
+    "updated": 0,
+    "updated_columns": {}
+   },
+   "Sales.CustomerTransactions": {
+    "deleted": 0,
+    "inserted": 129,
+    "rows_from": 97242,
+    "rows_to": 97371,
+    "updated": 56,
+    "updated_columns": {
+     "FinalizationDate": 56,
+     "IsFinalized": 56,
+     "LastEditedBy": 56,
+     "LastEditedWhen": 56,
+     "OutstandingBalance": 56
+    }
+   },
+   "Sales.Customers": {
+    "deleted": 0,
+    "inserted": 0,
+    "rows_from": 663,
+    "rows_to": 663,
+    "updated": 0,
+    "updated_columns": {}
+   },
+   "Sales.InvoiceLines": {
+    "deleted": 0,
+    "inserted": 362,
+    "rows_from": 228432,
+    "rows_to": 228794,
+    "updated": 0,
+    "updated_columns": {}
+   },
+   "Sales.Invoices": {
+    "deleted": 0,
+    "inserted": 107,
+    "rows_from": 70566,
+    "rows_to": 70673,
+    "updated": 56,
+    "updated_columns": {
+     "ConfirmedDeliveryTime": 56,
+     "ConfirmedReceivedBy": 56,
+     "LastEditedBy": 56,
+     "LastEditedWhen": 56,
+     "ReturnedDeliveryData": 56
+    }
+   },
+   "Sales.OrderLines": {
+    "deleted": 0,
+    "inserted": 370,
+    "rows_from": 231581,
+    "rows_to": 231951,
+    "updated": 4,
+    "updated_columns": {
+     "LastEditedBy": 3,
+     "LastEditedWhen": 4,
+     "PickedQuantity": 4,
+     "PickingCompletedWhen": 4
+    }
+   },
+   "Sales.Orders": {
+    "deleted": 0,
+    "inserted": 115,
+    "rows_from": 73653,
+    "rows_to": 73768,
+    "updated": 4,
+    "updated_columns": {
+     "LastEditedBy": 3,
+     "LastEditedWhen": 4,
+     "PickedByPersonID": 4,
+     "PickingCompletedWhen": 4
+    }
+   },
+   "Sales.SpecialDeals": {
+    "deleted": 0,
+    "inserted": 0,
+    "rows_from": 2,
+    "rows_to": 2,
+    "updated": 0,
+    "updated_columns": {}
+   },
+   "Warehouse.ColdRoomTemperatures": {
+    "deleted": 4,
+    "inserted": 4,
+    "rows_from": 4,
+    "rows_to": 4,
+    "updated": 0,
+    "updated_columns": {}
+   },
+   "Warehouse.Colors": {
+    "deleted": 0,
+    "inserted": 0,
+    "rows_from": 36,
+    "rows_to": 36,
+    "updated": 0,
+    "updated_columns": {}
+   },
+   "Warehouse.PackageTypes": {
+    "deleted": 0,
+    "inserted": 0,
+    "rows_from": 14,
+    "rows_to": 14,
+    "updated": 0,
+    "updated_columns": {}
+   },
+   "Warehouse.StockGroups": {
+    "deleted": 0,
+    "inserted": 0,
+    "rows_from": 10,
+    "rows_to": 10,
+    "updated": 0,
+    "updated_columns": {}
+   },
+   "Warehouse.StockItemHoldings": {
+    "deleted": 0,
+    "inserted": 0,
+    "rows_from": 227,
+    "rows_to": 227,
+    "updated": 227,
+    "updated_columns": {
+     "LastEditedBy": 130,
+     "LastEditedWhen": 227,
+     "QuantityOnHand": 225
+    }
+   },
+   "Warehouse.StockItemStockGroups": {
+    "deleted": 0,
+    "inserted": 0,
+    "rows_from": 442,
+    "rows_to": 442,
+    "updated": 0,
+    "updated_columns": {}
+   },
+   "Warehouse.StockItemTransactions": {
+    "deleted": 0,
+    "inserted": 371,
+    "rows_from": 236843,
+    "rows_to": 237214,
+    "updated": 0,
+    "updated_columns": {}
+   },
+   "Warehouse.StockItems": {
+    "deleted": 0,
+    "inserted": 0,
+    "rows_from": 227,
+    "rows_to": 227,
+    "updated": 0,
+    "updated_columns": {}
+   },
+   "Warehouse.VehicleTemperatures": {
+    "deleted": 0,
+    "inserted": 418,
+    "rows_from": 66430,
+    "rows_to": 66848,
+    "updated": 0,
+    "updated_columns": {}
+   }
+  }
+ },
+ "tool": "prototypes/information_analysis/recheck.py",
+ "tool_version": "db10bb807ad1c2448e745562dd82d15c00ae7672"
+}

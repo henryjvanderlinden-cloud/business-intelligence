@@ -1,0 +1,1555 @@
+{
+ "code": "\nimport json\nimport relations as r\ncats = r.load_catalogues()\nout = {}\nfor t, d in cats.items():\n    for k in d[\"catalogue\"][\"foreign_keys_out\"]:\n        child, parent = \"%s.%s\" % (k[\"schema_name\"], k[\"table_name\"]), \"%s.%s\" % (k[\"ref_schema\"], k[\"ref_table\"])\n        p = r.relation_profile(child, k[\"column_name\"], parent, k[\"ref_column\"], cats[parent])\n        out[\"%s.%s\" % (child, k[\"column_name\"])] = {x: p[x] for x in (\"child_rows\", \"child_empty\", \"orphan_rows\", \"parents_unreferenced\")} | {\n            \"max_children\": p[\"children_per_referenced_parent\"].get(\"max\")}\nfor child, cc, parent, pc in r.COMPOSITE:\n    p = r.composite_profile(child, cc, parent, pc)\n    out[\"%s.%s\" % (child, \"+\".join(cc))] = {x: p[x] for x in (\"child_rows\", \"child_empty\", \"orphan_rows\", \"parents_unreferenced\", \"parent_combination_unique\")} | {\n        \"max_children\": p[\"children_per_referenced_parent\"].get(\"max\")}\nroutes = {\n \"Sales.CustomerTransactions.CustomerID = Invoices.BillToCustomerID\": (\"Sales.CustomerTransactions\", \"CustomerID\", \"InvoiceID\", \"Sales.Invoices\", \"InvoiceID\", \"BillToCustomerID\"),\n \"Sales.CustomerTransactions.CustomerID = Invoices.CustomerID\": (\"Sales.CustomerTransactions\", \"CustomerID\", \"InvoiceID\", \"Sales.Invoices\", \"InvoiceID\", \"CustomerID\"),\n \"Warehouse.StockItemTransactions.CustomerID = Invoices.CustomerID\": (\"Warehouse.StockItemTransactions\", \"CustomerID\", \"InvoiceID\", \"Sales.Invoices\", \"InvoiceID\", \"CustomerID\"),\n \"Sales.Invoices.CustomerID = Orders.CustomerID\": (\"Sales.Invoices\", \"CustomerID\", \"OrderID\", \"Sales.Orders\", \"OrderID\", \"CustomerID\"),\n \"Sales.Invoices.BillToCustomerID = Customers.BillToCustomerID\": (\"Sales.Invoices\", \"BillToCustomerID\", \"CustomerID\", \"Sales.Customers\", \"CustomerID\", \"BillToCustomerID\"),\n \"Sales.Invoices.SalespersonPersonID = Orders.SalespersonPersonID\": (\"Sales.Invoices\", \"SalespersonPersonID\", \"OrderID\", \"Sales.Orders\", \"OrderID\", \"SalespersonPersonID\"),\n \"Sales.InvoiceLines.PackageTypeID = StockItems.UnitPackageID\": (\"Sales.InvoiceLines\", \"PackageTypeID\", \"StockItemID\", \"Warehouse.StockItems\", \"StockItemID\", \"UnitPackageID\"),\n \"Purchasing.PurchaseOrderLines.PackageTypeID = StockItems.OuterPackageID\": (\"Purchasing.PurchaseOrderLines\", \"PackageTypeID\", \"StockItemID\", \"Warehouse.StockItems\", \"StockItemID\", \"OuterPackageID\"),\n \"Purchasing.PurchaseOrders.ContactPersonID = Suppliers.PrimaryContactPersonID\": (\"Purchasing.PurchaseOrders\", \"ContactPersonID\", \"SupplierID\", \"Purchasing.Suppliers\", \"SupplierID\", \"PrimaryContactPersonID\"),\n \"Warehouse.StockItemTransactions.SupplierID = StockItems.SupplierID\": (\"Warehouse.StockItemTransactions\", \"SupplierID\", \"StockItemID\", \"Warehouse.StockItems\", \"StockItemID\", \"SupplierID\"),\n}\nout[\"two_routes\"] = {k: r.path_agreement(*v) for k, v in routes.items()}\nprint(json.dumps(out))\n",
+ "id": "727606d9b43dcf38",
+ "inputs": {
+  "base_extract": "2016-06-01",
+  "base_previous": "2016-05-31",
+  "manifests": {
+   "2016-05-31": "e1997891e919ac1a4f9af533db9a0e938ce53588406814e2119af0b164641ca2",
+   "2016-06-01": "35b71b2e3ff4bb9ef4e24afc9c56f914e8386df4060a794b862e7f5a00d2774f",
+   "2016-06-02": "b8de501a4089c476de29f8ca9eccef8c48e647bc604dfea9c7c57780b0b1a0c1"
+  },
+  "new_extract": "2016-06-02",
+  "new_previous": "2016-06-01",
+  "probe": "relations",
+  "source": "wwi"
+ },
+ "kind": "profile",
+ "ran_at": "2026-10-20T08:46:53Z",
+ "result": {
+  "base": {
+   "Application.Cities.LastEditedBy": {
+    "child_empty": 0,
+    "child_rows": 37940,
+    "max_children": 37912,
+    "orphan_rows": 0,
+    "parents_unreferenced": 1107
+   },
+   "Application.Cities.StateProvinceID": {
+    "child_empty": 0,
+    "child_rows": 37940,
+    "max_children": 2395,
+    "orphan_rows": 0,
+    "parents_unreferenced": 0
+   },
+   "Application.Countries.LastEditedBy": {
+    "child_empty": 0,
+    "child_rows": 190,
+    "max_children": 155,
+    "orphan_rows": 0,
+    "parents_unreferenced": 1107
+   },
+   "Application.DeliveryMethods.LastEditedBy": {
+    "child_empty": 0,
+    "child_rows": 10,
+    "max_children": 9,
+    "orphan_rows": 0,
+    "parents_unreferenced": 1109
+   },
+   "Application.PaymentMethods.LastEditedBy": {
+    "child_empty": 0,
+    "child_rows": 4,
+    "max_children": 3,
+    "orphan_rows": 0,
+    "parents_unreferenced": 1109
+   },
+   "Application.People.LastEditedBy": {
+    "child_empty": 0,
+    "child_rows": 1111,
+    "max_children": 1111,
+    "orphan_rows": 0,
+    "parents_unreferenced": 1110
+   },
+   "Application.StateProvinces.CountryID": {
+    "child_empty": 0,
+    "child_rows": 53,
+    "max_children": 53,
+    "orphan_rows": 0,
+    "parents_unreferenced": 189
+   },
+   "Application.StateProvinces.LastEditedBy": {
+    "child_empty": 0,
+    "child_rows": 53,
+    "max_children": 19,
+    "orphan_rows": 0,
+    "parents_unreferenced": 1107
+   },
+   "Application.SystemParameters.DeliveryCityID": {
+    "child_empty": 0,
+    "child_rows": 1,
+    "max_children": 1,
+    "orphan_rows": 0,
+    "parents_unreferenced": 37939
+   },
+   "Application.SystemParameters.LastEditedBy": {
+    "child_empty": 0,
+    "child_rows": 1,
+    "max_children": 1,
+    "orphan_rows": 0,
+    "parents_unreferenced": 1110
+   },
+   "Application.SystemParameters.PostalCityID": {
+    "child_empty": 0,
+    "child_rows": 1,
+    "max_children": 1,
+    "orphan_rows": 0,
+    "parents_unreferenced": 37939
+   },
+   "Application.TransactionTypes.LastEditedBy": {
+    "child_empty": 0,
+    "child_rows": 13,
+    "max_children": 12,
+    "orphan_rows": 0,
+    "parents_unreferenced": 1109
+   },
+   "Purchasing.PurchaseOrderLines.LastEditedBy": {
+    "child_empty": 0,
+    "child_rows": 8376,
+    "max_children": 608,
+    "orphan_rows": 0,
+    "parents_unreferenced": 1092
+   },
+   "Purchasing.PurchaseOrderLines.PackageTypeID": {
+    "child_empty": 0,
+    "child_rows": 8376,
+    "max_children": 5779,
+    "orphan_rows": 0,
+    "parents_unreferenced": 11
+   },
+   "Purchasing.PurchaseOrderLines.PurchaseOrderID": {
+    "child_empty": 0,
+    "child_rows": 8376,
+    "max_children": 34,
+    "orphan_rows": 0,
+    "parents_unreferenced": 0
+   },
+   "Purchasing.PurchaseOrderLines.StockItemID": {
+    "child_empty": 0,
+    "child_rows": 8376,
+    "max_children": 966,
+    "orphan_rows": 0,
+    "parents_unreferenced": 0
+   },
+   "Purchasing.PurchaseOrders.ContactPersonID": {
+    "child_empty": 0,
+    "child_rows": 2076,
+    "max_children": 2076,
+    "orphan_rows": 0,
+    "parents_unreferenced": 1110
+   },
+   "Purchasing.PurchaseOrders.DeliveryMethodID": {
+    "child_empty": 0,
+    "child_rows": 2076,
+    "max_children": 1066,
+    "orphan_rows": 0,
+    "parents_unreferenced": 5
+   },
+   "Purchasing.PurchaseOrders.LastEditedBy": {
+    "child_empty": 0,
+    "child_rows": 2076,
+    "max_children": 141,
+    "orphan_rows": 0,
+    "parents_unreferenced": 1091
+   },
+   "Purchasing.PurchaseOrders.SupplierID": {
+    "child_empty": 0,
+    "child_rows": 2076,
+    "max_children": 1056,
+    "orphan_rows": 0,
+    "parents_unreferenced": 6
+   },
+   "Purchasing.SupplierCategories.LastEditedBy": {
+    "child_empty": 0,
+    "child_rows": 9,
+    "max_children": 8,
+    "orphan_rows": 0,
+    "parents_unreferenced": 1109
+   },
+   "Purchasing.SupplierTransactions.LastEditedBy": {
+    "child_empty": 0,
+    "child_rows": 2440,
+    "max_children": 213,
+    "orphan_rows": 0,
+    "parents_unreferenced": 1092
+   },
+   "Purchasing.SupplierTransactions.PaymentMethodID": {
+    "child_empty": 0,
+    "child_rows": 2440,
+    "max_children": 2440,
+    "orphan_rows": 0,
+    "parents_unreferenced": 3
+   },
+   "Purchasing.SupplierTransactions.PurchaseOrderID": {
+    "child_empty": 366,
+    "child_rows": 2440,
+    "max_children": 1,
+    "orphan_rows": 0,
+    "parents_unreferenced": 2
+   },
+   "Purchasing.SupplierTransactions.SupplierID": {
+    "child_empty": 0,
+    "child_rows": 2440,
+    "max_children": 1233,
+    "orphan_rows": 0,
+    "parents_unreferenced": 6
+   },
+   "Purchasing.SupplierTransactions.TransactionTypeID": {
+    "child_empty": 0,
+    "child_rows": 2440,
+    "max_children": 2074,
+    "orphan_rows": 0,
+    "parents_unreferenced": 11
+   },
+   "Purchasing.Suppliers.AlternateContactPersonID": {
+    "child_empty": 0,
+    "child_rows": 13,
+    "max_children": 1,
+    "orphan_rows": 0,
+    "parents_unreferenced": 1098
+   },
+   "Purchasing.Suppliers.DeliveryCityID": {
+    "child_empty": 0,
+    "child_rows": 13,
+    "max_children": 2,
+    "orphan_rows": 0,
+    "parents_unreferenced": 37928
+   },
+   "Purchasing.Suppliers.DeliveryMethodID": {
+    "child_empty": 4,
+    "child_rows": 13,
+    "max_children": 3,
+    "orphan_rows": 0,
+    "parents_unreferenced": 5
+   },
+   "Purchasing.Suppliers.LastEditedBy": {
+    "child_empty": 0,
+    "child_rows": 13,
+    "max_children": 13,
+    "orphan_rows": 0,
+    "parents_unreferenced": 1110
+   },
+   "Purchasing.Suppliers.PostalCityID": {
+    "child_empty": 0,
+    "child_rows": 13,
+    "max_children": 2,
+    "orphan_rows": 0,
+    "parents_unreferenced": 37928
+   },
+   "Purchasing.Suppliers.PrimaryContactPersonID": {
+    "child_empty": 0,
+    "child_rows": 13,
+    "max_children": 1,
+    "orphan_rows": 0,
+    "parents_unreferenced": 1098
+   },
+   "Purchasing.Suppliers.SupplierCategoryID": {
+    "child_empty": 0,
+    "child_rows": 13,
+    "max_children": 6,
+    "orphan_rows": 0,
+    "parents_unreferenced": 1
+   },
+   "Sales.BuyingGroups.LastEditedBy": {
+    "child_empty": 0,
+    "child_rows": 2,
+    "max_children": 2,
+    "orphan_rows": 0,
+    "parents_unreferenced": 1110
+   },
+   "Sales.CustomerCategories.LastEditedBy": {
+    "child_empty": 0,
+    "child_rows": 8,
+    "max_children": 7,
+    "orphan_rows": 0,
+    "parents_unreferenced": 1109
+   },
+   "Sales.CustomerTransactions.CustomerID": {
+    "child_empty": 0,
+    "child_rows": 97242,
+    "max_children": 23402,
+    "orphan_rows": 0,
+    "parents_unreferenced": 400
+   },
+   "Sales.CustomerTransactions.InvoiceID": {
+    "child_empty": 26676,
+    "child_rows": 97242,
+    "max_children": 1,
+    "orphan_rows": 0,
+    "parents_unreferenced": 0
+   },
+   "Sales.CustomerTransactions.LastEditedBy": {
+    "child_empty": 0,
+    "child_rows": 97242,
+    "max_children": 6127,
+    "orphan_rows": 0,
+    "parents_unreferenced": 1092
+   },
+   "Sales.CustomerTransactions.PaymentMethodID": {
+    "child_empty": 70566,
+    "child_rows": 97242,
+    "max_children": 26676,
+    "orphan_rows": 0,
+    "parents_unreferenced": 3
+   },
+   "Sales.CustomerTransactions.TransactionTypeID": {
+    "child_empty": 0,
+    "child_rows": 97242,
+    "max_children": 70566,
+    "orphan_rows": 0,
+    "parents_unreferenced": 11
+   },
+   "Sales.Customers.AlternateContactPersonID": {
+    "child_empty": 261,
+    "child_rows": 663,
+    "max_children": 1,
+    "orphan_rows": 0,
+    "parents_unreferenced": 709
+   },
+   "Sales.Customers.BillToCustomerID": {
+    "child_empty": 0,
+    "child_rows": 663,
+    "max_children": 201,
+    "orphan_rows": 0,
+    "parents_unreferenced": 400
+   },
+   "Sales.Customers.BuyingGroupID": {
+    "child_empty": 261,
+    "child_rows": 663,
+    "max_children": 201,
+    "orphan_rows": 0,
+    "parents_unreferenced": 0
+   },
+   "Sales.Customers.CustomerCategoryID": {
+    "child_empty": 0,
+    "child_rows": 663,
+    "max_children": 459,
+    "orphan_rows": 0,
+    "parents_unreferenced": 3
+   },
+   "Sales.Customers.DeliveryCityID": {
+    "child_empty": 0,
+    "child_rows": 663,
+    "max_children": 2,
+    "orphan_rows": 0,
+    "parents_unreferenced": 37285
+   },
+   "Sales.Customers.DeliveryMethodID": {
+    "child_empty": 0,
+    "child_rows": 663,
+    "max_children": 663,
+    "orphan_rows": 0,
+    "parents_unreferenced": 9
+   },
+   "Sales.Customers.LastEditedBy": {
+    "child_empty": 0,
+    "child_rows": 663,
+    "max_children": 617,
+    "orphan_rows": 0,
+    "parents_unreferenced": 1107
+   },
+   "Sales.Customers.PostalCityID": {
+    "child_empty": 0,
+    "child_rows": 663,
+    "max_children": 2,
+    "orphan_rows": 0,
+    "parents_unreferenced": 37285
+   },
+   "Sales.Customers.PrimaryContactPersonID": {
+    "child_empty": 0,
+    "child_rows": 663,
+    "max_children": 1,
+    "orphan_rows": 0,
+    "parents_unreferenced": 448
+   },
+   "Sales.InvoiceLines.InvoiceID": {
+    "child_empty": 0,
+    "child_rows": 228432,
+    "max_children": 5,
+    "orphan_rows": 0,
+    "parents_unreferenced": 0
+   },
+   "Sales.InvoiceLines.LastEditedBy": {
+    "child_empty": 0,
+    "child_rows": 228432,
+    "max_children": 14674,
+    "orphan_rows": 0,
+    "parents_unreferenced": 1092
+   },
+   "Sales.InvoiceLines.PackageTypeID": {
+    "child_empty": 0,
+    "child_rows": 228432,
+    "max_children": 217959,
+    "orphan_rows": 0,
+    "parents_unreferenced": 10
+   },
+   "Sales.InvoiceLines.StockItemID": {
+    "child_empty": 0,
+    "child_rows": 228432,
+    "max_children": 1124,
+    "orphan_rows": 0,
+    "parents_unreferenced": 0
+   },
+   "Sales.Invoices.AccountsPersonID": {
+    "child_empty": 0,
+    "child_rows": 70566,
+    "max_children": 22333,
+    "orphan_rows": 0,
+    "parents_unreferenced": 848
+   },
+   "Sales.Invoices.BillToCustomerID": {
+    "child_empty": 0,
+    "child_rows": 70566,
+    "max_children": 22333,
+    "orphan_rows": 0,
+    "parents_unreferenced": 400
+   },
+   "Sales.Invoices.ContactPersonID": {
+    "child_empty": 0,
+    "child_rows": 70566,
+    "max_children": 144,
+    "orphan_rows": 0,
+    "parents_unreferenced": 448
+   },
+   "Sales.Invoices.CustomerID": {
+    "child_empty": 0,
+    "child_rows": 70566,
+    "max_children": 144,
+    "orphan_rows": 0,
+    "parents_unreferenced": 0
+   },
+   "Sales.Invoices.DeliveryMethodID": {
+    "child_empty": 0,
+    "child_rows": 70566,
+    "max_children": 70566,
+    "orphan_rows": 0,
+    "parents_unreferenced": 9
+   },
+   "Sales.Invoices.LastEditedBy": {
+    "child_empty": 0,
+    "child_rows": 70566,
+    "max_children": 4652,
+    "orphan_rows": 0,
+    "parents_unreferenced": 1092
+   },
+   "Sales.Invoices.OrderID": {
+    "child_empty": 0,
+    "child_rows": 70566,
+    "max_children": 1,
+    "orphan_rows": 0,
+    "parents_unreferenced": 3087
+   },
+   "Sales.Invoices.PackedByPersonID": {
+    "child_empty": 0,
+    "child_rows": 70566,
+    "max_children": 4817,
+    "orphan_rows": 0,
+    "parents_unreferenced": 1092
+   },
+   "Sales.Invoices.SalespersonPersonID": {
+    "child_empty": 0,
+    "child_rows": 70566,
+    "max_children": 7191,
+    "orphan_rows": 0,
+    "parents_unreferenced": 1101
+   },
+   "Sales.OrderLines.LastEditedBy": {
+    "child_empty": 0,
+    "child_rows": 231581,
+    "max_children": 14959,
+    "orphan_rows": 0,
+    "parents_unreferenced": 1091
+   },
+   "Sales.OrderLines.OrderID": {
+    "child_empty": 0,
+    "child_rows": 231581,
+    "max_children": 5,
+    "orphan_rows": 0,
+    "parents_unreferenced": 0
+   },
+   "Sales.OrderLines.PackageTypeID": {
+    "child_empty": 0,
+    "child_rows": 231581,
+    "max_children": 221108,
+    "orphan_rows": 0,
+    "parents_unreferenced": 10
+   },
+   "Sales.OrderLines.StockItemID": {
+    "child_empty": 0,
+    "child_rows": 231581,
+    "max_children": 1124,
+    "orphan_rows": 0,
+    "parents_unreferenced": 0
+   },
+   "Sales.Orders.BackorderOrderID": {
+    "child_empty": 66107,
+    "child_rows": 73653,
+    "max_children": 1,
+    "orphan_rows": 0,
+    "parents_unreferenced": 66107
+   },
+   "Sales.Orders.ContactPersonID": {
+    "child_empty": 0,
+    "child_rows": 73653,
+    "max_children": 150,
+    "orphan_rows": 0,
+    "parents_unreferenced": 448
+   },
+   "Sales.Orders.CustomerID": {
+    "child_empty": 0,
+    "child_rows": 73653,
+    "max_children": 150,
+    "orphan_rows": 0,
+    "parents_unreferenced": 0
+   },
+   "Sales.Orders.LastEditedBy": {
+    "child_empty": 0,
+    "child_rows": 73653,
+    "max_children": 4648,
+    "orphan_rows": 0,
+    "parents_unreferenced": 1091
+   },
+   "Sales.Orders.PickedByPersonID": {
+    "child_empty": 10633,
+    "child_rows": 73653,
+    "max_children": 4042,
+    "orphan_rows": 0,
+    "parents_unreferenced": 1092
+   },
+   "Sales.Orders.SalespersonPersonID": {
+    "child_empty": 0,
+    "child_rows": 73653,
+    "max_children": 7539,
+    "orphan_rows": 0,
+    "parents_unreferenced": 1101
+   },
+   "Sales.SpecialDeals.BuyingGroupID": {
+    "child_empty": 0,
+    "child_rows": 2,
+    "max_children": 1,
+    "orphan_rows": 0,
+    "parents_unreferenced": 0
+   },
+   "Sales.SpecialDeals.CustomerCategoryID": {
+    "child_empty": 2,
+    "child_rows": 2,
+    "max_children": null,
+    "orphan_rows": 0,
+    "parents_unreferenced": 8
+   },
+   "Sales.SpecialDeals.CustomerID": {
+    "child_empty": 2,
+    "child_rows": 2,
+    "max_children": null,
+    "orphan_rows": 0,
+    "parents_unreferenced": 663
+   },
+   "Sales.SpecialDeals.LastEditedBy": {
+    "child_empty": 0,
+    "child_rows": 2,
+    "max_children": 2,
+    "orphan_rows": 0,
+    "parents_unreferenced": 1110
+   },
+   "Sales.SpecialDeals.StockGroupID": {
+    "child_empty": 0,
+    "child_rows": 2,
+    "max_children": 2,
+    "orphan_rows": 0,
+    "parents_unreferenced": 9
+   },
+   "Sales.SpecialDeals.StockItemID": {
+    "child_empty": 2,
+    "child_rows": 2,
+    "max_children": null,
+    "orphan_rows": 0,
+    "parents_unreferenced": 227
+   },
+   "Warehouse.Colors.LastEditedBy": {
+    "child_empty": 0,
+    "child_rows": 36,
+    "max_children": 35,
+    "orphan_rows": 0,
+    "parents_unreferenced": 1109
+   },
+   "Warehouse.PackageTypes.LastEditedBy": {
+    "child_empty": 0,
+    "child_rows": 14,
+    "max_children": 14,
+    "orphan_rows": 0,
+    "parents_unreferenced": 1110
+   },
+   "Warehouse.StockGroups.LastEditedBy": {
+    "child_empty": 0,
+    "child_rows": 10,
+    "max_children": 9,
+    "orphan_rows": 0,
+    "parents_unreferenced": 1109
+   },
+   "Warehouse.StockItemHoldings.LastEditedBy": {
+    "child_empty": 0,
+    "child_rows": 227,
+    "max_children": 118,
+    "orphan_rows": 0,
+    "parents_unreferenced": 1109
+   },
+   "Warehouse.StockItemHoldings.StockItemID": {
+    "child_empty": 0,
+    "child_rows": 227,
+    "max_children": 1,
+    "orphan_rows": 0,
+    "parents_unreferenced": 0
+   },
+   "Warehouse.StockItemStockGroups.LastEditedBy": {
+    "child_empty": 0,
+    "child_rows": 442,
+    "max_children": 442,
+    "orphan_rows": 0,
+    "parents_unreferenced": 1110
+   },
+   "Warehouse.StockItemStockGroups.StockGroupID": {
+    "child_empty": 0,
+    "child_rows": 442,
+    "max_children": 91,
+    "orphan_rows": 0,
+    "parents_unreferenced": 1
+   },
+   "Warehouse.StockItemStockGroups.StockItemID": {
+    "child_empty": 0,
+    "child_rows": 442,
+    "max_children": 3,
+    "orphan_rows": 0,
+    "parents_unreferenced": 0
+   },
+   "Warehouse.StockItemTransactions.CustomerID": {
+    "child_empty": 8411,
+    "child_rows": 236843,
+    "max_children": 457,
+    "orphan_rows": 0,
+    "parents_unreferenced": 0
+   },
+   "Warehouse.StockItemTransactions.InvoiceID": {
+    "child_empty": 8411,
+    "child_rows": 236843,
+    "max_children": 5,
+    "orphan_rows": 0,
+    "parents_unreferenced": 0
+   },
+   "Warehouse.StockItemTransactions.InvoiceID+StockItemID": {
+    "child_empty": 8411,
+    "child_rows": 236843,
+    "max_children": 1,
+    "orphan_rows": 0,
+    "parent_combination_unique": true,
+    "parents_unreferenced": 0
+   },
+   "Warehouse.StockItemTransactions.LastEditedBy": {
+    "child_empty": 0,
+    "child_rows": 236843,
+    "max_children": 15224,
+    "orphan_rows": 0,
+    "parents_unreferenced": 1092
+   },
+   "Warehouse.StockItemTransactions.PurchaseOrderID": {
+    "child_empty": 228476,
+    "child_rows": 236843,
+    "max_children": 34,
+    "orphan_rows": 0,
+    "parents_unreferenced": 2
+   },
+   "Warehouse.StockItemTransactions.PurchaseOrderID+StockItemID": {
+    "child_empty": 228476,
+    "child_rows": 236843,
+    "max_children": 1,
+    "orphan_rows": 0,
+    "parent_combination_unique": true,
+    "parents_unreferenced": 9
+   },
+   "Warehouse.StockItemTransactions.StockItemID": {
+    "child_empty": 0,
+    "child_rows": 236843,
+    "max_children": 1769,
+    "orphan_rows": 0,
+    "parents_unreferenced": 0
+   },
+   "Warehouse.StockItemTransactions.SupplierID": {
+    "child_empty": 228476,
+    "child_rows": 236843,
+    "max_children": 5802,
+    "orphan_rows": 0,
+    "parents_unreferenced": 6
+   },
+   "Warehouse.StockItemTransactions.TransactionTypeID": {
+    "child_empty": 0,
+    "child_rows": 236843,
+    "max_children": 228432,
+    "orphan_rows": 0,
+    "parents_unreferenced": 10
+   },
+   "Warehouse.StockItems.ColorID": {
+    "child_empty": 99,
+    "child_rows": 227,
+    "max_children": 51,
+    "orphan_rows": 0,
+    "parents_unreferenced": 29
+   },
+   "Warehouse.StockItems.LastEditedBy": {
+    "child_empty": 0,
+    "child_rows": 227,
+    "max_children": 227,
+    "orphan_rows": 0,
+    "parents_unreferenced": 1110
+   },
+   "Warehouse.StockItems.OuterPackageID": {
+    "child_empty": 0,
+    "child_rows": 227,
+    "max_children": 175,
+    "orphan_rows": 0,
+    "parents_unreferenced": 11
+   },
+   "Warehouse.StockItems.SupplierID": {
+    "child_empty": 0,
+    "child_rows": 227,
+    "max_children": 74,
+    "orphan_rows": 0,
+    "parents_unreferenced": 6
+   },
+   "Warehouse.StockItems.UnitPackageID": {
+    "child_empty": 0,
+    "child_rows": 227,
+    "max_children": 210,
+    "orphan_rows": 0,
+    "parents_unreferenced": 10
+   },
+   "two_routes": {
+    "Purchasing.PurchaseOrderLines.PackageTypeID = StockItems.OuterPackageID": {
+     "agree": 8376,
+     "disagree": 0,
+     "rows": 8376,
+     "rows_with_both_routes": 8376
+    },
+    "Purchasing.PurchaseOrders.ContactPersonID = Suppliers.PrimaryContactPersonID": {
+     "agree": 0,
+     "disagree": 2076,
+     "rows": 2076,
+     "rows_with_both_routes": 2076
+    },
+    "Sales.CustomerTransactions.CustomerID = Invoices.BillToCustomerID": {
+     "agree": 70566,
+     "disagree": 0,
+     "rows": 97242,
+     "rows_with_both_routes": 70566
+    },
+    "Sales.CustomerTransactions.CustomerID = Invoices.CustomerID": {
+     "agree": 26287,
+     "disagree": 44279,
+     "rows": 97242,
+     "rows_with_both_routes": 70566
+    },
+    "Sales.InvoiceLines.PackageTypeID = StockItems.UnitPackageID": {
+     "agree": 228432,
+     "disagree": 0,
+     "rows": 228432,
+     "rows_with_both_routes": 228432
+    },
+    "Sales.Invoices.BillToCustomerID = Customers.BillToCustomerID": {
+     "agree": 70566,
+     "disagree": 0,
+     "rows": 70566,
+     "rows_with_both_routes": 70566
+    },
+    "Sales.Invoices.CustomerID = Orders.CustomerID": {
+     "agree": 70566,
+     "disagree": 0,
+     "rows": 70566,
+     "rows_with_both_routes": 70566
+    },
+    "Sales.Invoices.SalespersonPersonID = Orders.SalespersonPersonID": {
+     "agree": 70566,
+     "disagree": 0,
+     "rows": 70566,
+     "rows_with_both_routes": 70566
+    },
+    "Warehouse.StockItemTransactions.CustomerID = Invoices.CustomerID": {
+     "agree": 228432,
+     "disagree": 0,
+     "rows": 236843,
+     "rows_with_both_routes": 228432
+    },
+    "Warehouse.StockItemTransactions.SupplierID = StockItems.SupplierID": {
+     "agree": 8367,
+     "disagree": 0,
+     "rows": 236843,
+     "rows_with_both_routes": 8367
+    }
+   }
+  },
+  "new": {
+   "Application.Cities.LastEditedBy": {
+    "child_empty": 0,
+    "child_rows": 37940,
+    "max_children": 37912,
+    "orphan_rows": 0,
+    "parents_unreferenced": 1107
+   },
+   "Application.Cities.StateProvinceID": {
+    "child_empty": 0,
+    "child_rows": 37940,
+    "max_children": 2395,
+    "orphan_rows": 0,
+    "parents_unreferenced": 0
+   },
+   "Application.Countries.LastEditedBy": {
+    "child_empty": 0,
+    "child_rows": 190,
+    "max_children": 155,
+    "orphan_rows": 0,
+    "parents_unreferenced": 1107
+   },
+   "Application.DeliveryMethods.LastEditedBy": {
+    "child_empty": 0,
+    "child_rows": 10,
+    "max_children": 9,
+    "orphan_rows": 0,
+    "parents_unreferenced": 1109
+   },
+   "Application.PaymentMethods.LastEditedBy": {
+    "child_empty": 0,
+    "child_rows": 4,
+    "max_children": 3,
+    "orphan_rows": 0,
+    "parents_unreferenced": 1109
+   },
+   "Application.People.LastEditedBy": {
+    "child_empty": 0,
+    "child_rows": 1111,
+    "max_children": 1111,
+    "orphan_rows": 0,
+    "parents_unreferenced": 1110
+   },
+   "Application.StateProvinces.CountryID": {
+    "child_empty": 0,
+    "child_rows": 53,
+    "max_children": 53,
+    "orphan_rows": 0,
+    "parents_unreferenced": 189
+   },
+   "Application.StateProvinces.LastEditedBy": {
+    "child_empty": 0,
+    "child_rows": 53,
+    "max_children": 19,
+    "orphan_rows": 0,
+    "parents_unreferenced": 1107
+   },
+   "Application.SystemParameters.DeliveryCityID": {
+    "child_empty": 0,
+    "child_rows": 1,
+    "max_children": 1,
+    "orphan_rows": 0,
+    "parents_unreferenced": 37939
+   },
+   "Application.SystemParameters.LastEditedBy": {
+    "child_empty": 0,
+    "child_rows": 1,
+    "max_children": 1,
+    "orphan_rows": 0,
+    "parents_unreferenced": 1110
+   },
+   "Application.SystemParameters.PostalCityID": {
+    "child_empty": 0,
+    "child_rows": 1,
+    "max_children": 1,
+    "orphan_rows": 0,
+    "parents_unreferenced": 37939
+   },
+   "Application.TransactionTypes.LastEditedBy": {
+    "child_empty": 0,
+    "child_rows": 13,
+    "max_children": 12,
+    "orphan_rows": 0,
+    "parents_unreferenced": 1109
+   },
+   "Purchasing.PurchaseOrderLines.LastEditedBy": {
+    "child_empty": 0,
+    "child_rows": 8385,
+    "max_children": 608,
+    "orphan_rows": 0,
+    "parents_unreferenced": 1092
+   },
+   "Purchasing.PurchaseOrderLines.PackageTypeID": {
+    "child_empty": 0,
+    "child_rows": 8385,
+    "max_children": 5785,
+    "orphan_rows": 0,
+    "parents_unreferenced": 11
+   },
+   "Purchasing.PurchaseOrderLines.PurchaseOrderID": {
+    "child_empty": 0,
+    "child_rows": 8385,
+    "max_children": 34,
+    "orphan_rows": 0,
+    "parents_unreferenced": 0
+   },
+   "Purchasing.PurchaseOrderLines.StockItemID": {
+    "child_empty": 0,
+    "child_rows": 8385,
+    "max_children": 967,
+    "orphan_rows": 0,
+    "parents_unreferenced": 0
+   },
+   "Purchasing.PurchaseOrders.ContactPersonID": {
+    "child_empty": 0,
+    "child_rows": 2078,
+    "max_children": 2078,
+    "orphan_rows": 0,
+    "parents_unreferenced": 1110
+   },
+   "Purchasing.PurchaseOrders.DeliveryMethodID": {
+    "child_empty": 0,
+    "child_rows": 2078,
+    "max_children": 1067,
+    "orphan_rows": 0,
+    "parents_unreferenced": 5
+   },
+   "Purchasing.PurchaseOrders.LastEditedBy": {
+    "child_empty": 0,
+    "child_rows": 2078,
+    "max_children": 141,
+    "orphan_rows": 0,
+    "parents_unreferenced": 1091
+   },
+   "Purchasing.PurchaseOrders.SupplierID": {
+    "child_empty": 0,
+    "child_rows": 2078,
+    "max_children": 1057,
+    "orphan_rows": 0,
+    "parents_unreferenced": 6
+   },
+   "Purchasing.SupplierCategories.LastEditedBy": {
+    "child_empty": 0,
+    "child_rows": 9,
+    "max_children": 8,
+    "orphan_rows": 0,
+    "parents_unreferenced": 1109
+   },
+   "Purchasing.SupplierTransactions.LastEditedBy": {
+    "child_empty": 0,
+    "child_rows": 2442,
+    "max_children": 213,
+    "orphan_rows": 0,
+    "parents_unreferenced": 1092
+   },
+   "Purchasing.SupplierTransactions.PaymentMethodID": {
+    "child_empty": 0,
+    "child_rows": 2442,
+    "max_children": 2442,
+    "orphan_rows": 0,
+    "parents_unreferenced": 3
+   },
+   "Purchasing.SupplierTransactions.PurchaseOrderID": {
+    "child_empty": 366,
+    "child_rows": 2442,
+    "max_children": 1,
+    "orphan_rows": 0,
+    "parents_unreferenced": 2
+   },
+   "Purchasing.SupplierTransactions.SupplierID": {
+    "child_empty": 0,
+    "child_rows": 2442,
+    "max_children": 1234,
+    "orphan_rows": 0,
+    "parents_unreferenced": 6
+   },
+   "Purchasing.SupplierTransactions.TransactionTypeID": {
+    "child_empty": 0,
+    "child_rows": 2442,
+    "max_children": 2076,
+    "orphan_rows": 0,
+    "parents_unreferenced": 11
+   },
+   "Purchasing.Suppliers.AlternateContactPersonID": {
+    "child_empty": 0,
+    "child_rows": 13,
+    "max_children": 1,
+    "orphan_rows": 0,
+    "parents_unreferenced": 1098
+   },
+   "Purchasing.Suppliers.DeliveryCityID": {
+    "child_empty": 0,
+    "child_rows": 13,
+    "max_children": 2,
+    "orphan_rows": 0,
+    "parents_unreferenced": 37928
+   },
+   "Purchasing.Suppliers.DeliveryMethodID": {
+    "child_empty": 4,
+    "child_rows": 13,
+    "max_children": 3,
+    "orphan_rows": 0,
+    "parents_unreferenced": 5
+   },
+   "Purchasing.Suppliers.LastEditedBy": {
+    "child_empty": 0,
+    "child_rows": 13,
+    "max_children": 13,
+    "orphan_rows": 0,
+    "parents_unreferenced": 1110
+   },
+   "Purchasing.Suppliers.PostalCityID": {
+    "child_empty": 0,
+    "child_rows": 13,
+    "max_children": 2,
+    "orphan_rows": 0,
+    "parents_unreferenced": 37928
+   },
+   "Purchasing.Suppliers.PrimaryContactPersonID": {
+    "child_empty": 0,
+    "child_rows": 13,
+    "max_children": 1,
+    "orphan_rows": 0,
+    "parents_unreferenced": 1098
+   },
+   "Purchasing.Suppliers.SupplierCategoryID": {
+    "child_empty": 0,
+    "child_rows": 13,
+    "max_children": 6,
+    "orphan_rows": 0,
+    "parents_unreferenced": 1
+   },
+   "Sales.BuyingGroups.LastEditedBy": {
+    "child_empty": 0,
+    "child_rows": 2,
+    "max_children": 2,
+    "orphan_rows": 0,
+    "parents_unreferenced": 1110
+   },
+   "Sales.CustomerCategories.LastEditedBy": {
+    "child_empty": 0,
+    "child_rows": 8,
+    "max_children": 7,
+    "orphan_rows": 0,
+    "parents_unreferenced": 1109
+   },
+   "Sales.CustomerTransactions.CustomerID": {
+    "child_empty": 0,
+    "child_rows": 97371,
+    "max_children": 23442,
+    "orphan_rows": 0,
+    "parents_unreferenced": 400
+   },
+   "Sales.CustomerTransactions.InvoiceID": {
+    "child_empty": 26698,
+    "child_rows": 97371,
+    "max_children": 1,
+    "orphan_rows": 0,
+    "parents_unreferenced": 0
+   },
+   "Sales.CustomerTransactions.LastEditedBy": {
+    "child_empty": 0,
+    "child_rows": 97371,
+    "max_children": 6127,
+    "orphan_rows": 0,
+    "parents_unreferenced": 1092
+   },
+   "Sales.CustomerTransactions.PaymentMethodID": {
+    "child_empty": 70673,
+    "child_rows": 97371,
+    "max_children": 26698,
+    "orphan_rows": 0,
+    "parents_unreferenced": 3
+   },
+   "Sales.CustomerTransactions.TransactionTypeID": {
+    "child_empty": 0,
+    "child_rows": 97371,
+    "max_children": 70673,
+    "orphan_rows": 0,
+    "parents_unreferenced": 11
+   },
+   "Sales.Customers.AlternateContactPersonID": {
+    "child_empty": 261,
+    "child_rows": 663,
+    "max_children": 1,
+    "orphan_rows": 0,
+    "parents_unreferenced": 709
+   },
+   "Sales.Customers.BillToCustomerID": {
+    "child_empty": 0,
+    "child_rows": 663,
+    "max_children": 201,
+    "orphan_rows": 0,
+    "parents_unreferenced": 400
+   },
+   "Sales.Customers.BuyingGroupID": {
+    "child_empty": 261,
+    "child_rows": 663,
+    "max_children": 201,
+    "orphan_rows": 0,
+    "parents_unreferenced": 0
+   },
+   "Sales.Customers.CustomerCategoryID": {
+    "child_empty": 0,
+    "child_rows": 663,
+    "max_children": 459,
+    "orphan_rows": 0,
+    "parents_unreferenced": 3
+   },
+   "Sales.Customers.DeliveryCityID": {
+    "child_empty": 0,
+    "child_rows": 663,
+    "max_children": 2,
+    "orphan_rows": 0,
+    "parents_unreferenced": 37285
+   },
+   "Sales.Customers.DeliveryMethodID": {
+    "child_empty": 0,
+    "child_rows": 663,
+    "max_children": 663,
+    "orphan_rows": 0,
+    "parents_unreferenced": 9
+   },
+   "Sales.Customers.LastEditedBy": {
+    "child_empty": 0,
+    "child_rows": 663,
+    "max_children": 617,
+    "orphan_rows": 0,
+    "parents_unreferenced": 1107
+   },
+   "Sales.Customers.PostalCityID": {
+    "child_empty": 0,
+    "child_rows": 663,
+    "max_children": 2,
+    "orphan_rows": 0,
+    "parents_unreferenced": 37285
+   },
+   "Sales.Customers.PrimaryContactPersonID": {
+    "child_empty": 0,
+    "child_rows": 663,
+    "max_children": 1,
+    "orphan_rows": 0,
+    "parents_unreferenced": 448
+   },
+   "Sales.InvoiceLines.InvoiceID": {
+    "child_empty": 0,
+    "child_rows": 228794,
+    "max_children": 5,
+    "orphan_rows": 0,
+    "parents_unreferenced": 0
+   },
+   "Sales.InvoiceLines.LastEditedBy": {
+    "child_empty": 0,
+    "child_rows": 228794,
+    "max_children": 14674,
+    "orphan_rows": 0,
+    "parents_unreferenced": 1092
+   },
+   "Sales.InvoiceLines.PackageTypeID": {
+    "child_empty": 0,
+    "child_rows": 228794,
+    "max_children": 218291,
+    "orphan_rows": 0,
+    "parents_unreferenced": 10
+   },
+   "Sales.InvoiceLines.StockItemID": {
+    "child_empty": 0,
+    "child_rows": 228794,
+    "max_children": 1129,
+    "orphan_rows": 0,
+    "parents_unreferenced": 0
+   },
+   "Sales.Invoices.AccountsPersonID": {
+    "child_empty": 0,
+    "child_rows": 70673,
+    "max_children": 22372,
+    "orphan_rows": 0,
+    "parents_unreferenced": 848
+   },
+   "Sales.Invoices.BillToCustomerID": {
+    "child_empty": 0,
+    "child_rows": 70673,
+    "max_children": 22372,
+    "orphan_rows": 0,
+    "parents_unreferenced": 400
+   },
+   "Sales.Invoices.ContactPersonID": {
+    "child_empty": 0,
+    "child_rows": 70673,
+    "max_children": 144,
+    "orphan_rows": 0,
+    "parents_unreferenced": 448
+   },
+   "Sales.Invoices.CustomerID": {
+    "child_empty": 0,
+    "child_rows": 70673,
+    "max_children": 144,
+    "orphan_rows": 0,
+    "parents_unreferenced": 0
+   },
+   "Sales.Invoices.DeliveryMethodID": {
+    "child_empty": 0,
+    "child_rows": 70673,
+    "max_children": 70673,
+    "orphan_rows": 0,
+    "parents_unreferenced": 9
+   },
+   "Sales.Invoices.LastEditedBy": {
+    "child_empty": 0,
+    "child_rows": 70673,
+    "max_children": 4652,
+    "orphan_rows": 0,
+    "parents_unreferenced": 1092
+   },
+   "Sales.Invoices.OrderID": {
+    "child_empty": 0,
+    "child_rows": 70673,
+    "max_children": 1,
+    "orphan_rows": 0,
+    "parents_unreferenced": 3095
+   },
+   "Sales.Invoices.PackedByPersonID": {
+    "child_empty": 0,
+    "child_rows": 70673,
+    "max_children": 4817,
+    "orphan_rows": 0,
+    "parents_unreferenced": 1092
+   },
+   "Sales.Invoices.SalespersonPersonID": {
+    "child_empty": 0,
+    "child_rows": 70673,
+    "max_children": 7204,
+    "orphan_rows": 0,
+    "parents_unreferenced": 1101
+   },
+   "Sales.OrderLines.LastEditedBy": {
+    "child_empty": 0,
+    "child_rows": 231951,
+    "max_children": 14969,
+    "orphan_rows": 0,
+    "parents_unreferenced": 1091
+   },
+   "Sales.OrderLines.OrderID": {
+    "child_empty": 0,
+    "child_rows": 231951,
+    "max_children": 5,
+    "orphan_rows": 0,
+    "parents_unreferenced": 0
+   },
+   "Sales.OrderLines.PackageTypeID": {
+    "child_empty": 0,
+    "child_rows": 231951,
+    "max_children": 221448,
+    "orphan_rows": 0,
+    "parents_unreferenced": 10
+   },
+   "Sales.OrderLines.StockItemID": {
+    "child_empty": 0,
+    "child_rows": 231951,
+    "max_children": 1129,
+    "orphan_rows": 0,
+    "parents_unreferenced": 0
+   },
+   "Sales.Orders.BackorderOrderID": {
+    "child_empty": 66210,
+    "child_rows": 73768,
+    "max_children": 1,
+    "orphan_rows": 0,
+    "parents_unreferenced": 66210
+   },
+   "Sales.Orders.ContactPersonID": {
+    "child_empty": 0,
+    "child_rows": 73768,
+    "max_children": 150,
+    "orphan_rows": 0,
+    "parents_unreferenced": 448
+   },
+   "Sales.Orders.CustomerID": {
+    "child_empty": 0,
+    "child_rows": 73768,
+    "max_children": 150,
+    "orphan_rows": 0,
+    "parents_unreferenced": 0
+   },
+   "Sales.Orders.LastEditedBy": {
+    "child_empty": 0,
+    "child_rows": 73768,
+    "max_children": 4670,
+    "orphan_rows": 0,
+    "parents_unreferenced": 1091
+   },
+   "Sales.Orders.PickedByPersonID": {
+    "child_empty": 10653,
+    "child_rows": 73768,
+    "max_children": 4042,
+    "orphan_rows": 0,
+    "parents_unreferenced": 1092
+   },
+   "Sales.Orders.SalespersonPersonID": {
+    "child_empty": 0,
+    "child_rows": 73768,
+    "max_children": 7552,
+    "orphan_rows": 0,
+    "parents_unreferenced": 1101
+   },
+   "Sales.SpecialDeals.BuyingGroupID": {
+    "child_empty": 0,
+    "child_rows": 2,
+    "max_children": 1,
+    "orphan_rows": 0,
+    "parents_unreferenced": 0
+   },
+   "Sales.SpecialDeals.CustomerCategoryID": {
+    "child_empty": 2,
+    "child_rows": 2,
+    "max_children": null,
+    "orphan_rows": 0,
+    "parents_unreferenced": 8
+   },
+   "Sales.SpecialDeals.CustomerID": {
+    "child_empty": 2,
+    "child_rows": 2,
+    "max_children": null,
+    "orphan_rows": 0,
+    "parents_unreferenced": 663
+   },
+   "Sales.SpecialDeals.LastEditedBy": {
+    "child_empty": 0,
+    "child_rows": 2,
+    "max_children": 2,
+    "orphan_rows": 0,
+    "parents_unreferenced": 1110
+   },
+   "Sales.SpecialDeals.StockGroupID": {
+    "child_empty": 0,
+    "child_rows": 2,
+    "max_children": 2,
+    "orphan_rows": 0,
+    "parents_unreferenced": 9
+   },
+   "Sales.SpecialDeals.StockItemID": {
+    "child_empty": 2,
+    "child_rows": 2,
+    "max_children": null,
+    "orphan_rows": 0,
+    "parents_unreferenced": 227
+   },
+   "Warehouse.Colors.LastEditedBy": {
+    "child_empty": 0,
+    "child_rows": 36,
+    "max_children": 35,
+    "orphan_rows": 0,
+    "parents_unreferenced": 1109
+   },
+   "Warehouse.PackageTypes.LastEditedBy": {
+    "child_empty": 0,
+    "child_rows": 14,
+    "max_children": 14,
+    "orphan_rows": 0,
+    "parents_unreferenced": 1110
+   },
+   "Warehouse.StockGroups.LastEditedBy": {
+    "child_empty": 0,
+    "child_rows": 10,
+    "max_children": 9,
+    "orphan_rows": 0,
+    "parents_unreferenced": 1109
+   },
+   "Warehouse.StockItemHoldings.LastEditedBy": {
+    "child_empty": 0,
+    "child_rows": 227,
+    "max_children": 182,
+    "orphan_rows": 0,
+    "parents_unreferenced": 1109
+   },
+   "Warehouse.StockItemHoldings.StockItemID": {
+    "child_empty": 0,
+    "child_rows": 227,
+    "max_children": 1,
+    "orphan_rows": 0,
+    "parents_unreferenced": 0
+   },
+   "Warehouse.StockItemStockGroups.LastEditedBy": {
+    "child_empty": 0,
+    "child_rows": 442,
+    "max_children": 442,
+    "orphan_rows": 0,
+    "parents_unreferenced": 1110
+   },
+   "Warehouse.StockItemStockGroups.StockGroupID": {
+    "child_empty": 0,
+    "child_rows": 442,
+    "max_children": 91,
+    "orphan_rows": 0,
+    "parents_unreferenced": 1
+   },
+   "Warehouse.StockItemStockGroups.StockItemID": {
+    "child_empty": 0,
+    "child_rows": 442,
+    "max_children": 3,
+    "orphan_rows": 0,
+    "parents_unreferenced": 0
+   },
+   "Warehouse.StockItemTransactions.CustomerID": {
+    "child_empty": 8420,
+    "child_rows": 237214,
+    "max_children": 457,
+    "orphan_rows": 0,
+    "parents_unreferenced": 0
+   },
+   "Warehouse.StockItemTransactions.InvoiceID": {
+    "child_empty": 8420,
+    "child_rows": 237214,
+    "max_children": 5,
+    "orphan_rows": 0,
+    "parents_unreferenced": 0
+   },
+   "Warehouse.StockItemTransactions.InvoiceID+StockItemID": {
+    "child_empty": 8420,
+    "child_rows": 237214,
+    "max_children": 1,
+    "orphan_rows": 0,
+    "parent_combination_unique": true,
+    "parents_unreferenced": 0
+   },
+   "Warehouse.StockItemTransactions.LastEditedBy": {
+    "child_empty": 0,
+    "child_rows": 237214,
+    "max_children": 15224,
+    "orphan_rows": 0,
+    "parents_unreferenced": 1092
+   },
+   "Warehouse.StockItemTransactions.PurchaseOrderID": {
+    "child_empty": 228838,
+    "child_rows": 237214,
+    "max_children": 34,
+    "orphan_rows": 0,
+    "parents_unreferenced": 2
+   },
+   "Warehouse.StockItemTransactions.PurchaseOrderID+StockItemID": {
+    "child_empty": 228838,
+    "child_rows": 237214,
+    "max_children": 1,
+    "orphan_rows": 0,
+    "parent_combination_unique": true,
+    "parents_unreferenced": 9
+   },
+   "Warehouse.StockItemTransactions.StockItemID": {
+    "child_empty": 0,
+    "child_rows": 237214,
+    "max_children": 1770,
+    "orphan_rows": 0,
+    "parents_unreferenced": 0
+   },
+   "Warehouse.StockItemTransactions.SupplierID": {
+    "child_empty": 228838,
+    "child_rows": 237214,
+    "max_children": 5808,
+    "orphan_rows": 0,
+    "parents_unreferenced": 6
+   },
+   "Warehouse.StockItemTransactions.TransactionTypeID": {
+    "child_empty": 0,
+    "child_rows": 237214,
+    "max_children": 228794,
+    "orphan_rows": 0,
+    "parents_unreferenced": 10
+   },
+   "Warehouse.StockItems.ColorID": {
+    "child_empty": 99,
+    "child_rows": 227,
+    "max_children": 51,
+    "orphan_rows": 0,
+    "parents_unreferenced": 29
+   },
+   "Warehouse.StockItems.LastEditedBy": {
+    "child_empty": 0,
+    "child_rows": 227,
+    "max_children": 227,
+    "orphan_rows": 0,
+    "parents_unreferenced": 1110
+   },
+   "Warehouse.StockItems.OuterPackageID": {
+    "child_empty": 0,
+    "child_rows": 227,
+    "max_children": 175,
+    "orphan_rows": 0,
+    "parents_unreferenced": 11
+   },
+   "Warehouse.StockItems.SupplierID": {
+    "child_empty": 0,
+    "child_rows": 227,
+    "max_children": 74,
+    "orphan_rows": 0,
+    "parents_unreferenced": 6
+   },
+   "Warehouse.StockItems.UnitPackageID": {
+    "child_empty": 0,
+    "child_rows": 227,
+    "max_children": 210,
+    "orphan_rows": 0,
+    "parents_unreferenced": 10
+   },
+   "two_routes": {
+    "Purchasing.PurchaseOrderLines.PackageTypeID = StockItems.OuterPackageID": {
+     "agree": 8385,
+     "disagree": 0,
+     "rows": 8385,
+     "rows_with_both_routes": 8385
+    },
+    "Purchasing.PurchaseOrders.ContactPersonID = Suppliers.PrimaryContactPersonID": {
+     "agree": 0,
+     "disagree": 2078,
+     "rows": 2078,
+     "rows_with_both_routes": 2078
+    },
+    "Sales.CustomerTransactions.CustomerID = Invoices.BillToCustomerID": {
+     "agree": 70673,
+     "disagree": 0,
+     "rows": 97371,
+     "rows_with_both_routes": 70673
+    },
+    "Sales.CustomerTransactions.CustomerID = Invoices.CustomerID": {
+     "agree": 26323,
+     "disagree": 44350,
+     "rows": 97371,
+     "rows_with_both_routes": 70673
+    },
+    "Sales.InvoiceLines.PackageTypeID = StockItems.UnitPackageID": {
+     "agree": 228794,
+     "disagree": 0,
+     "rows": 228794,
+     "rows_with_both_routes": 228794
+    },
+    "Sales.Invoices.BillToCustomerID = Customers.BillToCustomerID": {
+     "agree": 70673,
+     "disagree": 0,
+     "rows": 70673,
+     "rows_with_both_routes": 70673
+    },
+    "Sales.Invoices.CustomerID = Orders.CustomerID": {
+     "agree": 70673,
+     "disagree": 0,
+     "rows": 70673,
+     "rows_with_both_routes": 70673
+    },
+    "Sales.Invoices.SalespersonPersonID = Orders.SalespersonPersonID": {
+     "agree": 70673,
+     "disagree": 0,
+     "rows": 70673,
+     "rows_with_both_routes": 70673
+    },
+    "Warehouse.StockItemTransactions.CustomerID = Invoices.CustomerID": {
+     "agree": 228794,
+     "disagree": 0,
+     "rows": 237214,
+     "rows_with_both_routes": 228794
+    },
+    "Warehouse.StockItemTransactions.SupplierID = StockItems.SupplierID": {
+     "agree": 8376,
+     "disagree": 0,
+     "rows": 237214,
+     "rows_with_both_routes": 8376
+    }
+   }
+  }
+ },
+ "tool": "prototypes/information_analysis/recheck.py",
+ "tool_version": "db10bb807ad1c2448e745562dd82d15c00ae7672"
+}

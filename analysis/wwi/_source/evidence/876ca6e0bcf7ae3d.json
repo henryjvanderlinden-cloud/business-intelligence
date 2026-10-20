@@ -1,0 +1,255 @@
+{
+ "code": "\nimport json\nimport evidence_shared as es\nprint(json.dumps({t: [es.candidate_key(t, c) for c in cs] for t, cs in es.CANDIDATE_KEYS.items()}))\n",
+ "id": "876ca6e0bcf7ae3d",
+ "inputs": {
+  "base_extract": "2016-06-01",
+  "base_previous": "2016-05-31",
+  "manifests": {
+   "2016-05-31": "e1997891e919ac1a4f9af533db9a0e938ce53588406814e2119af0b164641ca2",
+   "2016-06-01": "35b71b2e3ff4bb9ef4e24afc9c56f914e8386df4060a794b862e7f5a00d2774f",
+   "2016-06-02": "b8de501a4089c476de29f8ca9eccef8c48e647bc604dfea9c7c57780b0b1a0c1"
+  },
+  "new_extract": "2016-06-02",
+  "new_previous": "2016-06-01",
+  "probe": "candidate_keys",
+  "source": "wwi"
+ },
+ "kind": "profile",
+ "ran_at": "2026-10-20T08:46:53Z",
+ "result": {
+  "base": {
+   "Purchasing.PurchaseOrderLines": [
+    {
+     "columns": [
+      "PurchaseOrderID",
+      "StockItemID"
+     ],
+     "distinct": 8376,
+     "duplicate_rows": 0,
+     "rows": 8376,
+     "rows_with_all_filled": 8376
+    }
+   ],
+   "Purchasing.SupplierTransactions": [
+    {
+     "columns": [
+      "PurchaseOrderID"
+     ],
+     "distinct": 2074,
+     "duplicate_rows": 0,
+     "rows": 2440,
+     "rows_with_all_filled": 2074
+    }
+   ],
+   "Sales.CustomerTransactions": [
+    {
+     "columns": [
+      "InvoiceID"
+     ],
+     "distinct": 70566,
+     "duplicate_rows": 0,
+     "rows": 97242,
+     "rows_with_all_filled": 70566
+    }
+   ],
+   "Sales.InvoiceLines": [
+    {
+     "columns": [
+      "InvoiceID",
+      "StockItemID"
+     ],
+     "distinct": 228432,
+     "duplicate_rows": 0,
+     "rows": 228432,
+     "rows_with_all_filled": 228432
+    }
+   ],
+   "Sales.Invoices": [
+    {
+     "columns": [
+      "OrderID"
+     ],
+     "distinct": 70566,
+     "duplicate_rows": 0,
+     "rows": 70566,
+     "rows_with_all_filled": 70566
+    }
+   ],
+   "Sales.OrderLines": [
+    {
+     "columns": [
+      "OrderID",
+      "StockItemID"
+     ],
+     "distinct": 231581,
+     "duplicate_rows": 0,
+     "rows": 231581,
+     "rows_with_all_filled": 231581
+    }
+   ],
+   "Warehouse.ColdRoomTemperatures": [
+    {
+     "columns": [
+      "ColdRoomSensorNumber"
+     ],
+     "distinct": 4,
+     "duplicate_rows": 0,
+     "rows": 4,
+     "rows_with_all_filled": 4
+    }
+   ],
+   "Warehouse.StockItemTransactions": [
+    {
+     "columns": [
+      "InvoiceID",
+      "StockItemID"
+     ],
+     "distinct": 228432,
+     "duplicate_rows": 0,
+     "rows": 236843,
+     "rows_with_all_filled": 228432
+    },
+    {
+     "columns": [
+      "PurchaseOrderID",
+      "StockItemID"
+     ],
+     "distinct": 8367,
+     "duplicate_rows": 0,
+     "rows": 236843,
+     "rows_with_all_filled": 8367
+    }
+   ],
+   "Warehouse.VehicleTemperatures": [
+    {
+     "columns": [
+      "ChillerSensorNumber",
+      "RecordedWhen"
+     ],
+     "distinct": 66430,
+     "duplicate_rows": 0,
+     "rows": 66430,
+     "rows_with_all_filled": 66430
+    }
+   ]
+  },
+  "new": {
+   "Purchasing.PurchaseOrderLines": [
+    {
+     "columns": [
+      "PurchaseOrderID",
+      "StockItemID"
+     ],
+     "distinct": 8385,
+     "duplicate_rows": 0,
+     "rows": 8385,
+     "rows_with_all_filled": 8385
+    }
+   ],
+   "Purchasing.SupplierTransactions": [
+    {
+     "columns": [
+      "PurchaseOrderID"
+     ],
+     "distinct": 2076,
+     "duplicate_rows": 0,
+     "rows": 2442,
+     "rows_with_all_filled": 2076
+    }
+   ],
+   "Sales.CustomerTransactions": [
+    {
+     "columns": [
+      "InvoiceID"
+     ],
+     "distinct": 70673,
+     "duplicate_rows": 0,
+     "rows": 97371,
+     "rows_with_all_filled": 70673
+    }
+   ],
+   "Sales.InvoiceLines": [
+    {
+     "columns": [
+      "InvoiceID",
+      "StockItemID"
+     ],
+     "distinct": 228794,
+     "duplicate_rows": 0,
+     "rows": 228794,
+     "rows_with_all_filled": 228794
+    }
+   ],
+   "Sales.Invoices": [
+    {
+     "columns": [
+      "OrderID"
+     ],
+     "distinct": 70673,
+     "duplicate_rows": 0,
+     "rows": 70673,
+     "rows_with_all_filled": 70673
+    }
+   ],
+   "Sales.OrderLines": [
+    {
+     "columns": [
+      "OrderID",
+      "StockItemID"
+     ],
+     "distinct": 231951,
+     "duplicate_rows": 0,
+     "rows": 231951,
+     "rows_with_all_filled": 231951
+    }
+   ],
+   "Warehouse.ColdRoomTemperatures": [
+    {
+     "columns": [
+      "ColdRoomSensorNumber"
+     ],
+     "distinct": 4,
+     "duplicate_rows": 0,
+     "rows": 4,
+     "rows_with_all_filled": 4
+    }
+   ],
+   "Warehouse.StockItemTransactions": [
+    {
+     "columns": [
+      "InvoiceID",
+      "StockItemID"
+     ],
+     "distinct": 228794,
+     "duplicate_rows": 0,
+     "rows": 237214,
+     "rows_with_all_filled": 228794
+    },
+    {
+     "columns": [
+      "PurchaseOrderID",
+      "StockItemID"
+     ],
+     "distinct": 8376,
+     "duplicate_rows": 0,
+     "rows": 237214,
+     "rows_with_all_filled": 8376
+    }
+   ],
+   "Warehouse.VehicleTemperatures": [
+    {
+     "columns": [
+      "ChillerSensorNumber",
+      "RecordedWhen"
+     ],
+     "distinct": 66848,
+     "duplicate_rows": 0,
+     "rows": 66848,
+     "rows_with_all_filled": 66848
+    }
+   ]
+  }
+ },
+ "tool": "prototypes/information_analysis/recheck.py",
+ "tool_version": "db10bb807ad1c2448e745562dd82d15c00ae7672"
+}

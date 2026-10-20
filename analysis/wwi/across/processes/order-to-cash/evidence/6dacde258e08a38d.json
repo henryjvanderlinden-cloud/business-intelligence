@@ -1,6 +1,6 @@
 {
  "code": "def order_to_cash():\n    \"\"\"Order, picking, invoice, delivery, stock issue, ledger entry, payment: rows reaching each step, days between.\"\"\"\n    orders = rows(\"Sales.Orders\")\n    inv_by_order = {i[\"OrderID\"]: i for i in rows(\"Sales.Invoices\")}\n    backorders = {o[\"BackorderOrderID\"] for o in orders if o[\"BackorderOrderID\"]}\n    issues = collections.Counter(s[\"InvoiceID\"] for s in rows(\"Warehouse.StockItemTransactions\") if s[\"InvoiceID\"])\n    ledger = {t[\"InvoiceID\"]: t for t in rows(\"Sales.CustomerTransactions\") if t[\"InvoiceID\"]}\n    steps = collections.Counter()\n    lag = collections.defaultdict(list)\n    for o in orders:\n        steps[\"1 order\"] += 1\n        if o[\"BackorderOrderID\"]:\n            steps[\"1a order split: has a backorder\"] += 1\n        if o[\"OrderID\"] in backorders:\n            steps[\"1b order is a backorder\"] += 1\n        if o[\"PickingCompletedWhen\"]:\n            steps[\"2 picked\"] += 1\n            lag[\"order to picking completed\"].append(days(o[\"OrderDate\"], o[\"PickingCompletedWhen\"]))\n        i = inv_by_order.get(o[\"OrderID\"])\n        if not i:\n            continue\n        steps[\"3 invoiced\"] += 1\n        lag[\"order to invoice\"].append(days(o[\"OrderDate\"], i[\"InvoiceDate\"]))\n        if o[\"PickingCompletedWhen\"]:\n            lag[\"picking completed to invoice\"].append(days(o[\"PickingCompletedWhen\"], i[\"InvoiceDate\"]))\n        if i[\"ConfirmedDeliveryTime\"]:\n            steps[\"4 delivery confirmed\"] += 1\n            lag[\"invoice to delivery confirmed\"].append(days(i[\"InvoiceDate\"], i[\"ConfirmedDeliveryTime\"]))\n        if issues.get(i[\"InvoiceID\"]):\n            steps[\"5 stock issued\"] += 1\n        t = ledger.get(i[\"InvoiceID\"])\n        if t:\n            steps[\"6 booked in the customer ledger\"] += 1\n            if t[\"FinalizationDate\"]:\n                steps[\"7 paid (entry finalized)\"] += 1\n                lag[\"invoice to payment\"].append(days(i[\"InvoiceDate\"], t[\"FinalizationDate\"]))\n    return {\"steps\": dict(sorted(steps.items())), \"days\": {k: dist(v) for k, v in sorted(lag.items())},\n            \"orders_picked_without_invoice\": sum(1 for o in orders if o[\"PickingCompletedWhen\"] and o[\"OrderID\"] not in inv_by_order)}\n\ndef days(a, b):\n    return (datetime.date.fromisoformat(b[:10]) - datetime.date.fromisoformat(a[:10])).days\n\ndef dist(v):\n    if not v:\n        return {\"rows\": 0}\n    v = sorted(v)\n    return {\"rows\": len(v), \"min\": v[0], \"median\": statistics.median(v), \"max\": v[-1],\n            \"most_common\": collections.Counter(v).most_common(4)}\n",
- "id": "3c1bfb93f5b2e891",
+ "id": "6dacde258e08a38d",
  "inputs": {
   "extract": "2016-06-01",
   "manifest_sha256": "35b71b2e3ff4bb9ef4e24afc9c56f914e8386df4060a794b862e7f5a00d2774f",
@@ -13,7 +13,7 @@
   ]
  },
  "kind": "profile",
- "ran_at": "2026-10-20T05:50:48Z",
+ "ran_at": "2026-10-20T08:30:44Z",
  "result": {
   "days": {
    "invoice to delivery confirmed": {
@@ -115,5 +115,5 @@
   }
  },
  "tool": "prototypes/information_analysis/processes.py",
- "tool_version": "e3fc85d3ce7b1ef3ef3c73adff0cb80ee7681f8e"
+ "tool_version": "b1a37f986a92a0860a190d3cc4c50e10a4b4ecf7"
 }
