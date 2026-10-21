@@ -1,5 +1,5 @@
 # Current handover
 
-→ [HANDOVER_08_2026-10-11_wwi-sandbox-running.md](HANDOVER_08_2026-10-11_wwi-sandbox-running.md)
+→ [HANDOVER_09_2026-10-21_analysis-closed-generic-layer-next.md](HANDOVER_09_2026-10-21_analysis-closed-generic-layer-next.md)
 
 This pointer is updated in the same commit as each new handover.

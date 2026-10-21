@@ -1,7 +1,8 @@
 # nsdn — Handover 08: the Wide World Importers sandbox runs, and the agent advances it without the author
 ## Written 2026-10-11 at the close of session 07
 
-> **STATUS: CURRENT.**
+> **STATUS: HISTORICAL (superseded 2026-10-21)** by
+> [HANDOVER_09_2026-10-21_analysis-closed-generic-layer-next.md](HANDOVER_09_2026-10-21_analysis-closed-generic-layer-next.md).
 
 ---
 
