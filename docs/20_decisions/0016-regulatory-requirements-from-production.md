@@ -53,6 +53,6 @@ ADR-0012 stands, qualified: every implementation starts lean, above the design o
 ADR-0011 stands with a recorded emergency release. Which of the other consequences in 152 (items 8 to 14) are adopted is
 still open in `ARC-OP-35`.
 
-What counts as *in production* is not defined here. The working reading is: from the moment a real decision or report
-relies on the system's output. **Revisit** if that reading proves too loose to apply, or if a pilot is found to feed real
-reports before it is called production.
+**A system is in production from the moment a real decision or report relies on its output.** Proposed by Claude Opus
+5.5 and confirmed by the author on 2026-10-21 ("3: yes."). **Revisit** if that test proves too loose to apply, or if a
+pilot is found to feed real reports before it is called production.

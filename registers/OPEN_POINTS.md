@@ -2151,19 +2151,25 @@ goes out despite a failed gate, *nood breekt wet*, released and recorded by a na
 What is open:
 
 1. **Which of the other consequences are adopted.** 152 §4 items 1 to 7 confirm the design. Items 8 to 14 would
-   tighten it for in-scope data in production: Tier 2 evidence-only assertions barred (ADR-0005), the provisional lane
-   closed to claims that reach a risk report (155), mandatory reconciliation and dispositioned plausibility warnings
-   (160, 162), an inventory of manual steps, the institution's dictionary as authoritative, and pruning that keeps what
-   was reported reproducible. Those that change an accepted ADR need an ADR. Item 17 is a possible value area (ADR-0009).
-2. **What counts as production.** ADR-0016 works with "from the moment a real decision or report relies on the
-   system's output"; not yet confirmed by the author.
+   tighten it for in-scope data in production. After astra's review of 2026-10-21 each separates what BCBS 239 asks
+   from a control proposed on top of it. Asked by the text: Tier 2's evidence route runs under institution-approved
+   policies for authority, definitions and matching (ADR-0005); standing reconciliation; an inventory of validation
+   rules; an inventory of manual procedures; consistency with the institution's dictionary; owner approval and
+   reproducibility before retiring what fed a report. Proposed on top: the provisional lane closed where a claim's
+   effect could be material (155); reconciliation thresholds and cadence; triage of plausibility warnings before a
+   report goes out; a log of each manual adjustment. Those that change an accepted ADR need an ADR. Item 17 is a
+   possible value area (ADR-0009).
+2. ~~**What counts as production.**~~ Ruled 2026-10-21 (ADR-0016): from the moment a real decision or report relies
+   on the system's output.
 3. **Verification.** The ECB guide's expectation of attribute-level lineage is known only second-hand, from a vendor;
    it is to be checked against the guide. The BCBS text was read through a summarising fetch, not end to end.
-4. **Review.** 152 is unreviewed; external review on sol and astra per
-   [510](../docs/50_process/510_external-review.md), against the standard of whether it states BCBS 239 correctly and
-   draws only consequences that follow from it.
+4. ~~**Review.**~~ Done 2026-10-21: sol on §2 and §3
+   ([XREV](../docs/30_research/notes/XREV_2026-10-21_bcbs239-facts_sol.md)), the table holding and §2 failing on three
+   facts, and astra on §4 ([XREV](../docs/30_research/notes/XREV_2026-10-21_bcbs239-consequences_astra.md)), failing it
+   on eight items that presented proposed controls as requirements. All findings applied; the amended text is
+   unreviewed.
 
-Bears on `CON-OP-2`: at a bank, mandatory review could take most of the human budget (152 item 9). Nothing here can be
+Bears on `CON-OP-2`: at a bank, review could take most of the human budget, depending on the policy of 152 item 9. Nothing here can be
 exercised in the Wide World Importers sandbox (`EVI-OP-7`), which has no risk data.
 
 ### ARC-OP-36 — PARTLY RULED — Information analysis before building; how it is recorded is open
