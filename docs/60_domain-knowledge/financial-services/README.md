@@ -4,7 +4,7 @@ Reference notes on data modelling for banks and other financial institutions. Th
 
 - Written by: Claude, at Rick's request, on 2026-10-25.
 - Based on: a conversation of 2026-10-22, with web sources checked at the time.
-- Review status: unreviewed; not yet put through [external review](../../50_process/510_external-review.md).
+- Review status: put through [external review](../../50_process/510_external-review.md) on 2026-10-25, two passes per file on sol, and revised accordingly. The review notes are `XREV_2026-10-25_fs-010_sol.md` to `fs-060` in [the research notes](../../30_research/notes/). The final edits after each second pass adopt sol's own correction wording and were not reviewed a third time.
 - Confidence markers: claims checked against a source are left unmarked. Claims from general knowledge that were not checked are marked **(unverified)**.
 
 ## Files
