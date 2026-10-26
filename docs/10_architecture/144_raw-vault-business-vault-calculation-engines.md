@@ -2,7 +2,8 @@
 
 **Status: draft, partly ruled.** Written 2026-10-26, session 09, at the author's request to store what was discussed
 and decided on 25 and 26 October. What the author ruled is recorded in
-[ADR-0024](../20_decisions/0024-calculation-engines-are-a-versioned-source.md); everything else here is proposed and
+[ADR-0024](../20_decisions/0024-calculation-engines-are-a-versioned-source.md) and
+[ADR-0025](../20_decisions/0025-engine-results-in-the-raw-vault.md); everything else here is proposed and
 open under [`ARC-OP-37`](../../registers/OPEN_POINTS.md). Unreviewed on another model. Subjunctive throughout: none of
 what is described exists.
 
@@ -150,12 +151,15 @@ recomputation and to corrections both rest on a bitemporal structure ("using a b
 time travel"), so engine results are bitemporal by his ruling. Whether the integration layer as a whole is bitemporal,
 decision 1 of handover 09, remains to be put formally, though his answers point that way.
 
-**Where engine results land** is not decided. The model proposed the raw vault, under the engine's own source code,
-which is why the raw-vault test became *did a system say this?*. Note
-[030](../60_domain-knowledge/financial-services/030_bird-as-data-vault-foundation.md) §2 item 5 says the opposite: "A
-value calculated here goes in the business vault, with its rule, inputs and run". The difference is mostly one of
-naming, since both keep results insert-only with their version and inputs, but it changes the raw vault's definition
-and must be ruled once. It is item 3 of `ARC-OP-37`.
+**Where engine results land: the raw vault** (ruled 2026-10-26 in
+[ADR-0025](../20_decisions/0025-engine-results-in-the-raw-vault.md)), under the engine's own source code and labelled
+as derived. The raw-vault test is therefore *did a system say this?*. Note
+[030](../60_domain-knowledge/financial-services/030_bird-as-data-vault-foundation.md) §2 item 5, which had placed
+calculated values in the business vault, is corrected to agree.
+
+**When full recomputation cannot be afforded** (ruled in the same ADR): first recompute from a cut-off date onwards;
+if that is still too much, apply the new version going forward only; every step of this fallback is adjudicated by a
+person.
 
 ## 5. What this means for Wide World Importers
 
@@ -193,12 +197,14 @@ as-of views.
 ## 7. Marts
 
 On 2026-10-26 the author asked whether marts are derived from the raw and business vault, and proposed a dimensional
-model for every distinct use case. The question and the model's answer are recorded under `ARC-OP-37`; nothing is
-decided.
+model for every distinct use case. He then ruled that dimensions are conformed and shared, that design is mainly about
+fact tables, and that extending a fact table for a new question is a fundamental, adjudicated decision
+([ADR-0026](../20_decisions/0026-conformed-dimensions-and-fact-table-changes.md)). The considerations for that decision
+are drafted in [146](146_fact-tables-and-new-questions.md).
 
 ## 8. What this note does not decide
 
-The raw/business line (section 2), the rules for several sources (section 3), the conditions on engines (section 4,
-items 2 to 8), where engine results land, whether the layer as a whole is bitemporal, and the shape of marts are open
-under [`ARC-OP-37`](../../registers/OPEN_POINTS.md). The declaration language and the model files of
+The raw/business line (section 2, apart from engine results, which are ruled), the rules for several sources
+(section 3), the conditions on engines (section 4, items 2 to 8), whether the layer as a whole is bitemporal, and
+where marts take their data from are open under [`ARC-OP-37`](../../registers/OPEN_POINTS.md). The declaration language and the model files of
 [142](142_the-data-model.md) remain under `ARC-OP-29` and `ARC-OP-20`.

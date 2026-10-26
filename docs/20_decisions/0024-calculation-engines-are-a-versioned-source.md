@@ -4,6 +4,8 @@
 - **Date:** 2026-10-26
 - **Supersedes:** —
 - **Superseded by:** —
+- **Amended by:** [ADR-0025](0025-engine-results-in-the-raw-vault.md) (where engine results land; the fallback
+  left open in decision 4)
 
 ## Context
 
@@ -67,6 +69,8 @@ show what was reported, or with which logic, after the logic has changed.
 4. **On a new version, everything is recomputed** when compute and storage allow, and the bitemporal structure lets
    the warehouse travel back to any earlier state. **A new version is new data, even when its values are the same.**
    What is done when compute or storage do not allow full recomputation is left open: "it depends".
+   *Ruled 2026-10-26 in [ADR-0025](0025-engine-results-in-the-raw-vault.md): first from a cut-off date, then going
+   forward only, each step adjudicated by a person.*
 5. **Corrected inputs are handled by rerunning**, using the same bitemporality.
 
 ## Consequences
@@ -89,6 +93,7 @@ raw vault under the engine's own source code or in the business vault (the finan
 vault); what a version comprises (code and locked dependencies, as proposed); what each result row records of its
 inputs; how money is represented; the order of the pipeline; and whether calculation runs get identity of their own.
 Whether the integration layer as a whole is bitemporal is decision 1 of handover 09 and is not decided here.
+*Since ruled in [ADR-0025](0025-engine-results-in-the-raw-vault.md): engine results land in the raw vault.*
 
 This decision is unreviewed on another model ([510](../50_process/510_external-review.md)).
 

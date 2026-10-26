@@ -19,7 +19,7 @@ There is no one-for-one mapping. Classify each LDM entity by what it means and a
 4. **Satellites** for descriptive history, split by source and rate of change, attached only once the parent grain is right.
 5. **Raw versus business vault** is decided by provenance, not by BIRD layer:
    - A value received from a source goes in the raw vault unchanged, even if BIRD files it under the ELDM.
-   - A value calculated here goes in the business vault, with its rule, inputs and run, even if BIRD files it under the LDM.
+   - ~~A value calculated here goes in the business vault, with its rule, inputs and run, even if BIRD files it under the LDM.~~ Corrected 2026-10-26 by [ADR-0025](../../20_decisions/0025-engine-results-in-the-raw-vault.md), the earlier text kept struck through: a value calculated here by a calculation engine goes in the raw vault, under the engine's own source code and labelled as derived, with its engine version, run and inputs, even if BIRD files it under the LDM. Interpretation that is not an engine's result (matching, readings of roles, point-in-time views) stays in the business vault.
 
 ## 3. Time
 

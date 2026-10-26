@@ -2479,7 +2479,18 @@ the boundary between SQL and engine as proposed; on a new version everything is 
 allow, and a new version is new data even when the values are the same; corrected inputs are rerun, using
 bitemporality.
 
-Open, each proposed by the model and not yet ruled:
+**Ruled 2026-10-26, 09:12**, verbatim: "3: engine results go in the raw vault. Open fall back: if there is not enough
+compute, first let's try it from a cut-off date. If still not enough, only do going forward. It always requires human
+adjudication." Recorded in [ADR-0025](../docs/20_decisions/0025-engine-results-in-the-raw-vault.md), which closes
+items 3 and 5 below; 030 corrected. On marts, the same message, recorded in
+[ADR-0026](../docs/20_decisions/0026-conformed-dimensions-and-fact-table-changes.md): dimensions are conformed and
+shared; design is mainly about fact tables; a new question that only partly fits a fact table gets an analysis of how
+much the table would change and how far it drifts from its original intent, decided formally where the questions can
+be formalised and by a person otherwise; extending a fact table is a fundamental decision and not a continuous
+process. The considerations he asked for are drafted in
+[146](../docs/10_architecture/146_fact-tables-and-new-questions.md).
+
+Open, each proposed by the model and not yet ruled (items 3 and 5 ruled, kept for the record):
 
 1. **The raw/business line** (144 §2): the raw vault as memory, holding what a system delivered, insert-only,
    generated, with only loss-free technical transformations; the business vault as understanding, holding
@@ -2489,7 +2500,7 @@ Open, each proposed by the model and not yet ruled:
    only when the identifier has the same meaning across sources, otherwise qualified by a key-space code; links shared
    only for the same declared relationship; matching across key spaces as same-as links in the business vault, except
    mappings a source delivers, which load as raw.
-3. **Where engine results land.** The model proposed the raw vault, under the engine's own source code; the
+3. **Where engine results land.** *Ruled 2026-10-26: the raw vault (ADR-0025).* The model proposed the raw vault, under the engine's own source code; the
    financial-services note [030](../docs/60_domain-knowledge/financial-services/030_bird-as-data-vault-foundation.md)
    §2 item 5 places calculated values in the business vault. One of the two is to be ruled, and the other document
    corrected.
@@ -2498,8 +2509,8 @@ Open, each proposed by the model and not yet ruled:
    two versions on the same inputs (`ARC-OP-30`); money never in binary floating point; a fixed pipeline order without
    cycles; the source's computed columns as test oracles; results keyed at full calculation grain, and possibly run
    hubs.
-5. **Recomputation when compute or storage do not allow everything**: the author's "it depends" leaves the fallback
-   open.
+5. **Recomputation when compute or storage do not allow everything.** *Ruled 2026-10-26 (ADR-0025): a cut-off date
+   first, then going forward only, each step adjudicated by a person.*
 6. **The grey zones** (144 §6): whether the raw vault allows tidying beyond loss-free conversion; and values that
    cannot be rebuilt later because their inputs are not versioned in the source, such as `LineProfit` against the
    cost price in `Warehouse.StockItemHoldings`.
@@ -2515,9 +2526,11 @@ Open, each proposed by the model and not yet ruled:
    everywhere; each mart cites the use case or decision it serves ([140](../docs/10_architecture/140_data-vault-automation.md))
    and is retired when its consumers are gone ([145](../docs/10_architecture/145_entropy-and-pruning.md)); dimensional
    as the default shape, with other shapes where a consumer needs them (a regulatory extract at a fixed grain, a
-   feature table, agents' access). Open with it: what counts as a distinct use case.
+   feature table, agents' access). Open with it: what counts as a distinct use case. *Partly ruled 2026-10-26
+   (ADR-0026, above).* Still open: where marts take their data from; the considerations, the four-way
+   classification and the case base of 146; whether a minor extension needs adjudication.
 
-Review: 144 and ADR-0024 are unreviewed; review on sol and astra per
+Review: 144, 146 and ADR-0024 to ADR-0026 are unreviewed; review on sol and astra per
 [510](../docs/50_process/510_external-review.md), against the standard of whether a Data Vault practitioner would
 accept the raw/business line and the multi-source rules, and whether the engine design gives reproducible, auditable
 figures. Related to `ARC-OP-29` (the data model), `ARC-OP-27` (temporal behaviour), `ARC-OP-30` (release regression),
