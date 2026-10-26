@@ -1,7 +1,8 @@
 # nsdn — Handover 09: the information analysis of Wide World Importers is closed; the generic integration layer is next
 ## Written 2026-10-21 at the close of session 08
 
-> **STATUS: CURRENT.**
+> **STATUS: HISTORICAL (superseded 2026-10-26)** by
+> [HANDOVER_10_2026-10-26_layer-principles-ruled-keys-next.md](HANDOVER_10_2026-10-26_layer-principles-ruled-keys-next.md).
 
 ---
 
