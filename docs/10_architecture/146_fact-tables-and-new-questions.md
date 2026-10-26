@@ -110,9 +110,9 @@ The considerations sort a request into four outcomes, in order of increasing wei
 - **Serve without change.** The existing table answers by aggregation, filtering or dimensions it already has
   (considerations 1, 10 and 17 pass with no change). A view or a query; no adjudication needed.
 - **Minor extension.** A new measure at the same grain and population, a new single-valued dimension, or a new
-  role-played dimension, with no existing number changed (5, 8 and 9 cheap; 12 passes). The agent layer proposes; the
-  author has not said whether these need adjudication, and as experience builds they are the first candidates to run
-  on a rule.
+  role-played dimension, with no existing number changed (5, 8 and 9 cheap; 12 passes). **No adjudication needed**
+  (ruled 2026-10-26, ADR-0026 decision 6): the agent layer makes the change, and unit, data and plausibility tests
+  are relied on to catch unforeseen problems.
 - **Fundamental change.** Anything that touches grain, the default role or date, the base population, the definition
   of an existing measure, a multi-valued dimension, or changes an existing number (2, 7, 8 with a bridge, 9 on a
   default, 10 on the base, 12). Always adjudicated by a person, as the author ruled for anything that cannot be
@@ -131,5 +131,5 @@ past adjudications would then measure whether the rule can take over, in the spi
 
 ## 5. What this note does not decide
 
-The list of considerations, the classification, whether minor extensions need adjudication, and the case base are open
-under `ARC-OP-37` item 8.
+The list of considerations, the classification (apart from minor extensions, ruled), and the case base are open under
+`ARC-OP-37` item 8.

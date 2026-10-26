@@ -21,6 +21,14 @@ ruled at 09:12, verbatim:
 > to base the decision on, that is very helpful. Maybe when enough experience has been built up the decision making
 > can be automated.
 
+The model then drafted the considerations and a classification in
+[146](../10_architecture/146_fact-tables-and-new-questions.md), and asked whether a minor extension (a new measure at
+the same grain and population, a new single-valued dimension, or a new role-played dimension, with no existing number
+changed) needs adjudication. The author answered at 09:20, verbatim:
+
+> 20. No adjudication needed. And if they cause any unforeseen problems, the unit tests, data tests and plausibility
+> tests should catch them.
+
 ## Options considered
 
 *Each use case gets its own dimensions as well as its own facts.* Its case: marts are independent and can change
@@ -42,6 +50,9 @@ only partly fits an existing fact table.* Adopted.
    adjudicates.**
 5. **Extending a fact table to fit a new business question is a fundamental decision**, not routine maintenance.
    Under normal circumstances it is not a continuous process.
+6. **A minor extension needs no adjudication** (ruled 2026-10-26, 09:20): a new measure at the same grain and from
+   the same population, a new single-valued dimension, or a new role-played dimension, provided no existing number
+   changes. Unforeseen problems are left to the unit tests, data tests and plausibility tests to catch.
 
 ## Consequences
 
@@ -53,8 +64,13 @@ and a proposed case base of past decisions from which automation could later be 
 [`ARC-OP-37`](../../registers/OPEN_POINTS.md) item 8, as are where marts take their data from and what counts as a
 distinct use case.
 
-Because extension is rare and adjudicated, the system should not grow fact tables on its own initiative; this narrows
-what the agent layer may do in the marts without a ruling.
+Because a fundamental extension is rare and adjudicated, the system does not make one on its own initiative; a minor
+extension it may make without a ruling (decision 6).
+
+Decision 6 leans on tests that do not exist yet: no unit, data or plausibility test has been built for Wide World
+Importers, and the gates and plausibility checks are still open (`ARC-OP-33`, `ARC-OP-31`). Until they exist, a minor
+extension has no safety net, and the condition that no existing number changes can only be checked by the regression
+diff of `ARC-OP-30` once that exists.
 
 **Revisit** when enough adjudicated cases exist to test whether the formal answers agree with the author's, which is
 the condition he set for automating the decision.

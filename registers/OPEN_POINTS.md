@@ -2528,7 +2528,10 @@ Open, each proposed by the model and not yet ruled (items 3 and 5 ruled, kept fo
    as the default shape, with other shapes where a consumer needs them (a regulatory extract at a fixed grain, a
    feature table, agents' access). Open with it: what counts as a distinct use case. *Partly ruled 2026-10-26
    (ADR-0026, above).* Still open: where marts take their data from; the considerations, the four-way
-   classification and the case base of 146; whether a minor extension needs adjudication.
+   classification and the case base of 146. *Ruled 2026-10-26, 09:20 (ADR-0026 decision 6), verbatim: "20. No
+   adjudication needed. And if they cause any unforeseen problems, the unit tests, data tests and plausibility tests
+   should catch them."* A minor extension needs no adjudication; it depends on tests not yet built (`ARC-OP-31`,
+   `ARC-OP-33`).
 
 Review: 144, 146 and ADR-0024 to ADR-0026 are unreviewed; review on sol and astra per
 [510](../docs/50_process/510_external-review.md), against the standard of whether a Data Vault practitioner would
