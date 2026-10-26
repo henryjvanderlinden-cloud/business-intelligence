@@ -72,6 +72,10 @@ show what was reported, or with which logic, after the logic has changed.
    *Ruled 2026-10-26 in [ADR-0025](0025-engine-results-in-the-raw-vault.md): first from a cut-off date, then going
    forward only, each step adjudicated by a person.*
 5. **Corrected inputs are handled by rerunning**, using the same bitemporality.
+6. **A rerun after corrected inputs is recorded as a new row even when the engine version and the value are
+   unchanged** (ruled 2026-10-26, 11:29, after review by sol raised it,
+   [XREV](../30_research/notes/XREV_2026-10-26_calculation-engines_sol.md) finding 4). The author, verbatim: "If it is rerun, with corrected input, under the same version, and the outcome is the same, then it should probably be a new row, because the new version means it's new. Otherwise we get into trouble if e.g. we want to do a regression analysis between versions, with the datawarehouse as the origin."
+   Change detection on engine results therefore includes the run and its inputs, not only the value and the version.
 
 ## Consequences
 

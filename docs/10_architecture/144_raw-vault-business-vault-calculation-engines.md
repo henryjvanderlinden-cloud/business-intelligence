@@ -195,7 +195,9 @@ Proposed with it, not yet ruled:
     give the same value; change detection that looks only at value and version would then record nothing, and nobody
     could show that the correction was assessed. Run and input manifest are therefore part of what counts as new, and a
     correction-triggered rerun links to the result it supersedes and to the correction. This extends the author's
-    ruling that a new version is new data even with equal values; whether it is what he intends is to be put to him.
+    ruling that a new version is new data even with equal values. *Ruled 2026-10-26, 11:29 (ADR-0024 decision 6): a
+    rerun with corrected inputs is a new row even when version and value are unchanged, so that regression analysis
+    between versions can start from the warehouse.*
 11. **Every use of the fallback leaves a policy record**: who adjudicated, when and why; the exact boundaries on business
     time and on knowledge time, inclusive or exclusive; the release; which engine version applies to which side; and
     how late arrivals and corrections that fall across the boundary are treated. Every run and result affected names

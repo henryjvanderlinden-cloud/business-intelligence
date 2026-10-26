@@ -2516,7 +2516,7 @@ Open, each proposed by the model and not yet ruled (items 3 and 5 ruled, kept fo
    leaves a policy record; results carry knowledge time as well as valid time.
 9. **Reruns with unchanged results** (144 §4 item 10): whether a rerun after corrected inputs is recorded as new even
    when value and version are unchanged, extending the author's ruling that a new version is new data. Raised by
-   review; for the author.
+   review. *Ruled 2026-10-26, 11:29 (ADR-0024 decision 6), verbatim: "7. If it is rerun, with corrected input, under the same version, and the outcome is the same, then it should probably be a new row, because the new version means it's new. Otherwise we get into trouble if e.g. we want to do a regression analysis between versions, with the datawarehouse as the origin."*
 5. **Recomputation when compute or storage do not allow everything.** *Ruled 2026-10-26 (ADR-0025): a cut-off date
    first, then going forward only, each step adjudicated by a person.*
 6. **The grey zones** (144 §6): whether the raw vault allows tidying beyond loss-free conversion; and values that
