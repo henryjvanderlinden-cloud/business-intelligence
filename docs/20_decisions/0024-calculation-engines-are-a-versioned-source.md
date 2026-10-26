@@ -80,11 +80,14 @@ reached by time travel rather than by keeping only the latest run. Change detect
 engine version, so a new version that reproduces the old values is still recorded as new.
 
 Engines are deterministic code: agents may write and change them, but do not run in the data path, and the engines run
-without agents. Their results are stored insert-only and are not rebuilt on each run; ADR-0015's rule that the business
+without agents. *Note, 2026-10-26, after review by sol
+([XREV](../30_research/notes/XREV_2026-10-26_calculation-engines_sol.md)): "deterministic" here means no model in the
+data path; exact reproduction of a figure further needs the execution environment, the input manifest and the run to
+be recorded, as proposed in [144](../10_architecture/144_raw-vault-business-vault-calculation-engines.md) §4.* Their results are stored insert-only and are not rebuilt on each run; ADR-0015's rule that the business
 vault and marts are rebuilt on each run continues to hold for what is built in SQL.
 
 Full recomputation on every version costs compute and storage that grow with history; the fallback when they run short
-is not decided.
+is not decided. *Since ruled in [ADR-0025](0025-engine-results-in-the-raw-vault.md).*
 
 Open, under [`ARC-OP-37`](../../registers/OPEN_POINTS.md) and drafted in
 [144](../10_architecture/144_raw-vault-business-vault-calculation-engines.md) §4: whether engine results land in the

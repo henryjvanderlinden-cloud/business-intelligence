@@ -3,8 +3,10 @@
 **Status: draft, partly ruled.** Written 2026-10-26, session 09, at the author's request for "a number of
 considerations to base the decision on". What he ruled is in
 [ADR-0026](../20_decisions/0026-conformed-dimensions-and-fact-table-changes.md); the considerations and the
-classification below are proposed and open under [`ARC-OP-37`](../../registers/OPEN_POINTS.md) item 8. Unreviewed.
-The dimensional-modelling terms are the model's general knowledge of common practice (grain, conformed and
+classification below are proposed and open under [`ARC-OP-37`](../../registers/OPEN_POINTS.md) item 8. Reviewed on sol the same day
+([XREV](../30_research/notes/XREV_2026-10-26_146-fact-tables_sol.md)), which failed the first version with five requests
+it wrongly let through as minor or unchanged; sections 2 and 3 are revised in response, and the revision is
+unreviewed. The dimensional-modelling terms are the model's general knowledge of common practice (grain, conformed and
 role-playing dimensions, transaction and snapshot fact tables), not verified in this session (rule 8 of
 [AGENTS.md](../../AGENTS.md)).
 
@@ -30,7 +32,9 @@ table's declaration and the new request, so that as many as possible can be form
 **Grain.**
 
 1. *Does the new question need the fact table's grain, a coarser one, or a finer one?* Coarser is an aggregation and
-   needs no change. Finer cannot be served by the table at all; a fact table's grain is never changed in place.
+   needs no change, but only where every measure involved may be aggregated along every dimension being collapsed
+   (consideration 6): summing a daily inventory balance into a year gives stock-days, not stock. Finer cannot be served
+   by the table at all; a fact table's grain is never changed in place.
 2. *Would the change put rows of another grain into the same table?* Mixed grain is the commonest way a fact table is
    ruined: totals double count without anyone noticing.
 
@@ -46,22 +50,35 @@ table's declaration and the new request, so that as many as possible can be form
 
 **Measures.**
 
-5. *Are new measures needed, and are they at the table's grain?* A new measure at the same grain, from the same
-   population, is the cheapest change there is.
-6. *How do the new measures add up?* Additive measures can be summed along every dimension; semi-additive ones (a
-   balance) not along time; non-additive ones (a rate, a ratio) not at all. A non-additive measure is stored as its
-   additive parts.
+5. *Are new measures needed, and were they measured at the table's grain?* The grain at which the source measured a
+   value is what counts, not the grain of the column it would land in: an invoice's freight copied onto each of its
+   lines is still a header amount, and summing it multiplies freight by the number of lines. A new measure measured at
+   the table's grain, from the same population, is the cheapest change there is; a coarser-grain amount stays in a fact
+   table at its own grain, or is allocated by an explicit rule that reconciles to the source total, and choosing such a
+   rule is fundamental.
+6. *How may each measure be aggregated, along each dimension?* Additivity is not a label on the measure alone but an
+   aggregation contract per measure and dimension: additive measures may be summed along every dimension; a balance
+   may be summed across products but along time only by taking an end-of-period value or a named average; a ratio may
+   not be summed at all and is stored as its additive numerator and denominator, with the ratio computed from their
+   sums; distinct counts cannot be re-aggregated. Every measure carries its contract, and a query or extension that
+   would violate it does not pass.
 7. *Does the request define an existing measure differently?* For example revenue with or without tax, with or without
    credit notes. A different definition gets a different name and its own engine rule; an existing measure is never
    redefined in place.
 
 **Dimensions.**
 
-8. *Are new dimensions needed, and are they single-valued at the grain?* Adding a dimension that has exactly one value
-   per row is cheap. One with several values per row (an item in several stock groups) needs a bridge, and is a
+8. *Are new dimensions needed, and does each resolve to exactly one key per fact row?* A dimension is cheap to add
+   only when its lookup is total and many-to-one at the fact's effective time: every fact row finds exactly one key,
+   with an explicit unknown member where nothing matches, so that the number of fact rows, their keys and every
+   existing total stay the same. Overlapping slowly-changing versions would duplicate fact rows; an inner join would
+   drop them; either changes existing numbers. One with several values per row (an item in several stock groups) needs a bridge, and is a
    significant change.
 9. *Does it need another role or time perspective?* Adding a role-played dimension (the billed-to customer beside the
-   delivered-to customer, or the invoice date beside the order date) is cheap. Changing which date or which role is
+   delivered-to customer, or the invoice date beside the order date) is cheap when the fact already carries, or can
+   deterministically acquire, the key for that role as it was at the event. A role whose value the source overwrites
+   (a promised delivery date that is revised, a milestone written back later) is not cheap: without its history the
+   fact would show today's value for yesterday's event, and keeping the history needs versioned rows or a snapshot. Changing which date or which role is
    the default is drift, because it changes what existing reports mean.
 
 **Population.**
@@ -107,10 +124,14 @@ table's declaration and the new request, so that as many as possible can be form
 
 The considerations sort a request into four outcomes, in order of increasing weight:
 
-- **Serve without change.** The existing table answers by aggregation, filtering or dimensions it already has
-  (considerations 1, 10 and 17 pass with no change). A view or a query; no adjudication needed.
-- **Minor extension.** A new measure at the same grain and population, a new single-valued dimension, or a new
-  role-played dimension, with no existing number changed (5, 8 and 9 cheap; 12 passes). **No adjudication needed**
+- **Serve without change.** The existing table answers by aggregation, filtering or dimensions it already has, and
+  every aggregation respects each measure's contract (considerations 1, 6, 10 and 17 pass with no change). A view or a
+  query; no adjudication needed.
+- **Minor extension.** A new measure measured at the table's grain, from the same population, with an aggregation
+  contract; a new dimension whose lookup gives exactly one key per fact row; or a new role-played dimension whose key
+  is known as it was at the event; in every case with the number of fact rows, their keys and every existing total
+  unchanged, which is checked rather than assumed (5, 6, 8 and 9 cheap; 12 passes). A request that fails any of these
+  preconditions is not minor. **No adjudication needed**
   (ruled 2026-10-26, ADR-0026 decision 6): the agent layer makes the change, and unit, data and plausibility tests
   are relied on to catch unforeseen problems.
 - **Fundamental change.** Anything that touches grain, the default role or date, the base population, the definition

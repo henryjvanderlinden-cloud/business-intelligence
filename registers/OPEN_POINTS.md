@@ -2494,12 +2494,15 @@ Open, each proposed by the model and not yet ruled (items 3 and 5 ruled, kept fo
 
 1. **The raw/business line** (144 §2): the raw vault as memory, holding what a system delivered, insert-only,
    generated, with only loss-free technical transformations; the business vault as understanding, holding
-   interpretation, rebuildable, each object citing its decision; and the two placing questions, *did a system say
-   this?* and *would it change if a rule changed tomorrow?*.
+   interpretation, rebuildable, each object citing its decision; the boundary is provenance (*was this delivered by a
+   system?*, our engines included), the second test of the first version having been withdrawn after review; and
+   satellites grouped by source and assertion, split only for a stated reason. Note 030 §2 item 4 still says "split by
+   source and rate of change" and is to be brought in line once this item is ruled.
 2. **Several sources for the same entities** (144 §3): one raw vault; satellites always per source; a hub key shared
    only when the identifier has the same meaning across sources, otherwise qualified by a key-space code; links shared
-   only for the same declared relationship; matching across key spaces as same-as links in the business vault, except
-   mappings a source delivers, which load as raw.
+   by issuer namespace rather than by system; links defined by keys, meaning and grain; matching across key spaces in
+   the business vault with proposal, decision and publication kept apart (ADR-0011); delivered crosswalks loaded as raw
+   with the relationship the source states.
 3. **Where engine results land.** *Ruled 2026-10-26: the raw vault (ADR-0025).* The model proposed the raw vault, under the engine's own source code; the
    financial-services note [030](../docs/60_domain-knowledge/financial-services/030_bird-as-data-vault-foundation.md)
    §2 item 5 places calculated values in the business vault. One of the two is to be ruled, and the other document
@@ -2508,7 +2511,12 @@ Open, each proposed by the model and not yet ruled (items 3 and 5 ruled, kept fo
    engine, version, run and the as-of of its inputs; versions side by side, so a release's impact is the difference of
    two versions on the same inputs (`ARC-OP-30`); money never in binary floating point; a fixed pipeline order without
    cycles; the source's computed columns as test oracles; results keyed at full calculation grain, and possibly run
-   hubs.
+   hubs. Extended after review (144 §4 items 2, 3 and 9 to 11): a version identifies code and execution environment by
+   digest; every run stores an input manifest and a run record; only completed runs are published; every fallback
+   leaves a policy record; results carry knowledge time as well as valid time.
+9. **Reruns with unchanged results** (144 §4 item 10): whether a rerun after corrected inputs is recorded as new even
+   when value and version are unchanged, extending the author's ruling that a new version is new data. Raised by
+   review; for the author.
 5. **Recomputation when compute or storage do not allow everything.** *Ruled 2026-10-26 (ADR-0025): a cut-off date
    first, then going forward only, each step adjudicated by a person.*
 6. **The grey zones** (144 §6): whether the raw vault allows tidying beyond loss-free conversion; and values that
@@ -2533,7 +2541,13 @@ Open, each proposed by the model and not yet ruled (items 3 and 5 ruled, kept fo
    should catch them."* A minor extension needs no adjudication; it depends on tests not yet built (`ARC-OP-31`,
    `ARC-OP-33`).
 
-Review: 144, 146 and ADR-0024 to ADR-0026 are unreviewed; review on sol and astra per
+Review: **done 2026-10-26 on sol in four passes, all FAILS on the first version, all findings applied** (dispositions
+in [line](../docs/30_research/notes/XREV_2026-10-26_144-raw-business-line_sol.md),
+[sources](../docs/30_research/notes/XREV_2026-10-26_144-multiple-sources_sol.md),
+[engines](../docs/30_research/notes/XREV_2026-10-26_calculation-engines_sol.md),
+[fact tables](../docs/30_research/notes/XREV_2026-10-26_146-fact-tables_sol.md)); astra was assigned two of the passes
+twice and wrote nothing. The revised texts are unreviewed. The review as first planned, superseded by the above:
+144, 146 and ADR-0024 to ADR-0026 unreviewed; review on sol and astra per
 [510](../docs/50_process/510_external-review.md), against the standard of whether a Data Vault practitioner would
 accept the raw/business line and the multi-source rules, and whether the engine design gives reproducible, auditable
 figures. Related to `ARC-OP-29` (the data model), `ARC-OP-27` (temporal behaviour), `ARC-OP-30` (release regression),

@@ -64,6 +64,13 @@ and a proposed case base of past decisions from which automation could later be 
 [`ARC-OP-37`](../../registers/OPEN_POINTS.md) item 8, as are where marts take their data from and what counts as a
 distinct use case.
 
+*Note, 2026-10-26, after review by sol*
+([XREV](../30_research/notes/XREV_2026-10-26_146-fact-tables_sol.md)): requests that look minor can still change
+existing numbers (a dimension lookup that duplicates rows, a header amount copied onto lines, a ratio summed by
+default). Note 146 §3 therefore states the preconditions under which a change counts as minor, and a change that fails
+them is not minor. This narrows what decision 6 lets through, in line with its proviso that no existing number
+changes; it does not alter the decision.
+
 Because a fundamental extension is rare and adjudicated, the system does not make one on its own initiative; a minor
 extension it may make without a ruling (decision 6).
 
