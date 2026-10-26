@@ -1,0 +1,58 @@
+{
+ "code": "def column_changes(table, key):\n    \"\"\"Per column: the number of keys whose current and earlier versions hold more than one distinct value.\"\"\"\n    values = {}\n    head = None\n    versions = 0\n    for t in (table, table + \"_Archive\"):\n        f, h, rows = reader(DAY, t)\n        if head is None:\n            head = h\n        idx = [h.index(c) for c in head]\n        k = h.index(key)\n        for r in rows:\n            versions += 1\n            per_key = values.setdefault(r[k], [set() for _ in head])\n            for j, i in enumerate(idx):\n                per_key[j].add(r[i])\n        f.close()\n    with_history = sum(1 for v in values.values() if len(v[head.index(\"ValidFrom\")]) > 1)\n    changed = {c: sum(1 for v in values.values() if len(v[j]) > 1) for j, c in enumerate(head)}\n    return {\"key\": key, \"keys\": len(values), \"versions\": versions, \"keys_with_earlier_versions\": with_history,\n            \"keys_whose_column_changed\": {c: n for c, n in changed.items() if n},\n            \"columns_never_changed\": sorted(c for c, n in changed.items() if not n)}\n",
+ "id": "96a28081d05a75fe",
+ "inputs": {
+  "extract": "2016-06-02",
+  "manifest_sha256": "b8de501a4089c476de29f8ca9eccef8c48e647bc604dfea9c7c57780b0b1a0c1",
+  "source": "wwi",
+  "tables": [
+   "Sales.Customers",
+   "Sales.Customers_Archive"
+  ]
+ },
+ "kind": "profile",
+ "ran_at": "2026-10-26T17:18:11Z",
+ "result": {
+  "columns_never_changed": [
+   "AccountOpenedDate",
+   "AlternateContactPersonID",
+   "BillToCustomerID",
+   "BuyingGroupID",
+   "CustomerCategoryID",
+   "CustomerID",
+   "CustomerName",
+   "DeliveryAddressLine1",
+   "DeliveryAddressLine2",
+   "DeliveryCityID",
+   "DeliveryLocation",
+   "DeliveryMethodID",
+   "DeliveryPostalCode",
+   "DeliveryRun",
+   "FaxNumber",
+   "IsOnCreditHold",
+   "IsStatementSent",
+   "PaymentDays",
+   "PhoneNumber",
+   "PostalAddressLine1",
+   "PostalAddressLine2",
+   "PostalCityID",
+   "PostalPostalCode",
+   "PrimaryContactPersonID",
+   "RunPosition",
+   "StandardDiscountPercentage",
+   "WebsiteURL"
+  ],
+  "key": "CustomerID",
+  "keys": 663,
+  "keys_whose_column_changed": {
+   "CreditLimit": 46,
+   "LastEditedBy": 46,
+   "ValidFrom": 46,
+   "ValidTo": 46
+  },
+  "keys_with_earlier_versions": 46,
+  "versions": 714
+ },
+ "tool": "prototypes/information_analysis/evidence_versions.py",
+ "tool_version": "cbe6cce7ec5676092c3eecfa4110fe576c205b43"
+}

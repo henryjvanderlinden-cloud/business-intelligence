@@ -6,11 +6,11 @@ topic: keys
 tier: minimum
 summary: Primary key unique and gapless; DeliveryMethodName is declared unique.
 confidence: medium
-claims: 4
+claims: 5
 written_by: claude-opus-5-5
 written_at: 2026-10-20T08:31:00Z
 step: S08-095
-method: mechanical claims by prototypes/information_analysis/write_dossiers.py from the evidence of profile_tables.py and evidence_shared.py; judgement claims (type intended, or interpretations) by claude-opus-5-5 reading that evidence; script blobs: write_dossiers.py ee7ed532e7ed7d38cce305ca07736b31a32cabaf, profile_tables.py a03f3066fca3634fb4f03bdc6b7c5672e6faf621, evidence_shared.py 4174839b1036cd70f0c837acdee322e7071ca4b0
+method: mechanical claims by prototypes/information_analysis/write_dossiers.py from the evidence of profile_tables.py and evidence_shared.py; judgement claims (type intended, or interpretations) by claude-opus-5-5 reading that evidence; script blobs: write_dossiers.py ee7ed532e7ed7d38cce305ca07736b31a32cabaf, profile_tables.py a03f3066fca3634fb4f03bdc6b7c5672e6faf621, evidence_shared.py 4174839b1036cd70f0c837acdee322e7071ca4b0; C5 added 2026-10-26 by claude-opus-5-5 in step S10-003 from evidence_versions.py (blob cbe6cce7ec5676092c3eecfa4110fe576c205b43) on the extract of 2016-06-02
 input_source: wwi
 input_extract: 2016-06-01
 input_manifest_sha256: 35b71b2e3ff4bb9ef4e24afc9c56f914e8386df4060a794b862e7f5a00d2774f
@@ -33,6 +33,7 @@ recheck_when: every new extract, or a schema change
 - C2 | type=observed | status=proposed | confidence=high | effective=2016-06-01 | observed=2026-10-18 | checked=2026-10-18 | evidence=1eeacd7a9c1daa95 | recheck=the key range changes | text: The key runs from 1 to 10 with no gap.
 - C3 | type=declared | status=proposed | confidence=high | effective=2016-06-01 | observed=2026-10-18 | checked=2026-10-18 | evidence=4d0a658d91d44a61 | recheck=a foreign key changes | text: 1 declared foreign key, all enabled and trusted: LastEditedBy -> Application.People.PersonID.
 - C4 | type=intended | status=proposed | confidence=medium | effective=2016-06-01 | observed=2026-10-18 | checked=2026-10-18 | evidence=4d0a658d91d44a61 | recheck=every new extract, or a schema change | text: Business key candidate: the unique name (DeliveryMethodName is declared unique); the numeric key is the source's surrogate.
+- C5 | type=observed | status=proposed | confidence=high | effective=2016-06-02 | observed=2026-10-26 | checked=2026-10-26 | evidence=e2deed0b0adceef3 | recheck=every new extract, or a schema change | text: Across the 11 versions of 10 DeliveryMethodID values held in the extract (current and history table together), DeliveryMethodID persists, and the columns whose value differs between the versions of one key are, with the number of keys concerned: DeliveryMethodName (1); LastEditedBy (1); ValidFrom (1); ValidTo (1). The declared-unique DeliveryMethodName was changed for 1 key while DeliveryMethodID stayed the same: the name is unique at any moment but not constant over time.
 
 ## Reasoning
 

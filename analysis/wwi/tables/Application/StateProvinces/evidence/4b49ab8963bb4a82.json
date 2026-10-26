@@ -1,0 +1,24 @@
+{
+ "code": "def conformance(table, columns, reference):\n    \"\"\"Rows of the table whose code (or code pair) is in the reference list, and the distinct codes that are not.\"\"\"\n    f = gzip.open(os.path.join(RAW, DAY, table + \".csv.gz\"), \"rt\", encoding=\"utf-8\", newline=\"\")\n    r = csv.reader(f)\n    head = next(r)\n    idx = [head.index(c) for c in columns]\n    rows = conforming = 0\n    outside = set()\n    for row in r:\n        rows += 1\n        code = \",\".join(row[i] for i in idx)\n        if code in reference:\n            conforming += 1\n        else:\n            outside.add(code)\n    f.close()\n    return {\"columns\": columns, \"rows\": rows, \"conforming_rows\": conforming, \"reference_size\": len(reference),\n            \"distinct_codes_outside_reference\": len(outside)}\n",
+ "id": "4b49ab8963bb4a82",
+ "inputs": {
+  "extract": "2016-06-02",
+  "manifest_sha256": "b8de501a4089c476de29f8ca9eccef8c48e647bc604dfea9c7c57780b0b1a0c1",
+  "reference_evidence": "144f686928512c3f",
+  "source": "wwi",
+  "table": "Application.StateProvinces"
+ },
+ "kind": "profile",
+ "ran_at": "2026-10-26T17:19:41Z",
+ "result": {
+  "columns": [
+   "StateProvinceCode"
+  ],
+  "conforming_rows": 53,
+  "distinct_codes_outside_reference": 0,
+  "reference_size": 57,
+  "rows": 53
+ },
+ "tool": "prototypes/information_analysis/evidence_codes.py",
+ "tool_version": "19e1e69420e2cdd1e9e6bf4b08141fe2ec504802"
+}

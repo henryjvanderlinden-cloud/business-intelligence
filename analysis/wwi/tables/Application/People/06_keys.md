@@ -6,11 +6,11 @@ topic: keys
 tier: minimum
 summary: PersonID is the declared key, unique; 2,150 unused numbers; LogonName and EmailAddress are near-unique but not declared.
 confidence: low
-claims: 4
+claims: 5
 written_by: claude-opus-5-5
 written_at: 2026-10-20T08:31:00Z
 step: S08-095
-method: mechanical claims by prototypes/information_analysis/write_dossiers.py from the evidence of profile_tables.py and evidence_shared.py; judgement claims (type intended, or interpretations) by claude-opus-5-5 reading that evidence; script blobs: write_dossiers.py ee7ed532e7ed7d38cce305ca07736b31a32cabaf, profile_tables.py a03f3066fca3634fb4f03bdc6b7c5672e6faf621, evidence_shared.py 4174839b1036cd70f0c837acdee322e7071ca4b0
+method: mechanical claims by prototypes/information_analysis/write_dossiers.py from the evidence of profile_tables.py and evidence_shared.py; judgement claims (type intended, or interpretations) by claude-opus-5-5 reading that evidence; script blobs: write_dossiers.py ee7ed532e7ed7d38cce305ca07736b31a32cabaf, profile_tables.py a03f3066fca3634fb4f03bdc6b7c5672e6faf621, evidence_shared.py 4174839b1036cd70f0c837acdee322e7071ca4b0; C5 added 2026-10-26 by claude-opus-5-5 in step S10-003 from evidence_versions.py (blob cbe6cce7ec5676092c3eecfa4110fe576c205b43) on the extract of 2016-06-02
 input_source: wwi
 input_extract: 2016-06-01
 input_manifest_sha256: 35b71b2e3ff4bb9ef4e24afc9c56f914e8386df4060a794b862e7f5a00d2774f
@@ -33,6 +33,7 @@ recheck_when: every new extract, or a schema change
 - C2 | type=declared | status=proposed | confidence=high | effective=2016-06-01 | observed=2026-10-18 | checked=2026-10-18 | evidence=3654cc5be0d96b13 | recheck=a foreign key changes | text: 1 declared foreign key, all enabled and trusted: LastEditedBy -> Application.People.PersonID.
 - C3 | type=observed | status=proposed | confidence=low | effective=2016-06-01 | observed=2026-10-18 | checked=2026-10-18 | evidence=419f7b85d80b0191 | recheck=round 2 confirms the bands | text: PersonID numbers appear to fall in bands by kind of person - staff up to 20, supplier contacts from 21, customer contacts from 1001 - which would explain the unused numbers; read from the ranges other tables refer to, so confirmed only in round 2.
 - C4 | type=observed | status=proposed | confidence=medium | effective=2016-06-01 | observed=2026-10-18 | checked=2026-10-18 | evidence=419f7b85d80b0191 | recheck=a duplicate e-mail address appears | text: EmailAddress is not unique: about 1,030 distinct values for 1,110 filled rows.
+- C5 | type=observed | status=proposed | confidence=high | effective=2016-06-02 | observed=2026-10-26 | checked=2026-10-26 | evidence=28c2da7002066064 | recheck=every new extract, or a schema change | text: Across the 2,074 versions of 1,111 PersonID values held in the extract (current and history table together), PersonID persists, and the columns whose value differs between the versions of one key are, with the number of keys concerned: CustomFields (19); HashedPassword (155); IsPermittedToLogon (138); LogonName (138); OtherLanguages (19); UserPreferences (182); ValidFrom (182); ValidTo (182). FullName did not change for any key in the history held.
 
 ## Reasoning
 
