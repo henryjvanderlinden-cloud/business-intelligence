@@ -208,8 +208,9 @@ it became known to the warehouse (knowledge time). Computation time is not knowl
 its valid period, the knowledge-time cut-off of its inputs, its run's start and finish, and when it was recorded in and
 superseded from the raw vault. The author's answers to
 recomputation and to corrections both rest on a bitemporal structure ("using a bitemporal database structure, we can
-time travel"), so engine results are bitemporal by his ruling. Whether the integration layer as a whole is bitemporal,
-decision 1 of handover 09, remains to be put formally, though his answers point that way.
+time travel"), so engine results are bitemporal by his ruling. The integration layer as a whole is bitemporal on
+evidence, with source system time as a labelled third timestamp
+([ADR-0027](../20_decisions/0027-bitemporal-integration-layer.md), ruled 2026-10-26).
 
 **Where engine results land: the raw vault** (ruled 2026-10-26 in
 [ADR-0025](../20_decisions/0025-engine-results-in-the-raw-vault.md)), under the engine's own source code and labelled
@@ -267,6 +268,6 @@ are drafted in [146](146_fact-tables-and-new-questions.md).
 ## 8. What this note does not decide
 
 The raw/business line (section 2, apart from engine results, which are ruled), the rules for several sources
-(section 3), the conditions on engines (section 4, items 2 to 8), whether the layer as a whole is bitemporal, and
+(section 3), the conditions on engines (section 4, items 2 to 8), and
 where marts take their data from are open under [`ARC-OP-37`](../../registers/OPEN_POINTS.md). The declaration language and the model files of
 [142](142_the-data-model.md) remain under `ARC-OP-29` and `ARC-OP-20`.

@@ -2524,7 +2524,11 @@ Open, each proposed by the model and not yet ruled (items 3 and 5 ruled, kept fo
    cost price in `Warehouse.StockItemHoldings`.
 7. **The two decisions and the route of handover 09.** Decision 2 (derived measures) is largely answered by ADR-0024;
    decision 1, whether the integration layer as a whole is bitemporal, is not yet put formally, though the author's
-   answers rest on a bitemporal structure. The route proposed on 2026-10-21 (concepts and keys, relationships,
+   answers rest on a bitemporal structure. *Decision 1 ruled 2026-10-26, 12:03, in
+   [ADR-0027](../docs/20_decisions/0027-bitemporal-integration-layer.md): bitemporal on evidence (valid time only from
+   source evidence, otherwise unknown), source system time kept as a labelled third timestamp, "as of" views in marts;
+   the agent proposes each table's business time from the analysis record and the author rules only where evidence is
+   weak. That per-table proposal is owed before the first load.* The route proposed on 2026-10-21 (concepts and keys, relationships,
    descriptive sets, time, derived values, writing it down) awaits his answer.
 8. **Marts.** The author asked on 2026-10-26, verbatim: "do we derive datamarts from the raw and business vault? I
    think we should build dimensional models for every distinct use case. What are your thoughts?" The model's answer

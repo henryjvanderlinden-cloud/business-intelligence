@@ -169,4 +169,6 @@ loaded*. Classification needs several loads, so it starts as a hypothesis and fi
 time. Late-arriving and retroactively corrected data are the hardest to detect, because both
 look normal until someone reconciles a past period.
 
-`ARC-OP-27` holds what is open.
+`ARC-OP-27` holds what is open. For the Wide World Importers sandbox, the integration layer is ruled bitemporal on
+evidence, with source system time kept as a labelled third timestamp, in
+[ADR-0027](../20_decisions/0027-bitemporal-integration-layer.md).

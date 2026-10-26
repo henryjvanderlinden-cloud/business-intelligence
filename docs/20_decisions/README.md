@@ -41,3 +41,4 @@ describe options; only an ADR adopts one.
 | [0024](0024-calculation-engines-are-a-versioned-source.md) | Business rules and calculations run in versioned calculation engines whose results are a source | Accepted (amended by 0025) |
 | [0025](0025-engine-results-in-the-raw-vault.md) | Engine results land in the raw vault; when full recomputation cannot be afforded, a cut-off date, then going forward only, by human adjudication | Accepted |
 | [0026](0026-conformed-dimensions-and-fact-table-changes.md) | Marts share conformed dimensions; changing a fact table to serve a new question is a deliberate, adjudicated decision | Accepted |
+| [0027](0027-bitemporal-integration-layer.md) | The integration layer is bitemporal on evidence, with source system time kept as a labelled third timestamp | Accepted |
