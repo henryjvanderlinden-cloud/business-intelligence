@@ -77,3 +77,8 @@ metric that motivates it. Marts are Tier 3 and must cite a decision in the regis
 
 How the declarations themselves would be held, generated from and navigated is drafted in
 [142_the-data-model.md](142_the-data-model.md).
+
+Where the line between raw vault and business vault would fall, how several sources describing the same entities
+would be held, and where calculation engines sit are drafted in
+[144](144_raw-vault-business-vault-calculation-engines.md); the engines are ruled in
+[ADR-0024](../20_decisions/0024-calculation-engines-are-a-versioned-source.md).

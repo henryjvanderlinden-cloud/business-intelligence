@@ -2464,6 +2464,65 @@ The list of open questions as opened, superseded by the ruling of 2026-10-18 and
    against the standard of whether it covers what an experienced information analyst would inventory before a build,
    and whether it duplicates or contradicts 127 and 128. The prior-art paragraph owes citations.
 
+### ARC-OP-37 — PARTLY RULED — The integration layer: raw vault, business vault, calculation engines and marts
+**⛔ STATE: OPEN**
+Opened 2026-10-26, session 09, from the author's questions of 25 and 26 October while the design of the generic
+integration layer for Wide World Importers began (handover 09). Drafted in
+[144](../docs/10_architecture/144_raw-vault-business-vault-calculation-engines.md), which quotes the questions
+verbatim; at the author's request, verbatim: "Please store all the above information and decisions in an appropriate
+place in the repository."
+
+**Ruled 2026-10-26, 08:58**, in [ADR-0024](../docs/20_decisions/0024-calculation-engines-are-a-versioned-source.md):
+business rules and calculations beyond basic arithmetic run in calculation engines, versioned software with unit tests
+and inline documentation; every result is stored with its engine version; the engines' output is a separate source;
+the boundary between SQL and engine as proposed; on a new version everything is recomputed when compute and storage
+allow, and a new version is new data even when the values are the same; corrected inputs are rerun, using
+bitemporality.
+
+Open, each proposed by the model and not yet ruled:
+
+1. **The raw/business line** (144 §2): the raw vault as memory, holding what a system delivered, insert-only,
+   generated, with only loss-free technical transformations; the business vault as understanding, holding
+   interpretation, rebuildable, each object citing its decision; and the two placing questions, *did a system say
+   this?* and *would it change if a rule changed tomorrow?*.
+2. **Several sources for the same entities** (144 §3): one raw vault; satellites always per source; a hub key shared
+   only when the identifier has the same meaning across sources, otherwise qualified by a key-space code; links shared
+   only for the same declared relationship; matching across key spaces as same-as links in the business vault, except
+   mappings a source delivers, which load as raw.
+3. **Where engine results land.** The model proposed the raw vault, under the engine's own source code; the
+   financial-services note [030](../docs/60_domain-knowledge/financial-services/030_bird-as-data-vault-foundation.md)
+   §2 item 5 places calculated values in the business vault. One of the two is to be ruled, and the other document
+   corrected.
+4. **Conditions on engines** (144 §4, items 2 to 8): a version is code plus locked dependencies; each result records
+   engine, version, run and the as-of of its inputs; versions side by side, so a release's impact is the difference of
+   two versions on the same inputs (`ARC-OP-30`); money never in binary floating point; a fixed pipeline order without
+   cycles; the source's computed columns as test oracles; results keyed at full calculation grain, and possibly run
+   hubs.
+5. **Recomputation when compute or storage do not allow everything**: the author's "it depends" leaves the fallback
+   open.
+6. **The grey zones** (144 §6): whether the raw vault allows tidying beyond loss-free conversion; and values that
+   cannot be rebuilt later because their inputs are not versioned in the source, such as `LineProfit` against the
+   cost price in `Warehouse.StockItemHoldings`.
+7. **The two decisions and the route of handover 09.** Decision 2 (derived measures) is largely answered by ADR-0024;
+   decision 1, whether the integration layer as a whole is bitemporal, is not yet put formally, though the author's
+   answers rest on a bitemporal structure. The route proposed on 2026-10-21 (concepts and keys, relationships,
+   descriptive sets, time, derived values, writing it down) awaits his answer.
+8. **Marts.** The author asked on 2026-10-26, verbatim: "do we derive datamarts from the raw and business vault? I
+   think we should build dimensional models for every distinct use case. What are your thoughts?" The model's answer
+   the same day, not ruled: marts are built from the business vault, including stored engine results, and reach the
+   raw vault only through point-in-time and bridge structures, never calculating; a dimensional model per distinct
+   use case, with conformed dimensions shared across marts and generated once, so that "customer" means one thing
+   everywhere; each mart cites the use case or decision it serves ([140](../docs/10_architecture/140_data-vault-automation.md))
+   and is retired when its consumers are gone ([145](../docs/10_architecture/145_entropy-and-pruning.md)); dimensional
+   as the default shape, with other shapes where a consumer needs them (a regulatory extract at a fixed grain, a
+   feature table, agents' access). Open with it: what counts as a distinct use case.
+
+Review: 144 and ADR-0024 are unreviewed; review on sol and astra per
+[510](../docs/50_process/510_external-review.md), against the standard of whether a Data Vault practitioner would
+accept the raw/business line and the multi-source rules, and whether the engine design gives reproducible, auditable
+figures. Related to `ARC-OP-29` (the data model), `ARC-OP-27` (temporal behaviour), `ARC-OP-30` (release regression),
+`ARC-OP-31` (plausibility), `ARC-OP-35` (BCBS 239) and `ARC-OP-36` (the analysis record, which the design cites).
+
 ## §3 — Evidence and measurement (`EVI`)
 
 ### EVI-OP-1 — Ground truth for the falsifiable core

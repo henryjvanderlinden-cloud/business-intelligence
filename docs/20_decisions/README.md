@@ -38,3 +38,4 @@ describe options; only an ADR adopts one.
 | [0021](0021-position-in-the-schema.md) | Position in the schema is inventoried: measured on the declared keys, checked for distortion, classed by rules | Accepted |
 | [0022](0022-the-analysis-stage-closes.md) | The analysis stage of the first trial closes; its record stays a description of the as-is and stays open | Accepted |
 | [0023](0023-domain-knowledge-folder.md) | Domain knowledge lives in `docs/60_domain-knowledge/`, one subfolder per industry | Accepted |
+| [0024](0024-calculation-engines-are-a-versioned-source.md) | Business rules and calculations run in versioned calculation engines whose results are a source | Accepted |
