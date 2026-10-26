@@ -2545,6 +2545,8 @@ Open, each proposed by the model and not yet ruled (items 3 and 5 ruled, kept fo
    should catch them."* A minor extension needs no adjudication; it depends on tests not yet built (`ARC-OP-31`,
    `ARC-OP-33`).
 
+**Step A proposed 2026-10-26, session 10** (handover 10), not ruled and unreviewed: [147](../docs/10_architecture/147_wwi-concepts-keys-and-business-time.md) proposes sixteen hubs for the 31 base tables of WWI, keyed on the source's identifiers with the key space `wwi` (declared-unique names are renamed in eight tables, `06_keys.md#C5`), ISO keys without a key-space code for country and state or province, nine lookups as reference tables, lines as relationships, and the business-time column of every table under ADR-0027 decision 4. Three cases are put to the author: the ISO keys, how written-back milestones enter valid time, and the two undescribed sensor tables.
+
 Review: **done 2026-10-26 on sol in four passes, all FAILS on the first version, all findings applied** (dispositions
 in [line](../docs/30_research/notes/XREV_2026-10-26_144-raw-business-line_sol.md),
 [sources](../docs/30_research/notes/XREV_2026-10-26_144-multiple-sources_sol.md),
