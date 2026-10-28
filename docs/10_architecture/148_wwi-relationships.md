@@ -1,7 +1,8 @@
 # 148 — Wide World Importers: the relationships between the hubs (step B)
 
 > **STATUS: PROPOSED, not ruled.** Drafted 2026-10-28 in session 10, after step A was ruled
-> ([ADR-0029](../20_decisions/0029-wwi-step-a-concepts-and-keys.md)). Unreviewed on another model
+> ([ADR-0029](../20_decisions/0029-wwi-step-a-concepts-and-keys.md)). Reviewed on sol, which failed the first version
+> ([XREV](../30_research/notes/XREV_2026-10-28_148-links_sol.md)); this is the revised text, itself unreviewed
 > ([510](../50_process/510_external-review.md)). Open under [`ARC-OP-37`](../../registers/OPEN_POINTS.md).
 
 ## 1. What this note does
@@ -32,7 +33,13 @@ source row, joining an order to its customer, salesperson and contact at once, t
 every event is a hub of its own (147 §3), and each of its binary links carries the event's hash key and the same load
 time and batch, so the combination of an order's customer, salesperson and contact is recovered by joining on the
 order; nothing of the unit of work is lost. Binary links are generated from one template, change independently, and
-each needs at most one effectivity satellite.
+each needs at most one effectivity satellite. Review showed the condition this rests on
+([XREV](../30_research/notes/XREV_2026-10-28_148-links_sol.md) finding 1): if one link of a row loaded and another did
+not, a query could combine a new salesperson with an old customer, a combination no source row ever held. So the links
+and satellites of one extract are loaded as one batch, and a batch becomes visible only when it is whole; the
+sandbox's runner already publishes the warehouse only after a successful load
+([ADR-0015](../20_decisions/0015-sandbox-warehouse-dbt-duckdb.md); `prototypes/wwi_sandbox/runner.py`, step 3), and a
+failed date is never skipped. An "as of" reconstruction selects every link of an event at the same knowledge time.
 
 **Rule 3: a link holds what the source stated, also where it repeats another route.** Several event columns repeat a
 relationship reachable another way: an invoice's customer is its order's customer on every invoice
@@ -44,22 +51,29 @@ source's assertion at the time of the event and loads as its own link (144 §2: 
 said). The business vault chooses one route per question, and the agreement of the routes becomes a plausibility test
 (`ARC-OP-31`) rather than an assumption.
 
-**Rule 4: an empty column gives no link row.** No zero or ghost key is used in links. Where emptiness carries a declared
-meaning it is kept as that meaning, not as a missing link: a special deal with no customer applies to all customers
-(`across/relations/Sales.SpecialDeals.CustomerID__Sales.Customers.CustomerID/02_meaning.md#C2`). Because the deal hub
-and its satellite are loaded from the same row, the absence of a scope link is evidence that the scope was empty; the
-business vault reads it so.
+**Rule 4: an empty column gives no link row, and the emptiness is recorded where it was delivered.** No zero or ghost
+key is used in links. A missing link row alone cannot tell an empty column from a failed or late load
+([XREV](../30_research/notes/XREV_2026-10-28_148-links_sol.md) finding 2), and where emptiness carries a declared
+meaning that matters: a special deal with no customer applies to all customers
+(`across/relations/Sales.SpecialDeals.CustomerID__Sales.Customers.CustomerID/02_meaning.md#C2`). So the satellite of the
+naming hub keeps every optional relationship column as delivered, an empty value included, which is a loss-free copy
+of the source row (144 §2); "all customers" is then read in the business vault from a recorded empty value, never
+from an absent link.
 
-**Rule 5: every link has a driving side, the hub that names.** Each row of the naming table names at most one row of
-the named table per role (each relation's `01_granularity.md#C1`), so the naming hub's key drives the link. A link
-needs an effectivity satellite in step C wherever the naming row can be re-pointed. In the history held, no
+**Rule 5: every link has a driving side, the hub that names, and every link gets an effectivity satellite.** Each row of
+the naming table names at most one row of the named table per role (each relation's `01_granularity.md#C1`), so the
+naming hub's key drives the link. The first version gave effectivity only to links whose column had been seen to
+change; review showed that observed stability is not a temporal model: a single correction of an order's customer
+would leave two current customers ([XREV](../30_research/notes/XREV_2026-10-28_148-links_sol.md) finding 3), and no
+source contract says which columns are immutable. So every link gets driving-key effectivity in step C. For the record,
+in the history held no
 relationship column of any system-versioned master ever changed: only `CreditLimit` among customers' business columns
 (`Sales/Customers/06_keys.md#C5`), only `DeliveryLocation` among suppliers' (`Purchasing/Suppliers/06_keys.md#C5`),
 only `CustomFields` and `Tags` among stock items' (`Warehouse/StockItems/06_keys.md#C5`), only population among
 cities' (`Application/Cities/06_keys.md#C5`). In the event tables, the only relationship column updated in either
 transition is `Sales.Orders.PickedByPersonID` (`Sales/Orders/03_temporal.md#C2`; `analysis/wwi/_source/22_stability.md#C1`).
-The masters can nevertheless be edited in the source, so their links get effectivity satellites; event links whose
-column was never updated get none until it is seen, and the picker link is dated by its milestone (Rule 6).
+The picker link's effectivity starts at its milestone (Rule 6), and a later correction of the picker
+ends the earlier link at the correction's knowledge time, as for a corrected milestone (ADR-0028, Consequences).
 
 **Rule 6: the picker link is part of the picking milestone.** `PickedByPersonID` is written back with
 `PickingCompletedWhen` (`Sales/Orders/03_temporal.md#C2`), so the link from an order to its picker is valid from the
@@ -87,29 +101,29 @@ the stock item (147 §4), not a link.
 
 ## 3. The links proposed: forty-nine
 
-Optional means the naming column may be empty (Rule 4). Effectivity says whether step C should give the link an
-effectivity satellite (Rule 5): *yes* for masters, *milestone* for the picker link, *no* for event links whose column
-was never updated.
+Optional means the naming column may be empty (Rule 4). Every link gets an effectivity satellite in step C (Rule 5); the
+column *Effectivity* says where its business start comes from: *load* where the source gives none, *event* where the
+naming event's date gives it, *milestone* for the picker link, *absence* for the bridge.
 
 ### 3.1 Geography, parties and products (masters)
 
 | # | Link | From (driving) → to | Relation | Optional | Effectivity | Evidence |
 |---|---|---|---|---|---|---|
-| 1 | city in state or province | city → state or province | `Application.Cities.StateProvinceID__Application.StateProvinces.StateProvinceID` | no | yes | 02#C2, 07#C2 |
-| 2 | state or province in country | state or province → country | `Application.StateProvinces.CountryID__Application.Countries.CountryID` | no | yes | 02#C2, 07#C2 |
-| 3 | customer delivery city | customer → city | `Sales.Customers.DeliveryCityID__Application.Cities.CityID` | no | yes | 07#C2 |
-| 4 | customer postal city | customer → city | `Sales.Customers.PostalCityID__Application.Cities.CityID` | no | yes | 07#C2 |
-| 5 | customer billed to (head office) | customer → customer | `Sales.Customers.BillToCustomerID__Sales.Customers.CustomerID` | no | yes | 02#C2, 07#C2 |
-| 6 | customer in buying group | customer → buying group | `Sales.Customers.BuyingGroupID__Sales.BuyingGroups.BuyingGroupID` | yes | yes | 07#C2 |
-| 7 | customer in category | customer → customer category | `Sales.Customers.CustomerCategoryID__Sales.CustomerCategories.CustomerCategoryID` | no | yes | 07#C2 |
-| 8 | customer primary contact | customer → person | `Sales.Customers.PrimaryContactPersonID__Application.People.PersonID` | no | yes | 02#C3 |
-| 9 | customer alternate contact | customer → person | `Sales.Customers.AlternateContactPersonID__Application.People.PersonID` | yes | yes | 02#C3, 07#C2 |
-| 10 | supplier delivery city | supplier → city | `Purchasing.Suppliers.DeliveryCityID__Application.Cities.CityID` | no | yes | 07#C2 |
-| 11 | supplier postal city | supplier → city | `Purchasing.Suppliers.PostalCityID__Application.Cities.CityID` | no | yes | 07#C2 |
-| 12 | supplier primary contact | supplier → person | `Purchasing.Suppliers.PrimaryContactPersonID__Application.People.PersonID` | no | yes | 02#C2, 07#C2 |
-| 13 | supplier alternate contact | supplier → person | `Purchasing.Suppliers.AlternateContactPersonID__Application.People.PersonID` | no | yes | 02#C2, 07#C2 |
-| 14 | stock item usual supplier | stock item → supplier | `Warehouse.StockItems.SupplierID__Purchasing.Suppliers.SupplierID` | no | yes | 02#C2 |
-| 15 | stock item in stock group | stock item ↔ stock group (no driving side) | `Warehouse.StockItemStockGroups.StockItemID__Warehouse.StockItems.StockItemID` and `Warehouse.StockItemStockGroups.StockGroupID__Warehouse.StockGroups.StockGroupID` | no | yes | 02#C2 |
+| 1 | city in state or province | city → state or province | `Application.Cities.StateProvinceID__Application.StateProvinces.StateProvinceID` | no | load | 02#C2, 07#C2 |
+| 2 | state or province in country | state or province → country | `Application.StateProvinces.CountryID__Application.Countries.CountryID` | no | load | 02#C2, 07#C2 |
+| 3 | customer delivery city | customer → city | `Sales.Customers.DeliveryCityID__Application.Cities.CityID` | no | load | 07#C2 |
+| 4 | customer postal city | customer → city | `Sales.Customers.PostalCityID__Application.Cities.CityID` | no | load | 07#C2 |
+| 5 | customer billed to (head office) | customer → customer | `Sales.Customers.BillToCustomerID__Sales.Customers.CustomerID` | no | load | 02#C2, 07#C2 |
+| 6 | customer in buying group | customer → buying group | `Sales.Customers.BuyingGroupID__Sales.BuyingGroups.BuyingGroupID` | yes | load | 07#C2 |
+| 7 | customer in category | customer → customer category | `Sales.Customers.CustomerCategoryID__Sales.CustomerCategories.CustomerCategoryID` | no | load | 07#C2 |
+| 8 | customer primary contact | customer → person | `Sales.Customers.PrimaryContactPersonID__Application.People.PersonID` | no | load | 02#C3 |
+| 9 | customer alternate contact | customer → person | `Sales.Customers.AlternateContactPersonID__Application.People.PersonID` | yes | load | 02#C3, 07#C2 |
+| 10 | supplier delivery city | supplier → city | `Purchasing.Suppliers.DeliveryCityID__Application.Cities.CityID` | no | load | 07#C2 |
+| 11 | supplier postal city | supplier → city | `Purchasing.Suppliers.PostalCityID__Application.Cities.CityID` | no | load | 07#C2 |
+| 12 | supplier primary contact | supplier → person | `Purchasing.Suppliers.PrimaryContactPersonID__Application.People.PersonID` | no | load | 02#C2, 07#C2 |
+| 13 | supplier alternate contact | supplier → person | `Purchasing.Suppliers.AlternateContactPersonID__Application.People.PersonID` | no | load | 02#C2, 07#C2 |
+| 14 | stock item usual supplier | stock item → supplier | `Warehouse.StockItems.SupplierID__Purchasing.Suppliers.SupplierID` | no | load | 02#C2 |
+| 15 | stock item in stock group | stock item ↔ stock group (no driving side) | `Warehouse.StockItemStockGroups.StockItemID__Warehouse.StockItems.StockItemID` and `Warehouse.StockItemStockGroups.StockGroupID__Warehouse.StockGroups.StockGroupID` | no | absence | 02#C2 |
 
 Link 2 reaches the country through the source's `CountryID`, resolved to the ISO code from the same extract
 (ADR-0028 decision 1). Link 15 is the bridge of `Warehouse.StockItemStockGroups`; a membership has no driving side, its
@@ -121,11 +135,11 @@ effectivity has to come from the membership's absence in a complete extract (127
 
 | # | Link | From (driving) → to | Relation | Optional | Effectivity | Evidence |
 |---|---|---|---|---|---|---|
-| 16 | deal for customer | special deal → customer | `Sales.SpecialDeals.CustomerID__Sales.Customers.CustomerID` | yes (empty: all customers) | yes | 02#C2, 07#C2 |
-| 17 | deal for buying group | special deal → buying group | `Sales.SpecialDeals.BuyingGroupID__Sales.BuyingGroups.BuyingGroupID` | yes | yes | 02#C2 |
-| 18 | deal for customer category | special deal → customer category | `Sales.SpecialDeals.CustomerCategoryID__Sales.CustomerCategories.CustomerCategoryID` | yes | yes | 02#C2, 07#C2 |
-| 19 | deal for stock item | special deal → stock item | `Sales.SpecialDeals.StockItemID__Warehouse.StockItems.StockItemID` | yes (empty: discounts only) | yes | 02#C2, 07#C2 |
-| 20 | deal for stock group | special deal → stock group | `Sales.SpecialDeals.StockGroupID__Warehouse.StockGroups.StockGroupID` | yes | yes | 02#C2 |
+| 16 | deal for customer | special deal → customer | `Sales.SpecialDeals.CustomerID__Sales.Customers.CustomerID` | yes (empty: all customers) | load | 02#C2, 07#C2 |
+| 17 | deal for buying group | special deal → buying group | `Sales.SpecialDeals.BuyingGroupID__Sales.BuyingGroups.BuyingGroupID` | yes | load | 02#C2 |
+| 18 | deal for customer category | special deal → customer category | `Sales.SpecialDeals.CustomerCategoryID__Sales.CustomerCategories.CustomerCategoryID` | yes | load | 02#C2, 07#C2 |
+| 19 | deal for stock item | special deal → stock item | `Sales.SpecialDeals.StockItemID__Warehouse.StockItems.StockItemID` | yes (empty: discounts only) | load | 02#C2, 07#C2 |
+| 20 | deal for stock group | special deal → stock group | `Sales.SpecialDeals.StockGroupID__Warehouse.StockGroups.StockGroupID` | yes | load | 02#C2 |
 
 Links 16, 18 and 19 have no row in the data: both deals leave those columns empty. They are declared so that a deal
 that uses them loads without a change to the model.
@@ -134,36 +148,38 @@ that uses them loads without a change to the model.
 
 | # | Link | From (driving) → to | Relation | Optional | Effectivity | Evidence |
 |---|---|---|---|---|---|---|
-| 21 | order customer | sales order → customer | `Sales.Orders.CustomerID__Sales.Customers.CustomerID` | no | no | 02#C2 |
-| 22 | order salesperson | sales order → person | `Sales.Orders.SalespersonPersonID__Application.People.PersonID` | no | no | 02#C2, 02#C3 |
-| 23 | order customer contact | sales order → person | `Sales.Orders.ContactPersonID__Application.People.PersonID` | no | no | 02#C3 |
+| 21 | order customer | sales order → customer | `Sales.Orders.CustomerID__Sales.Customers.CustomerID` | no | event | 02#C2 |
+| 22 | order salesperson | sales order → person | `Sales.Orders.SalespersonPersonID__Application.People.PersonID` | no | event | 02#C2, 02#C3 |
+| 23 | order customer contact | sales order → person | `Sales.Orders.ContactPersonID__Application.People.PersonID` | no | event | 02#C3 |
 | 24 | order picker | sales order → person | `Sales.Orders.PickedByPersonID__Application.People.PersonID` | yes | milestone | 02#C3, 07#C2 |
-| 25 | backorder of | sales order (original) → sales order (backorder) | `Sales.Orders.BackorderOrderID__Sales.Orders.OrderID` | yes | no | 02#C2, 02#C3, 07#C2 |
-| 26 | order line of order | sales order line → sales order | `Sales.OrderLines.OrderID__Sales.Orders.OrderID` | no | no | 02#C2 |
-| 27 | order line item | sales order line → stock item | `Sales.OrderLines.StockItemID__Warehouse.StockItems.StockItemID` | no | no | 01#C1 |
-| 28 | invoice of order | invoice → sales order | `Sales.Invoices.OrderID__Sales.Orders.OrderID` | no in the data, nullable | no | 02#C2, 01#C4 |
-| 29 | invoice customer (delivered to) | invoice → customer | `Sales.Invoices.CustomerID__Sales.Customers.CustomerID` | no | no | 02#C2 |
-| 30 | invoice customer billed | invoice → customer | `Sales.Invoices.BillToCustomerID__Sales.Customers.CustomerID` | no | no | 02#C2 |
-| 31 | invoice salesperson | invoice → person | `Sales.Invoices.SalespersonPersonID__Application.People.PersonID` | no | no | 02#C3 |
-| 32 | invoice customer contact | invoice → person | `Sales.Invoices.ContactPersonID__Application.People.PersonID` | no | no | 02#C3 |
-| 33 | invoice accounts contact | invoice → person | `Sales.Invoices.AccountsPersonID__Application.People.PersonID` | no | no | 02#C3 |
-| 34 | invoice packer | invoice → person | `Sales.Invoices.PackedByPersonID__Application.People.PersonID` | no | no | 02#C3 |
-| 35 | invoice line of invoice | invoice line → invoice | `Sales.InvoiceLines.InvoiceID__Sales.Invoices.InvoiceID` | no | no | 02#C2 |
-| 36 | invoice line item | invoice line → stock item | `Sales.InvoiceLines.StockItemID__Warehouse.StockItems.StockItemID` | no | no | 01#C1 |
+| 25 | backorder named | sales order (the row) → sales order (named in `BackorderOrderID`) | `Sales.Orders.BackorderOrderID__Sales.Orders.OrderID` | yes | event | 02#C2, 02#C3, 07#C2 |
+| 26 | order line of order | sales order line → sales order | `Sales.OrderLines.OrderID__Sales.Orders.OrderID` | no | event | 02#C2 |
+| 27 | order line item | sales order line → stock item | `Sales.OrderLines.StockItemID__Warehouse.StockItems.StockItemID` | no | event | 01#C1 |
+| 28 | invoice of order | invoice → sales order | `Sales.Invoices.OrderID__Sales.Orders.OrderID` | no in the data, nullable | event | 02#C2, 01#C4 |
+| 29 | invoice customer (delivered to) | invoice → customer | `Sales.Invoices.CustomerID__Sales.Customers.CustomerID` | no | event | 02#C2 |
+| 30 | invoice customer billed | invoice → customer | `Sales.Invoices.BillToCustomerID__Sales.Customers.CustomerID` | no | event | 02#C2 |
+| 31 | invoice salesperson | invoice → person | `Sales.Invoices.SalespersonPersonID__Application.People.PersonID` | no | event | 02#C3 |
+| 32 | invoice customer contact | invoice → person | `Sales.Invoices.ContactPersonID__Application.People.PersonID` | no | event | 02#C3 |
+| 33 | invoice accounts contact | invoice → person | `Sales.Invoices.AccountsPersonID__Application.People.PersonID` | no | event | 02#C3 |
+| 34 | invoice packer | invoice → person | `Sales.Invoices.PackedByPersonID__Application.People.PersonID` | no | event | 02#C3 |
+| 35 | invoice line of invoice | invoice line → invoice | `Sales.InvoiceLines.InvoiceID__Sales.Invoices.InvoiceID` | no | event | 02#C2 |
+| 36 | invoice line item | invoice line → stock item | `Sales.InvoiceLines.StockItemID__Warehouse.StockItems.StockItemID` | no | event | 01#C1 |
 
-Link 25 runs from the original order to the backorder split from it, against the source's description: on all 7,546
-filled rows the order named is later and has the same customer and purchase-order number (02#C2, 02#C3). The direction
-rests on one extract; if a new backorder ever shows the declared direction, the roles swap and the link's key does not
-change.
+Link 25's two roles are fixed by the source column, not by the data: the row's order and the order its
+`BackorderOrderID` names, stored in that order on every row ([XREV](../30_research/notes/XREV_2026-10-28_148-links_sol.md)
+finding 4). Which of the two is the original is a reading for the business vault: on all 7,546 filled rows the order
+named is later and has the same customer and purchase-order number, so the column points from the original to the
+backorder, against the source's description (02#C2, 02#C3). A row that contradicts that reading is a data-quality
+exception, not a reason to swap roles.
 
 ### 3.4 Purchasing
 
 | # | Link | From (driving) → to | Relation | Optional | Effectivity | Evidence |
 |---|---|---|---|---|---|---|
-| 37 | purchase order supplier | purchase order → supplier | `Purchasing.PurchaseOrders.SupplierID__Purchasing.Suppliers.SupplierID` | no | no | 07#C2 |
-| 38 | purchase order contact | purchase order → person | `Purchasing.PurchaseOrders.ContactPersonID__Application.People.PersonID` | no | no | 02#C2, 02#C3, 02#C4 |
-| 39 | purchase-order line of order | purchase-order line → purchase order | `Purchasing.PurchaseOrderLines.PurchaseOrderID__Purchasing.PurchaseOrders.PurchaseOrderID` | no | no | 02#C2 |
-| 40 | purchase-order line item | purchase-order line → stock item | `Purchasing.PurchaseOrderLines.StockItemID__Warehouse.StockItems.StockItemID` | no | no | 07#C2 |
+| 37 | purchase order supplier | purchase order → supplier | `Purchasing.PurchaseOrders.SupplierID__Purchasing.Suppliers.SupplierID` | no | event | 07#C2 |
+| 38 | purchase order contact | purchase order → person | `Purchasing.PurchaseOrders.ContactPersonID__Application.People.PersonID` | no | event | 02#C2, 02#C3, 02#C4 |
+| 39 | purchase-order line of order | purchase-order line → purchase order | `Purchasing.PurchaseOrderLines.PurchaseOrderID__Purchasing.PurchaseOrders.PurchaseOrderID` | no | event | 02#C2 |
+| 40 | purchase-order line item | purchase-order line → stock item | `Purchasing.PurchaseOrderLines.StockItemID__Warehouse.StockItems.StockItemID` | no | event | 07#C2 |
 
 Link 38 keeps the source's name, contact, although every order names a WWI salesperson and never the supplier's
 contact, and the role it records is not established (02#C3, 02#C4). The role is a reading for the business vault; the
@@ -173,15 +189,15 @@ link loads what the source states either way.
 
 | # | Link | From (driving) → to | Relation | Optional | Effectivity | Evidence |
 |---|---|---|---|---|---|---|
-| 41 | customer entry account (billed) | customer ledger entry → customer | `Sales.CustomerTransactions.CustomerID__Sales.Customers.CustomerID` | no | no | 02#C2 |
-| 42 | customer entry invoice | customer ledger entry → invoice | `Sales.CustomerTransactions.InvoiceID__Sales.Invoices.InvoiceID` | yes (payments) | no | 02#C2, 07#C2 |
-| 43 | supplier entry account | supplier ledger entry → supplier | `Purchasing.SupplierTransactions.SupplierID__Purchasing.Suppliers.SupplierID` | no | no | 02#C2 |
-| 44 | supplier entry purchase order | supplier ledger entry → purchase order | `Purchasing.SupplierTransactions.PurchaseOrderID__Purchasing.PurchaseOrders.PurchaseOrderID` | yes (payments) | no | 02#C2, 07#C2 |
-| 45 | movement item | stock movement → stock item | `Warehouse.StockItemTransactions.StockItemID__Warehouse.StockItems.StockItemID` | no | no | 01#C1 |
-| 46 | movement customer (issued to) | stock movement → customer | `Warehouse.StockItemTransactions.CustomerID__Sales.Customers.CustomerID` | yes (issues only) | no | 02#C2, 07#C2 |
-| 47 | movement invoice | stock movement → invoice | `Warehouse.StockItemTransactions.InvoiceID__Sales.Invoices.InvoiceID` | yes (issues only) | no | 02#C2, 07#C2 |
-| 48 | movement supplier | stock movement → supplier | `Warehouse.StockItemTransactions.SupplierID__Purchasing.Suppliers.SupplierID` | yes (receipts only) | no | 02#C2, 07#C2 |
-| 49 | movement purchase order | stock movement → purchase order | `Warehouse.StockItemTransactions.PurchaseOrderID__Purchasing.PurchaseOrders.PurchaseOrderID` | yes (receipts only) | no | 02#C2, 07#C2 |
+| 41 | customer entry account (billed) | customer ledger entry → customer | `Sales.CustomerTransactions.CustomerID__Sales.Customers.CustomerID` | no | event | 02#C2 |
+| 42 | customer entry invoice | customer ledger entry → invoice | `Sales.CustomerTransactions.InvoiceID__Sales.Invoices.InvoiceID` | yes (payments) | event | 02#C2, 07#C2 |
+| 43 | supplier entry account | supplier ledger entry → supplier | `Purchasing.SupplierTransactions.SupplierID__Purchasing.Suppliers.SupplierID` | no | event | 02#C2 |
+| 44 | supplier entry purchase order | supplier ledger entry → purchase order | `Purchasing.SupplierTransactions.PurchaseOrderID__Purchasing.PurchaseOrders.PurchaseOrderID` | yes (payments) | event | 02#C2, 07#C2 |
+| 45 | movement item | stock movement → stock item | `Warehouse.StockItemTransactions.StockItemID__Warehouse.StockItems.StockItemID` | no | event | 01#C1 |
+| 46 | movement customer (issued to) | stock movement → customer | `Warehouse.StockItemTransactions.CustomerID__Sales.Customers.CustomerID` | yes (issues only) | event | 02#C2, 07#C2 |
+| 47 | movement invoice | stock movement → invoice | `Warehouse.StockItemTransactions.InvoiceID__Sales.Invoices.InvoiceID` | yes (issues only) | event | 02#C2, 07#C2 |
+| 48 | movement supplier | stock movement → supplier | `Warehouse.StockItemTransactions.SupplierID__Purchasing.Suppliers.SupplierID` | yes (receipts only) | event | 02#C2, 07#C2 |
+| 49 | movement purchase order | stock movement → purchase order | `Warehouse.StockItemTransactions.PurchaseOrderID__Purchasing.PurchaseOrders.PurchaseOrderID` | yes (receipts only) | event | 02#C2, 07#C2 |
 
 The account a customer ledger entry is booked on is the customer billed, not the customer delivered to: it equals the
 invoice's billed customer on every invoice entry (link 41, 02#C2; `across/terms/customer/25_terms.md#C3`). Link 41
@@ -197,7 +213,13 @@ therefore carries the role *billed*, like link 30.
 | payment ↔ invoices it settles | the ledger entries, matched by customer and day | `across/reconciliations/customer-payments-vs-invoices/16_reconciliation.md#C2`; `analysis/wwi/_source/22_stability.md#C6` |
 
 Each is a judgement with a rule and, for the payments, a confidence; it is stored with proposal, decision and
-publication kept apart (144 §3 item 4). The matching of payments to invoices involves a business rule, so under
+publication kept apart (144 §3 item 4). A match is a candidate, not a relationship, until a versioned rule fixes its
+cardinality, its tie-breaking and a reconciling check, and an ambiguous match is withheld and shown as ambiguous rather
+than resolved by choice or multiplied ([XREV](../30_research/notes/XREV_2026-10-28_148-links_sol.md) finding 5). For
+the payments the record gives such a check: each payment equals the sum of the invoices finalised that day, with at
+most one payment per customer and day (`analysis/wwi/_source/22_stability.md#C6`); a day that fails it gets no match.
+The one-to-one matches of stock movements to lines rest on (header, item) being unique, which is observed, not
+declared; a duplicate would end the match for that pair, not create two. The matching of payments to invoices involves a business rule, so under
 [ADR-0024](../20_decisions/0024-calculation-engines-are-a-versioned-source.md) it is an engine's.
 
 ## 5. What this note does not decide
