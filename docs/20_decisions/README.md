@@ -43,3 +43,4 @@ describe options; only an ADR adopts one.
 | [0026](0026-conformed-dimensions-and-fact-table-changes.md) | Marts share conformed dimensions; changing a fact table to serve a new question is a deliberate, adjudicated decision | Accepted |
 | [0027](0027-bitemporal-integration-layer.md) | The integration layer is bitemporal on evidence, with source system time kept as a labelled third timestamp | Accepted |
 | [0028](0028-wwi-country-key-milestones-and-sensors.md) | Wide World Importers: the country is keyed on ISO 3166-1; existence is dated by the event and each milestone is a satellite of its own; the sensor tables as proposed | Accepted |
+| [0029](0029-wwi-step-a-concepts-and-keys.md) | Wide World Importers, step A: the hubs, business keys and business time of note 147 | Accepted |

@@ -1,6 +1,6 @@
 # 147 — Wide World Importers: business concepts, business keys and business time (step A)
 
-> **STATUS: PROPOSED, PARTLY RULED** (the three cases of §6, 2026-10-28, ADR-0028). Drafted 2026-10-26 in session 10 from handover 10. Reviewed on sol in two passes,
+> **STATUS: RULED** 2026-10-28: the three cases of §6 in ADR-0028, the rest in ADR-0029. The hub's technical key is not decided here. Drafted 2026-10-26 in session 10 from handover 10. Reviewed on sol in two passes,
 > both of which failed the first version ([keys](../30_research/notes/XREV_2026-10-26_147-keys_sol.md),
 > [business time](../30_research/notes/XREV_2026-10-26_147-business-time_sol.md)); this is the revised text, itself
 > unreviewed ([510](../50_process/510_external-review.md)). Open under [`ARC-OP-37`](../../registers/OPEN_POINTS.md).
