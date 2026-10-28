@@ -1,6 +1,6 @@
 # 147 — Wide World Importers: business concepts, business keys and business time (step A)
 
-> **STATUS: PROPOSED, not ruled.** Drafted 2026-10-26 in session 10 from handover 10. Reviewed on sol in two passes,
+> **STATUS: PROPOSED, PARTLY RULED** (the three cases of §6, 2026-10-28, ADR-0028). Drafted 2026-10-26 in session 10 from handover 10. Reviewed on sol in two passes,
 > both of which failed the first version ([keys](../30_research/notes/XREV_2026-10-26_147-keys_sol.md),
 > [business time](../30_research/notes/XREV_2026-10-26_147-business-time_sol.md)); this is the revised text, itself
 > unreviewed ([510](../50_process/510_external-review.md)). Open under [`ARC-OP-37`](../../registers/OPEN_POINTS.md).
@@ -263,6 +263,10 @@ deals are the one source with a business validity period of their own, which ADR
 data: `StartDate` is stored as valid time, `EndDate` as the source's stated end.
 
 ## 6. Weak cases for the author
+
+*Ruled 2026-10-28 in [ADR-0028](../20_decisions/0028-wwi-country-key-milestones-and-sensors.md): all three as
+recommended; for item 2, option (c), with each milestone a satellite of its own and the accumulating snapshot built in
+the marts.*
 
 Three cases, each with a recommendation. Everything else in this note rests on claims of high or medium confidence
 and is proposed for ruling as a whole once reviewed.
