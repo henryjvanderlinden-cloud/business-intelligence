@@ -36,7 +36,8 @@ The alternatives to each part are set out in 147 and in the two review notes it 
 2. **The business key is what the hub holds, always, as an attribute.** How the hub's primary key is formed from it
    (a hash of the key-space code and the business key, as [142](../10_architecture/142_the-data-model.md) and
    [144](../10_architecture/144_raw-vault-business-vault-calculation-engines.md) §2 already assume; a sequence; or the
-   concatenated key itself) is not decided here, and is open under `ARC-OP-37`.
+   concatenated key itself) is not decided here, and is open under `ARC-OP-37`. *Ruled 2026-10-28 in
+   [ADR-0030](0030-hub-and-link-keys-are-hash-keys.md): hash keys.*
 
 ## Consequences
 
