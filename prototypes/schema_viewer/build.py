@@ -112,8 +112,10 @@ def main():
                 col(kb, "hash", "FK", "", True),
                 col("load_ts", "timestamp", "", "knowledge time", True), col("record_source", "text", "", "", True)]
         srccols = [x for x in s.get("Columns", [])]
+        start = next((fl.get("effectivity_start", "") for subj, fl in srccols if fl.get("end") == "from"), "")
+        f = dict(f, effectivity_start=start)
         for subj, fl in srccols:
-            feed(subj.rsplit(".", 2)[0] if subj.count(".") == 2 else subj, n)
+            feed(subj.split(" + ")[0].rsplit(".", 1)[0], n)
         nodes.append({"id": n, "layer": "vault", "kind": "link", "area": f["subject_area"], "cols": cols,
                       "src": [{"n": subj, "t": srctype(subj), "f": fl} for subj, fl in srccols],
                       "meta": meta(f, rel), "ev": [x[0] for x in s.get("Evidence", [])], "notes": p,

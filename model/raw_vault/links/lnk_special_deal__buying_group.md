@@ -6,8 +6,8 @@ status: accepted
 ruled_in: ADR-0031, ADR-0030
 defined_in: docs/10_architecture/148_wwi-relationships.md#3 link 17
 written_by: claude-opus-5-5
-written_at: 2026-10-29T11:20:00Z
-step: S11-004
+written_at: 2026-10-29T11:25:00Z
+step: S11-008
 method: transcribed by prototypes/model_declarations/transcribe_wwi.py from the ruled note
 label: deal for buying group
 from: hub_special_deal
@@ -15,13 +15,13 @@ to: hub_buying_group
 driving: hub_special_deal
 optional: yes
 effectivity: load
-effectivity_start: load
 subject_area: products and deals
 ---
 
 ## Columns
 
-- Sales.SpecialDeals.BuyingGroupID | names=hub_buying_group
+- Sales.SpecialDeals.SpecialDealID | end=from | effectivity_start=load
+- Sales.SpecialDeals.BuyingGroupID | end=to
 
 ## Relations
 

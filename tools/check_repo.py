@@ -694,7 +694,7 @@ def check_model():
     adrs = {f[:8].replace("-", "-") for f in os.listdir(os.path.join(ROOT, ADR_DIR)) if re.match(r"^\d{4}-", f)}
     adrs = {"ADR-" + a[:4] for a in adrs}
     decls = ml.load(ROOT)
-    by_name, by_id = {}, {}
+    by_name, by_id, all_names = {}, {}, {}
     for rel, front, sections, prose, errs in decls:
         for e in errs:
             err(rel, e)
@@ -717,6 +717,13 @@ def check_model():
             err(rel, "file name differs from name %r" % name)
         if not ident.startswith(ml.ID_PREFIX[kind]):
             err(rel, "id %r lacks the prefix %s" % (ident, ml.ID_PREFIX[kind]))
+        for alias in ml.split_list(front.get("aliases", "")):
+            if alias in all_names:
+                err(rel, "alias %r is also used by %s; a name is never reused" % (alias, all_names[alias]))
+            all_names[alias] = rel
+        if name in all_names and all_names[name] != rel:
+            err(rel, "name %r is also an alias or name in %s; a name is never reused" % (name, all_names[name]))
+        all_names[name] = rel
         for key, seen in ((name, by_name), (ident, by_id)):
             if key in seen:
                 err(rel, "%r also declared in %s" % (key, seen[key][0]))
@@ -750,6 +757,8 @@ def check_model():
             if not os.path.isfile(os.path.join(ROOT, cpath)):
                 err(rel, "%s: catalogue %s missing" % (table, cpath))
                 continue
+            if flags.get("extract") not in ("full", "delta"):
+                err(rel, "%s: extract must be full or delta" % table)
             cat = ml.catalogue(ROOT, cpath)
             cats[table] = {c["column_name"]: c for c in cat["columns"]}
             by_rule = set()
@@ -781,7 +790,8 @@ def check_model():
         kind = front.get("kind")
         if kind == "hub":
             for subj, flags in sections.get("Business key", []):
-                place(qualified(rel, subj), "key", rel)
+                for comp in subj.split(" + "):   # one line per mapping; " + " joins the parts of a composite key
+                    place(qualified(rel, comp.strip()), "key", rel)
                 if not flags.get("key_space") or not flags.get("key_kind"):
                     err(rel, "business key %s lacks key_space or key_kind" % subj)
         elif kind == "link":
@@ -795,17 +805,41 @@ def check_model():
                 err(rel, "optional must be yes or no")
             if front.get("effectivity") not in ml.EFFECTIVITY:
                 err(rel, "effectivity %r not one of %s" % (front.get("effectivity"), sorted(ml.EFFECTIVITY)))
-            start = front.get("effectivity_start", "")
-            if front.get("effectivity") in ("event", "milestone") and start != "unknown":
-                qualified(rel, start)
+            maps = {}
             for subj, flags in sections.get("Columns", []):
-                tc = qualified(rel, subj)
-                place(tc, "link", rel, flags)
-                if "names" in flags:
-                    if flags["names"] not in by_name:
-                        err(rel, "names %r is not declared" % flags["names"])
-                    if tc:
+                if "kept" in flags:
+                    place(qualified(rel, subj), "kept", rel, flags)
+                    continue
+                end = flags.get("end")
+                if end not in ("from", "to"):
+                    err(rel, "%s: end must be from or to" % subj)
+                    continue
+                comps = [c.strip() for c in subj.split(" + ")]
+                tabs = {c.rsplit(".", 1)[0] for c in comps}
+                if len(tabs) != 1:
+                    err(rel, "%s: the components of one endpoint come from one table" % subj)
+                    continue
+                maps.setdefault(tabs.pop(), {}).setdefault(end, []).append((comps, flags))
+                hub = by_name.get(front.get(end, ""))
+                nkey = len(hub[2].get("Business key", [("", {})])[0][0].split(" + ")) if hub else 0
+                if hub and len(comps) != nkey:
+                    err(rel, "%s: %d components, but %s has a %d-part business key" % (subj, len(comps), front.get(end), nkey))
+                for c in comps:
+                    tc = qualified(rel, c)
+                    place(tc, "link-" + end, rel, flags)
+                    if tc and end == "to":
                         link_cols[tc] = (front.get("name"), front.get("optional"))
+                if end == "from":
+                    st = flags.get("effectivity_start", "")
+                    if not st:
+                        err(rel, "%s: the from line carries effectivity_start" % subj)
+                    elif front.get("effectivity") in ("event", "milestone") and st != "unknown":
+                        qualified(rel, st)
+            if not maps:
+                err(rel, "no mapping: a link needs a from and a to line from one source table")
+            for t, ends in maps.items():
+                if len(ends.get("from", [])) != 1 or len(ends.get("to", [])) != 1:
+                    err(rel, "mapping from %s needs exactly one from and one to line" % t)
         elif kind == "satellite":
             par = by_name.get(front.get("parent", ""))
             if not par or par[1].get("kind") not in ("hub", "link"):
@@ -816,8 +850,17 @@ def check_model():
                 continue
             if front.get("satellite_kind") not in ml.SAT_KINDS:
                 err(rel, "satellite_kind %r not one of %s" % (front.get("satellite_kind"), sorted(ml.SAT_KINDS)))
-            pk = qualified(rel, front.get("parent_key", ""))
-            place(pk, "parent_key", rel)
+            pkv = front.get("parent_key", "")
+            if par and par[1].get("kind") == "link":
+                comps = [x.split("=", 1)[1] for x in ml.split_list(pkv) if "=" in x]
+            else:
+                comps = [x.strip() for x in pkv.split(" + ")]
+                if par and par[1].get("kind") == "hub":
+                    nkey = len(par[2].get("Business key", [("", {})])[0][0].split(" + "))
+                    if len(comps) != nkey:
+                        err(rel, "parent_key has %d components, %s a %d-part business key" % (len(comps), par[1]["name"], nkey))
+            for c in comps:
+                place(qualified(rel, c), "parent_key", rel)
             vt = front.get("valid_time", "")
             if vt.split(" ")[0] not in ("unknown", "none;", "none") and "." in vt.split(" ")[0]:
                 qualified(rel, vt.split(" ")[0])
@@ -842,7 +885,7 @@ def check_model():
                     continue
                 place((table, subj), "ref", rel, flags)
 
-    # Coverage: every column of every base table has exactly one place (model/README.md, section 6).
+    # Coverage: every column of every base table has exactly one disposition (model/README.md, section 6).
     n_cols = 0
     for table, cols in cats.items():
         for c in cols:
@@ -853,26 +896,31 @@ def check_model():
             kinds = [p[0] for p in ps]
             where = "model: %s.%s" % (table, c)
             if not ps:
-                err(where, "has no place in the model (hub key, link, satellite, reference or rule)")
+                err(where, "has no disposition in the model (hub key, link endpoint, satellite, reference or rule)")
                 continue
             sats = [p for p in ps if p[0] == "sat"]
             if len([p for p in sats if "repeats" not in p[2]]) > 1:
                 err(where, "in more than one satellite: %s" % ", ".join(p[1] for p in sats))
-            if "link" in kinds:
-                lk = link_cols.get((table, c))
-                if lk and lk[1] == "yes" and not any(p[2].get("as_delivered") == lk[0] for p in sats):
-                    err(where, "optional relationship of %s not kept as delivered in a satellite (149 Rule 5)" % lk[0])
-                for p in sats:
-                    if lk and lk[1] == "no":
-                        err(where, "mandatory relationship of %s also in satellite %s (149 Rule 5)" % (lk[0], p[1]))
-                    elif "as_delivered" not in p[2]:
-                        err(where, "in a link and in %s without as_delivered" % p[1])
-            elif sats and any("as_delivered" in p[2] for p in sats):
-                err(where, "as_delivered, but no link carries the column")
-            other = [k for k in kinds if k not in ("sat", "link", "parent_key")]
-            if ("key" in kinds or "rule" in kinds or "ref" in kinds) and len(other) + len(sats) > 1 \
-                    and not (kinds.count("key") >= 1 and set(kinds) <= {"key", "parent_key"}):
-                err(where, "placed more than once: %s" % ", ".join("%s in %s" % (p[0], p[1]) for p in ps))
+            lk = link_cols.get((table, c))
+            for p in sats:
+                if lk and lk[1] == "no":
+                    err(where, "mandatory relationship of %s also in satellite %s (149 Rule 5)" % (lk[0], p[1]))
+                elif lk and "as_delivered" not in p[2]:
+                    err(where, "an endpoint of %s and in %s without as_delivered" % (lk[0], p[1]))
+                elif not lk and "as_delivered" in p[2]:
+                    err(where, "as_delivered, but no link has the column as an endpoint")
+            if lk and lk[1] == "yes" and not any(p[2].get("as_delivered") == lk[0] for p in sats):
+                err(where, "optional relationship of %s not kept as delivered in a satellite (149 Rule 5)" % lk[0])
+            # One disposition per column; reuse is legal only in these patterns (model/README.md section 6).
+            used = frozenset(k for k in kinds if not (k == "sat" and lk))
+            legal = [{"key"}, {"key", "link-from"}, {"key", "parent_key"}, {"key", "link-from", "parent_key"},
+                     {"rule"}, {"ref"}, {"sat"}, {"link-to"}, {"link-from"}, {"link-from", "link-to"}, {"kept"},
+                     {"parent_key"}]
+            if set(used) not in legal:
+                err(where, "uses %s are not one disposition: %s" % (
+                    "+".join(sorted(used)), ", ".join("%s in %s" % (p[0], p[1]) for p in ps)))
+            if kinds.count("key") > 1 or kinds.count("rule") > 1 or kinds.count("ref") > 1:
+                err(where, "declared more than once: %s" % ", ".join("%s in %s" % (p[0], p[1]) for p in ps))
     hp = places.get(("Application.People", "HashedPassword"), [])
     if cats and not any(p[2].get("load", "").startswith("never") for p in hp):
         err("model: Application.People.HashedPassword", "must be declared load=never (ADR-0033 decision 2)")

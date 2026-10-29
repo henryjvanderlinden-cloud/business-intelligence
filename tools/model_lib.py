@@ -21,7 +21,7 @@ NAME_RE = {"hub": re.compile(r"^hub_[a-z][a-z0-9_]*$"),
 COMMON = ["id", "kind", "name", "status", "ruled_in", "defined_in", "written_by", "written_at", "step", "method"]
 REQUIRED = {
     "hub": COMMON + ["concept", "grain", "subject_area"],
-    "link": COMMON + ["label", "from", "to", "driving", "optional", "effectivity", "effectivity_start", "subject_area"],
+    "link": COMMON + ["label", "from", "to", "driving", "optional", "effectivity", "subject_area"],
     "satellite": COMMON + ["parent", "source", "source_table", "parent_key", "satellite_kind", "split_reason",
                            "valid_time", "class", "subject_area"],
     "reference": COMMON + ["source", "source_table", "key", "key_space", "history", "class", "subject_area"],

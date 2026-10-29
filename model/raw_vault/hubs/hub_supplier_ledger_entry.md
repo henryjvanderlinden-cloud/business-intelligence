@@ -6,8 +6,8 @@ status: accepted
 ruled_in: ADR-0029, ADR-0030
 defined_in: docs/10_architecture/147_wwi-concepts-keys-and-business-time.md#3 item 19
 written_by: claude-opus-5-5
-written_at: 2026-10-29T11:20:00Z
-step: S11-004
+written_at: 2026-10-29T11:25:00Z
+step: S11-008
 method: transcribed by prototypes/model_declarations/transcribe_wwi.py from the ruled note
 concept: supplier ledger entry
 grain: one supplier invoice or payment

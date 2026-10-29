@@ -167,6 +167,7 @@ def table_dir(qualified):
 # ---------- writing ----------
 
 FILES = {}
+HUB_TABLE, HUB_KEY = {}, {}
 
 
 def emit(path, front, sections, prose):
@@ -200,6 +201,7 @@ def main():
         src = src.strip()
         keycol = re.match(r"`(\w+)`", key).group(1)
         hub_table[slug] = src
+        HUB_TABLE[slug], HUB_KEY[slug] = src, keycol
         kind = "record-identifier" if "record identifier" in key else (
             "governed" if space.startswith("ISO") else "source-key")
         ks = "iso3166-1" if space.startswith("ISO") else space.strip("`")
@@ -254,14 +256,24 @@ def main():
                 break
         front = common("link", name, "nsdn:rv:link:" + name[4:], "%s#3 link %s" % (N148, num), "ADR-0031, ADR-0030")
         front.update({"label": label, "from": "hub_" + fh, "to": "hub_" + th, "driving": driving,
-                      "optional": opt, "effectivity": eff_kind, "effectivity_start": start,
+                      "optional": opt, "effectivity": eff_kind,
                       "subject_area": AREA_OF[fh]})
         if opt == "yes" and optional != "yes":
             front["optional_note"] = optional[len("yes"):].strip(" ()")
         elif optional not in ("yes", "no"):
             front["optional_note"] = optional
-        colsec = ["- %s | names=hub_%s" % (cols[0], th if driving != "none" else fh)] if driving != "none" else \
-            ["- %s | names=hub_%s" % (cols[0], fh), "- %s | names=hub_%s" % (cols[1], th)]
+        # One mapping per source table: both endpoints declared, the start of effectivity on the from line
+        # (model/README.md section 4; XREV_2026-10-29_model-format_sol findings 1, 2 and 4).
+        if driving != "none":
+            ltab = cols[0].rsplit(".", 1)[0]
+            fkey = HUB_KEY[fh] if HUB_TABLE[fh] == ltab else None
+            assert fkey, (name, ltab)
+            to_line = "- %s | end=to" % cols[0]
+            if th == "country":   # the source names the country by CountryID; the hub is keyed on ISO (ADR-0028 decision 1)
+                to_line += " | resolve=Application.Countries.CountryID to Application.Countries.IsoAlpha3Code, same extract"
+            colsec = ["- %s.%s | end=from | effectivity_start=%s" % (ltab, fkey, start), to_line]
+        else:
+            colsec = ["- %s | end=from | effectivity_start=%s" % (cols[0], start), "- %s | end=to" % cols[1]]
         if driving == "none":
             colsec.append("- Warehouse.StockItemStockGroups.StockItemStockGroupID | kept=effectivity satellite, as delivered")
         prose = []
@@ -382,14 +394,14 @@ def main():
         st = "ValidFrom, ValidTo" if "ValidFrom" in cs else ("LastEditedWhen" if "LastEditedWhen" in cs else "none")
         hist = t + "_Archive" if t + "_Archive" in cat else "none"
         audit = "LastEditedBy" if "LastEditedBy" in cs else "none"
-        lines.append("- %s | system_time=%s | audit=%s | history=%s | catalogue=%s/evidence/%s.json"
+        lines.append("- %s | extract=full | system_time=%s | audit=%s | history=%s | catalogue=%s/evidence/%s.json"
                      % (t, st, audit, hist, table_dir(t), cat[t]["evidence"]))
     front = {"id": "nsdn:source:wwi", "kind": "source", "name": "wwi", "status": "accepted",
              "ruled_in": "ADR-0015, ADR-0027, ADR-0029, ADR-0033", "defined_in": "%s#2 and %s#2" % (N147, N149),
              "written_by": AUTHOR, "written_at": WRITTEN_AT, "step": STEP,
              "method": "transcribed by prototypes/model_declarations/transcribe_wwi.py",
              "title": "Wide World Importers, one database instance", "key_space": "wwi",
-             "extract": "full, daily, with a manifest of row counts and hashes",
+             "extract": "daily, each table complete, with a manifest of row counts and hashes (prototypes/wwi_sandbox/README.md)",
              "by_rule": "LastEditedBy to the hub's audit satellite (kept in reference tables); ValidFrom, ValidTo, "
                         "LastEditedWhen as source system time"}
     emit("model/sources/wwi.md", front, [("Base tables", lines)],

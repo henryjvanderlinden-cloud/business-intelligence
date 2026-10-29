@@ -6,8 +6,8 @@ status: accepted
 ruled_in: ADR-0031, ADR-0030
 defined_in: docs/10_architecture/148_wwi-relationships.md#3 link 13
 written_by: claude-opus-5-5
-written_at: 2026-10-29T11:20:00Z
-step: S11-004
+written_at: 2026-10-29T11:25:00Z
+step: S11-008
 method: transcribed by prototypes/model_declarations/transcribe_wwi.py from the ruled note
 label: supplier alternate contact
 from: hub_supplier
@@ -15,13 +15,13 @@ to: hub_person
 driving: hub_supplier
 optional: no
 effectivity: load
-effectivity_start: load
 subject_area: parties
 ---
 
 ## Columns
 
-- Purchasing.Suppliers.AlternateContactPersonID | names=hub_person
+- Purchasing.Suppliers.SupplierID | end=from | effectivity_start=load
+- Purchasing.Suppliers.AlternateContactPersonID | end=to
 
 ## Relations
 

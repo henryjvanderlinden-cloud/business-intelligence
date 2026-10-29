@@ -6,8 +6,8 @@ status: accepted
 ruled_in: ADR-0031, ADR-0030
 defined_in: docs/10_architecture/148_wwi-relationships.md#3 link 40
 written_by: claude-opus-5-5
-written_at: 2026-10-29T11:20:00Z
-step: S11-004
+written_at: 2026-10-29T11:25:00Z
+step: S11-008
 method: transcribed by prototypes/model_declarations/transcribe_wwi.py from the ruled note
 label: purchase-order line item
 from: hub_purchase_order_line
@@ -15,13 +15,13 @@ to: hub_stock_item
 driving: hub_purchase_order_line
 optional: no
 effectivity: event
-effectivity_start: unknown
 subject_area: purchasing
 ---
 
 ## Columns
 
-- Purchasing.PurchaseOrderLines.StockItemID | names=hub_stock_item
+- Purchasing.PurchaseOrderLines.PurchaseOrderLineID | end=from | effectivity_start=unknown
+- Purchasing.PurchaseOrderLines.StockItemID | end=to
 
 ## Relations
 
