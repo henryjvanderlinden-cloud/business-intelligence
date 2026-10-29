@@ -670,6 +670,220 @@ def check_analysis():
     print("analysis: %d item files, %d claims, %d evidence files" % (n_items, n_claims, n_evidence))
 
 
+def _cite_ok(path):
+    """A citation `path` or `path#Cn` resolves to an existing file and, if given, an existing claim line."""
+    p, _, claim = path.partition("#")
+    full = os.path.join(ROOT, p)
+    if os.path.isdir(full) and not claim:
+        return True
+    if not os.path.isfile(full):
+        return False
+    if not claim or not claim.startswith("C"):
+        return True
+    return ("\n- %s |" % claim) in read(p)
+
+
+def check_model():
+    """The model declarations under model/ (model/README.md, proposed under ARC-OP-29)."""
+    if not os.path.isdir(os.path.join(ROOT, "model")):
+        return
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    import model_lib as ml
+    vocab = json.loads(read(os.path.join(RECORDS_DIR, "vocabulary.json")))
+    agents = set(vocab["agents"])
+    adrs = {f[:8].replace("-", "-") for f in os.listdir(os.path.join(ROOT, ADR_DIR)) if re.match(r"^\d{4}-", f)}
+    adrs = {"ADR-" + a[:4] for a in adrs}
+    decls = ml.load(ROOT)
+    by_name, by_id = {}, {}
+    for rel, front, sections, prose, errs in decls:
+        for e in errs:
+            err(rel, e)
+        kind = front.get("kind")
+        if kind not in ml.REQUIRED:
+            err(rel, "unknown kind %r" % kind)
+            continue
+        if not rel.startswith(ml.KINDS[kind] + "/"):
+            err(rel, "a %s belongs under %s/" % (kind, ml.KINDS[kind]))
+        for k in ml.REQUIRED[kind]:
+            if not front.get(k):
+                err(rel, "front matter lacks %s" % k)
+        for s in ml.SECTIONS[kind]:
+            if not sections.get(s):
+                err(rel, "section %s missing or empty" % s)
+        name, ident = front.get("name", ""), front.get("id", "")
+        if not ml.NAME_RE[kind].match(name):
+            err(rel, "name %r does not follow the %s naming pattern" % (name, kind))
+        if os.path.basename(rel) != name + ".md":
+            err(rel, "file name differs from name %r" % name)
+        if not ident.startswith(ml.ID_PREFIX[kind]):
+            err(rel, "id %r lacks the prefix %s" % (ident, ml.ID_PREFIX[kind]))
+        for key, seen in ((name, by_name), (ident, by_id)):
+            if key in seen:
+                err(rel, "%r also declared in %s" % (key, seen[key][0]))
+            seen[key] = (rel, front, sections)
+        if front.get("status") not in ml.STATUSES:
+            err(rel, "status %r not one of %s" % (front.get("status"), sorted(ml.STATUSES)))
+        if front.get("written_by") not in agents:
+            err(rel, "written_by %r is not a known agent" % front.get("written_by"))
+        for a in ml.split_list(front.get("ruled_in", "")):
+            if a not in adrs:
+                err(rel, "ruled_in %s is not an ADR on disk" % a)
+        if front.get("defined_in"):
+            p = front["defined_in"].split("#")[0].split(" ")[0]
+            if not os.path.isfile(os.path.join(ROOT, p)):
+                err(rel, "defined_in %s does not exist" % p)
+        if "class" in front and front["class"] not in ml.CLASSES:
+            err(rel, "class %r not one of %s" % (front["class"], sorted(ml.CLASSES)))
+        for subj, _ in sections.get("Evidence", []) + sections.get("Relations", []):
+            if not _cite_ok(subj):
+                err(rel, "citation does not resolve: %s" % subj)
+
+    # The source: base tables, their catalogues and the columns handled by rule.
+    sources = {f["name"]: (r, f, s) for r, f, s, p, e in decls if f.get("kind") == "source"}
+    cats, rule_cols, ref_sources = {}, {}, set()
+    for r, f, s, p, e in decls:
+        if f.get("kind") == "reference":
+            ref_sources.add(f.get("source_table"))
+    for sname, (rel, front, sections) in sources.items():
+        for table, flags in sections.get("Base tables", []):
+            cpath = flags.get("catalogue", "")
+            if not os.path.isfile(os.path.join(ROOT, cpath)):
+                err(rel, "%s: catalogue %s missing" % (table, cpath))
+                continue
+            cat = ml.catalogue(ROOT, cpath)
+            cats[table] = {c["column_name"]: c for c in cat["columns"]}
+            by_rule = set()
+            st = flags.get("system_time", "none")
+            if st != "none":
+                by_rule |= set(ml.split_list(st))
+            if flags.get("audit", "none") != "none" and table not in ref_sources:
+                by_rule.add(flags["audit"])
+            for c in by_rule:
+                if c not in cats[table]:
+                    err(rel, "%s: rule column %s not in the catalogue" % (table, c))
+            rule_cols[table] = by_rule
+
+    def qualified(rel, value):
+        parts = value.split(".")
+        if len(parts) != 3 or ".".join(parts[:2]) not in cats or parts[2] not in cats[".".join(parts[:2])]:
+            err(rel, "column %r is not a column of a declared base table" % value)
+            return None
+        return ".".join(parts[:2]), parts[2]
+
+    places = {}   # (table, column) -> [(place, file, flags)]
+
+    def place(tc, what, rel, flags=None):
+        if tc:
+            places.setdefault(tc, []).append((what, rel, flags or {}))
+
+    link_cols = {}
+    for rel, front, sections, prose, errs in decls:
+        kind = front.get("kind")
+        if kind == "hub":
+            for subj, flags in sections.get("Business key", []):
+                place(qualified(rel, subj), "key", rel)
+                if not flags.get("key_space") or not flags.get("key_kind"):
+                    err(rel, "business key %s lacks key_space or key_kind" % subj)
+        elif kind == "link":
+            for end in ("from", "to"):
+                tgt = by_name.get(front.get(end, ""))
+                if not tgt or tgt[1].get("kind") != "hub":
+                    err(rel, "%s %r is not a declared hub" % (end, front.get(end)))
+            if front.get("driving") not in ("none", front.get("from")):
+                err(rel, "driving must be the from hub or none")
+            if front.get("optional") not in ("yes", "no"):
+                err(rel, "optional must be yes or no")
+            if front.get("effectivity") not in ml.EFFECTIVITY:
+                err(rel, "effectivity %r not one of %s" % (front.get("effectivity"), sorted(ml.EFFECTIVITY)))
+            start = front.get("effectivity_start", "")
+            if front.get("effectivity") in ("event", "milestone") and start != "unknown":
+                qualified(rel, start)
+            for subj, flags in sections.get("Columns", []):
+                tc = qualified(rel, subj)
+                place(tc, "link", rel, flags)
+                if "names" in flags:
+                    if flags["names"] not in by_name:
+                        err(rel, "names %r is not declared" % flags["names"])
+                    if tc:
+                        link_cols[tc] = (front.get("name"), front.get("optional"))
+        elif kind == "satellite":
+            par = by_name.get(front.get("parent", ""))
+            if not par or par[1].get("kind") not in ("hub", "link"):
+                err(rel, "parent %r is not a declared hub or link" % front.get("parent"))
+            table = front.get("source_table", "")
+            if table not in cats:
+                err(rel, "source_table %s is not a declared base table" % table)
+                continue
+            if front.get("satellite_kind") not in ml.SAT_KINDS:
+                err(rel, "satellite_kind %r not one of %s" % (front.get("satellite_kind"), sorted(ml.SAT_KINDS)))
+            pk = qualified(rel, front.get("parent_key", ""))
+            place(pk, "parent_key", rel)
+            vt = front.get("valid_time", "")
+            if vt.split(" ")[0] not in ("unknown", "none;", "none") and "." in vt.split(" ")[0]:
+                qualified(rel, vt.split(" ")[0])
+            for subj, flags in sections.get("Columns", []):
+                if subj not in cats[table]:
+                    err(rel, "column %s is not in %s" % (subj, table))
+                    continue
+                place((table, subj), "sat", rel, flags)
+                if "code" in flags and flags["code"] not in by_name:
+                    err(rel, "%s: code %r is not a declared reference table" % (subj, flags["code"]))
+                if "as_delivered" in flags and flags["as_delivered"] not in by_name:
+                    err(rel, "%s: as_delivered %r is not a declared link" % (subj, flags["as_delivered"]))
+        elif kind == "reference":
+            table = front.get("source_table", "")
+            if table not in cats:
+                err(rel, "source_table %s is not a declared base table" % table)
+                continue
+            place(qualified(rel, front.get("key", "")), "key", rel)
+            for subj, flags in sections.get("Columns", []):
+                if subj not in cats[table]:
+                    err(rel, "column %s is not in %s" % (subj, table))
+                    continue
+                place((table, subj), "ref", rel, flags)
+
+    # Coverage: every column of every base table has exactly one place (model/README.md, section 6).
+    n_cols = 0
+    for table, cols in cats.items():
+        for c in cols:
+            n_cols += 1
+            ps = list(places.get((table, c), []))
+            if c in rule_cols.get(table, set()):
+                ps.append(("rule", "model/sources", {}))
+            kinds = [p[0] for p in ps]
+            where = "model: %s.%s" % (table, c)
+            if not ps:
+                err(where, "has no place in the model (hub key, link, satellite, reference or rule)")
+                continue
+            sats = [p for p in ps if p[0] == "sat"]
+            if len([p for p in sats if "repeats" not in p[2]]) > 1:
+                err(where, "in more than one satellite: %s" % ", ".join(p[1] for p in sats))
+            if "link" in kinds:
+                lk = link_cols.get((table, c))
+                if lk and lk[1] == "yes" and not any(p[2].get("as_delivered") == lk[0] for p in sats):
+                    err(where, "optional relationship of %s not kept as delivered in a satellite (149 Rule 5)" % lk[0])
+                for p in sats:
+                    if lk and lk[1] == "no":
+                        err(where, "mandatory relationship of %s also in satellite %s (149 Rule 5)" % (lk[0], p[1]))
+                    elif "as_delivered" not in p[2]:
+                        err(where, "in a link and in %s without as_delivered" % p[1])
+            elif sats and any("as_delivered" in p[2] for p in sats):
+                err(where, "as_delivered, but no link carries the column")
+            other = [k for k in kinds if k not in ("sat", "link", "parent_key")]
+            if ("key" in kinds or "rule" in kinds or "ref" in kinds) and len(other) + len(sats) > 1 \
+                    and not (kinds.count("key") >= 1 and set(kinds) <= {"key", "parent_key"}):
+                err(where, "placed more than once: %s" % ", ".join("%s in %s" % (p[0], p[1]) for p in ps))
+    hp = places.get(("Application.People", "HashedPassword"), [])
+    if cats and not any(p[2].get("load", "").startswith("never") for p in hp):
+        err("model: Application.People.HashedPassword", "must be declared load=never (ADR-0033 decision 2)")
+    counts = {}
+    for r, f, s, p, e in decls:
+        counts[f.get("kind")] = counts.get(f.get("kind"), 0) + 1
+    print("model: %d hubs, %d links, %d satellites, %d reference tables, %d sources; %d source columns placed"
+          % (counts.get("hub", 0), counts.get("link", 0), counts.get("satellite", 0), counts.get("reference", 0),
+             counts.get("source", 0), n_cols))
+
+
 def main():
     check_register()
     check_adr_index()
@@ -678,6 +892,7 @@ def main():
     check_superseded()
     check_records()
     check_analysis()
+    check_model()
 
     if warnings:
         print("\n%d warning(s):" % len(warnings))
