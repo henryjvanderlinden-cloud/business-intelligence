@@ -3124,6 +3124,35 @@ register's conventions) and in the agent's working practice, which is not writte
 Which activities become skills, how a skill relates to the document that describes the same method, and where skills are
 kept are **not decided**. **Held** until the author asks to resume it.
 
+### PRC-OP-9 — How improvements travel between nsdn and the client repositories
+**⛔ STATE: OPEN**
+Opened 2026-10-29, session 11, from the author's question after ruling that each client gets a repository of its own
+with a tagged release of nsdn ([ADR-0035](../docs/20_decisions/0035-reference-case-and-client-repositories.md)),
+verbatim:
+
+> If the repository is improved, what do you suggest we do? Occasionally have a summary written and read that back
+> into the main repository? And sometimes the other way back, if there are improvements in my main repository?
+
+Proposed by the model, **not ruled**:
+
+1. *Downstream, nsdn to a client.* nsdn is released as numbered tags, each with release notes saying what changed, why
+   and with what intended impact. A client repository moves to a new release in one commit of its own, after which its
+   checker and the release's own tests run; anything the release changes in the client's record is attributed to a
+   release note, or treated as a regression.
+2. *How the release sits in a client repository.* A git submodule at the tag where the client's network may reach the
+   author's GitHub repository; otherwise the release archive copied into a folder `nsdn/` with its version and checksum
+   recorded, which also lets the client's own people read every line of what was installed. The client repository
+   never edits that folder; the checker can enforce it by the checksum.
+3. *Upstream, a client to nsdn.* Not periodic summaries but **upstream notes**: one small file per proposed
+   improvement in the client repository, saying what to change in nsdn, why, the evidence, and where it is code, a patch
+   against the release in use. A note carries no client names, metadata or data; an example is restated on the WWI
+   reference case. The author carries notes into the main repository, where each is applied or declined on its own,
+   tested against WWI, and released.
+
+Open: whether the author agrees; submodule or copied archive per client; whether the checker enforces the untouched
+release and the clean upstream notes. Related to `PRC-OP-8` (procedures as skills), since a skill would travel the same
+way. Closes with an ADR.
+
 ## §5 — Commercial premises (`BIZ`)
 
 ### BIZ-OP-1 — The adjudication hedge may not be priced

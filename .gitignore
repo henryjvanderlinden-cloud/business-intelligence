@@ -39,3 +39,6 @@ build/
 
 # Agent scratch
 scratch/
+
+# The copy of the schema viewer published to claude.ai, rebuilt by build.py
+prototypes/schema_viewer/out/fragment.html
