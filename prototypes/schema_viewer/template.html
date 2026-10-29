@@ -53,6 +53,7 @@ svg.edges line { stroke: var(--edge); stroke-width: 1.2; fill: none; }
 svg.edges line.sat { stroke: var(--ink-faint); stroke-dasharray: 2 3; }
 svg.edges line.code { stroke: var(--ref); stroke-opacity: .5; stroke-dasharray: 1 4; }
 svg.edges line.history { stroke: var(--ink-faint); stroke-dasharray: 6 4; }
+svg.edges line.reads { stroke: var(--ref); stroke-opacity: .55; stroke-dasharray: 4 3; }
 svg.edges line.hop2 { stroke-opacity: .45; }
 .hint { position: absolute; left: max(16px, env(safe-area-inset-left, 0px)); bottom: calc(12px + env(safe-area-inset-bottom, 0px)); font-size: var(--s-xs); color: var(--ink-dim); pointer-events: none; max-width: 60ch; }
 .zoom { position: absolute; right: 12px; bottom: calc(12px + env(safe-area-inset-bottom, 0px)); display: flex; flex-direction: column; gap: 6px; }
@@ -80,6 +81,8 @@ svg.edges line.hop2 { stroke-opacity: .45; }
 .card.reference { border-color: var(--ref); color: var(--ref); }
 .card.reference .nm { color: var(--ref); }
 .card.history { border-style: dashed; }
+.card.view { border-color: var(--ref); border-style: dashed; color: var(--ref); }
+.card.view .nm { color: var(--ref); }
 .card.focus { border-color: var(--ink-strong); box-shadow: 0 0 0 1px var(--ink-strong), 0 0 36px rgba(157,255,190,.18); z-index: 2; }
 .card.hop2 { opacity: .78; }
 .card.hop2 .rows, .card.hop2 .badge, .card.compact .rows, .card.compact .badge { display: none; }
@@ -107,6 +110,7 @@ svg.edges line.hop2 { stroke-opacity: .45; }
 .panel .go { background: none; border: 0; border-bottom: 1px dotted var(--ink-dim); padding: 0 0 3px; line-height: 1.7; color: var(--ink); cursor: pointer; font-family: var(--font-mono); font-size: var(--s-xs); }
 .panel p { margin: 6px 0; color: var(--ink); line-height: 1.5; max-width: 65ch; }
 .panel .muted { color: var(--ink-dim); }
+.panel pre.sql { margin: 0; font-family: var(--font-mono); font-size: var(--s-xs); color: var(--ink); white-space: pre; }
 .panel .note-gen { border: 1px dashed var(--ink-faint); padding: 6px 8px; color: var(--ink-dim); font-size: var(--s-xs); }
 
 @media (max-width: 760px) {
@@ -120,7 +124,7 @@ svg.edges line.hop2 { stroke-opacity: .45; }
 
 <div class="app">
   <header class="bar">
-    <div class="brand">WWI schema<small>nsdn · read-only view of model/</small></div>
+    <div class="brand" id="brand">WWI schema<small>nsdn · read-only view of model/</small></div>
     <div class="seg" role="group" aria-label="Layer">
       <button id="layer-vault" aria-pressed="true">Raw vault</button>
       <button id="layer-source" aria-pressed="false">Raw source</button>
@@ -151,20 +155,27 @@ const DATA = /*__DATA__*/null;
     adj.get(b).push({ o: a, k, dir: "in" });
   }
   const childrenOf = id => adj.get(id).filter(e => e.k === "sat" && e.dir === "in").map(e => N.get(e.o));
-  const state = { layer: "vault", focus: null, open: new Set(), tx: 0, ty: 0, k: 1 };
+  const state = { layer: DATA.has_vault ? "vault" : "source", focus: null, open: new Set(), tx: 0, ty: 0, k: 1 };
   const $ = id => document.getElementById(id);
   const stage = $("stage"), world = $("world"), svg = $("edges"), panel = $("panel");
   const esc = s => String(s == null ? "" : s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
   const b = DATA.built;
-  $("counts").textContent = `${b.hubs} hubs · ${b.links} links · ${b.satellites} satellites · ${b.references} reference · ${b.generated} by rule · ${b.source_tables} source tables`;
+  const nViews = DATA.nodes.filter(n => n.kind === "view").length;
+  $("counts").textContent = DATA.has_vault ?
+    `${b.hubs} hubs · ${b.links} links · ${b.satellites} satellites · ${b.references} reference · ${b.generated} by rule · ${b.source_tables} source tables` :
+    `${b.source_tables - nViews} tables · ${nViews} views · ${DATA.edges.filter(e => e[2].startsWith("fk:")).length} foreign-key columns`;
+  if (!DATA.has_vault) {
+    $("brand").innerHTML = `${esc(DATA.title)}<small>nsdn · read-only view of the catalogue</small>`;
+    $("layer-vault").hidden = true; $("layer-source").setAttribute("aria-pressed", "true");
+  }
 
   const KIND = { hub: "hub", link: "link", satellite: "satellite", audit: "audit · rule", status: "status · rule",
-    effectivity: "effectivity · rule", reference: "reference", table: "table", history: "history" };
+    effectivity: "effectivity · rule", reference: "reference", table: "table", history: "history", view: "view" };
 
   // ---------- which nodes are on screen ----------
   function overviewSet() {
     if (state.layer === "vault") return DATA.nodes.filter(n => n.layer === "vault" && (n.kind === "hub" || n.kind === "link"));
-    return DATA.nodes.filter(n => n.layer === "source" && n.kind === "table");
+    return DATA.nodes.filter(n => n.layer === "source" && (n.kind === "table" || n.kind === "view"));
   }
   function neighbourhood(id) {
     const f = N.get(id), hop = new Map([[id, 0]]);
@@ -313,7 +324,7 @@ const DATA = /*__DATA__*/null;
     if (fit) fitView();
     $("hint").textContent = focusId ? "Click a neighbour to move to it. The panel lists every column." :
       (state.layer === "vault" ? "Hubs and links, grouped by subject area. Satellites stay folded on their hub until you open one." :
-        "The 31 base tables of the source and their foreign keys, grouped by schema.");
+        "The tables and views of the source and their foreign keys, grouped by schema.");
     updateNames();
   }
   function clip(p, q) {   // point where the segment from p's centre to q leaves p's box
@@ -326,7 +337,7 @@ const DATA = /*__DATA__*/null;
     for (const e of visibleEdges) {
       const p = positions.get(e.a), q = positions.get(e.c); if (!p || !q) continue;
       const a = clip(p, q), c = clip(q, p);
-      const cls = e.k === "sat" ? "sat" : e.k === "code" ? "code" : e.k === "history" ? "history" : "";
+      const cls = e.k === "sat" ? "sat" : e.k === "code" ? "code" : e.k === "history" ? "history" : e.k === "reads" ? "reads" : "";
       s += `<line class="${cls}${e.h2 ? " hop2" : ""}" x1="${a.x.toFixed(1)}" y1="${a.y.toFixed(1)}" x2="${c.x.toFixed(1)}" y2="${c.y.toFixed(1)}"/>`;
     }
     svg.innerHTML = s;
@@ -397,7 +408,7 @@ const DATA = /*__DATA__*/null;
     label: "label", driving: "driving side", optional: "optional", optional_note: "optional, note", effectivity: "effectivity", effectivity_start: "effectivity starts",
     source_table: "source table", parent_key: "parent key", satellite_kind: "kind", split_reason: "split reason", valid_time: "business valid time",
     class: "sensitivity class", class_condition: "class, condition", key: "key", key_space: "key space", history: "history", schema: "schema",
-    system_time: "source system time", audit: "audit column", catalogue: "catalogue evidence", rule: "rule", note: "note", file: "file", written_at: "written", step: "step" };
+    system_time: "source system time", audit: "audit column", catalogue: "catalogue evidence", estimated_rows: "estimated rows", triggers: "triggers", rule: "rule", note: "note", file: "file", written_at: "written", step: "step" };
   function goBtn(id) { return N.has(id) ? `<button class="go" data-go="${esc(id)}">${esc(id)}</button>` : esc(id); }
   function details(id) {
     const n = N.get(id); const m = n.meta || {};
@@ -427,6 +438,10 @@ const DATA = /*__DATA__*/null;
     const feedsFrom = DATA.nodes.filter(x => x.layer === "source" && (x.feeds || []).includes(n.id)).map(x => x.id);
     if (n.layer === "vault" && feedsFrom.length) h += `<h3>Loaded from</h3><ul>${feedsFrom.map(x => `<li>${goBtn(x)}</li>`).join("")}</ul>`;
     if (n.layer === "source" && n.feeds && n.feeds.length) h += `<h3>Feeds the raw vault (${n.feeds.length})</h3><ul>${n.feeds.map(x => `<li>${goBtn(x)}</li>`).join("")}</ul>`;
+    if (n.reads && n.reads.length) h += `<h3>Reads (${n.reads.length})</h3><ul>${n.reads.map(x => `<li>${goBtn(x)}</li>`).join("")}</ul>`;
+    const readBy = DATA.nodes.filter(x => (x.reads || []).includes(n.id)).map(x => x.id);
+    if (readBy.length) h += `<h3>Read by views (${readBy.length})</h3><ul>${readBy.map(x => `<li>${goBtn(x)}</li>`).join("")}</ul>`;
+    if (n.sql) h += `<h3>Definition</h3><div class="tbl"><pre class="sql">${esc(n.sql)}</pre></div>`;
     if (n.notes && n.notes.length) h += `<h3>Notes</h3>${n.notes.map(p => `<p>${esc(p)}</p>`).join("")}`;
     if (n.ev && n.ev.length) h += `<h3>Evidence (${n.ev.length})</h3><ul>${n.ev.map(x => `<li>${esc(x)}</li>`).join("")}</ul>`;
     panel.innerHTML = h;
@@ -435,9 +450,10 @@ const DATA = /*__DATA__*/null;
   function intro() {
     panel.innerHTML = state.layer === "vault" ?
       `<h2>Raw vault, Wide World Importers</h2><p>The tables as declared in <code>model/</code> and ruled in ADR-0028 to ADR-0033. Hubs have a heavy border, links rounded corners, satellites a thin one; tables generated by rule (audit, status tracking, effectivity) are dashed and dimmed. Reference tables are drawn in a cooler green.</p><p class="muted">Nothing here is built. The view reads the declaration files and draws what the generator would be asked to build.</p><h3>Start from</h3><ul>${["hub_sales_order", "hub_customer", "hub_person", "hub_stock_item", "lnk_invoice__bill_to_customer"].map(x => `<li>${goBtn(x)}</li>`).join("")}</ul>` :
+      !DATA.has_vault ? `<h2>${esc(DATA.title)}</h2><p>The source database as its own catalogue describes it, from the newest catalogue evidence in the analysis record: tables and views with their keys, foreign keys, triggers and comments. Views are drawn dashed in a cooler green, with a line to each table they read.</p><p class="muted">Only the structure is shown; the catalogue pass reads no rows.</p><h3>Most connected</h3><ul>${(DATA.starts || []).map(x => `<li>${goBtn(x)}</li>`).join("")}</ul>` :
       `<h2>Raw source, Wide World Importers</h2><p>The source database as its own catalogue describes it, from the analysis record's catalogue evidence: 31 base tables and 17 history tables, with their keys and foreign keys. Each table's panel shows which raw-vault tables it feeds.</p><p class="muted">The audit foreign key <code>LastEditedBy</code>, present on almost every table, is left out of the drawing.</p><h3>Start from</h3><ul>${["Sales.Orders", "Sales.Customers", "Warehouse.StockItems", "Application.People"].map(x => `<li>${goBtn(x)}</li>`).join("")}</ul>`;
   }
-  state.focus = "hub_sales_order";
-  render(true); details("hub_sales_order");
+  state.focus = DATA.start;
+  if (DATA.start) { render(true); details(DATA.start); } else { render(true); intro(); }
 })();
 </script>

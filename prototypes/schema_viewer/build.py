@@ -8,7 +8,13 @@ nothing in it is edited by hand. Run from the repository root:
 
 Writes prototypes/schema_viewer/out/schema_viewer.html (a complete page, to open by double-click) and
 prototypes/schema_viewer/out/fragment.html (the same page without its document wrapper). Standard library only.
+
+For a source that has no model yet, such as a client's database after the catalogue pass
+(prototypes/catalogue_pass/), draw its raw source layer alone, from the newest catalogue evidence of each table:
+
+    python <nsdn>/prototypes/schema_viewer/build.py --root . --source <code> [--source <code>] --out <folder>
 """
+import argparse
 import json
 import os
 import sys
@@ -25,24 +31,60 @@ def col(n, t, role="", note="", gen=False, flags=None):
     return {"n": n, "t": t, "r": role, "note": note, "g": gen, "f": flags or {}}
 
 
+def latest_catalogues(root, source):
+    """{'schema.table': (catalogue, path)} from the newest catalogue evidence of each table of one source."""
+    out = {}
+    base = os.path.join(root, "analysis", source, "tables")
+    for dirpath, dirnames, filenames in os.walk(base):
+        if os.path.basename(dirpath) != "evidence":
+            continue
+        best = None
+        for fn in sorted(filenames):
+            if not fn.endswith(".json"):
+                continue
+            with open(os.path.join(dirpath, fn), encoding="utf-8") as f:
+                d = json.load(f)
+            if d.get("kind") == "catalogue query" and isinstance(d.get("result"), dict) and "columns" in d["result"]:
+                if best is None or d.get("ran_at", "") > best[0]:
+                    best = (d.get("ran_at", ""), os.path.relpath(os.path.join(dirpath, fn), root))
+        if best:
+            cat = ml.catalogue(root, best[1])
+            t = cat["table"][0]
+            out["%s.%s" % (t["schema_name"], t["table_name"])] = (cat, best[1])
+    return out
+
+
 def main():
-    decls = ml.load(ROOT)
+    ap = argparse.ArgumentParser(description="Build the schema viewer.")
+    ap.add_argument("--root", default=ROOT, help="repository holding analysis/ and model/ (default: this repository)")
+    ap.add_argument("--source", action="append", default=[],
+                    help="draw this source's raw layer from its catalogue evidence alone (repeatable)")
+    ap.add_argument("--out", default=os.path.join(HERE, "out"), help="folder for the generated pages")
+    ap.add_argument("--title", default="", help="name shown on the page (default: from the sources)")
+    args = ap.parse_args()
+    root = os.path.abspath(args.root)
+    decls = ml.load(root) if not args.source else []
     by_name = {f["name"]: (r, f, s, p) for r, f, s, p, e in decls}
     src = [d for d in decls if d[1].get("kind") == "source"]
     cats, table_info = {}, {}
+    for code in args.source:
+        for table, (cat, path) in sorted(latest_catalogues(root, code).items()):
+            cats[table] = cat
+            kind = (cat["table"][0].get("table_kind") or "table")
+            table_info[table] = {"catalogue": path, "source": code, "kind": "view" if "view" in kind else "table"}
     for rel, front, sections, prose, errs in src:
         for table, flags in sections["Base tables"]:
-            cats[table] = ml.catalogue(ROOT, flags["catalogue"])
+            cats[table] = ml.catalogue(root, flags["catalogue"])
             table_info[table] = flags
             hist = flags.get("history", "none")
             if hist != "none":
                 hpath = flags["catalogue"].replace(table.split(".")[1] + "/", hist.split(".")[1] + "/", 1)
-                hdir = os.path.dirname(os.path.join(ROOT, hpath))
+                hdir = os.path.dirname(os.path.join(root, hpath))
                 for fn in sorted(os.listdir(hdir)):
                     with open(os.path.join(hdir, fn), encoding="utf-8") as f:
                         d = json.load(f)
                     if d.get("kind") == "catalogue query" and "columns" in d.get("result", {}):
-                        cats[hist] = ml.catalogue(ROOT, os.path.relpath(os.path.join(hdir, fn), ROOT))
+                        cats[hist] = ml.catalogue(root, os.path.relpath(os.path.join(hdir, fn), root))
                         table_info[hist] = {"history_of": table}
                         break
 
@@ -187,35 +229,57 @@ def main():
             cols.append({"n": nm, "t": ml.type_text(c) + ("" if c["is_nullable"] == "1" else " not null"), "r": role,
                          "note": note, "d": c.get("description", ""), "g": False, "f": {}})
         sch = table.split(".")[0]
-        nodes.append({"id": table, "layer": "source", "kind": "history" if "history_of" in info else "table",
+        kind = "history" if "history_of" in info else info.get("kind", "table")
+        nodes.append({"id": table, "layer": "source", "kind": kind,
                       "area": sch, "cols": cols, "parent": info.get("history_of"),
                       "meta": {"description": (cat["table"] or [{}])[0].get("description", ""), "schema": sch,
                                "system_time": info.get("system_time", ""), "audit": info.get("audit", ""),
                                "history": info.get("history", info.get("history_of", "")),
-                               "catalogue": info.get("catalogue", "")},
-                      "feeds": feeds.get(table, [])})
+                               "catalogue": info.get("catalogue", ""),
+                               "estimated_rows": est if (est := str((cat["table"] or [{}])[0].get("estimated_rows", ""))) not in ("-1", "") else "",
+                               "triggers": ", ".join(x.get("trigger_name", "") for x in cat.get("triggers", []))},
+                      "feeds": feeds.get(table, []),
+                      "reads": ["%s.%s" % (r["ref_schema"], r["ref_table"]) for r in cat.get("view_reads", [])],
+                      "sql": cat.get("view_definition", "")})
         if "history_of" in info:
             edges.append([table, info["history_of"], "history"])
+        audit = info.get("audit", "")   # the audit column a model declares; drawn faintly, never as a business edge
         for c, target in fks.items():
             tt = target.rsplit(".", 1)[0]
-            if tt in cats and c != "LastEditedBy":
+            if tt in cats and c != audit:
                 edges.append([table, tt, "fk:" + c])
             elif tt in cats:
                 edges.append([table, tt, "audit-fk"])
+        for r in cat.get("view_reads", []):
+            tt = "%s.%s" % (r["ref_schema"], r["ref_table"])
+            if tt in cats:
+                edges.append([table, tt, "reads"])
 
-    data = {"nodes": nodes, "edges": edges,
+    vault = [x for x in nodes if x["layer"] == "vault"]
+    degree = {}
+    for x, y, k in edges:
+        degree[x] = degree.get(x, 0) + 1
+        degree[y] = degree.get(y, 0) + 1
+    source_nodes = [x["id"] for x in nodes if x["layer"] == "source" and x["kind"] in ("table", "view")]
+    ranked = sorted(source_nodes, key=lambda i: (-degree.get(i, 0), i))
+    title = args.title or ("Raw source: " + ", ".join(args.source) if args.source else "WWI schema")
+    start = "hub_sales_order" if any(x["id"] == "hub_sales_order" for x in vault) else (ranked[0] if ranked else None)
+    data = {"nodes": nodes, "edges": edges, "title": title, "start": start, "starts": ranked[:5],
+            "has_vault": bool(vault),
             "built": {"hubs": len(hubs), "links": len(links), "satellites": len(sats), "references": len(refs),
                       "generated": sum(1 for x in nodes if x.get("gen")), "source_tables": len(cats)}}
     with open(os.path.join(HERE, "template.html"), encoding="utf-8") as f:
         tpl = f.read()
     frag = tpl.replace("/*__DATA__*/null", json.dumps(data, ensure_ascii=False, separators=(",", ":")))
-    os.makedirs(os.path.join(HERE, "out"), exist_ok=True)
-    with open(os.path.join(HERE, "out", "fragment.html"), "w", encoding="utf-8", newline="\n") as f:
+    if args.source:
+        frag = frag.replace("<title>WWI Schema Viewer</title>", "<title>%s</title>" % title.replace("<", "&lt;"), 1)
+    os.makedirs(args.out, exist_ok=True)
+    with open(os.path.join(args.out, "fragment.html"), "w", encoding="utf-8", newline="\n") as f:
         f.write(frag)
     full = ("<!doctype html>\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\">\n"
             "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\">\n"
             "</head>\n<body>\n" + frag + "\n</body>\n</html>\n")
-    with open(os.path.join(HERE, "out", "schema_viewer.html"), "w", encoding="utf-8", newline="\n") as f:
+    with open(os.path.join(args.out, "schema_viewer.html"), "w", encoding="utf-8", newline="\n") as f:
         f.write(full)
     print("viewer: %d nodes (%d vault, %d source), %d edges" % (
         len(nodes), sum(1 for x in nodes if x["layer"] == "vault"), sum(1 for x in nodes if x["layer"] == "source"),

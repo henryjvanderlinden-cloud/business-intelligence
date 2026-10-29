@@ -107,7 +107,8 @@ def catalogue(root, rel_path):
     r = d["result"]
     cols = sorted(r["columns"], key=lambda c: int(c["column_id"]))
     return {"columns": cols, "keys": r.get("keys", []), "fks_out": r.get("foreign_keys_out", []),
-            "table": r.get("table")}
+            "table": r.get("table"), "triggers": r.get("triggers", []), "checks": r.get("checks", []),
+            "view_reads": r.get("view_reads", []), "view_definition": r.get("view_definition", "")}
 
 
 def type_text(c):
