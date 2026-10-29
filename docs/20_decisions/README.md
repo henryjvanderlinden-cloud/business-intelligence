@@ -45,3 +45,4 @@ describe options; only an ADR adopts one.
 | [0028](0028-wwi-country-key-milestones-and-sensors.md) | Wide World Importers: the country is keyed on ISO 3166-1; existence is dated by the event and each milestone is a satellite of its own; the sensor tables as proposed | Accepted |
 | [0029](0029-wwi-step-a-concepts-and-keys.md) | Wide World Importers, step A: the hubs, business keys and business time of note 147 | Accepted |
 | [0030](0030-hub-and-link-keys-are-hash-keys.md) | Hubs and links are keyed on hash keys computed from the key-space code and the business key | Accepted |
+| [0031](0031-wwi-step-b-links.md) | Wide World Importers, step B: the links between the hubs of note 148 | Accepted |

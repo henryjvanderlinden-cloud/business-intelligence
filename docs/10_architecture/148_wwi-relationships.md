@@ -1,6 +1,6 @@
 # 148 — Wide World Importers: the relationships between the hubs (step B)
 
-> **STATUS: PROPOSED, not ruled.** Drafted 2026-10-28 in session 10, after step A was ruled
+> **STATUS: RULED** 2026-10-29 in [ADR-0031](../20_decisions/0031-wwi-step-b-links.md). Drafted 2026-10-28 in session 10, after step A was ruled
 > ([ADR-0029](../20_decisions/0029-wwi-step-a-concepts-and-keys.md)). Reviewed on sol, which failed the first version
 > ([XREV](../30_research/notes/XREV_2026-10-28_148-links_sol.md)); this is the revised text, itself unreviewed
 > ([510](../50_process/510_external-review.md)). Open under [`ARC-OP-37`](../../registers/OPEN_POINTS.md).
