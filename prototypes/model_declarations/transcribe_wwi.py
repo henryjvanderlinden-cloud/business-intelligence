@@ -254,7 +254,8 @@ def main():
             cites += expand(ev, rel_dir="%s/relations/%s" % (ACROSS, rr))
             if len(rels) > 1:
                 break
-        front = common("link", name, "nsdn:rv:link:" + name[4:], "%s#3 link %s" % (N148, num), "ADR-0031, ADR-0030")
+        ruled = "ADR-0031, ADR-0030" + (", ADR-0034" if (eff == "event" and EVENT_DATE.get(fh) is None) or num == "28" else "")
+        front = common("link", name, "nsdn:rv:link:" + name[4:], "%s#3 link %s" % (N148, num), ruled)
         front.update({"label": label, "from": "hub_" + fh, "to": "hub_" + th, "driving": driving,
                       "optional": opt, "effectivity": eff_kind,
                       "subject_area": AREA_OF[fh]})
@@ -279,7 +280,7 @@ def main():
         prose = []
         if eff == "event" and start == "unknown":
             prose.append("148 gives this link an event start, but its driving hub, a line, has no event date of its own"
-                         " (147 section 5), so the start is unknown until the author rules; see ARC-OP-29.")
+                         " (147 section 5); the author ruled that the start stays unknown (ADR-0034 decision 4).")
         links[name] = (fh, th, cols)
         emit("model/raw_vault/links/%s.md" % name, front,
              [("Columns", colsec), ("Relations", ["- %s/relations/%s" % (ACROSS, rr) for rr in rels]),

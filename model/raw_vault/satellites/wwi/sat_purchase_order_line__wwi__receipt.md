@@ -6,8 +6,8 @@ status: accepted
 ruled_in: ADR-0033, ADR-0028
 defined_in: docs/10_architecture/149_wwi-satellites.md#3.5
 written_by: claude-opus-5-5
-written_at: 2026-10-29T11:25:00Z
-step: S11-008
+written_at: 2026-10-29T11:34:00Z
+step: S11-010
 method: transcribed by prototypes/model_declarations/transcribe_wwi.py from the ruled note
 parent: hub_purchase_order_line
 source: wwi

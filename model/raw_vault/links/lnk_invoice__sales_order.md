@@ -3,11 +3,11 @@ id: nsdn:rv:link:invoice__sales_order
 kind: link
 name: lnk_invoice__sales_order
 status: accepted
-ruled_in: ADR-0031, ADR-0030
+ruled_in: ADR-0031, ADR-0030, ADR-0034
 defined_in: docs/10_architecture/148_wwi-relationships.md#3 link 28
 written_by: claude-opus-5-5
-written_at: 2026-10-29T11:25:00Z
-step: S11-008
+written_at: 2026-10-29T11:34:00Z
+step: S11-010
 method: transcribed by prototypes/model_declarations/transcribe_wwi.py from the ruled note
 label: invoice of order
 from: hub_invoice

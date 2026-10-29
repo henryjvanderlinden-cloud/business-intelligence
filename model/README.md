@@ -1,10 +1,10 @@
 # The model declarations — how they are written
 
-> **STATUS: PROPOSED.** Drafted 2026-10-29 in session 11 from handover 11, as the declaration format owed under
+> **STATUS: RULED** 2026-10-29 in [ADR-0034](../docs/20_decisions/0034-model-declaration-format-and-viewer.md).
+> Drafted the same day in session 11 from handover 11, as the declaration format owed under
 > [`ARC-OP-29`](../registers/OPEN_POINTS.md) and [ADR-0032](../docs/20_decisions/0032-generated-sql-machinery.md)
 > decision 1. Reviewed on sol, which failed the first version
-> ([XREV](../docs/30_research/notes/XREV_2026-10-29_model-format_sol.md)); this is the revised text, itself unreviewed.
-> Nothing here is ruled. Enforced by
+> ([XREV](../docs/30_research/notes/XREV_2026-10-29_model-format_sol.md)); the revised text is unreviewed. Enforced by
 > `python tools/check_repo.py` (`check_model`), parsed by [`tools/model_lib.py`](../tools/model_lib.py).
 
 This folder holds the data model as text, in the sense of [142](../docs/10_architecture/142_the-data-model.md) §3: one
