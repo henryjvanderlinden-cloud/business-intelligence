@@ -47,3 +47,4 @@ describe options; only an ADR adopts one.
 | [0030](0030-hub-and-link-keys-are-hash-keys.md) | Hubs and links are keyed on hash keys computed from the key-space code and the business key | Accepted |
 | [0031](0031-wwi-step-b-links.md) | Wide World Importers, step B: the links between the hubs of note 148 | Accepted |
 | [0032](0032-generated-sql-machinery.md) | The deterministic machinery is generated plain SQL: declarations, a generator, and dbt models in folders | Accepted |
+| [0033](0033-wwi-step-c-satellites.md) | Wide World Importers, step C: the satellites of note 149; password hashes are never loaded, their column kept empty | Accepted |

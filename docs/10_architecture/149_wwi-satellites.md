@@ -1,6 +1,6 @@
 # 149 — Wide World Importers: the satellites (step C)
 
-> **STATUS: PROPOSED, not ruled.** Drafted 2026-10-29 in session 10, after steps A and B were ruled
+> **STATUS: RULED** 2026-10-29 in [ADR-0033](../20_decisions/0033-wwi-step-c-satellites.md). Drafted 2026-10-29 in session 10, after steps A and B were ruled
 > ([ADR-0029](../20_decisions/0029-wwi-step-a-concepts-and-keys.md), [ADR-0031](../20_decisions/0031-wwi-step-b-links.md)).
 > Reviewed on sol, which failed the first version ([XREV](../30_research/notes/XREV_2026-10-29_149-satellites_sol.md));
 > this is the revised text, itself unreviewed ([510](../50_process/510_external-review.md)). Open under
@@ -221,6 +221,9 @@ extract loads as one batch (ADR-0031 decision 2). The engines' results (ADR-0024
 and get satellites when the first engine is designed.
 
 ## 6. Weak case for the author
+
+*Ruled 2026-10-29 in [ADR-0033](../20_decisions/0033-wwi-step-c-satellites.md): password hashes are never loaded;
+`HashedPassword` stays in `sat_person__wwi__account` as an always-empty column, so the satellite mirrors the source.*
 
 **Whether credentials are loaded at all.** `HashedPassword` holds password hashes for 157 people
 (`Application/People/19_sensitivity.md#C3`), credentials with no analytical use, and the legal basis of the people data
