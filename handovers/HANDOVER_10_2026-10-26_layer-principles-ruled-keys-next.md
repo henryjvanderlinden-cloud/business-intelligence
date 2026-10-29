@@ -1,7 +1,7 @@
 # nsdn — Handover 10: the integration layer's principles are ruled; concepts and keys for Wide World Importers are next
 ## Written 2026-10-26 at the close of session 09
 
-> **STATUS: CURRENT.**
+> **STATUS: HISTORICAL (superseded 2026-10-29)** by [handover 11](HANDOVER_11_2026-10-29_integration-layer-designed-declarations-and-viewer-next.md).
 
 ---
 
