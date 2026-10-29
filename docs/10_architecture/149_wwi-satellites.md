@@ -2,7 +2,8 @@
 
 > **STATUS: PROPOSED, not ruled.** Drafted 2026-10-29 in session 10, after steps A and B were ruled
 > ([ADR-0029](../20_decisions/0029-wwi-step-a-concepts-and-keys.md), [ADR-0031](../20_decisions/0031-wwi-step-b-links.md)).
-> Unreviewed on another model ([510](../50_process/510_external-review.md)). Open under
+> Reviewed on sol, which failed the first version ([XREV](../30_research/notes/XREV_2026-10-29_149-satellites_sol.md));
+> this is the revised text, itself unreviewed ([510](../50_process/510_external-review.md)). Open under
 > [`ARC-OP-37`](../../registers/OPEN_POINTS.md) item 1.
 
 ## 1. What this note does
@@ -19,7 +20,7 @@ Citations follow 147: paths relative to `analysis/wwi/tables/`, or beginning wit
 tables, "versions" means the table's `06_keys.md#C5` (which columns ever differ between the versions of one key, in the
 history held) and "transition" its `03_temporal.md#C2` (which columns were updated between two extracts).
 
-## 2. Nine rules applied throughout
+## 2. Ten rules applied throughout
 
 **Rule 1: a satellite holds what one source row asserts about one hub or link, and splits only for a stated reason**
 (144 §2). The reasons used here are five: *audit* (who and when the source recorded a change, Rule 3), *sensitivity*
@@ -28,10 +29,18 @@ fact with its own business time, ADR-0028), and *delivery* (another source table
 filled from one source row carries the same load time and batch (144 §2; ADR-0031 decision 2). Satellites are named
 `sat_<hub or link>__wwi[__<part>]`, the source code in the name from the first load (144 §5).
 
-**Rule 2: every satellite row carries the three clocks of ADR-0027 as metadata, not as payload.** Knowledge time (load
-time and batch), business valid time (from the column 147 §5 and this note name, or explicitly unknown), and source
-system time (`ValidFrom` of a system-versioned table, `LastEditedWhen` of the others), labelled and never presented as
-business time.
+**Rule 2: every satellite row carries the three clocks of ADR-0027 and a source-version identifier as metadata, not as
+payload.** Knowledge time (load time and batch), business valid time (from the column 147 §5 and this note name, or
+explicitly unknown), and source system time (`ValidFrom` of a system-versioned table, `LastEditedWhen` of the others),
+labelled and never presented as business time. The *source version* is the record source with the source system time
+of the row it came from: it identifies one version of one source row, it is the same in every satellite filled from
+that version, and it is part of every satellite row's key, with the parent key and the load time. Review showed why
+it is needed ([XREV](../30_research/notes/XREV_2026-10-29_149-satellites_sol.md) findings 1, 2 and 5): without it, the
+versions of the first day's history all share one load time and collide, and satellites split from one row cannot be
+put back together as the source held them. The source moves `LastEditedWhen` on every update seen in both transitions
+(`Sales/Orders/03_temporal.md#C2`; `Sales/Invoices/03_temporal.md#C2`; `Warehouse/StockItemHoldings/03_temporal.md#C2`),
+so it serves as the version stamp of the tables that are not system-versioned. A table with neither, such as the
+vehicle readings, is append-only and its rows are identified by their own key (Rule 10).
 
 **Rule 3: the audit columns go into an audit satellite of their own on every hub, which is the source's version log.**
 `LastEditedBy` names a person on every table for no business reason (ADR-0021) and changes with every edit, as does
@@ -39,7 +48,9 @@ source system time. The audit satellite holds `LastEditedBy` with the source sys
 includes both, so that every version the source recorded is one row there. The payload satellites detect change on
 their payload and business valid time only (ADR-0027, Consequences), so that an edit that changed nothing visible, such
 as the person versioned on 2016-06-01 without any column changing (`Application/People/03_temporal.md#C4`), adds a row
-to the audit satellite and none to the others.
+to the audit satellite and none to the others. A satellite therefore holds a row per source version in which its own
+columns changed, not one per source version; "which versions did the source record" is answered by the audit
+satellite, and "what did the source hold at instant *t*" by the point-in-time rule of Rule 10.
 
 **Rule 4: a source-computed column stays where the source puts it.** Eight columns are declared computed by the source
 (claim C2 of each such column's own `columns/<column>/02_meaning.md`, for example `Application/People/columns/SearchName/02_meaning.md#C2`); they are what
@@ -52,9 +63,13 @@ source's business key of the named row or empty. Mandatory relationship columns 
 recording, per driving key, from when the link is the current one and when it was ended; its business start comes from
 148's column *Effectivity* (load, event date, milestone, or absence in a complete extract).
 
-**Rule 7: every hub loaded from a full extract gets a status-tracking satellite**, `sts_<hub>__wwi`, recording in which
-complete extract the key was present. A key's absence is recorded as unresolved until the conditions of 127 ("Absence is
-not deletion") show a deletion. The extracts are full, with a manifest of row counts and hashes
+**Rule 7: every hub loaded from a full extract gets a status-tracking satellite**, `sts_<hub>__wwi`, with a row for every
+change of a key's status between complete extracts: *present*, *absent-unresolved* (missing from a complete extract),
+*deletion-confirmed* (once the conditions of 127, "Absence is not deletion", are met), and *reappeared*. A confirmed
+deletion is a new row; the absence that preceded it is kept. A "current" query takes, per key, the latest status at or
+before its knowledge time, so a key absent on day 2 is not current on day 3 even if it was present on day 1, and a key
+that returns is the same key, marked reappeared ([XREV](../30_research/notes/XREV_2026-10-29_149-satellites_sol.md)
+finding 4). The extracts are full, with a manifest of row counts and hashes
 (`prototypes/wwi_sandbox/README.md`), which is the evidence of completeness 127 asks for.
 
 **Rule 8: a code list without a hub is a reference table with its history**, `ref_<table>__wwi`, holding every version
@@ -65,6 +80,14 @@ business data), *confidential* (commercial terms, prices, costs, margins), *pers
 *restricted* (credentials, bank details, employment terms, position tracks). These are readings, not legal advice,
 following each table's `19_sensitivity.md`; access rules per class are not decided here, and regulatory requirements
 apply from production on ([ADR-0016](../20_decisions/0016-regulatory-requirements-from-production.md)).
+
+**Rule 10: reconstruction is by source version, and readings are events.** The state of a hub as the source held it at
+source system time *t* is, per satellite, the row with the latest source version at or before *t*; because every
+satellite of one row shares that version, the parts of a split row recombine into a state the source actually held,
+never into a mix of two versions. For business "as of" queries the same rule runs on business valid time where a
+satellite has one, and on knowledge time for "as we knew it". A reading series is not the changing description of a
+sensor or vehicle but a stream of immutable events, several per day for the same sensor: each reading is a row of its
+own, keyed by its own identifier, inserted once and never superseded (finding 3).
 
 ## 3. Satellites on the hubs
 
@@ -154,12 +177,15 @@ distinguishable.
 
 | Satellite | Columns | Split reason | Valid time | Class | Evidence |
 |---|---|---|---|---|---|
-| `sat_cold_room_sensor__wwi__reading` | ColdRoomTemperatureID, RecordedWhen, Temperature | delivery (a reading series; each reading supersedes the last) | `RecordedWhen` | open | `Warehouse/ColdRoomTemperatures/03_temporal.md#C5`, `#C6` |
-| `sat_vehicle__wwi__chiller_reading` | ChillerSensorNumber (sub-key), VehicleTemperatureID, RecordedWhen, Temperature, IsCompressed | delivery (several sensors per vehicle: multi-active, keyed within the vehicle by sensor number) | `RecordedWhen` | internal | `Warehouse/VehicleTemperatures/06_keys.md#C2`; `03_temporal.md#C5` |
-| `sat_vehicle__wwi__position` | ChillerSensorNumber (sub-key), RecordedWhen, FullSensorData, CompressedSensorData | sensitivity (position history that can track a driver) | `RecordedWhen` | restricted | `Warehouse/VehicleTemperatures/19_sensitivity.md#C2`, `#C3` |
+| `sat_cold_room_sensor__wwi__reading` | ColdRoomTemperatureID (reading key), RecordedWhen, Temperature | delivery (a reading series: one row per reading, Rule 10) | `RecordedWhen` | open | `Warehouse/ColdRoomTemperatures/06_keys.md#C1`, `#C2`; `03_temporal.md#C5`, `#C6` |
+| `sat_vehicle__wwi__chiller_reading` | VehicleTemperatureID (reading key), ChillerSensorNumber, RecordedWhen, Temperature, IsCompressed | delivery (a reading series: one row per reading, Rule 10) | `RecordedWhen` | internal | `Warehouse/VehicleTemperatures/06_keys.md#C1`, `#C2`; `03_temporal.md#C5` |
+| `sat_vehicle__wwi__position` | VehicleTemperatureID (reading key), RecordedWhen, FullSensorData, CompressedSensorData | sensitivity (position history that can track a driver) | `RecordedWhen` | restricted | `Warehouse/VehicleTemperatures/19_sensitivity.md#C2`, `#C3` |
 
-The cold-room readings of the history table, 3.7 million rows from 2015-12-20, load on the first day as the reading
-series of the four sensors, ordered by `RecordedWhen`, which equals their source system time in every row
+The reading satellites are keyed by the hub and the reading's own identifier, which is unique and gapless for the
+vehicle readings and runs without a gap across the cold-room history and current rows
+(`Warehouse/VehicleTemperatures/06_keys.md#C1`; `Warehouse/ColdRoomTemperatures/03_temporal.md#C5`); a day's extract
+brings many readings per sensor, and none replaces another. The cold-room readings of the history table, 3.7 million
+rows from 2015-12-20, load on the first day as the reading series of the four sensors, ordered by `RecordedWhen`, which equals their source system time in every row
 (`Warehouse/ColdRoomTemperatures/03_temporal.md#C5`). The sensor tables have no audit columns, so their audit
 satellites hold source system time only (`ValidFrom` for the cold room, none for the vehicle).
 
@@ -186,8 +212,11 @@ as delivered: WWI's own addresses, its two city codes and `ApplicationSettings`
 
 On the first day each system-versioned table loads its history table and its current rows together, in the order of
 source system time, so that each recorded version becomes a row of the audit satellite and, where its payload
-changed, of the payload satellites; all carry the first load's knowledge time and their own source system time
-(ADR-0027 decision 2). The tables without history load their current state once. From the second day, each complete
+changed, of the payload satellites; all carry the first load's knowledge time and their own source version (Rule 2),
+which keeps them apart although they share one load time (ADR-0027 decision 2). The history table holds only earlier
+versions and never the current one (for example `Sales/Customers_Archive/05_role.md#C5`), so the two do not overlap;
+the load nevertheless removes any duplicate source version before inserting, so that a boundary row delivered twice
+is loaded once. The tables without history load their current state once. From the second day, each complete
 extract loads as one batch (ADR-0031 decision 2). The engines' results (ADR-0024, ADR-0025) are a source of their own
 and get satellites when the first engine is designed.
 
