@@ -3125,7 +3125,7 @@ Which activities become skills, how a skill relates to the document that describ
 kept are **not decided**. **Held** until the author asks to resume it.
 
 ### PRC-OP-9 — How improvements travel between nsdn and the client repositories
-**⛔ STATE: OPEN**
+**✅ STATE: RULED 2026-11-03**
 Opened 2026-10-29, session 11, from the author's question after ruling that each client gets a repository of its own
 with a tagged release of nsdn ([ADR-0035](../docs/20_decisions/0035-reference-case-and-client-repositories.md)),
 verbatim:
@@ -3152,6 +3152,8 @@ Proposed by the model, **not ruled**:
 Open: whether the author agrees; submodule or copied archive per client; whether the checker enforces the untouched
 release and the clean upstream notes. Related to `PRC-OP-8` (procedures as skills), since a skill would travel the same
 way. Closes with an ADR.
+
+*2026-11-03: ruled by the author in [ADR-0036](../docs/20_decisions/0036-releases-and-upstream-notes.md), the three points as proposed; no release yet; at a client the analysis runs under the client's own Claude. Ruled is not executed: no release, no client repository, and neither of the two checks (release checksum, clean upstream notes) exists.*
 
 ## §5 — Commercial premises (`BIZ`)
 

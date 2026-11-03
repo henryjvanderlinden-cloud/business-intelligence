@@ -50,3 +50,4 @@ describe options; only an ADR adopts one.
 | [0033](0033-wwi-step-c-satellites.md) | Wide World Importers, step C: the satellites of note 149; password hashes are never loaded, their column kept empty | Accepted |
 | [0034](0034-model-declaration-format-and-viewer.md) | The model is declared in small text files under `model/`, and viewed in a static page with no library | Accepted |
 | [0035](0035-reference-case-and-client-repositories.md) | nsdn keeps Wide World Importers as its reference case; each client gets a repository of its own with a tagged release of nsdn | Accepted |
+| [0036](0036-releases-and-upstream-notes.md) | nsdn travels to clients as numbered releases with release notes, and improvements come back as upstream notes without client material | Accepted |
