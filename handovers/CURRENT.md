@@ -1,5 +1,5 @@
 # Current handover
 
-→ [HANDOVER_11_2026-10-29_integration-layer-designed-declarations-and-viewer-next.md](HANDOVER_11_2026-10-29_integration-layer-designed-declarations-and-viewer-next.md)
+→ [HANDOVER_12_2026-11-03_declarations-viewer-and-pg-pass-done-generator-next.md](HANDOVER_12_2026-11-03_declarations-viewer-and-pg-pass-done-generator-next.md)
 
 This pointer is updated in the same commit as each new handover.

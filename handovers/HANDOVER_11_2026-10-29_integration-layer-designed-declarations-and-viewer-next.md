@@ -1,7 +1,7 @@
 # nsdn — Handover 11: the integration layer for Wide World Importers is designed; declarations and the viewer are next
 ## Written 2026-10-29 at the close of session 10
 
-> **STATUS: CURRENT.**
+> **STATUS: HISTORICAL (superseded 2026-11-03)** by [handover 12](HANDOVER_12_2026-11-03_declarations-viewer-and-pg-pass-done-generator-next.md).
 
 ---
 
