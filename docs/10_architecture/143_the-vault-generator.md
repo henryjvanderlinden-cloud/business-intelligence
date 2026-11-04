@@ -171,9 +171,10 @@ macro calls (ADR-0032 decision 2). "Incoming" means the rows of the staging view
    `absent-unresolved` for a key missing from this extract, `reappeared` for a key that was absent and is back.
    `deletion-confirmed` is not generated now: the conditions of 127 ("Absence is not deletion") are not yet stated in
    a form a template can test, and are owed (§12).
-8. **Effectivity satellite** (by rule, one per link). Per driving key, tracks which link row is current. When a
-   driving key's `to` end changes (or becomes empty), two rows are inserted: the new link `active` and the previous
-   one `ended`. The business start comes from the declaration's `effectivity_start`: a column (an event date or a
+8. **Effectivity satellite** (by rule, one per link). Per driving key, tracks which link row is current. *As built
+   (§13 item 1): one row per change, carrying the hash key of the link current from that source version, or empty
+   when there is none; "ended" is read from the next row.* The draft had two rows per change, the new link `active`
+   and the previous one `ended`. The business start comes from the declaration's `effectivity_start`: a column (an event date or a
    milestone), `load` (the knowledge time), `presence in a complete extract`, or `unknown` (empty, labelled). For a
    bridge (`driving: none`, link 15), a link row is `active` while it is present in the complete extract and
    `absent-unresolved` when it is missing, as in the status-tracking satellite.
@@ -303,3 +304,28 @@ the build, and so the batch is not published, unless marked a warning.
 point-in-time and bridge structures of the business vault; access rules per sensitivity class; the second source and
 key reconciliation (ADR-0030 decision 2); performance beyond the sandbox: each load compares incoming versions with
 whole satellites, which is right for a few million rows and to be revisited for a large client.
+
+## 13. Changes made while building (2026-11-04, session 12)
+
+Found by the first loads and the cloud test suite (`prototypes/vault_generator/test_load.py`); none changes a ruling
+of ADR-0037.
+
+1. **Effectivity as one row per change.** Each effectivity satellite is a satellite of the driving hub whose only
+   payload is the current link's hash key, loaded by the same pattern as the others (milestone rule: it starts at
+   the first version with a link). The information is the same as the draft's pair of rows; the pattern is shared,
+   so late arrivals and restatements need no rule of their own, and "ended" is derived from the next row, as "valid
+   to" is everywhere (ADR-0027, Consequences).
+2. **The end of the source's validity period is kept as delivered text.** SQL Server marks a current row's end
+   9999-12-31, which lies beyond DuckDB's `TIMESTAMP_NS` (years 1677 to 2262), and the first load failed on it. The
+   end is used only to order ties; its fixed ISO form with seven decimals sorts correctly as text. Start times keep
+   all seven decimals as `TIMESTAMP_NS`.
+3. **A duplicate is a row identical in every column, its end included.** The first version also ignored the end, and
+   so took the three zero-length versions of `Application.People`, whose content equals that of the version that
+   replaced them, for duplicates: 2,074 rows delivered, 2,071 staged. A generated test, `…__nothing_dropped`, now
+   compares the distinct delivered rows with the staged ones on every build; it fails on the first version.
+4. **What the generator covers so far** is listed in `prototypes/vault_generator/scope.txt` (Application.People,
+   Sales.Customers, Sales.Orders, Warehouse.Colors). A pattern it does not yet support stops it with a message:
+   bridges and effectivity by presence, reading satellites, link satellites, `resolve=` and `kept=`, more than one
+   mapping per hub or link, keys other than integers and text, and satellites whose parent key is not their hub's
+   key in the same table. Hubs are loaded from their own mapping only; that every link end is in its hub is a test.
+

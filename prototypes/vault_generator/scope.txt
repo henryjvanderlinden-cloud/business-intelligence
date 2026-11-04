@@ -1,0 +1,5 @@
+# Source tables whose declared objects the generator writes (143). Widen as patterns are supported.
+Application.People
+Sales.Customers
+Sales.Orders
+Warehouse.Colors
