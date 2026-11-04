@@ -16,7 +16,10 @@ restatement of the next version. **On the author's machine** (2026-11-04, 13:07 
 the generator 0.2.0 writes the whole WWI raw vault: 216 tables, 510 files, 777 tests per load. The cloud suite, on
 the three complete extracts, passes all eight checks: the five above, a failed rebuild of a date that had succeeded,
 a deletion closed by the source, and a table delivered empty; 5,360,224 delivered versions reconstruct exactly. A
-load takes about 3 to 6 minutes in the cloud workspace.
+load takes about 3 to 6 minutes in the cloud workspace. **On the author's machine** (2026-11-04, 17:58 to 18:37 UTC),
+with the 0.1.0 warehouse set aside as `data/warehouse_vault-0.1.0_2026-11-04/`, the runner replayed the three
+extracts: every load ok with all tests passing, in 522, 893 and 905 seconds, and the published vault equals the
+cloud suite's clean load in all 216 tables (17,346,219 rows; content fingerprints without `load_run`).
 
 ## The pieces
 
