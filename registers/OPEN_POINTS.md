@@ -1708,6 +1708,13 @@ the HTML view. The draft is unreviewed.
 *2026-10-29, 12:33: ruled by the author in [ADR-0034](../docs/20_decisions/0034-model-declaration-format-and-viewer.md): the top-level folder `model/`, the format of [model/README.md](../model/README.md), and a viewer with no library. Still open here: the dimensions of 142 §4 beyond layer and source, the generator (with the ordering, tie-breaking and late arrival above), and how the viewer relates to `ARC-OP-15` and `ARC-OP-26`. Ruled is not executed: no generator, no SQL.*
 
 *2026-11-04, session 12: the generator's design is ruled in [ADR-0037](../docs/20_decisions/0037-vault-generator.md) on [143](../docs/10_architecture/143_the-vault-generator.md), which also settles what this row owed: versions with equal source system time ordered by end time and a whole-row hash (`source_seq`), zero-length versions kept, late arrivals inserted with a restatement of the next version, knowledge time as the extract's date; the source declaration gains `key_case`. Still open here: the dimensions of 142 §4 beyond layer and source, and how the viewer relates to `ARC-OP-15` and `ARC-OP-26`. Ruled is not executed: the generator is not yet built.*
+
+*2026-11-04, session 12: built and live. Generator 0.2.0 writes the whole WWI raw vault (216 tables) after two failed
+sol reviews, both applied ([XREV 1](../docs/30_research/notes/XREV_2026-11-03_143-vault-generator_sol.md),
+[XREV 2](../docs/30_research/notes/XREV_2026-11-04_143-generated-sql_sol.md)); the runner loaded 2016-05-31 to 06-02
+identically to the cloud suite. The author agreed at 21:43, verbatim: "agree with your recommendations. Please
+proceed." (143 section 13 items 12 and 14, and advancing the simulation). Open: load time (about 15 minutes per day
+on his machine, 20 for a rebuild with nothing new; 143 section 12).*
 ### ARC-OP-30 — Release regression: every output change attributed to a release note, on frozen data
 **⛔ STATE: OPEN**
 Opened 2026-09-28, session 07, by the author:

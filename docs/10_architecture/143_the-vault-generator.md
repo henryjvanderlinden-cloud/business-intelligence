@@ -356,7 +356,9 @@ After the second review on sol, which failed the generated SQL
 8. **The batch is named by the runner's variable** (finding 5), so a table delivered empty marks its keys absent in a
    dated batch instead of an undated one.
 
-Widening the scope to all 31 base tables of WWI (2026-11-04):
+Widening the scope to all 31 base tables of WWI (2026-11-04). *Items 12 (the bridge's audit satellite on the link)
+and 14 (staging as tables) were agreed by the author on 2026-11-04 at 21:43, together with the next step: advancing
+the simulation so that the vault loads new data.*
 
 9. **The generator now covers the whole WWI raw vault** of 147 to 149: 22 hubs, 49 links with their effectivity, 45
    satellites, 7 reference tables, and the audit and status-tracking satellites by rule. Four patterns were added.
