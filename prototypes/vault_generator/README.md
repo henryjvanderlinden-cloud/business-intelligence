@@ -9,7 +9,7 @@ their staging views, loaded from the three kept extracts (2016-05-31 to 06-02). 
 pass: a clean three-day load with every generated test passing; loading the last extract twice changes no row; a
 batch that fails halfway with a wrong model leaves nothing once rebuilt; every one of 158,011 delivered versions
 reconstructs exactly from the satellites (a planted defect is caught); a constructed late arrival is followed by the
-restatement of the next version. Not yet run on the author's machine at the time of writing.
+restatement of the next version. **On the author's machine** (2026-11-04, 13:07 to 13:12 UTC), after the old warehouse was set aside as `data/warehouse_pre-vault_2026-11-04/`, the runner replayed the three extracts with the generated project (123 tests passing per load, 74 to 104 s each) and published a vault identical, table by table and row by row, to the cloud suite's clean load.
 
 ## The pieces
 
