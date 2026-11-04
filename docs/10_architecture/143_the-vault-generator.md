@@ -388,5 +388,9 @@ Advancing the simulation (2026-11-04, evening):
     "is there any earlier version later than this one", it compared every cold-room reading with every other reading
     of its sensor: 191 of a load's 305 seconds in the cloud workspace, and the main reason a day took 15 to 22
     minutes on the author's machine. Comparing with the latest version loaded before the batch gives the same
-    answer (checked on the constructed late arrival and on 2016-06-04) in 2 seconds.
+    answer (checked on the constructed late arrival and on 2016-06-04) in 2 seconds. On the author's machine the
+    rebuild of 2016-06-04 then took 572 seconds (the rebuild before it, 1,198). What remains is mostly the
+    cold-room history: every load re-reads, re-hashes and re-checks its 3.7 million delivered rows (staging 69 s,
+    its nothing-dropped test 74 s, the audit completeness test 36 s on his machine). Reading only the history rows
+    not yet loaded would remove that, at the cost of a staging pattern of its own; not done (§12).
 
