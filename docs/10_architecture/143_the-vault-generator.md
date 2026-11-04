@@ -382,3 +382,11 @@ the simulation so that the vault loads new data.*
     workspace, and 173 seconds with tables. A staging table is replaced whole on every load and holds nothing the
     landing tables do not; 143 §9 item 2 otherwise stands.
 
+Advancing the simulation (2026-11-04, evening):
+
+15. **The late-arrival test compares each version with the latest earlier one only** (generator 0.2.1). Written as
+    "is there any earlier version later than this one", it compared every cold-room reading with every other reading
+    of its sensor: 191 of a load's 305 seconds in the cloud workspace, and the main reason a day took 15 to 22
+    minutes on the author's machine. Comparing with the latest version loaded before the batch gives the same
+    answer (checked on the constructed late arrival and on 2016-06-04) in 2 seconds.
+

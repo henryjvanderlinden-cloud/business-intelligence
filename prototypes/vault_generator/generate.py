@@ -21,7 +21,7 @@ import os
 import string
 import sys
 
-GENERATOR_VERSION = "0.2.0"
+GENERATOR_VERSION = "0.2.1"
 HERE = os.path.dirname(os.path.abspath(__file__))
 GENERATED_DIRS = ("models/staging/wwi", "models/raw_vault", "tests/generated")
 
@@ -618,12 +618,16 @@ class Generator:
                      " and a.source_ts is not distinct from s.source_ts and a.source_seq = s.source_seq\n"
                      "where a.row_hash <> s.row_hash\n" % (hk, stg, audit, hk, hk))
             test("%s__late_arrivals" % audit,
-                 "-- 143 section 6 item 6 and section 10 item 5: versions of this batch older than one already loaded.\n"
+                 "-- 143 section 6 item 6 and section 10 item 5: versions of this batch older than the latest one loaded\n"
+                 "-- before it, per key and source table (compared with that one version only, so the cost is linear).\n"
+                 "with latest_before as (\n    select %s, record_source, source_ts, source_seq\n"
+                 "    from {{ ref('%s') }}\n    where batch_id < '%s:{{ var('load_date') }}'\n"
+                 "    qualify row_number() over (partition by %s, record_source order by source_ts desc, source_seq desc) = 1\n)\n"
                  "select n.%s, n.record_source, n.source_ts, n.source_seq\nfrom {{ ref('%s') }} n\n"
-                 "where n.batch_id = '%s:{{ var('load_date') }}'\n  and exists (select 1 from {{ ref('%s') }} o\n"
-                 "              where o.%s = n.%s and o.record_source = n.record_source and o.batch_id < n.batch_id\n"
-                 "                and (o.source_ts, o.source_seq) > (n.source_ts, n.source_seq))\n"
-                 % (hk, audit, self.source, audit, hk, hk), severity="warn")
+                 "join latest_before o on o.%s = n.%s and o.record_source = n.record_source\n"
+                 "where n.batch_id = '%s:{{ var('load_date') }}'\n"
+                 "  and (o.source_ts, o.source_seq) > (n.source_ts, n.source_seq)\n"
+                 % (hk, audit, self.source, hk, hk, audit, hk, hk, self.source), severity="warn")
         for table in sorted(self.staging):
             stg = staging_name(self.source, table)
             fl = self.m.base[table]
