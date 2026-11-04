@@ -1,6 +1,7 @@
 # 143 — The vault generator: from declarations to dbt models
 
-> **STATUS: DRAFT** 2026-11-03, session 12, from handover 12. Serves
+> **STATUS: RULED** 2026-11-04 in [ADR-0037](../20_decisions/0037-vault-generator.md), choices 1 to 3 as recommended.
+> Drafted 2026-11-03, session 12, from handover 12. Serves
 > [ADR-0032](../20_decisions/0032-generated-sql-machinery.md) and reads the format of
 > [`model/README.md`](../../model/README.md) ([ADR-0034](../20_decisions/0034-model-declaration-format-and-viewer.md)).
 > Owes `ARC-OP-29` its last open design items (tie-breaking and late arrivals). Reviewed on sol, which failed the
@@ -280,6 +281,8 @@ the build, and so the batch is not published, unless marked a warning.
    and compare with a clean load of the same extract.
 
 ## 11. Choices for the author
+
+*Ruled 2026-11-04 in [ADR-0037](../20_decisions/0037-vault-generator.md): all three as recommended.*
 
 1. **Zero-length versions.** Eleven versions in WWI existed for no time at all (§1 item 4). SQL Server itself leaves
    them out of "as of" queries. *Keep them* (with `source_seq`, §6): the raw vault keeps everything delivered

@@ -398,10 +398,10 @@ def main():
         lines.append("- %s | extract=full | system_time=%s | audit=%s | history=%s | catalogue=%s/evidence/%s.json"
                      % (t, st, audit, hist, table_dir(t), cat[t]["evidence"]))
     front = {"id": "nsdn:source:wwi", "kind": "source", "name": "wwi", "status": "accepted",
-             "ruled_in": "ADR-0015, ADR-0027, ADR-0029, ADR-0033", "defined_in": "%s#2 and %s#2" % (N147, N149),
+             "ruled_in": "ADR-0015, ADR-0027, ADR-0029, ADR-0033, ADR-0037", "defined_in": "%s#2 and %s#2" % (N147, N149),
              "written_by": AUTHOR, "written_at": WRITTEN_AT, "step": STEP,
              "method": "transcribed by prototypes/model_declarations/transcribe_wwi.py",
-             "title": "Wide World Importers, one database instance", "key_space": "wwi",
+             "title": "Wide World Importers, one database instance", "key_space": "wwi", "key_case": "fold",
              "extract": "daily, each table complete, with a manifest of row counts and hashes (prototypes/wwi_sandbox/README.md)",
              "by_rule": "LastEditedBy to the hub's audit satellite (kept in reference tables); ValidFrom, ValidTo, "
                         "LastEditedWhen as source system time"}

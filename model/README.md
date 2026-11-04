@@ -88,7 +88,9 @@ reading's key or time carried by both satellites of one reading series), `load=n
 
 **Reference table**: `source_table`, `key`, `key_space`, `history` (its history table), `class`; section *Columns*.
 
-**Source**: `title`, `key_space`, `extract`, `by_rule`; section *Base tables*, one line per base table with `extract`
+**Source**: `title`, `key_space`, `key_case` (`fold` where the source compares keys without regard to case, as SQL
+Server does by default, so keys are upper-cased before hashing; `exact` where it does not, as PostgreSQL;
+[143](../docs/10_architecture/143_the-vault-generator.md) §3, ADR-0037), `extract`, `by_rule`; section *Base tables*, one line per base table with `extract`
 (`full`: every extract holds the table complete, which is what absence is judged against; `delta` otherwise),
 `system_time`, `audit`, `history` and `catalogue`, the analysis record's catalogue evidence for that table.
 

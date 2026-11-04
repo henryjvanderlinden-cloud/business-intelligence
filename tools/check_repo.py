@@ -752,6 +752,8 @@ def check_model():
         if f.get("kind") == "reference":
             ref_sources.add(f.get("source_table"))
     for sname, (rel, front, sections) in sources.items():
+        if front.get("key_case") not in ("fold", "exact"):
+            err(rel, "key_case must be fold or exact (143 section 3 item 4, ADR-0037)")
         for table, flags in sections.get("Base tables", []):
             cpath = flags.get("catalogue", "")
             if not os.path.isfile(os.path.join(ROOT, cpath)):

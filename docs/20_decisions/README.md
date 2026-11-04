@@ -51,3 +51,4 @@ describe options; only an ADR adopts one.
 | [0034](0034-model-declaration-format-and-viewer.md) | The model is declared in small text files under `model/`, and viewed in a static page with no library | Accepted |
 | [0035](0035-reference-case-and-client-repositories.md) | nsdn keeps Wide World Importers as its reference case; each client gets a repository of its own with a tagged release of nsdn | Accepted |
 | [0036](0036-releases-and-upstream-notes.md) | nsdn travels to clients as numbered releases with release notes, and improvements come back as upstream notes without client material | Accepted |
+| [0037](0037-vault-generator.md) | The vault generator: SHA-256 keys, one load pattern for every day, every version kept, and the vault's first day replayed from 2016-05-31 | Accepted |

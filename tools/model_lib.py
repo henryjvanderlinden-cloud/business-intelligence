@@ -25,7 +25,7 @@ REQUIRED = {
     "satellite": COMMON + ["parent", "source", "source_table", "parent_key", "satellite_kind", "split_reason",
                            "valid_time", "class", "subject_area"],
     "reference": COMMON + ["source", "source_table", "key", "key_space", "history", "class", "subject_area"],
-    "source": COMMON + ["title", "key_space", "extract", "by_rule"],
+    "source": COMMON + ["title", "key_space", "key_case", "extract", "by_rule"],
 }
 SECTIONS = {"hub": {"Business key"}, "link": {"Columns", "Relations"}, "satellite": {"Columns"},
             "reference": {"Columns"}, "source": {"Base tables"}}

@@ -3,7 +3,7 @@ id: nsdn:source:wwi
 kind: source
 name: wwi
 status: accepted
-ruled_in: ADR-0015, ADR-0027, ADR-0029, ADR-0033
+ruled_in: ADR-0015, ADR-0027, ADR-0029, ADR-0033, ADR-0037
 defined_in: docs/10_architecture/147_wwi-concepts-keys-and-business-time.md#2 and docs/10_architecture/149_wwi-satellites.md#2
 written_by: claude-opus-5-5
 written_at: 2026-10-29T11:34:00Z
@@ -11,6 +11,7 @@ step: S11-010
 method: transcribed by prototypes/model_declarations/transcribe_wwi.py
 title: Wide World Importers, one database instance
 key_space: wwi
+key_case: fold
 extract: daily, each table complete, with a manifest of row counts and hashes (prototypes/wwi_sandbox/README.md)
 by_rule: LastEditedBy to the hub's audit satellite (kept in reference tables); ValidFrom, ValidTo, LastEditedWhen as source system time
 ---
