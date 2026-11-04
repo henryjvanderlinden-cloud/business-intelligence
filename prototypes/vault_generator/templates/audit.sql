@@ -2,11 +2,10 @@
           pre_hook="$pre_hook") }}
 
 -- Audit satellite (143 section 5 item 6; 149 Rule 3): every source version once, with no change detection, so that it
--- is the source's version log.
+-- is the source's version log. One row per version of every source table that describes this $owner_kind, told apart
+-- by record_source.
 with incoming as (
-    select $hk, load_date, batch_id, record_source, source_ts, source_seq,$audit_columns row_hash
-    from {{ ref('$staging') }}
-    where $hk is not null
+$incoming
 )
 
 select * from incoming i

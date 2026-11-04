@@ -101,9 +101,10 @@ def compare(a_path, b_path):
                                     "and table_schema='raw_vault' order by 1").fetchall()]
     diffs = [] if ta == tb else ["table lists differ"]
     for t in ta:
-        n = con.execute("select count(*) from ((select * from a.raw_vault.%s except all select * from b.raw_vault.%s) "
-                        "union all (select * from b.raw_vault.%s except all select * from a.raw_vault.%s))"
-                        % (t, t, t, t)).fetchone()[0]
+        # load_run names the dbt run that wrote a row; it differs between two loads of the same extracts by design.
+        x = "select * exclude (load_run) from %s.raw_vault.%s"
+        n = con.execute("select count(*) from ((%s except all %s) union all (%s except all %s))"
+                        % (x % ("a", t), x % ("b", t), x % ("b", t), x % ("a", t))).fetchone()[0]
         if n:
             diffs.append("%s: %d rows differ" % (t, n))
     con.close()
@@ -138,6 +139,24 @@ def reconstruction(db, root):
         key = '"%s"' % f["key"].split(".")[-1] if f["kind"] == "reference" else "hk_" + f["parent"][4:]
         on = " and ".join('st."%s" is not distinct from v."%s"' % (c, c) for c in cols)
         milestone = f.get("satellite_kind") == "milestone"
+        if f.get("satellite_kind") == "reading":
+            rk = [subj for subj, fl in s["Columns"] if fl.get("reading_key") == "yes"][0]
+            sql = """
+                select count(*), count(*) filter (where st.{key} is null or struct_pack({spack}) is distinct from struct_pack({vpack}))
+                from {stg} v left join raw_vault.{name} st on st.{key} = v.{key} and st."{rk}" = v."{rk}"
+                where v.{key} is not null
+            """.format(key=key, rk=rk, stg=stg, name=name,
+                       spack=", ".join('"%s" := st."%s"' % (c, c) for c in cols),
+                       vpack=", ".join('"%s" := v."%s"' % (c, c) for c in cols))
+            try:
+                n, bad = con.execute(sql).fetchone()
+            except Exception as e:
+                problems.append("%s: %s" % (name, str(e)[:300]))
+                continue
+            checked += n
+            if bad:
+                problems.append("%s: %d of %d readings do not match" % (name, bad, n))
+            continue
         sql = """
             with versions as (select {key} as k, source_ts, source_seq, {cols} from {stg} where {key} is not null),
             as_of as (
@@ -173,6 +192,7 @@ def main():
     ap.add_argument("--project", default=None, help="generated dbt project (default: the repository's)")
     args = ap.parse_args()
     runner = runner_module(args.root)
+    import duckdb
     project = args.project or os.path.join(args.root, "prototypes", "wwi_sandbox", "dbt")
     profiles = os.path.join(args.root, "prototypes", "wwi_sandbox", "profiles")
     days = sorted(d for d in os.listdir(args.extracts) if os.path.isfile(os.path.join(args.extracts, d, "manifest.json")))
@@ -231,7 +251,6 @@ def main():
     #    carrying the values of t1 (143 section 6 item 6).
     p5 = fresh(args.work, "late", project, profiles)
     shutil.copy(pc.warehouse, p5.warehouse)
-    import duckdb
     con = duckdb.connect(p5.warehouse, read_only=True)
     order_id, hk, t1, comments = con.execute(
         'select "OrderID", hk_sales_order, "LastEditedWhen", "Comments" from staging.stg_wwi__sales__orders '
@@ -263,6 +282,65 @@ def main():
         got = [(r[0], r[1]) for r in rows]
         results["late"] = ("ok, late version and restatement inserted (%s)" % warned if got == expect
                            else "FAILED expected %s, got %s" % (expect, rows))
+
+    # 6. failed rebuild of a date that succeeded: a satellite added later is first built wrong and fails, then right;
+    #    the result must equal building it right at once (second review, finding 1).
+    expect_db = fresh(args.work, "added_right", project, profiles)
+    shutil.copy(pc.warehouse, expect_db.warehouse)
+    p6 = fresh(args.work, "added_wrong_then_right", project, profiles)
+    shutil.copy(pc.warehouse, p6.warehouse)
+    for db in (expect_db, p6):
+        con = duckdb.connect(db.warehouse)
+        con.execute("drop table raw_vault.sat_customer__wwi")
+        con.close()
+    ok_r, s_r = dbt_build(runner, expect_db, last)
+    p6.project = bad_project
+    ok_w, s_w = dbt_build(runner, p6, last)
+    p6.project = project
+    ok_f, s_f = dbt_build(runner, p6, last)
+    tables, diffs = compare(expect_db.warehouse, p6.warehouse)
+    con = duckdb.connect(p6.warehouse, read_only=True)
+    upper_left = con.execute('select count(*) from raw_vault.sat_customer__wwi where "CustomerName" <> lower("CustomerName") '
+                             'and "CustomerName" = upper("CustomerName")').fetchone()[0]
+    con.close()
+    results["rebuilt"] = ("ok, the failed attempt's rows were removed on the retry of a date that had succeeded"
+                          if ok_r and not ok_w and ok_f and not diffs and upper_left == 0 else
+                          "FAILED right=%s wrong=%s fixed=%s diffs=%s upper=%d" % (ok_r, ok_w, ok_f, diffs, upper_left))
+
+    # 7. a deletion closed by the source, then 8. a full table delivered empty (second review, findings 4 and 5)
+    p7 = fresh(args.work, "closed_empty", project, profiles)
+    shutil.copy(pc.warehouse, p7.warehouse)
+    d7, d8 = base + dt.timedelta(days=1), base + dt.timedelta(days=2)
+    closed_at = "%sT14:37:12.1234567" % days[-1]
+    land(runner, p7, os.path.join(args.extracts, days[-1]), d7)
+    con = duckdb.connect(p7.warehouse)
+    pid = con.execute('select max("PersonID") from landing.application__people').fetchone()[0]
+    con.execute('insert into landing.application__people_archive by name '
+                'select * exclude ("ValidTo"), \'%s\' as "ValidTo" from landing.application__people where "PersonID" = \'%s\''
+                % (closed_at, pid))
+    con.execute('delete from landing.application__people where "PersonID" = \'%s\'' % pid)
+    con.close()
+    ok7, s7 = dbt_build(runner, p7, d7)
+    log_row(runner, p7, d7, "ok" if ok7 else "failed")
+    land(runner, p7, os.path.join(args.extracts, days[-1]), d8)
+    con = duckdb.connect(p7.warehouse)
+    n_orders = con.execute("select count(*) from landing.sales__orders").fetchone()[0]
+    con.execute("delete from landing.sales__orders")
+    con.close()
+    ok8, s8 = dbt_build(runner, p7, d8)
+    con = duckdb.connect(p7.warehouse, read_only=True)
+    sts7 = con.execute("select s.status, s.source_closed_at, s.load_date from raw_vault.sts_person__wwi s join "
+                       "raw_vault.hub_person h using (hk_person) where h.\"PersonID\" = ? and s.load_date = ?",
+                       [int(pid), d7]).fetchall()
+    sts8 = con.execute("select count(*), count(load_date), count(batch_id) from raw_vault.sts_sales_order__wwi "
+                       "where status = 'absent-unresolved' and load_date = ?", [d8]).fetchone()
+    nulls = con.execute("select count(*) from raw_vault.sts_sales_order__wwi where load_date is null").fetchone()[0]
+    con.close()
+    results["closed"] = ("ok, the source's closing time kept: %s" % (sts7,)
+                         if ok7 and sts7 == [("absent-unresolved", closed_at, d7)] else "FAILED %s %s" % (sts7, s7[:300]))
+    results["empty"] = ("ok, %d orders marked absent, all dated" % sts8[0]
+                        if ok8 and sts8[0] == n_orders and sts8[1] == sts8[2] == n_orders and nulls == 0
+                        else "FAILED ok=%s %s nulls=%d expected %d %s" % (ok8, sts8, nulls, n_orders, s8[:300]))
 
     for k, v in results.items():
         print("%-8s %s" % (k, v))

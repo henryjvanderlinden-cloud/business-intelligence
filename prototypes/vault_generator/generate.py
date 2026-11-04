@@ -21,7 +21,7 @@ import os
 import string
 import sys
 
-GENERATOR_VERSION = "0.1.0"
+GENERATOR_VERSION = "0.2.0"
 HERE = os.path.dirname(os.path.abspath(__file__))
 GENERATED_DIRS = ("models/staging/wwi", "models/raw_vault", "tests/generated")
 
@@ -32,6 +32,7 @@ TYPE_MAP = {"int": "INTEGER", "bigint": "BIGINT", "smallint": "SMALLINT", "tinyi
 INTEGER_TYPES = {"int", "bigint", "smallint", "tinyint"}
 TEXT_TYPES = {"nvarchar", "varchar", "nchar", "char"}
 NULL_MARK = "\\N"
+LOAD_RUN = "'{{ invocation_id }}' as load_run"   # the dbt run that wrote the row (143 section 8 item 3)
 
 
 class Unsupported(Exception):
@@ -152,7 +153,8 @@ class Generator:
         self.key_case = self.m.src["key_case"]
         self.templates = {}
         self.files = {}
-        self.staging = {}       # table -> dict of what its staging view must compute
+        self.staging = {}         # table -> what its staging view must compute
+        self.lookup_sources = set()
         for t in scope:
             if t not in self.m.base:
                 raise Unsupported("scope table %s is not a base table of %s" % (t, self.m.src_rel))
@@ -179,27 +181,36 @@ class Generator:
 
     def stg(self, table):
         if table not in self.staging:
-            self.staging[table] = {"hash_keys": {}, "hashdiffs": {}, "never": set()}
+            self.staging[table] = {"hash_keys": {}, "hashdiffs": {}, "never": set(), "lookups": {}}
         return self.staging[table]
 
-    def prep(self, table, col):
+    def rs(self, table):
+        return "%s:%s" % (self.source, table)
+
+    def has_versions(self, table):
+        fl = self.m.base[table]
+        return fl.get("system_time", "none") != "none" or fl.get("audit", "none") != "none"
+
+    def prep(self, table, col, expr=None):
         """143 section 3 item 3: the fixed text form of one key part, or NULL when empty."""
         c = self.m.columns(table)[col]
         t = c["type_name"]
+        e = expr or q(col)
         if t in INTEGER_TYPES:
-            return "cast(%s as varchar)" % q(col)
+            return "cast(%s as varchar)" % e
         if t in TEXT_TYPES:
-            inner = "upper(trim(%s))" % q(col) if self.key_case == "fold" else "trim(%s)" % q(col)
+            inner = "upper(trim(%s))" % e if self.key_case == "fold" else "trim(%s)" % e
             return "nullif(%s, '')" % escaped(inner)
         raise Unsupported("key column %s.%s of type %s: key preparation not defined in this version" % (table, col, t))
 
     def hk_expr(self, table, ends):
-        """ends: [(key_space, [cols])]; the hash input is key space and parts of each end, joined by |."""
+        """ends: [(key_space, parts)]; a part is a column of the table, or (type_table, column, expression) for a
+        value found by lookup. The hash input is the key space and parts of each end, joined by |."""
         pieces, checks = [], []
-        for ks, cols in ends:
+        for ks, parts in ends:
             pieces.append("'%s'" % ks)
-            for col in cols:
-                p = self.prep(table, col)
+            for part in parts:
+                p = self.prep(*part) if isinstance(part, tuple) else self.prep(table, part)
                 pieces.append(p)
                 checks.append("%s is null" % p)
         return "case when %s then null else sha256(%s) end" % (" or ".join(checks), " || '|' || ".join(pieces))
@@ -214,10 +225,11 @@ class Generator:
         return table, cols, flags["key_space"]
 
     def pre_hook(self):
-        # 143 section 8 item 3: delete this batch's rows only while the batch has no successful load.
+        # 143 section 8 item 3: delete this batch's rows written by any dbt run that did not succeed (a failed
+        # attempt, also of a date that succeeded before); rows of a successful run are never deleted.
         return ("{% if is_incremental() %}delete from {{ this }} where batch_id = '" + self.source +
-                ":{{ var('load_date') }}' and not exists (select 1 from nsdn_meta.load_log where load_date = "
-                "cast('{{ var('load_date') }}' as date) and status = 'ok'){% endif %}")
+                ":{{ var('load_date') }}' and load_run not in (select invocation_id from nsdn_meta.dbt_invocations "
+                "where ok){% endif %}")
 
     # ------------------------------------------------------------------ selection
     def select(self):
@@ -237,19 +249,28 @@ class Generator:
                 t_to, c_to = key_parts(ends["to"][0])
                 if t_from != t_to:
                     raise Unsupported("%s: ends from different tables" % f["name"])
-                if t_from in self.scope:
-                    if "resolve" in ends["to"][1] or kept:
-                        raise Unsupported("%s: resolve= and kept= are not supported in this version" % f["name"])
-                    if f.get("driving") in (None, "none"):
-                        raise Unsupported("%s: bridge links (driving none) are not supported in this version" % f["name"])
-                    links[f["name"]] = (rel, f, t_from, c_from, c_to, ends["from"][1])
+                if t_from not in self.scope:
+                    continue
+                bridge = f.get("driving") in (None, "none")
+                kept_cols = []
+                for subj, fl in kept:
+                    kt, kc = split_qualified(subj)
+                    if not (bridge and fl["kept"].startswith("effectivity satellite") and kt == t_from):
+                        raise Unsupported("%s: kept=%s is supported only on a bridge, in its effectivity" % (f["name"], fl["kept"]))
+                    kept_cols.append(kc)
+                resolve = None
+                if "resolve" in ends["to"][1]:
+                    resolve = self.parse_resolve(f["name"], ends["to"][1]["resolve"], t_from, c_to)
+                links[f["name"]] = dict(rel=rel, f=f, table=t_from, c_from=c_from, c_to=c_to,
+                                        from_flags=ends["from"][1], bridge=bridge, kept=kept_cols, resolve=resolve)
         sats = {}
         for rel, f, s in self.m.accepted("satellite"):
             if f["source_table"] in self.scope:
                 if f["parent"] not in hubs:
-                    raise Unsupported("%s: parent %s is not generated (link satellites not supported)" % (f["name"], f["parent"]))
-                if f["satellite_kind"] not in ("payload", "milestone"):
-                    raise Unsupported("%s: %s satellites are not supported in this version" % (f["name"], f["satellite_kind"]))
+                    raise Unsupported("%s: parent %s is not generated (its table is not in scope, or it is a link)"
+                                      % (f["name"], f["parent"]))
+                if f["satellite_kind"] not in ("payload", "milestone", "reading"):
+                    raise Unsupported("%s: %s satellites are not supported" % (f["name"], f["satellite_kind"]))
                 sats[f["name"]] = (rel, f, s)
         refs = {}
         for rel, f, s in self.m.accepted("reference"):
@@ -257,63 +278,94 @@ class Generator:
                 refs[f["name"]] = (rel, f, s)
         return hubs, links, sats, refs
 
+    def parse_resolve(self, name, value, table, c_to):
+        """'Application.Countries.CountryID to Application.Countries.IsoAlpha3Code, same extract'."""
+        try:
+            spec, where = [x.strip() for x in value.split(",", 1)]
+            a, b = [x.strip() for x in spec.split(" to ")]
+        except ValueError:
+            raise Unsupported("%s: resolve=%r not understood" % (name, value))
+        (ta, ca), (tb, cb) = split_qualified(a), split_qualified(b)
+        if ta != tb or where != "same extract" or len(c_to) != 1:
+            raise Unsupported("%s: only a lookup within one table of the same extract is supported" % name)
+        return dict(table=ta, key=ca, value=cb, own=c_to[0])
+
     # ------------------------------------------------------------------ the objects
     def gen_hub(self, name, rel, f, table, cols, ks):
         st = self.stg(table)
         hk = "hk_" + bare(name, "hub_")
         st["hash_keys"][hk] = self.hk_expr(table, [(ks, cols)])
         sel = ",\n        ".join(["%s" % hk, "'%s' as key_space" % ks] + [q(c) for c in cols] +
-                                 ["load_date", "batch_id", "record_source", "source_ts", "source_seq"])
+                                 ["load_date", "batch_id", "record_source", "source_ts", "source_seq", LOAD_RUN])
         incoming = ("    select\n        %s\n    from {{ ref('%s') }}\n    where %s is not null"
                     % (sel, staging_name(self.source, table), hk))
         cols_out = ", ".join([hk, "key_space"] + [q(c) for c in cols] +
-                             ["load_date", "batch_id", "record_source", "source_ts", "source_seq"])
+                             ["load_date", "batch_id", "record_source", "source_ts", "source_seq", "load_run"])
         body = string.Template(self.template("hub.sql")).substitute(
             pre_hook=self.pre_hook(), incoming=incoming, hk=hk, columns=cols_out)
         self.emit("models/raw_vault/hubs/%s.sql" % name, self.header(rel, f["id"], "hub.sql") + "\n" + body)
         return hk
 
-    def gen_audit(self, hub, table, hk):
-        name = "sat_%s__%s__audit" % (bare(hub, "hub_"), self.source)
-        audit = self.m.base[table].get("audit", "none")
-        audit_cols = " %s," % q(audit) if audit != "none" else ""
+    def gen_audit(self, name, rel, decl_id, owner_kind, hk, tables):
+        """One audit satellite for a hub (or a bridge link), over every table that delivers versions of it."""
+        audit_cols = sorted({self.m.base[t].get("audit") for t in tables} - {"none", None})
+        if len(audit_cols) > 1:
+            raise Unsupported("%s: tables name their audit column differently: %s" % (name, audit_cols))
+        selects = []
+        for t in tables:
+            ac = self.m.base[t].get("audit", "none")
+            if audit_cols:
+                typ = duck_type(self.m.columns(t)[ac]) if ac != "none" else duck_type(
+                    self.m.columns([x for x in tables if self.m.base[x].get("audit", "none") != "none"][0])[audit_cols[0]])
+                col = "%s as %s, " % (q(ac), q(audit_cols[0])) if ac != "none" else "cast(null as %s) as %s, " % (typ, q(audit_cols[0]))
+            else:
+                col = ""
+            selects.append("    select %s, load_date, batch_id, record_source, source_ts, source_seq, %srow_hash,\n"
+                           "           '{{ invocation_id }}' as load_run\n    from {{ ref('%s') }}\n    where %s is not null"
+                           % (hk, col, staging_name(self.source, t), hk))
         body = string.Template(self.template("audit.sql")).substitute(
-            pre_hook=self.pre_hook(), hk=hk, audit_columns=audit_cols, staging=staging_name(self.source, table))
-        rel = self.m.by_name[hub][0]
+            pre_hook=self.pre_hook(), hk=hk, owner_kind=owner_kind, incoming="\n    union all by name\n".join(selects))
         self.emit("models/raw_vault/satellites/%s/%s.sql" % (self.source, name),
-                  self.header(rel, self.m.by_name[hub][1]["id"] + " (by rule: audit, 149 Rule 3)", "audit.sql") + "\n" + body)
-        return name
+                  self.header(rel, decl_id + " (by rule: audit, 149 Rule 3)", "audit.sql") + "\n" + body)
 
-    def gen_status(self, hub, table, hk):
-        name = "sts_%s__%s" % (bare(hub, "hub_"), self.source)
+    def gen_status(self, name, rel, decl_id, title, table, hk, kept=()):
         body = string.Template(self.template("status.sql")).substitute(
-            pre_hook=self.pre_hook(), hk=hk, staging=staging_name(self.source, table),
-            record_source="%s:%s" % (self.source, table))
-        rel = self.m.by_name[hub][0]
+            pre_hook=self.pre_hook(), hk=hk, staging=staging_name(self.source, table), source=self.source,
+            record_source=self.rs(table), title=title,
+            kept_present="".join(", any_value(%s) as %s" % (q(c), q(c)) for c in kept),
+            kept_select="".join("\n    p.%s," % q(c) for c in kept))
         self.emit("models/raw_vault/satellites/%s/%s.sql" % (self.source, name),
-                  self.header(rel, self.m.by_name[hub][1]["id"] + " (by rule: status tracking, 149 Rule 7)", "status.sql") + "\n" + body)
-        return name
+                  self.header(rel, decl_id, "status.sql") + "\n" + body)
 
-    def gen_link(self, name, rel, f, table, c_from, c_to, hub_info):
+    def gen_link(self, name, L, hubs):
+        f, table = L["f"], L["table"]
         st = self.stg(table)
         lb = bare(name, "lnk_")
         hk = "hk_" + lb
-        ks_from, ks_to = hub_info[f["from"]][4], hub_info[f["to"]][4]
-        st["hash_keys"][hk] = self.hk_expr(table, [(ks_from, c_from), (ks_to, c_to)])
-        st["hash_keys"][hk + "__from"] = self.hk_expr(table, [(ks_from, c_from)])
-        st["hash_keys"][hk + "__to"] = self.hk_expr(table, [(ks_to, c_to)])
+        ks_from, ks_to = hubs[f["from"]][4], hubs[f["to"]][4]
+        to_parts = L["c_to"]
+        if L["resolve"]:
+            r = L["resolve"]
+            alias = "lk_" + landing_name(r["table"])
+            st["lookups"][alias] = (r, self.m.base[r["table"]])
+            self.lookup_sources.add(r["table"])
+            to_parts = [(r["table"], r["value"], "%s._value" % alias)]
+        st["hash_keys"][hk] = self.hk_expr(table, [(ks_from, L["c_from"]), (ks_to, to_parts)])
+        st["hash_keys"][hk + "__from"] = self.hk_expr(table, [(ks_from, L["c_from"])])
+        st["hash_keys"][hk + "__to"] = self.hk_expr(table, [(ks_to, to_parts)])
         from_col = "hk_" + bare(f["from"], "hub_")
         to_col = "hk_" + bare(f["to"], "hub_")
         if to_col == from_col:
             to_col = "hk_" + lb.split("__", 1)[1]
         sel = ",\n        ".join([hk, "%s__from as %s" % (hk, from_col), "%s__to as %s" % (hk, to_col),
-                                  "load_date", "batch_id", "record_source", "source_ts", "source_seq"])
+                                  "load_date", "batch_id", "record_source", "source_ts", "source_seq", LOAD_RUN])
         incoming = ("    select\n        %s\n    from {{ ref('%s') }}\n    where %s is not null"
                     % (sel, staging_name(self.source, table), hk))
-        cols_out = ", ".join([hk, from_col, to_col, "load_date", "batch_id", "record_source", "source_ts", "source_seq"])
+        cols_out = ", ".join([hk, from_col, to_col, "load_date", "batch_id", "record_source", "source_ts", "source_seq",
+                              "load_run"])
         body = string.Template(self.template("link.sql")).substitute(
             pre_hook=self.pre_hook(), incoming=incoming, hk=hk, columns=cols_out)
-        self.emit("models/raw_vault/links/%s.sql" % name, self.header(rel, f["id"], "link.sql") + "\n" + body)
+        self.emit("models/raw_vault/links/%s.sql" % name, self.header(L["rel"], f["id"], "link.sql") + "\n" + body)
         return hk, from_col, to_col
 
     def gen_satellite_like(self, path, rel, decl_id, kind_note, table, hk_src, hk_out, valid_from, basis,
@@ -326,29 +378,51 @@ class Generator:
         body = string.Template(self.template("satellite.sql")).substitute(
             pre_hook=self.pre_hook(), kind_note=kind_note, hk_src=hk_src, hk_out=hk_out, valid_from=valid_from,
             basis=basis, hashdiff=hashdiff, null_hd=null_hd, payload_incoming=payload_incoming,
-            payload_plain=payload_plain, payload_select=payload_select, known_audit=audit_union,
+            payload_plain=payload_plain, payload_select=payload_select, known_audit=audit_union, source=self.source,
             staging=staging_name(self.source, table))
         self.emit(path, self.header(rel, decl_id, tpl_label) + "\n" + body)
 
-    def audit_union(self, audit_name, hk):
-        return ("\n    union\n    select %s, record_source, source_ts, source_seq from {{ ref('%s') }}" % (hk, audit_name))
+    def audit_union(self, audit, hk_in_audit, table):
+        """The versions the audit satellite knows of this table (143 section 6 item 6), if there is an audit."""
+        if not audit or table not in audit[2]:
+            return ""
+        return ("\n    union\n    select %s, record_source, source_ts, source_seq from {{ ref('%s') }}\n"
+                "    where record_source = '%s'" % (hk_in_audit, audit[0], self.rs(table)))
 
     def valid_from_expr(self, table, value):
-        if value in ("unknown", "none; sampled", "none"):
-            return "cast(null as timestamp_ns)", "unknown" if value == "unknown" else "sampled"
-        t, col = split_qualified(value)
+        """The declared valid time: its leading term only; what follows it is a note for people."""
+        v = value.strip()
+        if v.startswith("unknown"):
+            return "cast(null as timestamp_ns)", "unknown"
+        if v.startswith("none"):
+            return "cast(null as timestamp_ns)", "sampled"
+        t, col = split_qualified(v.split()[0])
         if t != table:
             raise Unsupported("valid time %s from another table" % value)
         return q(col), "column"
 
-    def gen_satellite(self, name, rel, f, s, hub_info, audits):
-        table = f["source_table"]
-        parent = f["parent"]
-        h_table, h_cols, ks = hub_info[parent][2], hub_info[parent][3], hub_info[parent][4]
+    def satellite_parent(self, name, f, hubs, mandatory):
+        """The staging column with the parent's hash key; computed when the satellite's table is not the hub's own."""
+        table, parent = f["source_table"], f["parent"]
+        h_table, h_cols, ks = hubs[parent][2], hubs[parent][3], hubs[parent][4]
         p_table, p_cols = key_parts(f["parent_key"])
-        if p_table != table or table != h_table or p_cols != h_cols:
-            raise Unsupported("%s: a satellite whose parent key is not its hub's key in the same table" % name)
+        if p_table != table:
+            raise Unsupported("%s: parent_key from another table" % name)
         hk = "hk_" + bare(parent, "hub_")
+        if table == h_table and p_cols == h_cols:
+            return hk
+        if table == h_table:
+            raise Unsupported("%s: a parent key other than the hub's key in the hub's own table" % name)
+        st = self.stg(table)
+        expr = self.hk_expr(table, [(ks, p_cols)])
+        if st["hash_keys"].get(hk, expr) != expr:
+            raise Unsupported("%s: two different keys of %s in %s" % (name, parent, table))
+        st["hash_keys"][hk] = expr
+        mandatory.setdefault(table, set()).add("%s is null" % hk)
+        return hk
+
+    def gen_satellite(self, name, rel, f, s, hk, audit):
+        table = f["source_table"]
         st = self.stg(table)
         cols = []
         for subj, fl in s["Columns"]:
@@ -370,33 +444,53 @@ class Generator:
                 if milestone else "Payload satellite (143 section 5 item 3).")
         self.gen_satellite_like("models/raw_vault/satellites/%s/%s.sql" % (self.source, name), rel, f["id"], note,
                                 table, hk, hk, vf, basis, hd, null_hd, [(c, q(c)) for c in cols],
-                                self.audit_union(audits[parent], hk), "satellite.sql")
+                                self.audit_union(audit, hk, table), "satellite.sql")
 
-    def gen_effectivity(self, name, rel, f, table, c_from, from_flags, hub_info, audits, link_cols):
+    def gen_reading(self, name, rel, f, s, hk):
+        table = f["source_table"]
+        cols, keys = [], []
+        for subj, fl in s["Columns"]:
+            cols.append(subj)
+            for flag in fl:
+                if flag not in ("reading_key", "repeats"):
+                    raise Unsupported("%s: column flag %s not supported on a reading" % (name, flag))
+            if fl.get("reading_key") == "yes":
+                keys.append(subj)
+        if len(keys) != 1:
+            raise Unsupported("%s: a reading needs exactly one reading_key" % name)
+        vf, basis = self.valid_from_expr(table, f["valid_time"])
+        body = string.Template(self.template("reading.sql")).substitute(
+            pre_hook=self.pre_hook(), hk_src=hk, hk_out=hk, valid_from=vf, basis=basis, reading_key=q(keys[0]),
+            payload=",\n".join("        %s" % q(c) for c in cols), payload_out=",\n".join("    %s" % q(c) for c in cols),
+            staging=staging_name(self.source, table))
+        self.emit("models/raw_vault/satellites/%s/%s.sql" % (self.source, name),
+                  self.header(rel, f["id"], "reading.sql") + "\n" + body)
+        return keys[0]
+
+    def gen_effectivity(self, name, L, hubs, audit):
+        f, table, c_from = L["f"], L["table"], L["c_from"]
         driving = f["driving"]
-        h_table, h_cols = hub_info[driving][2], hub_info[driving][3]
+        h_table, h_cols = hubs[driving][2], hubs[driving][3]
         if table != h_table or c_from != h_cols:
             raise Unsupported("%s: effectivity whose driving end is not its hub's key in the same table" % name)
         lb = bare(name, "lnk_")
         hk_link = "hk_" + lb
         hk_drv = "hk_" + bare(driving, "hub_")
-        start = from_flags.get("effectivity_start", "unknown")
+        start = L["from_flags"].get("effectivity_start", "unknown")
         if start == "load":
             vf, basis = "load_date", "load"
         elif start == "unknown":
             vf, basis = "cast(null as timestamp_ns)", "unknown"
-        elif start == "presence in a complete extract":
-            raise Unsupported("%s: effectivity by presence is not supported in this version" % name)
         else:
             vf, basis = self.valid_from_expr(table, start)
         eff = "eff_%s__%s" % (lb, self.source)
         note = ("Effectivity satellite (143 section 5 item 8; 149 Rule 6): per driving key, which link is current from "
                 "each source version; empty when none. Ended is derived from the next row. Milestone rule: starts at "
                 "the first version with a link.")
-        self.gen_satellite_like("models/raw_vault/satellites/%s/%s.sql" % (self.source, eff), rel,
+        self.gen_satellite_like("models/raw_vault/satellites/%s/%s.sql" % (self.source, eff), L["rel"],
                                 f["id"] + " (by rule: effectivity, 149 Rule 6)", note, table, hk_link + "__from",
                                 hk_drv, vf, basis, "coalesce(%s, '%s')" % (hk_link, NULL_MARK), "'%s'" % NULL_MARK,
-                                [(hk_link, hk_link)], self.audit_union(audits[driving], hk_drv), "satellite.sql")
+                                [(hk_link, hk_link)], self.audit_union(audit, hk_drv, table), "satellite.sql")
         return eff
 
     def gen_reference(self, name, rel, f, s):
@@ -430,7 +524,7 @@ class Generator:
         else:
             src_ts = "cast(%s as timestamp_ns)" % q(sys_time[0])
             # The period end is kept as delivered text: SQL Server's open end, 9999-12-31, lies beyond TIMESTAMP_NS,
-            # and the fixed ISO form with seven decimals sorts correctly as text (143 section 4 item 4).
+            # and the fixed ISO form with seven decimals sorts correctly as text (143 section 13 item 2).
             src_end = q(end_col) if end_col else "cast(null as varchar)"
         pk = self.m.pk(table)
         typed = []
@@ -443,13 +537,25 @@ class Generator:
                 typed.append("        cast(null as %s) /* load=never, ADR-0033 */ as %s" % (t, q(n)))
             else:
                 typed.append("        cast(%s as %s) as %s" % (q(n), t, q(n)))
+        lookups = ""
+        for alias, (r, rfl) in sorted(st["lookups"].items()):
+            kt = duck_type(self.m.columns(r["table"])[r["key"]])
+            vt = duck_type(self.m.columns(r["table"])[r["value"]])
+            # 143 section 13 item 10: a key named by another identifier is resolved in the same extract, from the
+            # current rows of the named table.
+            lookups += ("\nleft join (\n    select distinct cast(%s as %s) as _key, cast(%s as %s) as _value\n"
+                        "    from {{ source('landing_%s', '%s') }}\n) %s on %s._key = typed.%s"
+                        % (q(r["key"]), kt, q(r["value"]), vt, self.source, landing_name(r["table"]),
+                           alias, alias, q(r["own"])))
         hashdiffs = "".join("        %s as %s,\n" % (e, k) for k, e in sorted(st["hashdiffs"].items()))
         hash_keys = "".join(",\n    %s as %s" % (e, k) for k, e in sorted(st["hash_keys"].items()))
         body = string.Template(self.template("staging.sql")).substitute(
+            source=self.source, pk_raw=", ".join(q(c) for c in pk), period_end_raw=(", " + q(end_col)) if end_col else "",
             delivered=delivered, row_hash_input=hash_text([n for n in names if n != end_col]),
-            source=self.source, pk_raw=", ".join(q(c) for c in pk), period_end_raw=(", " + q(end_col)) if end_col else "", pk_typed=", ".join(q(c) for c in pk),
-            record_source="%s:%s" % (self.source, table), source_ts=src_ts, source_end=src_end,
-            hashdiffs=hashdiffs.rstrip("\n"), typed_columns=",\n".join(typed), hash_keys=hash_keys)
+            pk_typed=", ".join("typed.%s" % q(c) for c in pk),
+            record_source=self.rs(table), source_ts=src_ts, source_end=src_end,
+            hashdiffs=hashdiffs.rstrip("\n"), typed_columns=",\n".join(typed), hash_keys=hash_keys,
+            select_all="typed.*" if lookups else "*", lookups=lookups)
         self.emit("models/staging/%s/%s.sql" % (self.source, staging_name(self.source, table)),
                   self.header(self.m.src_rel, self.m.src["id"] + " / " + table + " (catalogue " + fl["catalogue"] + ")",
                               "staging.sql") + "\n" + body)
@@ -459,27 +565,28 @@ class Generator:
         y = ["version: 2", "", "sources:", "  - name: landing_%s" % self.source, "    schema: landing",
              "    description: The latest complete extract as landed by runner.py (text), replaced every load.",
              "    tables:"]
-        for t in sorted(self.staging):
+        for t in sorted(set(self.staging) | self.lookup_sources):
             y.append("      - name: %s" % landing_name(t))
             h = self.m.base[t].get("history", "none")
-            if h != "none":
+            if h != "none" and t in self.staging:
                 y.append("      - name: %s" % landing_name(h))
         self.emit("models/staging/%s/_sources.yml" % self.source,
                   self.header(self.m.src_rel, self.m.src["id"], "(sources)", "#") + "\n" + "\n".join(y) + "\n")
+
+        def rel_test(to_model, field):
+            return "          - relationships: {arguments: {to: \"ref('%s')\", field: %s}}" % (to_model, field)
+
         y = ["version: 2", "", "models:"]
         for name, (hk, from_col, to_col, from_hub, to_hub) in sorted(links.items()):
             y += ["  - name: %s" % name, "    columns:",
                   "      - name: %s" % hk, "        data_tests: [unique, not_null]",
-                  "      - name: %s" % from_col, "        data_tests:",
-                  "          - relationships: {arguments: {to: \"ref('%s')\", field: %s}}" % (from_hub, "hk_" + bare(from_hub, "hub_")),
-                  "      - name: %s" % to_col, "        data_tests:",
-                  "          - relationships: {arguments: {to: \"ref('%s')\", field: %s}}" % (to_hub, "hk_" + bare(to_hub, "hub_"))]
+                  "      - name: %s" % from_col, "        data_tests:", rel_test(from_hub, "hk_" + bare(from_hub, "hub_")),
+                  "      - name: %s" % to_col, "        data_tests:", rel_test(to_hub, "hk_" + bare(to_hub, "hub_"))]
         for name, hk in sorted(hubs.items()):
             y += ["  - name: %s" % name, "    columns:", "      - name: %s" % hk, "        data_tests: [unique, not_null]"]
-        for name, (hk, hub) in sorted(sats_all.items()):
+        for name, (hk, parent, field, kind) in sorted(sats_all.items()):
             y += ["  - name: %s" % name, "    columns:", "      - name: %s" % hk, "        data_tests:",
-                  "          - not_null",
-                  "          - relationships: {arguments: {to: \"ref('%s')\", field: %s}}" % (hub, "hk_" + bare(hub, "hub_"))]
+                  "          - not_null", rel_test(parent, field)]
         self.emit("models/raw_vault/_generated.yml",
                   self.header(self.m.src_rel, "all generated raw-vault models", "(tests)", "#") + "\n" + "\n".join(y) + "\n")
 
@@ -487,85 +594,136 @@ class Generator:
             cfg = "{{ config(severity='%s') }}\n\n" % severity if severity else ""
             self.emit("tests/generated/%s.sql" % name, self.header(self.m.src_rel, name, rel) + "\n" + cfg + sql)
 
-        for name, (hk, hub) in sorted(sats_all.items()):
-            if name.startswith("sts_"):
-                key = "%s, load_date" % hk
-            else:
-                key = "%s, record_source, source_ts, source_seq" % hk
+        for name, (hk, parent, field, kind) in sorted(sats_all.items()):
+            key = {"status": "%s, load_date" % hk, "reading": "%s, %s" % (hk, kind[1] if isinstance(kind, tuple) else ""),
+                   }.get(kind if isinstance(kind, str) else kind[0], "%s, record_source, source_ts, source_seq" % hk)
             test("%s__version_unique" % name,
-                 "-- 143 section 10 item 2: one row per parent and source version.\nselect %s, count(*) as n\n"
-                 "from {{ ref('%s') }}\ngroup by all\nhaving count(*) > 1\n" % (key, name))
-        for hub, (audit, hk, table) in sorted(audits.items()):
-            stg = staging_name(self.source, table)
-            test("%s__complete" % audit,
-                 "-- 143 section 10 item 3: every source version delivered now is in the audit satellite, exactly once.\n"
-                 "select s.%s, s.record_source, s.source_ts, s.source_seq\nfrom {{ ref('%s') }} s\n"
-                 "where s.%s is not null\n  and (select count(*) from {{ ref('%s') }} a\n"
-                 "       where a.%s = s.%s and a.record_source = s.record_source\n"
-                 "         and a.source_ts is not distinct from s.source_ts and a.source_seq = s.source_seq) <> 1\n"
-                 % (hk, stg, hk, audit, hk, hk))
-            test("%s__rewritten_version" % audit,
-                 "-- 143 section 6 item 5 and section 10 item 4: the same source version delivered with different content.\n"
-                 "select s.%s, s.source_ts, s.source_seq\nfrom {{ ref('%s') }} s\njoin {{ ref('%s') }} a\n"
-                 "  on a.%s = s.%s and a.record_source = s.record_source\n"
-                 " and a.source_ts is not distinct from s.source_ts and a.source_seq = s.source_seq\n"
-                 "where a.row_hash <> s.row_hash\n" % (hk, stg, audit, hk, hk))
+                 "-- 143 section 10 item 2: one row per parent and source version (per reading for a reading).\n"
+                 "select %s, count(*) as n\nfrom {{ ref('%s') }}\ngroup by all\nhaving count(*) > 1\n" % (key, name))
+        for owner, (audit, hk, tables) in sorted(audits.items()):
+            for table in tables:
+                stg = staging_name(self.source, table)
+                tag = "%s__%s" % (audit, landing_name(table))
+                test("%s__complete" % tag,
+                     "-- 143 section 10 item 3: every source version delivered now is in the audit satellite, exactly once.\n"
+                     "select s.%s, s.record_source, s.source_ts, s.source_seq\nfrom {{ ref('%s') }} s\n"
+                     "where s.%s is not null\n  and (select count(*) from {{ ref('%s') }} a\n"
+                     "       where a.%s = s.%s and a.record_source = s.record_source\n"
+                     "         and a.source_ts is not distinct from s.source_ts and a.source_seq = s.source_seq) <> 1\n"
+                     % (hk, stg, hk, audit, hk, hk))
+                test("%s__rewritten_version" % tag,
+                     "-- 143 section 6 item 5 and section 10 item 4: the same source version delivered with different content.\n"
+                     "select s.%s, s.source_ts, s.source_seq\nfrom {{ ref('%s') }} s\njoin {{ ref('%s') }} a\n"
+                     "  on a.%s = s.%s and a.record_source = s.record_source\n"
+                     " and a.source_ts is not distinct from s.source_ts and a.source_seq = s.source_seq\n"
+                     "where a.row_hash <> s.row_hash\n" % (hk, stg, audit, hk, hk))
             test("%s__late_arrivals" % audit,
                  "-- 143 section 6 item 6 and section 10 item 5: versions of this batch older than one already loaded.\n"
-                 "select n.%s, n.source_ts, n.source_seq\nfrom {{ ref('%s') }} n\n"
+                 "select n.%s, n.record_source, n.source_ts, n.source_seq\nfrom {{ ref('%s') }} n\n"
                  "where n.batch_id = '%s:{{ var('load_date') }}'\n  and exists (select 1 from {{ ref('%s') }} o\n"
-                 "              where o.%s = n.%s and o.batch_id < n.batch_id\n"
+                 "              where o.%s = n.%s and o.record_source = n.record_source and o.batch_id < n.batch_id\n"
                  "                and (o.source_ts, o.source_seq) > (n.source_ts, n.source_seq))\n"
                  % (hk, audit, self.source, audit, hk, hk), severity="warn")
         for table in sorted(self.staging):
             stg = staging_name(self.source, table)
-            h = self.m.base[table].get("history", "none")
-            delivered = "select * from {{ source('landing_%s', '%s') }}" % (self.source, landing_name(table))
+            fl = self.m.base[table]
+            h = fl.get("history", "none")
+            names = [c["column_name"] for c in self.m.catalogue(table)["columns"]]
+            st_cols = self.m.ml.split_list(fl.get("system_time", "none"))
+            end_col = st_cols[1] if len(st_cols) == 2 else None
+            pk = ", ".join(q(c) for c in self.m.pk(table))
+            delivered = "select *, false as h from {{ source('landing_%s', '%s') }}" % (self.source, landing_name(table))
+            twice = "0"
             if h != "none":
-                delivered += "\n    union all by name\n    select * from {{ source('landing_%s', '%s') }}" % (
-                    self.source, landing_name(h))
+                delivered += ("\n    union all by name\n    select *, true as h from {{ source('landing_%s', '%s') }}"
+                              % (self.source, landing_name(h)))
+                twice = ("(select count(*) from k a where a.h and exists (select 1 from k b where not b.h "
+                         "and b.pk = a.pk and b.rh = a.rh and b.e is not distinct from a.e))")
             test("%s__nothing_dropped" % stg,
-                 "-- 143 section 10: every distinct delivered row reaches staging; only rows identical in every column\n"
-                 "-- are taken as one.\nselect d.n as delivered_distinct, s.n as staged\n"
-                 "from (select count(*) as n from (select distinct * from (\n    %s))) d,\n"
-                 "     (select count(*) as n from {{ ref('%s') }}) s\nwhere d.n <> s.n\n" % (delivered, stg))
+                 "-- 143 section 10: every delivered row reaches staging, except a history row identical to a current\n"
+                 "-- row (the same row delivered twice, 149 section 5).\n"
+                 "with d as (\n    %s\n),\nk as (\n    select h, (%s) as pk, sha256(%s) as rh, %s as e from d\n)\n"
+                 "select (select count(*) from k) - %s as expected, (select count(*) from {{ ref('%s') }}) as staged\n"
+                 "where (select count(*) from k) - %s <> (select count(*) from {{ ref('%s') }})\n"
+                 % (delivered, pk, hash_text([n for n in names if n != end_col]),
+                    q(end_col) if end_col else "null", twice, stg, twice, stg))
         for table, checks in sorted(mandatory.items()):
             stg = staging_name(self.source, table)
-            cond = "\n   or ".join(checks)
+            cond = "\n   or ".join(sorted(checks))
             test("%s__mandatory_keys" % stg,
-                 "-- 143 section 3 item 5 and section 10 item 6: a hub key or a mandatory link end that arrived empty.\n"
+                 "-- 143 section 3 item 5 and section 10 item 6: a hub key, a parent key or a mandatory link end that\n"
+                 "-- arrived empty, or that a lookup did not resolve.\n"
                  "select *\nfrom {{ ref('%s') }}\nwhere %s\n" % (stg, cond))
 
     # ------------------------------------------------------------------ all
     def run(self):
         hubs, links, sats, refs = self.select()
-        hub_hk, audits, sats_all, link_info, mandatory = {}, {}, {}, {}, {}
+        hub_hk, sats_all, link_info, mandatory, audits = {}, {}, {}, {}, {}
         for name, (rel, f, table, cols, ks) in sorted(hubs.items()):
-            hk = self.gen_hub(name, rel, f, table, cols, ks)
-            hub_hk[name] = hk
-            a = self.gen_audit(name, table, hk)
-            audits[name] = a
-            sats_all[a] = (hk, name)
-            mandatory.setdefault(table, []).append("%s is null" % hk)
+            hub_hk[name] = self.gen_hub(name, rel, f, table, cols, ks)
+            mandatory.setdefault(table, set()).add("%s is null" % hub_hk[name])
+        # Satellite parents first, so that every table's hash keys are known.
+        sat_hk = {}
+        for name, (rel, f, s) in sorted(sats.items()):
+            sat_hk[name] = self.satellite_parent(name, f, hubs, mandatory)
+        # Audit satellites: per hub, over its own table and every other table delivering non-reading satellites of it.
+        for name, (rel, f, table, cols, ks) in sorted(hubs.items()):
+            tables = [table] if self.has_versions(table) else []
+            for sn, (srel, sf, ss) in sorted(sats.items()):
+                t = sf["source_table"]
+                if sf["parent"] == name and sf["satellite_kind"] != "reading" and t != table and self.has_versions(t) \
+                        and t not in tables:
+                    tables.append(t)
+            if tables:
+                a = "sat_%s__%s__audit" % (bare(name, "hub_"), self.source)
+                self.gen_audit(a, rel, f["id"], "hub", hub_hk[name], tables)
+                audits[name] = (a, hub_hk[name], tables)
+                sats_all[a] = (hub_hk[name], name, hub_hk[name], "version")
             if self.m.base[table].get("extract") == "full":
-                sats_all[self.gen_status(name, table, hk)] = (hk, name)
-        for name, (rel, f, table, c_from, c_to, from_flags) in sorted(links.items()):
-            hk, from_col, to_col = self.gen_link(name, rel, f, table, c_from, c_to, hubs)
+                sts = "sts_%s__%s" % (bare(name, "hub_"), self.source)
+                self.gen_status(sts, rel, f["id"] + " (by rule: status tracking, 149 Rule 7)",
+                                "Status-tracking satellite (143 section 5 item 7; 149 Rule 7)", table, hub_hk[name])
+                sats_all[sts] = (hub_hk[name], name, hub_hk[name], "status")
+        for name, L in sorted(links.items()):
+            f, table = L["f"], L["table"]
+            hk, from_col, to_col = self.gen_link(name, L, hubs)
             link_info[name] = (hk, from_col, to_col, f["from"], f["to"])
             if f.get("optional") != "yes":
-                mandatory.setdefault(table, []).append("%s__to is null" % hk)
-            eff = self.gen_effectivity(name, rel, f, table, c_from, from_flags, hubs, audits, None)
-            sats_all[eff] = ("hk_" + bare(f["driving"], "hub_"), f["driving"])
+                mandatory.setdefault(table, set()).add("%s__to is null" % hk)
+            if L["bridge"]:
+                if L["from_flags"].get("effectivity_start") != "presence in a complete extract" \
+                        or self.m.base[table].get("extract") != "full":
+                    raise Unsupported("%s: a bridge's effectivity is supported by presence in a full extract only" % name)
+                lb = bare(name, "lnk_")
+                eff = "eff_%s__%s" % (lb, self.source)
+                self.gen_status(eff, L["rel"], f["id"] + " (by rule: effectivity of a bridge, by presence, 149 Rule 6)",
+                                "Effectivity of a bridge by presence (143 section 5 item 8; 149 section 4, link 15)",
+                                table, hk, L["kept"])
+                sats_all[eff] = (hk, name, hk, "status")
+                mandatory.setdefault(table, set()).add("%s__from is null" % hk)
+                if self.has_versions(table):
+                    a = "sat_%s__%s__audit" % (lb, self.source)
+                    self.gen_audit(a, L["rel"], f["id"], "bridge link", hk, [table])
+                    audits[name] = (a, hk, [table])
+                    sats_all[a] = (hk, name, hk, "version")
+            else:
+                eff = self.gen_effectivity(name, L, hubs, audits.get(f["driving"]))
+                drv = f["driving"]
+                sats_all[eff] = (hub_hk[drv], drv, hub_hk[drv], "version")
         for name, (rel, f, s) in sorted(sats.items()):
-            self.gen_satellite(name, rel, f, s, hubs, audits)
-            sats_all[name] = ("hk_" + bare(f["parent"], "hub_"), f["parent"])
+            parent = f["parent"]
+            if f["satellite_kind"] == "reading":
+                rk = self.gen_reading(name, rel, f, s, sat_hk[name])
+                sats_all[name] = (sat_hk[name], parent, hub_hk[parent], ("reading", q(rk)))
+            else:
+                self.gen_satellite(name, rel, f, s, sat_hk[name], audits.get(parent))
+                sats_all[name] = (sat_hk[name], parent, hub_hk[parent], "version")
         for name, (rel, f, s) in sorted(refs.items()):
             self.gen_reference(name, rel, f, s)
             self.stg(f["source_table"])
         for table in sorted(self.staging):
             self.gen_staging(table)
-        self.gen_tests(hub_hk, link_info, sats_all,
-                       {h: (audits[h], hub_hk[h], hubs[h][2]) for h in hubs}, mandatory)
+        self.gen_tests(hub_hk, link_info, sats_all, audits, mandatory)
         return self.files
 
 

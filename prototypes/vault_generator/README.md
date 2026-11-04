@@ -4,12 +4,19 @@
 daily extracts in DuckDB deterministically, idempotently and append-only, with every delivered version
 reconstructable? ([143](../../docs/10_architecture/143_the-vault-generator.md), ADR-0032, ADR-0037.)
 
-**Answer, first evidence (2026-11-04, session 12).** Yes for four source tables (`scope.txt`): 35 raw-vault tables and
+**Answer, first evidence (2026-11-04, session 12).** Yes for four source tables (the first `scope.txt`): 35 raw-vault tables and
 their staging views, loaded from the three kept extracts (2016-05-31 to 06-02). In the cloud suite all five checks
 pass: a clean three-day load with every generated test passing; loading the last extract twice changes no row; a
 batch that fails halfway with a wrong model leaves nothing once rebuilt; every one of 158,011 delivered versions
 reconstructs exactly from the satellites (a planted defect is caught); a constructed late arrival is followed by the
 restatement of the next version. **On the author's machine** (2026-11-04, 13:07 to 13:12 UTC), after the old warehouse was set aside as `data/warehouse_pre-vault_2026-11-04/`, the runner replayed the three extracts with the generated project (123 tests passing per load, 74 to 104 s each) and published a vault identical, table by table and row by row, to the cloud suite's clean load.
+
+**Second evidence (2026-11-04, evening): all 31 base tables.** After sol's second review
+([XREV](../../docs/30_research/notes/XREV_2026-11-04_143-generated-sql_sol.md)) and its fixes (143 §13 items 5 to 8),
+the generator 0.2.0 writes the whole WWI raw vault: 216 tables, 510 files, 777 tests per load. The cloud suite, on
+the three complete extracts, passes all eight checks: the five above, a failed rebuild of a date that had succeeded,
+a deletion closed by the source, and a table delivered empty; 5,360,224 delivered versions reconstruct exactly. A
+load takes about 3 to 6 minutes in the cloud workspace.
 
 ## The pieces
 

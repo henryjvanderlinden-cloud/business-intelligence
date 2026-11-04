@@ -21,8 +21,10 @@ $payload_incoming
     where $hk_src is not null
 ),
 
+-- The batch is named by the runner's variable, not read from the rows, so it is right also when the table is empty
+-- in this extract (second review, finding 5).
 batch as (
-    select any_value(load_date) as load_date, any_value(batch_id) as batch_id from {{ ref('$staging') }}
+    select cast('{{ var('load_date') }}' as date) as load_date, '$source:{{ var('load_date') }}' as batch_id
 ),
 
 {% if is_incremental() %}
@@ -83,6 +85,7 @@ select
     case when i.hk is not null then i.valid_from else s.valid_from end as valid_from,
     '$basis'                                                     as valid_from_basis,
     c.effective_hd                                               as hashdiff,
+    '{{ invocation_id }}'                                        as load_run,
 $payload_select
 from changes c
 cross join batch b

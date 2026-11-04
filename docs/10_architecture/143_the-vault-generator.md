@@ -192,7 +192,11 @@ macro calls (ADR-0032 decision 2). "Incoming" means the rows of the staging view
    the same instant. The numbering is stable from day to day: the zero-length versions sit in the history table,
    closed, from the start, and the version that follows them moves only its end time when it is closed later, which
    does not change its position. Tables that are not system-versioned hold one row per key per extract, so their
-   `source_seq` is always 1.
+   `source_seq` is always 1. *Assumed, not proved:* the numbering stays stable only if no version is added later at
+   an instant already loaded. SQL Server writes every version of one instant in one transaction and never adds to the
+   history afterwards, so it holds for WWI; for a source where it does not, a late version at a loaded instant
+   shifts the numbers after it, and the batch fails loudly on the rewritten-version test (§10 item 4) instead of
+   loading wrongly (second review, finding 3).
 3. **Whether to keep zero-length versions at all** is a choice for the author (§11, choice 1). The recommendation is
    to keep them.
 4. **The same source version delivered again** (the current row of day 1 arrives in day 2's history table, or a
@@ -240,7 +244,10 @@ macro calls (ADR-0032 decision 2). "Incoming" means the rows of the staging view
    leave a part of a batch in the working warehouse; it is not published and the runner does not move on to the
    next date.
 3. **A failed batch is removed before it is retried.** Each generated model has a pre-hook that deletes its own rows
-   of the current `batch_id` **when that batch has no successful load** in `nsdn_meta.load_log`. So a retry after a
+   of the current `batch_id` **written by a dbt run that did not succeed**. *As built (§13 item 5):* every row
+   carries `load_run`, the dbt run that wrote it, and every run records whether it succeeded in
+   `nsdn_meta.dbt_invocations`; the draft's test on `nsdn_meta.load_log` missed a failed rebuild of a date that had
+   succeeded before. So a retry after a
    fix rebuilds the whole batch with the corrected models, and no row of a failed run survives into a published
    one. Rows of a batch that loaded successfully are never deleted, so append-only holds for everything ever
    published.
@@ -323,9 +330,53 @@ of ADR-0037.
    so took the three zero-length versions of `Application.People`, whose content equals that of the version that
    replaced them, for duplicates: 2,074 rows delivered, 2,071 staged. A generated test, `…__nothing_dropped`, now
    compares the distinct delivered rows with the staged ones on every build; it fails on the first version.
-4. **What the generator covers so far** is listed in `prototypes/vault_generator/scope.txt` (Application.People,
-   Sales.Customers, Sales.Orders, Warehouse.Colors). A pattern it does not yet support stops it with a message:
-   bridges and effectivity by presence, reading satellites, link satellites, `resolve=` and `kept=`, more than one
-   mapping per hub or link, keys other than integers and text, and satellites whose parent key is not their hub's
-   key in the same table. Hubs are loaded from their own mapping only; that every link end is in its hub is a test.
+4. **What the generator covers** is listed in `prototypes/vault_generator/scope.txt`: first four tables (People,
+   Customers, Orders, Colors), then all 31 base tables (item 9). A pattern it does not support stops it with a
+   message: link satellites, `kept=` other than a bridge's surrogate, a `resolve=` beyond one table of the same
+   extract, more than one mapping per hub or link, and keys other than integers and text. Hubs are loaded from their
+   own mapping only; that every link end is in its hub is a test.
+
+After the second review on sol, which failed the generated SQL
+([XREV](../30_research/notes/XREV_2026-11-04_143-generated-sql_sol.md)):
+
+5. **A failed attempt is known by its run, not its date** (finding 1). Every raw-vault row carries `load_run`, dbt's
+   invocation id. Two hooks in `dbt_project.yml` create `nsdn_meta.dbt_invocations` and record, at the end of every
+   run, whether all its models and tests succeeded. The pre-hook deletes this batch's rows written by any run not
+   recorded as successful. So a failed rebuild of a date that had succeeded (for example a satellite added later and
+   first built wrong) leaves nothing once retried, and rows of a successful run are never deleted. `load_run` is the
+   one column that differs between two loads of the same extracts; comparisons for release regression leave it out.
+6. **Rows within one table are never merged** (finding 2). Only a history row identical in every column, its end
+   included, to a row of the current table is taken as the same row delivered twice (149 §5). Two identical rows of
+   one table, such as two no-op updates in one transaction, stay two source versions. The `nothing_dropped` test now
+   counts exactly that.
+7. **The source's closing time of a deleted row is kept** (finding 4). When a key is absent from the current table of
+   a system-versioned source and its last version has been closed, the status-tracking row `absent-unresolved`
+   carries the end the source delivered, as text, in `source_closed_at`. It is evidence for the deletion rules of 127
+   (an explicit delete event), which are still owed; it confirms nothing by itself.
+8. **The batch is named by the runner's variable** (finding 5), so a table delivered empty marks its keys absent in a
+   dated batch instead of an undated one.
+
+Widening the scope to all 31 base tables of WWI (2026-11-04):
+
+9. **The generator now covers the whole WWI raw vault** of 147 to 149: 22 hubs, 49 links with their effectivity, 45
+   satellites, 7 reference tables, and the audit and status-tracking satellites by rule. Four patterns were added.
+10. **Reading satellites** (cold-room and vehicle sensors): one row per reading, keyed by the parent and the reading's
+    own key, inserted once, never compared with a predecessor. The vehicle table has neither source system time nor
+    an audit column, so its hub has no audit satellite (149 §3.7: "none for the vehicle").
+11. **A satellite delivered by another table than its hub's** (`sat_stock_item__wwi__holding`, from
+    `Warehouse.StockItemHoldings`): the parent's hash key is computed in that table's staging view, and the hub's
+    audit satellite holds the versions of both tables, told apart by `record_source`; each satellite reads only its
+    own table's versions from it.
+12. **The bridge** (link 15, `Warehouse.StockItemStockGroups`): its effectivity is by presence in the complete
+    extract, with the status-tracking pattern on the link's hash key (`present`, `absent-unresolved`, `reappeared`)
+    and the bridge's surrogate kept on that row as delivered (149 §4). A bridge has no hub of its own, so its table's
+    audit columns go to an audit satellite on the link, `sat_stock_item__stock_group__wwi__audit`: 149 Rule 3 names
+    "every hub", and this is the one table with no hub to hold its version log.
+13. **A key named by another identifier** (`lnk_state_province__country`, 148 Rule 1): the country is resolved from
+    `CountryID` to `IsoAlpha3Code` through the current rows of `Application.Countries` in the same extract, in the
+    staging view; a province whose country does not resolve fails the mandatory-key test.
+14. **Staging views became tables**, rebuilt on every load. With all 31 tables a view was recomputed by every model
+    reading it, hashing the 3.7 million cold-room readings several times: the first day took 491 seconds in the cloud
+    workspace, and 173 seconds with tables. A staging table is replaced whole on every load and holds nothing the
+    landing tables do not; 143 §9 item 2 otherwise stands.
 

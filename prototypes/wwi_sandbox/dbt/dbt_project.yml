@@ -12,6 +12,14 @@ macro-paths: ["macros"]
 vars:
   load_date: null   # the simulated date just landed, set by the runner
 
+# Every build records whether it succeeded, so that a failed attempt's rows can be told from those of a successful one
+# and removed before the retry, also when the date succeeded before (143 section 8 item 3; second review, finding 1).
+on-run-start:
+  - "create schema if not exists nsdn_meta"
+  - "create table if not exists nsdn_meta.dbt_invocations (invocation_id varchar, load_date date, ok boolean, finished_at timestamp)"
+on-run-end:
+  - "insert into nsdn_meta.dbt_invocations values ('{{ invocation_id }}', cast('{{ var('load_date') }}' as date), {{ 'true' if (results | selectattr('status', 'in', ['error', 'fail', 'runtime error', 'skipped']) | list | length) == 0 else 'false' }}, now())"
+
 models:
   nsdn_wwi:
     staging:
