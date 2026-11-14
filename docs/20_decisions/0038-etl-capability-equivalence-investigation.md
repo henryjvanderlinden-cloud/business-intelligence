@@ -93,3 +93,20 @@ Apache licence as such or permissive open-source licences in general: DuckDB, th
 
 Unreviewed on another model. **Revisit** when the first client's requirements are in hand, since that is the first
 time steps 2 and 3 are done; and if the author restores "Imperative".
+
+## Added 2026-11-14, 23:06: the two readings ruled
+
+The two readings were put to the author as points 7 and 8. He replied, verbatim:
+
+> 7. Oh sorry, it should be read more narrowly. No proprietary ETL products. Of course they can use SQL Server, AD directories, AWS cloud etc.
+>
+> 8. Permissive open source, definitely, not just limited to Apache licenses.
+
+So principle 1 reads **no proprietary ETL products**: what nsdn uses to extract, move and transform data is never a
+proprietary ETL product, while a client's own database, directory and cloud are used as they are. And principle 2 reads
+**permissive open-source licences**, of which Apache 2.0 is one and DuckDB's MIT licence another. The text above stands
+as written on the day; where it calls these readings not ruled, this section replaces it.
+
+Read by the model and not ruled: a client's Databricks would count as its platform, as SQL Server or AWS do, so
+generated SQL may run on it, while its managed ingestion and orchestration parts
+([020](../30_research/equivalence/020_databricks-anatomy.md) §1) would count as proprietary ETL products.

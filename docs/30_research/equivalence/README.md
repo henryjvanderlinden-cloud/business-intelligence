@@ -60,6 +60,8 @@ His reply to the first set-up, verbatim:
 5. **The principles** for bridging a gap: no proprietary products; open-source parts ("some Apache licensed products");
    everything machine-readable (FAIR); the agentic layer manages, builds and supervises the deterministic layer; the
    human adjudication economy is used properly.
+   Read as he ruled later that evening: no proprietary *ETL* products, a client's own database, directory and cloud
+   being used as they are; and permissive open-source licences in general, not Apache alone.
 
 His expectation, recorded as such: no gap is a showstopper, and given requirements analysis, an architecture,
 separation of concerns and generation guidelines an LLM can design, build and implement most of it. None of those four

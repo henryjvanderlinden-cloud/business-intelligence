@@ -2604,16 +2604,20 @@ judge if and how to bridge); and five principles for bridging (no proprietary pr
 machine-readable, the agentic layer manages, builds and supervises the deterministic layer, the adjudication economy
 used properly).
 
-**Not ruled, put to the author on 2026-11-14:**
+**Ruled 2026-11-14 at 23:06, the two readings put to him**, verbatim:
 
-- Whether "stay away from proprietary products" covers only what nsdn brings, or also what a client already runs (its
-  directory, its database, its cloud).
-- Whether "Apache licensed" means that licence as such or permissive open-source licences in general; DuckDB is under
-  the MIT licence.
+> 7. Oh sorry, it should be read more narrowly. No proprietary ETL products. Of course they can use SQL Server, AD directories, AWS cloud etc.
+>
+> 8. Permissive open source, definitely, not just limited to Apache licenses.
+
+Principle 1 is therefore *no proprietary ETL products*; a client's database, directory and cloud are used as they are.
+Principle 2 is *permissive open-source licences*, not Apache alone. Recorded as an addition at the end of ADR-0038.
 
 **Owed before a gap is bridged**, from his own statement of what an LLM needs: requirements analysis, an architecture,
 separation of concerns and generation guidelines for these capabilities. None exists yet. Whether steps 2 and 3 are
-first tried on the reference case or wait for a client is not decided.
+first tried on the reference case or wait for a client is not decided. Nor is whether a client's Databricks counts as its
+platform while its managed ingestion and orchestration count as proprietary ETL products, which is how the model reads
+the ruling.
 
 The capabilities, as found in step 1; each stays open until it has been judged against a set of requirements:
 
@@ -2633,14 +2637,22 @@ The capabilities, as found in step 1; each stays open until it has been judged a
 
 This programme does not bear on `EVI-OP-1`: it is engineering with known answers, and the claim that keys and identity
 can be proposed by a machine stays untested whatever happens here. No technology is adopted by this row or by
-ADR-0038; that takes an ADR of its own, after `ARC-OP-20`. Unreviewed on another model. Closes when the two readings
-are ruled and every capability has been judged at least once.
+ADR-0038; that takes an ADR of its own, after `ARC-OP-20`. Unreviewed on another model. Closes when every capability has
+been judged at least once.
 
 **Superseded 2026-11-14 by ADR-0038, kept for the record.** The row as opened carried this paragraph:
 *Proposed by the model and not ruled:* the working title, which is his own tentative wording; the folder under
 `docs/30_research/`; that each capability ends as *match* (a lightweight part of nsdn), *delegate* (the client's
 platform) or *decline* (not offered, and said so), against a standard stated before candidates are compared; and the
 order 1, 2, 5, 6 first.
+
+Also overtaken, at 23:06 the same evening, by his ruling above; the paragraph it replaced:
+*Not ruled, put to the author on 2026-11-14:*
+
+- Whether "stay away from proprietary products" covers only what nsdn brings, or also what a client already runs (its
+  directory, its database, its cloud).
+- Whether "Apache licensed" means that licence as such or permissive open-source licences in general; DuckDB is under
+  the MIT licence.
 
 ## §3 — Evidence and measurement (`EVI`)
 
