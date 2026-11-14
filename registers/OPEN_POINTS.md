@@ -2580,6 +2580,47 @@ figures. Related to `ARC-OP-29` (the data model), `ARC-OP-27` (temporal behaviou
 
 *2026-10-29, session 11: a gap in 148 found while transcribing it. Six links take their effectivity's business start from "the naming event's date" (148 §3, 149 §4), but their driving hub is a line with no date of its own (147 §5): links 26, 27, 35, 36, 39 and 40. Their start is declared `unknown` in `model/` until the author rules; the recommendation is to keep it unknown, as the lines' own satellites do (149 §3.4, §3.5), since taking the header's date would be a lookup during loading. Also transcribed: link 28 (invoice of order, "no in the data, nullable") is declared optional, as 149 Rule 5 already reads it by keeping `Sales.Invoices.OrderID` as delivered.* *Both ruled by the author on 2026-10-29 at 12:33 in [ADR-0034](../docs/20_decisions/0034-model-declaration-format-and-viewer.md) decisions 4 and 5: the start stays unknown; link 28 is optional.*
 
+### ARC-OP-38 — The equivalence investigation: bringing the lightweight setup level with enterprise-grade environments
+**⛔ STATE: OPEN**
+Opened 2026-11-14, session 12, on the author's instruction, verbatim in part:
+
+> They are real gaps that need to be addressed. They also comprise a kind of research project, i.e. we need to address
+> these issues. Please set up this separate research program. Not sure what to call it, these are kind of
+> non-functional requirements, but also functional requirements. Maybe this is an equivalence investigation, how to
+> get this light-weight, bare bones, AI assisted programma on the same level as "enterprise grade" environments.
+
+His whole message, and the question that led to it, are in
+[the programme's README](../docs/30_research/equivalence/README.md). The gaps are the thirteen capabilities of
+[010_capability-inventory.md](../docs/30_research/equivalence/010_capability-inventory.md), found when he asked what
+standard ETL suites do that this setup cannot. He also asked that existing answers be kept apart from the questions,
+Databricks' open-source parts first:
+[020_databricks-anatomy.md](../docs/30_research/equivalence/020_databricks-anatomy.md).
+
+**Proposed by the model and not ruled:** the working title, which is his own tentative wording; the folder under
+`docs/30_research/`; that each capability ends as *match* (a lightweight part of nsdn), *delegate* (the client's
+platform) or *decline* (not offered, and said so), against a standard stated before candidates are compared; and the
+order 1, 2, 5, 6 first.
+
+The capabilities, each open until it has an outcome the author ruled and evidence on the reference case:
+
+1. Connectivity: nothing beyond one SQL Server export job and a PostgreSQL catalogue pass.
+2. Incremental capture: full extracts every day.
+3. Orchestration: enough for one source.
+4. Scale: one machine, one thread.
+5. Operations console: status files only.
+6. Security administration: no access rule per sensitivity class, no place that enforces one.
+7. Environments and promotion: one environment, no change gate. Related to `ARC-OP-33` and `ARC-OP-30`.
+8. Lineage and impact: in place as far as the raw vault. Related to `ARC-OP-37`.
+9. Data quality handling: tests per batch, no handling of single rows. Related to `ARC-OP-31` and `ARC-OP-33`.
+10. Recoverability: no gap found.
+11. Schema drift: fails loudly; who regenerates is open.
+12. Odd formats and streaming: batch files only.
+13. Acceptance: nothing for a client's IT department, security officer or auditor.
+
+This programme does not bear on `EVI-OP-1`: it is engineering with known answers, and the claim that keys and identity
+can be proposed by a machine stays untested whatever happens here. No technology is adopted by this row; that takes
+an ADR, after `ARC-OP-20`. Unreviewed on another model. Closes when every capability has its outcome.
+
 ## §3 — Evidence and measurement (`EVI`)
 
 ### EVI-OP-1 — Ground truth for the falsifiable core
