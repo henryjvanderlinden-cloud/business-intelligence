@@ -2926,6 +2926,17 @@ strong lines are where it fails.
 argument rather than the claim everything rests on. That is a pattern and not a choice, and
 it is the thing this row should be read as saying.
 
+**2026-11-14, session 12: a general assessment of the whole repository, at the author's request.**
+[2026-11-14-general-assessment](../docs/30_research/notes/2026-11-14-general-assessment.md) is a read of the
+repository as it stood at commit `21d47cf`, by Claude Fable 5.2, a different model from the one that drafted it. It
+is not an XREV pass: it has no single object and gives the general assessment that
+[510_external-review.md](../docs/50_process/510_external-review.md) forbids in a pass, so it is weaker evidence than
+one. It bears on this row in one respect: its point 6 finds the falsifiable core still untested as well as
+unreviewed (`EVI-OP-1`). Its other points touch `CON-OP-2`, `CON-OP-8`, `CON-OP-15`, `CON-OP-16`, `ARC-OP-37`,
+`PRC-OP-2`, `PRC-OP-5`, `PRC-OP-6` and `PRC-OP-8`. It opens no row and rules nothing; its four suggested next steps
+are the author's to take up or leave. Filed on his instruction: "please store this assessment somewhere appropriate,
+maybe point to it from the open register."
+
 ### PRC-OP-2 — Keep the apparatus proportionate to the work
 **⛔ STATE: OPEN**
 Opened 2026-09-19, session 01, and held. **Resumed 2026-09-20, session 02, on its own
