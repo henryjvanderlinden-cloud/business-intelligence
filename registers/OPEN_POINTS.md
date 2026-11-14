@@ -2580,7 +2580,7 @@ figures. Related to `ARC-OP-29` (the data model), `ARC-OP-27` (temporal behaviou
 
 *2026-10-29, session 11: a gap in 148 found while transcribing it. Six links take their effectivity's business start from "the naming event's date" (148 §3, 149 §4), but their driving hub is a line with no date of its own (147 §5): links 26, 27, 35, 36, 39 and 40. Their start is declared `unknown` in `model/` until the author rules; the recommendation is to keep it unknown, as the lines' own satellites do (149 §3.4, §3.5), since taking the header's date would be a lookup during loading. Also transcribed: link 28 (invoice of order, "no in the data, nullable") is declared optional, as 149 Rule 5 already reads it by keeping `Sales.Invoices.OrderID` as delivered.* *Both ruled by the author on 2026-10-29 at 12:33 in [ADR-0034](../docs/20_decisions/0034-model-declaration-format-and-viewer.md) decisions 4 and 5: the start stays unknown; link 28 is optional.*
 
-### ARC-OP-38 — The equivalence investigation: bringing the lightweight setup level with enterprise-grade environments
+### ARC-OP-38 — PARTLY RULED — The ETL capability equivalence investigation: bringing the lightweight setup level with enterprise-grade environments
 **⛔ STATE: OPEN**
 Opened 2026-11-14, session 12, on the author's instruction, verbatim in part:
 
@@ -2596,12 +2596,26 @@ standard ETL suites do that this setup cannot. He also asked that existing answe
 Databricks' open-source parts first:
 [020_databricks-anatomy.md](../docs/30_research/equivalence/020_databricks-anatomy.md).
 
-**Proposed by the model and not ruled:** the working title, which is his own tentative wording; the folder under
-`docs/30_research/`; that each capability ends as *match* (a lightweight part of nsdn), *delegate* (the client's
-platform) or *decline* (not offered, and said so), against a standard stated before candidates are compared; and the
-order 1, 2, 5, 6 first.
+**Ruled 2026-11-14 in [ADR-0038](../docs/20_decisions/0038-etl-capability-equivalence-investigation.md):** the name
+(the author offered "Imperative ETL capability equivalence investigation" on condition that the model agreed; the word
+"Imperative" was left out and he can restore it); the folder under `docs/30_research/`; capabilities 1, 2, 5 and 6
+first; a method in three steps (identify the gaps, identify the requirements given a client's environment and size,
+judge if and how to bridge); and five principles for bridging (no proprietary products, open-source parts, everything
+machine-readable, the agentic layer manages, builds and supervises the deterministic layer, the adjudication economy
+used properly).
 
-The capabilities, each open until it has an outcome the author ruled and evidence on the reference case:
+**Not ruled, put to the author on 2026-11-14:**
+
+- Whether "stay away from proprietary products" covers only what nsdn brings, or also what a client already runs (its
+  directory, its database, its cloud).
+- Whether "Apache licensed" means that licence as such or permissive open-source licences in general; DuckDB is under
+  the MIT licence.
+
+**Owed before a gap is bridged**, from his own statement of what an LLM needs: requirements analysis, an architecture,
+separation of concerns and generation guidelines for these capabilities. None exists yet. Whether steps 2 and 3 are
+first tried on the reference case or wait for a client is not decided.
+
+The capabilities, as found in step 1; each stays open until it has been judged against a set of requirements:
 
 1. Connectivity: nothing beyond one SQL Server export job and a PostgreSQL catalogue pass.
 2. Incremental capture: full extracts every day.
@@ -2618,8 +2632,15 @@ The capabilities, each open until it has an outcome the author ruled and evidenc
 13. Acceptance: nothing for a client's IT department, security officer or auditor.
 
 This programme does not bear on `EVI-OP-1`: it is engineering with known answers, and the claim that keys and identity
-can be proposed by a machine stays untested whatever happens here. No technology is adopted by this row; that takes
-an ADR, after `ARC-OP-20`. Unreviewed on another model. Closes when every capability has its outcome.
+can be proposed by a machine stays untested whatever happens here. No technology is adopted by this row or by
+ADR-0038; that takes an ADR of its own, after `ARC-OP-20`. Unreviewed on another model. Closes when the two readings
+are ruled and every capability has been judged at least once.
+
+**Superseded 2026-11-14 by ADR-0038, kept for the record.** The row as opened carried this paragraph:
+*Proposed by the model and not ruled:* the working title, which is his own tentative wording; the folder under
+`docs/30_research/`; that each capability ends as *match* (a lightweight part of nsdn), *delegate* (the client's
+platform) or *decline* (not offered, and said so), against a standard stated before candidates are compared; and the
+order 1, 2, 5, 6 first.
 
 ## §3 — Evidence and measurement (`EVI`)
 

@@ -11,6 +11,10 @@ the repository at commit `01b5092` and are taken from
 [the generator's README](../../../prototypes/vault_generator/README.md) and the documents linked. The lines headed
 *Asked* are the research questions. The lines headed *First thought* are the model's and are not ruled.
 
+**Added 2026-11-14, after [ADR-0038](../../20_decisions/0038-etl-capability-equivalence-investigation.md).** This file is
+step 1 of the ruled method, the gaps. The words *delegate* and *decline* in the first thoughts come from the model's
+first proposal, which the ADR did not adopt; read them as what a later judgement might come to.
+
 The numbers are permanent. The author's own five observations are quoted in the [README](README.md).
 
 ## The thirteen capabilities

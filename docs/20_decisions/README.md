@@ -52,3 +52,4 @@ describe options; only an ADR adopts one.
 | [0035](0035-reference-case-and-client-repositories.md) | nsdn keeps Wide World Importers as its reference case; each client gets a repository of its own with a tagged release of nsdn | Accepted |
 | [0036](0036-releases-and-upstream-notes.md) | nsdn travels to clients as numbered releases with release notes, and improvements come back as upstream notes without client material | Accepted |
 | [0037](0037-vault-generator.md) | The vault generator: SHA-256 keys, one load pattern for every day, every version kept, and the vault's first day replayed from 2016-05-31 | Accepted |
+| [0038](0038-etl-capability-equivalence-investigation.md) | The ETL capability equivalence investigation: its name, place, order, method and principles | Accepted |

@@ -10,6 +10,7 @@ changes the design ends with a link to the ADR it produced, or an entry added to
 [`../00_concept/040_open-questions.md`](../00_concept/040_open-questions.md).
 
 A programme that is kept up over time has a folder of its own beside `notes/`, with a `README.md` saying what it is
-for: so far [`equivalence/`](equivalence/README.md), proposed 2026-11-14 and not yet ruled (`ARC-OP-38`).
+for: so far [`equivalence/`](equivalence/README.md), the ETL capability equivalence investigation
+([ADR-0038](../20_decisions/0038-etl-capability-equivalence-investigation.md), `ARC-OP-38`).
 
 Notes are allowed to be wrong and are not revised in place; supersede them.

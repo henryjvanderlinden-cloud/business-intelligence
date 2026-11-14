@@ -1,7 +1,8 @@
-# The equivalence investigation
+# The ETL capability equivalence investigation
 
-**Status: set up 2026-11-14, session 12, by Claude Fable 5.2 on the author's instruction; a proposal, not ruled, and
-unreviewed.** The name, this folder's place and the method below are the model's proposals. What is open is held in
+**Status: set up 2026-11-14, session 12, by Claude Fable 5.2 on the author's instruction; its name, place, order,
+method and principles ruled the same evening in
+[ADR-0038](../../20_decisions/0038-etl-capability-equivalence-investigation.md); unreviewed.** What is open is held in
 [`ARC-OP-38`](../../../registers/OPEN_POINTS.md).
 
 ## The question
@@ -42,21 +43,34 @@ Further answers would get files of their own from 030 on, one per reference stac
 citing the capability numbers it answers. The numbers 1 to 13 are permanent and never reused; a new capability takes
 the next number.
 
-## Proposed and not ruled
+## Ruled 2026-11-14 (ADR-0038)
 
-1. **The name.** "Equivalence investigation" is the author's own tentative wording and is used as the working title.
-   The yardstick should be the list of capabilities in 010 and not any one product, because "enterprise grade" names a
-   reputation and not a standard.
-2. **Three ways a capability can end.** *Match*: nsdn provides it with a lightweight part. *Delegate*: the client's
-   platform provides it (its database, its directory, its secrets store) and nsdn states what it needs from that
-   platform. *Decline*: nsdn does not offer it and says so. Equivalence would then mean that every capability has one
-   of the three, with a stated standard and evidence on the reference case, and not that nsdn rebuilds a suite.
-3. **A standard before an answer.** Each capability gets a sentence saying what an answer must be able to do before
-   candidates are compared, as [510](../../50_process/510_external-review.md) asks of a review.
-4. **The order.** Capabilities 1, 2, 5 and 6 first, because a first client would feel them first.
-5. **The place.** This folder under `docs/30_research/`, which [ADR-0002](../../20_decisions/0002-repository-layout.md)
-   gives to tool evaluations. [ADR-0023](../../20_decisions/0023-domain-knowledge-folder.md) gave maintained knowledge a
-   group of its own; whether this programme should have one too is the author's to rule.
+His reply to the first set-up, verbatim:
+
+> Yes, let's call it "Imperative ETL capability equivalence investigation" if you agree. Otherwise I'll go with your suggestion. Subfolder in 30_research seems appropriate. I agree on the order. With regards to the proposed outcomes, I think we mainly want to identify gaps, then identify requirements given a client's environment, size etc. and then judge if and how we should bridge the gap. From what I've seen, I don't think that any of the gaps are real showstoppers. Most of it should be doable, using some Apache licensed products. I think that given some thorough requirements analysis, a solid architecture, separation of concerns and generation guidelines an LLM is perfectly capable to design, build and implement most functionalities. This is what the project is about. Stay away from proprietary products, keep it all machine-readable (FAIR acronym), have the agentic layer manage, build and supervise the deterministic layer, use the human adjudication economy properly.
+
+1. **The name** is the ETL capability equivalence investigation. He offered it with "Imperative" in front, on condition
+   that the model agreed; the model left the word out, because the thirteen capabilities are about what surrounds the
+   transformation and not about how flows are written. He can put it back.
+2. **The place** is this folder under `docs/30_research/`.
+3. **The order**: capabilities 1, 2, 5 and 6 first.
+4. **The method**, in three steps: identify the gaps; identify the requirements given a client's environment, size and
+   so on; judge if and how the gap should be bridged. 010 is the first pass of step 1. Steps 2 and 3 need a client, or
+   the reference case standing in for one.
+5. **The principles** for bridging a gap: no proprietary products; open-source parts ("some Apache licensed products");
+   everything machine-readable (FAIR); the agentic layer manages, builds and supervises the deterministic layer; the
+   human adjudication economy is used properly.
+
+His expectation, recorded as such: no gap is a showstopper, and given requirements analysis, an architecture,
+separation of concerns and generation guidelines an LLM can design, build and implement most of it. None of those four
+exists yet for these capabilities.
+
+## The first proposal, superseded by ADR-0038
+
+The model had proposed that each capability end in one of three ways, against a standard stated beforehand: *match*
+(nsdn provides it with a lightweight part), *delegate* (the client's platform provides it) or *decline* (nsdn does not
+offer it and says so). The author's three-step method replaces that. The three words remain only as names for what a
+judgement in step 3 may come to.
 
 ## What this programme is not
 
