@@ -2936,6 +2936,7 @@ unreviewed (`EVI-OP-1`). Its other points touch `CON-OP-2`, `CON-OP-8`, `CON-OP-
 `PRC-OP-2`, `PRC-OP-5`, `PRC-OP-6` and `PRC-OP-8`. It opens no row and rules nothing; its four suggested next steps
 are the author's to take up or leave. Filed on his instruction: "please store this assessment somewhere appropriate,
 maybe point to it from the open register."
+Later the same evening he opened `PRC-OP-10`, as an exception, for working through it with Opus.
 
 ### PRC-OP-2 — Keep the apparatus proportionate to the work
 **⛔ STATE: OPEN**
@@ -3174,6 +3175,33 @@ release and the clean upstream notes. Related to `PRC-OP-8` (procedures as skill
 way. Closes with an ADR.
 
 *2026-11-03: ruled by the author in [ADR-0036](../docs/20_decisions/0036-releases-and-upstream-notes.md), the three points as proposed; no release yet; at a client the analysis runs under the client's own Claude. Ruled is not executed: no release, no client repository, and neither of the two checks (release checksum, clean upstream notes) exists.*
+
+### PRC-OP-10 — Work through the general assessment of 2026-11-14 with Opus, point by point
+**⛔ STATE: OPEN**
+Opened 2026-11-14, session 12, by the author, verbatim:
+
+> as an exception, please open an open row, that we need to chew through this with opus, and see where everything will
+> land.
+
+The object is [2026-11-14-general-assessment](../docs/30_research/notes/2026-11-14-general-assessment.md): 19 numbered
+points (5 strengths, 10 concerns, 4 suggested next steps) from a read of the whole repository by Claude Fable 5.2. The
+exception is to that note and its pointer in `PRC-OP-1`, which opened no row.
+
+Owed: each of the 19 points gone through with Opus (the author's word; the sessions so far ran on `claude-opus-5-5`,
+which drafted the repository) and given a place to land, recorded here point by point. Where a point can land is **not
+decided**; the possibilities are an existing row (the note names the rows each concern touches), a new row, an ADR, a
+correction to a document, or being set aside with the reason. This row accepts and rejects nothing in the note.
+
+Two things for the session that picks this up. The note is a general assessment and not an XREV pass, so by
+[510_external-review.md](../docs/50_process/510_external-review.md) its findings are weaker than those of a pass on one
+object, and a point may need checking before it is acted on. And Opus drafted what was assessed, so by the model-switch
+rule of [500_working-method.md](../docs/50_process/500_working-method.md) its answers to the points are not a review of
+them; where the two models differ, the author rules.
+
+One point has moved already: `origin/main` stood at `21d47cf` on the evening of 2026-11-14, so the unpushed commits of
+point 15 are pushed.
+
+Closes when every point has a recorded landing place. Related to `PRC-OP-1`.
 
 ## §5 — Commercial premises (`BIZ`)
 

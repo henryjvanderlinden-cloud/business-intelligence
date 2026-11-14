@@ -10,6 +10,9 @@ it answers is the author's, verbatim:
 Having read it, he asked: "please store this assessment somewhere appropriate, maybe point to it from the open
 register." The pointer is in [`PRC-OP-1`](../../../registers/OPEN_POINTS.md).
 
+**Added 2026-11-14, 19:15.** The author then opened [`PRC-OP-10`](../../../registers/OPEN_POINTS.md), as an exception, to
+work through these points with Opus and see where each lands. The note itself is unchanged.
+
 **What this note is and is not.** It is one reader's impression of the whole repository at commit `21d47cf`. It is not
 an external review pass: [510](../../50_process/510_external-review.md) asks for one object per pass and a determinate
 question, forbids general assessment, and warns that a whole-corpus read returns weaker findings than a refutation of
