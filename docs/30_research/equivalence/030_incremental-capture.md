@@ -199,6 +199,13 @@ declarations alone (§2 item 3):
    Sunday, 2016-06-05, failed: the multiset version of the nothing-dropped test ran out of memory on the whole history
    (the operating system refused the allocation; nothing was published, the runner stopped). Replaced by control totals
    (item 1 of §5); peak memory for that test 3.6 GB before, 379 MB after, in the cloud workspace.
+8. **The retry failed again, in two models** (the cold-room audit and reading satellites, also out of memory),
+   although the same models had read the whole history every day on 2026-11-04 without trouble. The machine had less
+   free memory than then. The runner's DuckDB had no memory budget, so it assumed 80 % of physical memory and failed
+   when Windows refused an allocation. With a budget it spills to disk instead: in the cloud workspace the whole
+   cold-room chain loads on a whole-history day with 300 MB and file-system access off. The pinned profile now sets
+   2 GB. **General rule: a load must run within an explicit memory budget, never the engine's default share of a
+   machine it shares with the source database and everything else.**
 
 ## 8. Not decided here
 

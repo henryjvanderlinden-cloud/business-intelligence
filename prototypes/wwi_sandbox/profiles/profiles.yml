@@ -10,6 +10,11 @@ nsdn_wwi:
       path: "{{ env_var('NSDN_WAREHOUSE') }}"
       threads: 1
       config_options:
+        # An explicit memory budget, so DuckDB spills to its temporary files (beside the warehouse, in data/warehouse/)
+        # instead of failing when the machine is busy. Without it DuckDB assumes 80 % of physical memory and fails
+        # with "Allocation failure" when Windows refuses (2016-06-05, equivalence/030 section 7 item 8). Tested in the
+        # cloud workspace: the whole cold-room history loads with 300 MB and file-system access off.
+        memory_limit: '2GB'
         enable_external_access: false
         autoinstall_known_extensions: false
         autoload_known_extensions: false
