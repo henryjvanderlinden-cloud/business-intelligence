@@ -394,3 +394,11 @@ Advancing the simulation (2026-11-04, evening):
     its nothing-dropped test 74 s, the audit completeness test 36 s on his machine). Reading only the history rows
     not yet loaded would remove that, at the cost of a staging pattern of its own; not done (§12).
 
+Incremental capture (2026-11-15):
+
+16. **Generator 0.3.0 reads the history of a system-versioned table from a watermark**, as proposed in
+    [equivalence/030](../30_research/equivalence/030_incremental-capture.md) §7: current rows in full; history rows
+    closed after the latest source time already loaded less one day; every history row sharing key and start time with
+    one of those (so `source_seq` is unchanged); the whole history on the first load, on Sundays and when the dbt
+    variable `full_history` is set. The nothing-dropped test now compares rows, not counts. Not ruled.
+

@@ -38,6 +38,7 @@ Questions and answers are kept apart, as he asked.
 |---|---|---|
 | [010_capability-inventory.md](010_capability-inventory.md) | questions | the thirteen capabilities: what the suites give, where nsdn stands, what is asked |
 | [020_databricks-anatomy.md](020_databricks-anatomy.md) | answers | what Databricks is made of, mapped onto the thirteen, and what can be learned from it |
+| [030_incremental-capture.md](030_incremental-capture.md) | answers | capability 2 (and 4): growth classes, watermarks with overlap, two kinds of verification, the extract's requirements; with the WWI trial (generator 0.3.0) |
 
 Further answers would get files of their own from 030 on, one per reference stack or per component evaluated, each
 citing the capability numbers it answers. The numbers 1 to 13 are permanent and never reused; a new capability takes

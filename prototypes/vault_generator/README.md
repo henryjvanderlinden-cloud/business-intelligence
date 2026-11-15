@@ -21,6 +21,11 @@ with the 0.1.0 warehouse set aside as `data/warehouse_vault-0.1.0_2026-11-04/`, 
 extracts: every load ok with all tests passing, in 522, 893 and 905 seconds, and the published vault equals the
 cloud suite's clean load in all 216 tables (17,346,219 rows; content fingerprints without `load_run`).
 
+**Third evidence (2026-11-15): generator 0.3.0 reads engine-kept histories from a watermark**
+([equivalence/030](../../docs/30_research/equivalence/030_incremental-capture.md) §7). In the cloud workspace a day
+loads in about 105 seconds instead of 320; the five-day vault equals the full-read vault in all 216 tables; the eight
+checks pass. The whole history is still read on the first load, on Sundays and with `--vars '{full_history: true}'`.
+
 ## The pieces
 
 - `generate.py` — reads the declarations, the source file and the catalogue; writes `models/staging/wwi/`,

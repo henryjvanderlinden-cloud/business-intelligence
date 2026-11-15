@@ -21,7 +21,7 @@ import os
 import string
 import sys
 
-GENERATOR_VERSION = "0.2.1"
+GENERATOR_VERSION = "0.3.0"
 HERE = os.path.dirname(os.path.abspath(__file__))
 GENERATED_DIRS = ("models/staging/wwi", "models/raw_vault", "tests/generated")
 
@@ -32,6 +32,12 @@ TYPE_MAP = {"int": "INTEGER", "bigint": "BIGINT", "smallint": "SMALLINT", "tinyi
 INTEGER_TYPES = {"int", "bigint", "smallint", "tinyint"}
 TEXT_TYPES = {"nvarchar", "varchar", "nchar", "char"}
 NULL_MARK = "\\N"
+# equivalence/030: how far behind the latest version already loaded the history of a system-versioned table is read
+# again. SQL Server stamps a version with its transaction's begin time, not its commit time, so a version committed
+# after an extract can carry an earlier time; the overlap must exceed the longest transaction. Every Sunday, and when
+# the variable full_history is set, the whole history is read.
+HISTORY_OVERLAP = "1 day"
+FULL_HISTORY_WEEKDAY = 7
 LOAD_RUN = "'{{ invocation_id }}' as load_run"   # the dbt run that wrote the row (143 section 8 item 3)
 
 
@@ -155,6 +161,7 @@ class Generator:
         self.files = {}
         self.staging = {}         # table -> what its staging view must compute
         self.lookup_sources = set()
+        self.version_store = {}   # table -> the model that keeps every version of it (equivalence/030)
         for t in scope:
             if t not in self.m.base:
                 raise Unsupported("scope table %s is not a base table of %s" % (t, self.m.src_rel))
@@ -508,6 +515,44 @@ class Generator:
                                 table, q(key), q(key), "cast(null as timestamp_ns)", "unknown", hd,
                                 "cast(null as varchar)", [(c, q(c)) for c in cols], "", "satellite.sql")
 
+    def history_block(self, table, store):
+        """equivalence/030: the history of a system-versioned table is append-only by construction, so only rows
+        closed since the latest version already loaded (less HISTORY_OVERLAP) are read, from the model that keeps every
+        version of this table, counting only rows of successful runs. The whole history is read on the first load, on
+        FULL_HISTORY_WEEKDAY and when var('full_history') is true; the bound used is kept in _history_from."""
+        query = ("select strftime(max(source_ts) - interval '" + HISTORY_OVERLAP + "', '%Y-%m-%dT%H:%M:%S.%f') "
+                 "from \" ~ store ~ \" where record_source = '" + self.rs(table) + "' and load_run in "
+                 "(select invocation_id from nsdn_meta.dbt_invocations where ok)")
+        return ("{%- set history_from = none -%}\n"
+                "{%- if execute -%}\n"
+                "  {%- set store = adapter.get_relation(database=this.database, schema='raw_vault', identifier='"
+                + store + "') -%}\n"
+                "  {%- set day = modules.datetime.date.fromisoformat(var('load_date')) -%}\n"
+                "  {%- if store is not none and not var('full_history', false) and day.isoweekday() != "
+                + str(FULL_HISTORY_WEEKDAY) + " -%}\n"
+                "    {%- set history_from = run_query(\"" + query + "\").columns[0].values()[0] -%}\n"
+                "  {%- endif -%}\n"
+                "{%- endif -%}\n"
+                "-- equivalence/030: history read from {{ history_from if history_from is not none else 'the start (whole history)' }}\n")
+
+    def bounded_delivery(self, table, start_col, end_col, flag="_is_history"):
+        """equivalence/030: current rows, history rows closed after the bound, and every other history row with the same
+        key and start time as one of those, so that a group of versions sharing a start time is never split and their
+        numbering (source_seq) is the same as in a full read."""
+        fl = self.m.base[table]
+        cur = "{{ source('landing_%s', '%s') }}" % (self.source, landing_name(table))
+        hist = "{{ source('landing_%s', '%s') }}" % (self.source, landing_name(fl["history"]))
+        pk = self.m.pk(table)
+        same = " and ".join("t.%s = h.%s" % (q(c), q(c)) for c in pk + [start_col])
+        sel_keys = ", ".join(q(c) for c in pk + [start_col])
+        return ("    select *, false as %s from %s\n    union all by name\n    select h.*, true as %s from %s h\n"
+                "{%% if history_from is not none %%}"
+                "    where h.%s > '{{ history_from }}'\n       or exists (select 1 from (\n"
+                "              select %s from %s\n              union all\n"
+                "              select %s from %s where %s > '{{ history_from }}'\n"
+                "          ) t where %s)\n{%% endif %%}"
+                % (flag, cur, flag, hist, q(end_col), sel_keys, cur, sel_keys, hist, q(end_col), same))
+
     def gen_staging(self, table):
         st = self.staging[table]
         fl = self.m.base[table]
@@ -516,9 +561,15 @@ class Generator:
         sys_time = self.m.ml.split_list(fl.get("system_time", "none"))
         end_col = sys_time[1] if len(sys_time) == 2 else None
         delivered = "    select *, false as _is_history from {{ source('landing_%s', '%s') }}" % (self.source, landing_name(table))
+        history_block, history_from_column = "", "cast(null as varchar)"
         if fl.get("history", "none") != "none":
             delivered += ("\n    union all by name\n    select *, true as _is_history from {{ source('landing_%s', '%s') }}"
                           % (self.source, landing_name(fl["history"])))
+            store = self.version_store.get(table)
+            if end_col and store:
+                history_block = self.history_block(table, store)
+                delivered = self.bounded_delivery(table, sys_time[0], end_col)
+                history_from_column = "{% if history_from is none %}cast(null as varchar){% else %}'{{ history_from }}'{% endif %}"
         if sys_time == ["none"] or not sys_time:
             src_ts, src_end = "cast(null as timestamp_ns)", "cast(null as varchar)"
         else:
@@ -555,7 +606,8 @@ class Generator:
             pk_typed=", ".join("typed.%s" % q(c) for c in pk),
             record_source=self.rs(table), source_ts=src_ts, source_end=src_end,
             hashdiffs=hashdiffs.rstrip("\n"), typed_columns=",\n".join(typed), hash_keys=hash_keys,
-            select_all="typed.*" if lookups else "*", lookups=lookups)
+            select_all="typed.*" if lookups else "*", lookups=lookups, history_block=history_block,
+            history_from_column=history_from_column)
         self.emit("models/staging/%s/%s.sql" % (self.source, staging_name(self.source, table)),
                   self.header(self.m.src_rel, self.m.src["id"] + " / " + table + " (catalogue " + fl["catalogue"] + ")",
                               "staging.sql") + "\n" + body)
@@ -643,14 +695,30 @@ class Generator:
                               % (self.source, landing_name(h)))
                 twice = ("(select count(*) from k a where a.h and exists (select 1 from k b where not b.h "
                          "and b.pk = a.pk and b.rh = a.rh and b.e is not distinct from a.e))")
+                if end_col and self.version_store.get(table):
+                    # equivalence/030: only the rows staging was asked to read are counted: current rows, history
+                    # closed after the bound it used, and history sharing key and start time with one of those.
+                    bound = "coalesce((select any_value(_history_from) from {{ ref('%s') }}), '')" % stg
+                    keys = [q(c) for c in self.m.pk(table)] + [q(st_cols[0])]
+                    same = " and ".join("t.%s = a.%s" % (c, c) for c in keys)
+                    delivered = ("select a.* from (\n    %s\n) a\n    where not a.h or a.%s > %s\n"
+                                 "       or exists (select 1 from (\n    %s\n) t where (not t.h or t.%s > %s) and %s)"
+                                 % (delivered.replace("\n", "\n    "), q(end_col), bound,
+                                    delivered.replace("\n", "\n    "), q(end_col), bound, same))
+            dup = ("a.h and exists (select 1 from k b where not b.h and b.pk = a.pk and b.rh = a.rh "
+                   "and b.e is not distinct from a.e)") if h != "none" else "false"
             test("%s__nothing_dropped" % stg,
-                 "-- 143 section 10: every delivered row reaches staging, except a history row identical to a current\n"
-                 "-- row (the same row delivered twice, 149 section 5).\n"
-                 "with d as (\n    %s\n),\nk as (\n    select h, (%s) as pk, sha256(%s) as rh, %s as e from d\n)\n"
-                 "select (select count(*) from k) - %s as expected, (select count(*) from {{ ref('%s') }}) as staged\n"
-                 "where (select count(*) from k) - %s <> (select count(*) from {{ ref('%s') }})\n"
+                 "-- 143 section 10, equivalence/030: every delivered row reaches staging exactly once, and staging holds\n"
+                 "-- nothing that was not delivered, compared row by row (whole-row hash and period end, as multisets).\n"
+                 "-- A history row identical to a current row is the same row delivered twice (149 section 5).\n"
+                 "with d as (\n    %s\n),\nk as (\n    select h, (%s) as pk, sha256(%s) as rh, cast(%s as varchar) as e from d\n),\n"
+                 "expected as (\n    select rh, e from k a where not (%s)\n),\n"
+                 "staged as (\n    select row_hash as rh, source_end as e from {{ ref('%s') }}\n)\n"
+                 "select 'delivered, not staged' as problem, * from (select * from expected except all select * from staged)\n"
+                 "union all\n"
+                 "select 'staged, not delivered' as problem, * from (select * from staged except all select * from expected)\n"
                  % (delivered, pk, hash_text([n for n in names if n != end_col]),
-                    q(end_col) if end_col else "null", twice, stg, twice, stg))
+                    q(end_col) if end_col else "null", dup, stg))
         for table, checks in sorted(mandatory.items()):
             stg = staging_name(self.source, table)
             cond = "\n   or ".join(sorted(checks))
@@ -725,6 +793,11 @@ class Generator:
         for name, (rel, f, s) in sorted(refs.items()):
             self.gen_reference(name, rel, f, s)
             self.stg(f["source_table"])
+        for owner, (a, hk, tables) in audits.items():
+            for t in tables:
+                self.version_store.setdefault(t, a)
+        for name, (rel, f, s) in refs.items():
+            self.version_store.setdefault(f["source_table"], name)
         for table in sorted(self.staging):
             self.gen_staging(table)
         self.gen_tests(hub_hk, link_info, sats_all, audits, mandatory)

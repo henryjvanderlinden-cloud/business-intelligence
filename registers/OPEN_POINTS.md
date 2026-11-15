@@ -2656,6 +2656,15 @@ Also overtaken, at 23:06 the same evening, by his ruling above; the paragraph it
 
 ## §3 — Evidence and measurement (`EVI`)
 
+
+*2026-11-15, session 12: first answer to capability 2.* On 2026-11-06 the author asked whether the cold-room staging
+shows a general pattern ("We want to generate generally applicable knowledge here, that is the main goal") and on
+2026-11-15 said "okay go ahead". [030](../docs/30_research/equivalence/030_incremental-capture.md) proposes growth
+classes, watermarks with overlap and a guarantee from the source, a periodic full reread, row-level verification of the
+increment, and an extract specification (consistent snapshot, history closed since the last extract). Trialled as
+generator 0.3.0 on engine-kept histories; sol failed the note
+([XREV](../docs/30_research/notes/XREV_2026-11-15_030-incremental-capture_sol.md)), all five findings applied. Not
+ruled; steps 2 and 3 of the method open.
 ### EVI-OP-1 — Ground truth for the falsifiable core
 **⛔ STATE: OPEN**
 Opened 2026-09-19, session 01. *(from open question 2, residual after

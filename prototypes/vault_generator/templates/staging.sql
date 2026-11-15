@@ -3,6 +3,7 @@
 
 -- One source table as delivered in the latest extract, typed, keyed and hashed (143 section 9 item 2).
 -- Source version (149 Rule 2; 143 section 4): record_source, source_ts, source_seq.
+$history_block
 with delivered as (
 $delivered
 ),
@@ -27,6 +28,7 @@ typed as (
         '$record_source' as record_source,
         $source_ts as source_ts,
         $source_end as source_end,
+        $history_from_column as _history_from,
         row_hash,
 $hashdiffs
 $typed_columns
