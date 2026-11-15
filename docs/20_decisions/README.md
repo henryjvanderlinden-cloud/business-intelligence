@@ -53,3 +53,4 @@ describe options; only an ADR adopts one.
 | [0036](0036-releases-and-upstream-notes.md) | nsdn travels to clients as numbered releases with release notes, and improvements come back as upstream notes without client material | Accepted |
 | [0037](0037-vault-generator.md) | The vault generator: SHA-256 keys, one load pattern for every day, every version kept, and the vault's first day replayed from 2016-05-31 | Accepted |
 | [0038](0038-etl-capability-equivalence-investigation.md) | The ETL capability equivalence investigation: its name, place, order, method and principles | Accepted |
+| [0039](0039-first-use-case-and-where-marts-read-from.md) | The first use case is sales over time by customer segment; marts read only from the business vault; sales excluding tax is derived there; segment as currently known | Accepted |

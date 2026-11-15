@@ -2604,6 +2604,16 @@ classification and case base of 146. The question would be the first entry of th
 [400](../docs/40_roadmap/400_phasing.md) requires for Phase 3; no such register exists yet (`ARC-OP-12`), and the
 decision the question serves has not been stated.
 
+*2026-11-15, session 13, 16:57: item 8's remaining question and four further points ruled in
+[ADR-0039](../docs/20_decisions/0039-first-use-case-and-where-marts-read-from.md)*, on the model's recommendations,
+verbatim: "Agreed with all recommendations, please proceed." A mart takes its data only from the business vault, which
+reaches the raw vault through point-in-time and bridge structures, and never calculates; "sales" is the amount
+excluding tax, derived in the business vault, which settles item 1 (the raw/business line) for that one value only; a
+customer's segment is shown as currently known, since the source gives it no business time; the decision the question
+serves is worded as the decision register's first entry; the forecast stays out of the slice. Nothing is built. The
+design of the slice is owed in a note 141 under `docs/10_architecture/`, not yet written. Still open
+under item 8: the considerations, classification and case base of 146, and what counts as a distinct use case.
+
 ### ARC-OP-38 — PARTLY RULED — The ETL capability equivalence investigation: bringing the lightweight setup level with enterprise-grade environments
 **⛔ STATE: OPEN**
 Opened 2026-11-14, session 12, on the author's instruction, verbatim in part:
