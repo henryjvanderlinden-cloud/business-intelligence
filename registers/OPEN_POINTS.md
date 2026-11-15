@@ -2611,7 +2611,15 @@ reaches the raw vault through point-in-time and bridge structures, and never cal
 excluding tax, derived in the business vault, which settles item 1 (the raw/business line) for that one value only; a
 customer's segment is shown as currently known, since the source gives it no business time; the decision the question
 serves is worded as the decision register's first entry; the forecast stays out of the slice. Nothing is built. The
-design of the slice is owed in a note 141 under `docs/10_architecture/`, not yet written. Still open
+design of the slice was written the same day in
+[141](../docs/10_architecture/141_the-first-slice-business-vault-and-mart.md), proposed: every object above the raw
+vault a function of a knowledge date, kept as a table and as a table macro; point-in-time tables, bridges and one
+computed satellite in the business vault; two dimensions, one fact table at invoice-line grain and one analysis; a
+decision register of one file per decision; ten generated tests. Reviewed on sol, FAILS on the first version (a key
+known only from the source's history counted as present), all five findings applied
+([XREV](../docs/30_research/notes/XREV_2026-11-15_141-first-slice_sol.md)); the revised text is unreviewed and not
+ruled. Raised by the review and left open here: whether the status-tracking satellite should record a key first seen
+only in history (143). Still open
 under item 8: the considerations, classification and case base of 146, and what counts as a distinct use case.
 
 ### ARC-OP-38 — PARTLY RULED — The ETL capability equivalence investigation: bringing the lightweight setup level with enterprise-grade environments

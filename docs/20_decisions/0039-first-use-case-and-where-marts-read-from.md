@@ -80,7 +80,8 @@ and its dimension is added later, together with stock groups.
 
 The slice needs a business vault before it has a mart: at least a point-in-time structure for the customer, a bridge
 from invoice line to invoice and customer, and the one derived value. They are generated from declarations, not
-written by hand (ADR-0032); their design is owed in a note 141 under `docs/10_architecture/`, not yet written.
+written by hand (ADR-0032); their design is proposed in
+[141](../10_architecture/141_the-first-slice-business-vault-and-mart.md).
 
 Decision 4 means a report on past sales can change when a customer changes segment, with no sale having changed. For
 Wide World Importers nothing changes today, since no earlier version of a customer differs in category or buying
@@ -91,7 +92,7 @@ Gross profit is taken as the source delivers it. The analysis record shows `Line
 current cost, and is labelled so wherever it is shown.
 
 The decision register gets its first entry before it has a ruled form; where it lives and what an entry holds are
-to be proposed in note 141. Who maintains it at a real organisation stays open (`ARC-OP-12`): here the author stands in for a
+proposed in 141 §7. Who maintains it at a real organisation stays open (`ARC-OP-12`): here the author stands in for a
 manager who does not exist, which tests the mechanism and nothing about whether an organisation would keep it up.
 
 Decisions 2 to 6 were ruled with one sentence on the model's recommendations, as ADR-0037 was; the general assessment
