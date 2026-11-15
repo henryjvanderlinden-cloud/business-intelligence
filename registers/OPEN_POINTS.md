@@ -2580,6 +2580,30 @@ figures. Related to `ARC-OP-29` (the data model), `ARC-OP-27` (temporal behaviou
 
 *2026-10-29, session 11: a gap in 148 found while transcribing it. Six links take their effectivity's business start from "the naming event's date" (148 §3, 149 §4), but their driving hub is a line with no date of its own (147 §5): links 26, 27, 35, 36, 39 and 40. Their start is declared `unknown` in `model/` until the author rules; the recommendation is to keep it unknown, as the lines' own satellites do (149 §3.4, §3.5), since taking the header's date would be a lookup during loading. Also transcribed: link 28 (invoice of order, "no in the data, nullable") is declared optional, as 149 Rule 5 already reads it by keeping `Sales.Invoices.OrderID` as delivered.* *Both ruled by the author on 2026-10-29 at 12:33 in [ADR-0034](../docs/20_decisions/0034-model-declaration-format-and-viewer.md) decisions 4 and 5: the start stays unknown; link 28 is optional.*
 
+*2026-11-15, session 13: the first use case is ruled.* For the thin slice of handover 13 (point 17 of the general
+assessment, `PRC-OP-10`) the model proposed three business questions: A, where invoiced sales and gross profit come
+from, by month, customer and stock item, a transaction fact table at invoice-line grain; B, how long an order takes
+from placement to delivery and how many are late, an accumulating snapshot; C, what customers owe at month end, a
+periodic snapshot. It recommended A and asked whether stock groups, which need a bridge
+([146](../docs/10_architecture/146_fact-tables-and-new-questions.md) consideration 8), belong in the first cut. The
+author ruled at 16:43, verbatim:
+
+> 14: A, that was also my initial idea, sales over time by customer segment/group (if we have that available) and maybe
+> a forecast, but then we’re already over complicating things maybe.
+> 15. Leave out stock groups initially
+
+**Ruled:** question A, read as sales over time by customer segment; stock groups are left out initially. **Not ruled:**
+the forecast, which he raised and doubted in the same sentence; it stays a candidate for after the slice, and would be
+an engine's work (ADR-0024), since a forecast is a calculation beyond basic arithmetic. The segment he asked about is
+available: customer category and buying group give seven segments over the 663 customers, and none of the 51 earlier
+versions of a customer differs from the current one in category, buying group, bill-to customer or name (all 51 differ
+in credit limit), so the segmentation has no recorded history in this source. Both are from queries on the sandbox's
+source as `nsdn_reader` at simulated date 2016-06-06 (requests `s13-q-001` and `s13-q-002`, S13-005). Nothing is built:
+`RULED` is not `EXECUTED`. Still open under item 8: where the mart takes its data from, and the considerations,
+classification and case base of 146. The question would be the first entry of the decision register that
+[400](../docs/40_roadmap/400_phasing.md) requires for Phase 3; no such register exists yet (`ARC-OP-12`), and the
+decision the question serves has not been stated.
+
 ### ARC-OP-38 — PARTLY RULED — The ETL capability equivalence investigation: bringing the lightweight setup level with enterprise-grade environments
 **⛔ STATE: OPEN**
 Opened 2026-11-14, session 12, on the author's instruction, verbatim in part:
@@ -3293,6 +3317,10 @@ analysis on the existing vault (17), then a second, messy source with an answer 
 `README.md`, `AGENTS.md` and 400 corrected to what is built; the push is the author's); **17** as session 13's task;
 **18** as the task after it; **11** (load time) in [equivalence/030](../docs/30_research/equivalence/030_incremental-capture.md)
 and generator 0.3.0. Points 1 to 10, 12 to 15 and 19 have no landing place yet.
+
+*2026-11-15, session 13, on Claude Fable 5.2: point 17 has its question.* The author picked question A for the thin
+slice, sales over time by customer segment, with stock groups left out initially and a forecast raised but not ruled;
+his words and what was checked are in `ARC-OP-37`. Nothing is built yet.
 
 ## §5 — Commercial premises (`BIZ`)
 
