@@ -206,6 +206,13 @@ declarations alone (§2 item 3):
    cold-room chain loads on a whole-history day with 300 MB and file-system access off. The pinned profile now sets
    2 GB. **General rule: a load must run within an explicit memory budget, never the engine's default share of a
    machine it shares with the source database and everything else.**
+9. **With the budget in place** (the author re-ran `setup.ps1`, which re-pinned the profile, on 2026-11-15): the
+   Sunday 2016-06-05, whole history, loaded in 425 seconds and the Monday 2016-06-06, watermark, in 318, all 777
+   tests passing on both; 0.2.1 had taken 893 to 1,330 seconds a day on the same machine. On the Monday no single item
+   dominates any more: the largest are the nothing-dropped test of the cold room (14 s) and the staging of other
+   accumulating tables (order lines, stock-item transactions, invoice lines, 8 to 10 s each), the next candidates of
+   §3 item 2, which first need a guarantee from the source (§2 item 4). These two days were not compared with a
+   full-read vault (their extracts are only on the author's machine).
 
 ## 8. Not decided here
 
