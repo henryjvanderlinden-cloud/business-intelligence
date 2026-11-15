@@ -2,21 +2,28 @@
 --   declaration stg_wwi__warehouse__stockitemtransactions__nothing_dropped, sha256 ef73c9f71c29   template (tests), sha256 e3b0c44298fc
 -- DO NOT EDIT. Change the declaration or the template and regenerate (143 section 2).
 
--- 143 section 10, equivalence/030: every delivered row reaches staging exactly once, and staging holds
--- nothing that was not delivered, compared row by row (whole-row hash and period end, as multisets).
--- A history row identical to a current row is the same row delivered twice (149 section 5).
-with d as (
-    select *, false as h from {{ source('landing_wwi', 'warehouse__stockitemtransactions') }}
-),
-k as (
-    select h, ("StockItemTransactionID") as pk, sha256(coalesce(replace(replace("StockItemTransactionID", '\', '\\'), '|', '\|'), '\N') || '|' || coalesce(replace(replace("StockItemID", '\', '\\'), '|', '\|'), '\N') || '|' || coalesce(replace(replace("TransactionTypeID", '\', '\\'), '|', '\|'), '\N') || '|' || coalesce(replace(replace("CustomerID", '\', '\\'), '|', '\|'), '\N') || '|' || coalesce(replace(replace("InvoiceID", '\', '\\'), '|', '\|'), '\N') || '|' || coalesce(replace(replace("SupplierID", '\', '\\'), '|', '\|'), '\N') || '|' || coalesce(replace(replace("PurchaseOrderID", '\', '\\'), '|', '\|'), '\N') || '|' || coalesce(replace(replace("TransactionOccurredWhen", '\', '\\'), '|', '\|'), '\N') || '|' || coalesce(replace(replace("Quantity", '\', '\\'), '|', '\|'), '\N') || '|' || coalesce(replace(replace("LastEditedBy", '\', '\\'), '|', '\|'), '\N') || '|' || coalesce(replace(replace("LastEditedWhen", '\', '\\'), '|', '\|'), '\N')) as rh, cast(null as varchar) as e from d
+-- 143 section 10, equivalence/030 section 5: every delivered row the staging was to read reaches it exactly
+-- once, and it holds nothing else. Compared as control totals over the whole-row hash and period end (a
+-- count and two independent 64-bit hash sums), computed in one pass, so the test needs little memory
+-- when the whole history is read. A history row identical to a current row is the same row delivered
+-- twice (149 section 5). On watermark days, the rows staging read are those after the bound it used and
+-- the rows sharing key and start time with one of them.
+with cur as (
+    select ("StockItemTransactionID") as pk, null as s, sha256(coalesce(replace(replace("StockItemTransactionID", '\', '\\'), '|', '\|'), '\N') || '|' || coalesce(replace(replace("StockItemID", '\', '\\'), '|', '\|'), '\N') || '|' || coalesce(replace(replace("TransactionTypeID", '\', '\\'), '|', '\|'), '\N') || '|' || coalesce(replace(replace("CustomerID", '\', '\\'), '|', '\|'), '\N') || '|' || coalesce(replace(replace("InvoiceID", '\', '\\'), '|', '\|'), '\N') || '|' || coalesce(replace(replace("SupplierID", '\', '\\'), '|', '\|'), '\N') || '|' || coalesce(replace(replace("PurchaseOrderID", '\', '\\'), '|', '\|'), '\N') || '|' || coalesce(replace(replace("TransactionOccurredWhen", '\', '\\'), '|', '\|'), '\N') || '|' || coalesce(replace(replace("Quantity", '\', '\\'), '|', '\|'), '\N') || '|' || coalesce(replace(replace("LastEditedBy", '\', '\\'), '|', '\|'), '\N') || '|' || coalesce(replace(replace("LastEditedWhen", '\', '\\'), '|', '\|'), '\N')) as rh, cast(null as varchar) as e from {{ source('landing_wwi', 'warehouse__stockitemtransactions') }}
 ),
 expected as (
-    select rh, e from k a where not (false)
+    select rh, e from cur
 ),
-staged as (
-    select row_hash as rh, source_end as e from {{ ref('stg_wwi__warehouse__stockitemtransactions') }}
+fingerprints as (
+    select 'delivered' as side, count(*) as n,
+           sum(hash(rh || '|' || coalesce(e, '\N'))::hugeint) as h1,
+           sum(hash(coalesce(e, '\N') || '#' || rh)::hugeint) as h2
+    from expected
+    union all
+    select 'staged', count(*),
+           sum(hash(row_hash || '|' || coalesce(source_end, '\N'))::hugeint),
+           sum(hash(coalesce(source_end, '\N') || '#' || row_hash)::hugeint)
+    from {{ ref('stg_wwi__warehouse__stockitemtransactions') }}
 )
-select 'delivered, not staged' as problem, * from (select * from expected except all select * from staged)
-union all
-select 'staged, not delivered' as problem, * from (select * from staged except all select * from expected)
+select * from fingerprints
+where (select count(distinct (n, h1, h2)) from fingerprints) > 1

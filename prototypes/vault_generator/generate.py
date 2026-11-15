@@ -687,38 +687,51 @@ class Generator:
             names = [c["column_name"] for c in self.m.catalogue(table)["columns"]]
             st_cols = self.m.ml.split_list(fl.get("system_time", "none"))
             end_col = st_cols[1] if len(st_cols) == 2 else None
+            start = q(st_cols[0]) if end_col else "null"
             pk = ", ".join(q(c) for c in self.m.pk(table))
-            delivered = "select *, false as h from {{ source('landing_%s', '%s') }}" % (self.source, landing_name(table))
-            twice = "0"
+            rh = "sha256(%s)" % hash_text([n for n in names if n != end_col])
+            e = "cast(%s as varchar)" % (q(end_col) if end_col else "null")
+            cols = "(%s) as pk, %s as s, %s as rh, %s as e" % (pk, start, rh, e)
+            cur = "select %s from {{ source('landing_%s', '%s') }}" % (cols, self.source, landing_name(table))
+            body = ["with cur as (\n    %s\n)," % cur]
             if h != "none":
-                delivered += ("\n    union all by name\n    select *, true as h from {{ source('landing_%s', '%s') }}"
-                              % (self.source, landing_name(h)))
-                twice = ("(select count(*) from k a where a.h and exists (select 1 from k b where not b.h "
-                         "and b.pk = a.pk and b.rh = a.rh and b.e is not distinct from a.e))")
-                if end_col and self.version_store.get(table):
-                    # equivalence/030: only the rows staging was asked to read are counted: current rows, history
-                    # closed after the bound it used, and history sharing key and start time with one of those.
-                    bound = "coalesce((select any_value(_history_from) from {{ ref('%s') }}), '')" % stg
-                    keys = [q(c) for c in self.m.pk(table)] + [q(st_cols[0])]
-                    same = " and ".join("t.%s = a.%s" % (c, c) for c in keys)
-                    delivered = ("select a.* from (\n    %s\n) a\n    where not a.h or a.%s > %s\n"
-                                 "       or exists (select 1 from (\n    %s\n) t where (not t.h or t.%s > %s) and %s)"
-                                 % (delivered.replace("\n", "\n    "), q(end_col), bound,
-                                    delivered.replace("\n", "\n    "), q(end_col), bound, same))
-            dup = ("a.h and exists (select 1 from k b where not b.h and b.pk = a.pk and b.rh = a.rh "
-                   "and b.e is not distinct from a.e)") if h != "none" else "false"
+                hist = "select %s from {{ source('landing_%s', '%s') }}" % (cols, self.source, landing_name(h))
+                bounded = bool(end_col and self.version_store.get(table))
+                body.append("hist as (\n    %s\n)," % hist)
+                if bounded:
+                    body.insert(0, "{%%- set bound = none -%%}\n{%%- if execute -%%}\n"
+                                "  {%%- set bound = run_query(\"select any_value(_history_from) from \" ~ ref('%s')).columns[0].values()[0] -%%}\n"
+                                "{%%- endif %%}" % stg)
+                    body.append("hist_read as (\n"
+                                "{% if bound is none %}    select * from hist\n{% else %}"
+                                "    select * from hist where e > '{{ bound }}'\n    union all\n"
+                                "    select h.* from hist h where h.e <= '{{ bound }}' and exists (\n"
+                                "        select 1 from (select pk, s from cur union all select pk, s from hist where e > '{{ bound }}') t\n"
+                                "        where t.pk = h.pk and t.s = h.s)\n{% endif %}),")
+                else:
+                    body.append("hist_read as (\n    select * from hist\n),")
+                body.append("expected as (\n    select rh, e from cur\n    union all\n"
+                            "    select rh, e from hist_read h\n"
+                            "    where not exists (select 1 from cur c where c.pk = h.pk and c.rh = h.rh and c.e is not distinct from h.e)\n),")
+            else:
+                body.append("expected as (\n    select rh, e from cur\n),")
+            body.append("fingerprints as (\n"
+                        "    select 'delivered' as side, count(*) as n,\n"
+                        "           sum(hash(rh || '|' || coalesce(e, '\\N'))::hugeint) as h1,\n"
+                        "           sum(hash(coalesce(e, '\\N') || '#' || rh)::hugeint) as h2\n    from expected\n"
+                        "    union all\n"
+                        "    select 'staged', count(*),\n"
+                        "           sum(hash(row_hash || '|' || coalesce(source_end, '\\N'))::hugeint),\n"
+                        "           sum(hash(coalesce(source_end, '\\N') || '#' || row_hash)::hugeint)\n"
+                        "    from {{ ref('%s') }}\n)" % stg)
             test("%s__nothing_dropped" % stg,
-                 "-- 143 section 10, equivalence/030: every delivered row reaches staging exactly once, and staging holds\n"
-                 "-- nothing that was not delivered, compared row by row (whole-row hash and period end, as multisets).\n"
-                 "-- A history row identical to a current row is the same row delivered twice (149 section 5).\n"
-                 "with d as (\n    %s\n),\nk as (\n    select h, (%s) as pk, sha256(%s) as rh, cast(%s as varchar) as e from d\n),\n"
-                 "expected as (\n    select rh, e from k a where not (%s)\n),\n"
-                 "staged as (\n    select row_hash as rh, source_end as e from {{ ref('%s') }}\n)\n"
-                 "select 'delivered, not staged' as problem, * from (select * from expected except all select * from staged)\n"
-                 "union all\n"
-                 "select 'staged, not delivered' as problem, * from (select * from staged except all select * from expected)\n"
-                 % (delivered, pk, hash_text([n for n in names if n != end_col]),
-                    q(end_col) if end_col else "null", dup, stg))
+                 "-- 143 section 10, equivalence/030 section 5: every delivered row the staging was to read reaches it exactly\n"
+                 "-- once, and it holds nothing else. Compared as control totals over the whole-row hash and period end (a\n"
+                 "-- count and two independent 64-bit hash sums), computed in one pass, so the test needs little memory\n"
+                 "-- when the whole history is read. A history row identical to a current row is the same row delivered\n"
+                 "-- twice (149 section 5). On watermark days, the rows staging read are those after the bound it used and\n"
+                 "-- the rows sharing key and start time with one of them.\n"
+                 + "\n".join(body) + "\nselect * from fingerprints\nwhere (select count(distinct (n, h1, h2)) from fingerprints) > 1\n")
         for table, checks in sorted(mandatory.items()):
             stg = staging_name(self.source, table)
             cond = "\n   or ".join(sorted(checks))

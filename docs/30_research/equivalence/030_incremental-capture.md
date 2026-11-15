@@ -116,9 +116,13 @@ The information-analysis phase can put every source table *provisionally* in one
 ## 5. Two kinds of verification
 
 1. **Daily, on the increment**: did every row delivered since the watermark arrive, exactly once? The nothing-dropped
-   test compares delivered and staged rows as multisets, in both directions, by whole-row hash and period end; the
-   first version compared only counts, so one row twice and another missing would have passed (review, finding 3). The
-   completeness test then checks every staged version against the audit satellite.
+   test compares delivered and staged rows by control totals over the whole-row hash and period end: a count and two
+   independent 64-bit hash sums, so one row twice and another missing changes them. The first version compared only
+   counts, which that case passes (review, finding 3); the second compared the rows as multisets, which needed 3.6 GB
+   on a whole-history day and failed on the author's machine with the operating system out of memory (§7 item 7).
+   Control totals stream in one pass (379 MB peak for the same data). The completeness test then checks every staged
+   version against the audit satellite. **Memory is a constraint of the general rule too**: in the sandbox DuckDB
+   cannot spill to disk (external access is off), so a check over the whole history must stream.
 2. **Periodic, on the whole**: the full reread of §4 item 4, with the same tests over everything. Cheaper alternatives
    for very large sets, not built: control totals (count and hash sum per day or per partition), compared each day,
    with only the partitions whose totals moved read in full.
@@ -191,6 +195,10 @@ declarations alone (§2 item 3):
    closing time is kept; an empty table is dated. Its five-day clean load is again identical, in all 216 tables, to
    the full-read vault of 0.2.1. The reconstruction check covers the versions staged on the last day (1,705,797
    here); the whole history is covered on Sundays.
+7. **On the author's machine:** the rebuild of 2016-06-04 with 0.3.0 took 326 seconds (with 0.2.1, 572). The first
+   Sunday, 2016-06-05, failed: the multiset version of the nothing-dropped test ran out of memory on the whole history
+   (the operating system refused the allocation; nothing was published, the runner stopped). Replaced by control totals
+   (item 1 of §5); peak memory for that test 3.6 GB before, 379 MB after, in the cloud workspace.
 
 ## 8. Not decided here
 
