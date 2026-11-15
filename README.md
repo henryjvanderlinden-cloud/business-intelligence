@@ -13,13 +13,28 @@ degree. The contextual half has always been the bottleneck, because it required 
 scarce human who understood both the systems and the business. Language models are the
 first tooling that can carry a meaningful share of that second half.
 
-This repository exists, in its current phase, to **organise the thinking** before any
-component is built. Prose first, then specifications, then code.
+This repository began by **organising the thinking** before any component was built: prose first, then
+specifications, then code. It now holds working prototypes as well, each adopted by an ADR.
 
 ## Status
 
-Phase 0 — concept consolidation. Nothing is built. Nothing is decided that an ADR
-cannot reverse.
+*Updated 2026-11-15, session 12.* Formally still Phase 0 of
+[`400`](docs/40_roadmap/400_phasing.md) (Mode 1 of [ADR-0006](docs/20_decisions/0006-project-mode.md)): the gate into
+the next phase is a decision taken on a date, and it has not been taken. In practice the Wide World Importers sandbox
+has gone further:
+
+- **Built and running daily on the author's machine:** a simulated SQL Server source and its daily full extracts; the
+  analysis record of its 31 tables ([`analysis/`](analysis/README.md)); the raw vault declared as text
+  ([`model/`](model/README.md)) and generated as plain SQL by the vault generator
+  ([`prototypes/vault_generator/`](prototypes/vault_generator/README.md)), 216 tables loaded into DuckDB by the
+  runner, with 777 tests per load; a schema viewer; a PostgreSQL catalogue pass for a client database.
+- **Not built:** a business vault, any mart or analysis, the agent layer beyond a chat session and conventions, the
+  adjudication queue. The falsifiable core of [`410`](docs/40_roadmap/410_first-vertical-slice.md), whether business
+  keys and entity identity across sources can be machine-proposed, is untested: Wide World Importers is one clean
+  source.
+
+Nothing is decided that an ADR cannot reverse. The latest state is always in
+[`handovers/CURRENT.md`](handovers/CURRENT.md).
 
 ## How to read this repository
 
@@ -51,11 +66,16 @@ docs/10_architecture/  How the system is meant to work
 docs/20_decisions/     Architecture decision records (ADRs)
 docs/30_research/      Prior art notes, tool evaluations, external review passes
 docs/40_roadmap/       Phasing and the first vertical slice
-docs/50_process/       How the work is conducted: method, external review
+docs/50_process/       How the work is conducted: method, external review, record keeping
+docs/60_domain-knowledge/  Findings per industry, for future reference
+analysis/              The analysis record: per-table claims with evidence and confidence
+model/                 The raw vault declared as text, read by the generator and the viewer
+records/               The step log, sessions, audits, assets and sources
 tools/                 Mechanical checks — `python tools/check_repo.py`
 spec/                  Machine-readable contracts (JSON Schema) for catalog artifacts
-prototypes/            Throwaway code that answers one question
+prototypes/            Code that answers one question; the WWI sandbox and the vault generator run from here
 tests/                 Tests for anything that graduates out of prototypes/
+data/, scratch/        Not in git: extracts and the warehouse; working files
 ```
 
 ## Conventions

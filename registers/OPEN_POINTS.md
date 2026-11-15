@@ -3286,6 +3286,14 @@ point 15 are pushed.
 
 Closes when every point has a recorded landing place. Related to `PRC-OP-1`.
 
+*2026-11-15, session 12: points 11 and 16 to 18 have a landing place.* On 2026-11-15 the model summarised where the work
+stands and proposed, from the note's own suggestions, in this order: close session 12 (point 16), one thin mart and
+analysis on the existing vault (17), then a second, messy source with an answer key (18). The author, verbatim:
+"Allright, let's write the handover, and do them in that order." Landed: **16** in this session's close (handover 13,
+`README.md`, `AGENTS.md` and 400 corrected to what is built; the push is the author's); **17** as session 13's task;
+**18** as the task after it; **11** (load time) in [equivalence/030](../docs/30_research/equivalence/030_incremental-capture.md)
+and generator 0.3.0. Points 1 to 10, 12 to 15 and 19 have no landing place yet.
+
 ## §5 — Commercial premises (`BIZ`)
 
 ### BIZ-OP-1 — The adjudication hedge may not be priced

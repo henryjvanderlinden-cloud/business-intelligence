@@ -1,7 +1,7 @@
 # nsdn — Handover 12: the raw vault is declared, the viewer and the PostgreSQL pass exist; the generator is next
 ## Written 2026-11-03 at the close of session 11
 
-> **STATUS: CURRENT.**
+> **STATUS: HISTORICAL (superseded 2026-11-15 by [handover 13](HANDOVER_13_2026-11-15_raw-vault-generated-and-incremental-thin-mart-next.md))**
 
 ---
 

@@ -20,6 +20,11 @@ unhurried.
 *Cost: reading and writing. Risk: that it continues indefinitely. The gate into Phase 1
 is a decision taken on a date, not a condition that ripens on its own.*
 
+*Status 2026-11-15, session 12.* The gate has not been decided, but the work has run ahead of it in the Wide World
+Importers sandbox: parts of Phase 1 (the analysis record, without an adjudication queue) and of Phase 2 (the raw vault,
+generated and loaded daily) exist there, while the falsifiable core above is untested, since one clean source cannot
+test it. Whether to take the gate, and on what condition, is the author's decision.
+
 ## Phase 1 — The read-only half
 
 Access contracts, discovery, profiling, card generation, hypothesis generation, the

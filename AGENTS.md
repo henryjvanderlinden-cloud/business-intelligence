@@ -18,10 +18,12 @@ The full method is [`docs/50_process/500_working-method.md`](docs/50_process/500
 
 ## What this repository is
 
-A design repository for `nsdn`, an agent-driven data-infrastructure system. In its
-current phase it contains prose, not software. Do not scaffold application code, CI
+A design repository for `nsdn`, an agent-driven data-infrastructure system. It holds the
+design in prose and, since October 2026, working prototypes that ADRs adopted: the WWI
+sandbox and its runner (ADR-0015), the declarations and the vault generator (ADR-0032,
+ADR-0034, ADR-0037), with their tests. Do not scaffold other application code, CI
 pipelines, package manifests or test harnesses unless an ADR in `docs/20_decisions/`
-has adopted the thing being scaffolded.
+has adopted the thing being scaffolded. Generated files are never edited by hand.
 
 ## Rules
 
