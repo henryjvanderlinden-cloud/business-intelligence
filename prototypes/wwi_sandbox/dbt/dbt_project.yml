@@ -1,5 +1,6 @@
 # nsdn - Wide World Importers sandbox: the dbt project the runner builds after every load (ADR-0015).
 # Run only by runner.py, which supplies the pinned profile, the target and log paths, and the variable load_date.
+# The pinned profile sets an explicit memory budget (2 GB since 2026-11-15, equivalence/030 section 7 item 8).
 name: nsdn_wwi
 version: "0.1.0"
 config-version: 2
