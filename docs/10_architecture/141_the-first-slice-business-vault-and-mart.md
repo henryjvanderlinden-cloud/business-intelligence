@@ -1,12 +1,11 @@
 # 141 — The first slice: a business vault and a mart for sales by customer segment
 
-**Status: draft, proposed.** Written 2026-11-15, session 13, by Claude Fable 5.2, as the design owed by
+**Status: ruled 2026-11-15 in [ADR-0040](../20_decisions/0040-the-first-slice-design.md) and built the same day (§11).** Written 2026-11-15, session 13, by Claude Fable 5.2, as the design owed by
 [ADR-0039](../20_decisions/0039-first-use-case-and-where-marts-read-from.md), which rules the question, where the mart
 reads from, where sales excluding tax is derived, and that a segment is shown as currently known. Everything else here
-is proposed. Reviewed on sol the same day, which failed the first version on five points
+was proposed and is ruled as a whole in ADR-0040. Reviewed on sol the same day, which failed the first version on five points
 ([XREV](../30_research/notes/XREV_2026-11-15_141-first-slice_sol.md)); all five are applied below, in §2 items 5 and
-7, §3 rules 2 and 4, §4, §5 and §9, and the revision is unreviewed. Nothing in it is built; the conditional is used for
-what would be.
+7, §3 rules 2 and 4, §4, §5 and §9, and the revision is unreviewed. Sections 1 to 10 are the design as ruled, in the conditional in which it was written; §11 says what was built.
 
 ## 1. What this note does
 
@@ -124,9 +123,8 @@ the satellites they point at. It joins and selects; it computes nothing (ADR-003
 One declared query on the mart, `sales_by_customer_segment_month`: per month and segment (category and buying group),
 sales excluding tax, gross profit at current cost, and the number of invoices, with incomplete months marked. Its
 result would be a table in the warehouse and a short findings note written by the agent layer from that result,
-stating the knowledge date, the decision it serves and that profit is at current cost. Proposed place:
-`findings/<decision>/`. How the result leaves the author's machine is to be settled while building, since the
-sandbox's DuckDB cannot write files (handover 13).
+stating the knowledge date, the decision it serves and that profit is at current cost. Place:
+`findings/<decision>/`.
 
 ## 7. The decision register (general, proposed)
 
@@ -180,3 +178,35 @@ every measure has a contract; every fact table and analysis cites a decision; ev
 The stock item dimension and stock groups; the forecast; engines; access rules, though a mart would inherit the
 highest sensitivity class among its inputs (the invoice lines are `confidential`); quality gates (`ARC-OP-33`);
 several sources ([144](144_raw-vault-business-vault-calculation-engines.md) §3); what counts as a distinct use case.
+
+## 11. As built (2026-11-15, generator 0.4.0)
+
+Built by [`generate_marts.py`](../../prototypes/vault_generator/generate_marts.py) from the declarations under
+`model/business_vault/`, `model/marts/` and `model/analyses/`: 13 objects, 33 generated tests, 65 generated files.
+Where the build differs from §§2 to 9, or adds to them:
+
+1. **A point-in-time table also holds its hub's business key**, so that a mart reads no hub. One may name no
+   satellite: `pit_stock_item` only says which stock items are known and present, and gives the fact table the stock
+   item's identifier, so that the lineage test covers the stock item too.
+2. **Table and macro are two writings of one query.** The generator writes each object's query twice: as the dbt
+   model, reading the tables of the objects it depends on, and as the table macro, reading their macros. The macro is
+   created after the table by a generated dbt macro under `macros/generated/`. A generated test,
+   `<object>__equals_as_known`, compares the table with its macro at the load date on every build, so the two cannot
+   drift apart unseen.
+3. **The analysis is declared, not written as SQL**: rows (attributes of dimensions) and values (sums of measures,
+   distinct counts of keys). The generator refuses to sum a measure whose contract does not allow it along every
+   dimension, so `quantity` cannot be summed across stock items by an analysis.
+4. **How the result leaves the author's machine** (§6): the session's shell on his machine reads the published copy of
+   the warehouse; nothing is exported by the sandbox.
+5. **Evidence.** On a copy of the warehouse published on the author's machine (simulated date 2016-06-06), built in
+   the Linux shell on that machine with the runner's versions and its profile (2 GB, file access off): all 13 objects
+   and 33 tests in 57 seconds, every test passing. The fact table has 229,483 rows, as many as the source has
+   invoice lines; no line is unplaced. Three planted defects were each caught: two lines swapping customers and
+   amounts, by the lineage test alone, as the review predicted; a deleted row, by grain, reconciliation and lineage;
+   a row moved to the unknown member, by lineage and the unplaced-rows warning. Replay: the 13 macros at 2016-06-05 on
+   the full vault equal, row for row, the 13 tables built on the same vault with every row loaded after that date
+   removed. The test on the order of loads passes on the record of runs.
+6. **Not done.** The header of a generated file names `generate_marts.py` but not its checksum, unlike a template's.
+   The memory test ran on the author's machine, not in the cloud workspace. The rules for an absent invoice, a link
+   that ended and a key that reappeared are exercised by no data yet: every line in this vault is placed, so §3 rule
+   4 and the bridge's `not present` have only been read, not seen to work. This section and the code are unreviewed.

@@ -2617,8 +2617,12 @@ vault a function of a knowledge date, kept as a table and as a table macro; poin
 computed satellite in the business vault; two dimensions, one fact table at invoice-line grain and one analysis; a
 decision register of one file per decision; ten generated tests. Reviewed on sol, FAILS on the first version (a key
 known only from the source's history counted as present), all five findings applied
-([XREV](../docs/30_research/notes/XREV_2026-11-15_141-first-slice_sol.md)); the revised text is unreviewed and not
-ruled. Raised by the review and left open here: whether the status-tracking satellite should record a key first seen
+([XREV](../docs/30_research/notes/XREV_2026-11-15_141-first-slice_sol.md)); the revised text is unreviewed. *Ruled 2026-11-15, 22:14, in
+[ADR-0040](../docs/20_decisions/0040-the-first-slice-design.md), verbatim: "8: agree, it's a dq issue and needs to be
+visible. 9: okay 10: okay You can proceed."* Built the same evening as generator 0.4.0 (141 §11): 13 objects, 33
+generated tests, the decision register with its first entry (`DEC-0001`); every test passing on a copy of the
+author's published warehouse, three planted defects caught, a replay at an earlier date equal to the tables of that
+date. Not yet exercised by any data: an absent invoice, an ended link, a reappearing key. Raised by the review and left open here: whether the status-tracking satellite should record a key first seen
 only in history (143). Still open
 under item 8: the considerations, classification and case base of 146, and what counts as a distinct use case.
 

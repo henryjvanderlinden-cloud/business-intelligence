@@ -934,6 +934,100 @@ def check_model():
              counts.get("source", 0), n_cols))
 
 
+def check_marts():
+    """The business vault, the marts, the analyses and the decision register (141, ADR-0039, ADR-0040)."""
+    if not os.path.isdir(os.path.join(ROOT, "model")):
+        return
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    import model_lib as ml
+    decls = {f.get("name"): (r, f, s) for r, f, s, p, e in ml.load(ROOT) if f.get("name")}
+    kind = lambda n: decls[n][1].get("kind") if n in decls else None
+    def need(rel, name, k, what):
+        if kind(name) != k:
+            err(rel, "%s %r is not a declared %s" % (what, name, k))
+            return False
+        return True
+    # The decision register: one file per decision, each citing and cited.
+    decisions, ddir = {}, os.path.join(ROOT, "registers", "decisions")
+    for fn in sorted(os.listdir(ddir)) if os.path.isdir(ddir) else []:
+        if fn == "README.md" or not fn.endswith(".md"):
+            continue
+        rel = "registers/decisions/" + fn
+        front, sections, prose, errs = ml.parse(read(os.path.join(ddir, fn)))
+        for e in errs:
+            err(rel, e)
+        for k in ("id", "kind", "name", "status", "ruled_in", "decision", "owner", "cadence", "evidence", "written_by"):
+            if not front.get(k):
+                err(rel, "front matter lacks %s" % k)
+        if not re.match(r"^DEC-\d{4}$", front.get("id", "")) or not fn.startswith(front.get("id", "?") + "_"):
+            err(rel, "a decision is DEC-<nnnn> and its file DEC-<nnnn>_<slug>.md")
+        if front.get("id") in decisions:
+            err(rel, "decision %s is declared twice" % front.get("id"))
+        decisions[front.get("id")] = (rel, [n for n, _ in sections.get("Served by", [])])
+    cited = {}
+    counts = dict.fromkeys(("pit", "bridge", "computed", "dimension", "fact", "analysis"), 0)
+    for name, (rel, f, s) in sorted(decls.items()):
+        k = f.get("kind")
+        if k not in counts:
+            continue
+        counts[k] += 1
+        if k == "pit":
+            if need(rel, f.get("hub"), "hub", "hub"):
+                for sat, _ in s.get("Satellites", []):
+                    if need(rel, sat, "satellite", "satellite") and decls[sat][1].get("parent") != f["hub"]:
+                        err(rel, "%s is not a satellite of %s" % (sat, f["hub"]))
+        elif k == "bridge":
+            reached = {"start": f.get("start")}
+            need(rel, f.get("start"), "hub", "start")
+            for step, fl in s.get("Walk", []):
+                if not need(rel, fl.get("link"), "link", "link"):
+                    continue
+                lf = decls[fl["link"]][1]
+                if fl.get("from") not in reached:
+                    err(rel, "step %s leaves %r, which is not reached before it" % (step, fl.get("from")))
+                elif lf.get("driving") != reached[fl["from"]] or lf.get("from") != reached[fl["from"]]:
+                    err(rel, "step %s: %s is not driven by the hub it leaves, so it could give several keys (141 section 4)"
+                        % (step, fl["link"]))
+                reached[step] = lf.get("to")
+        elif k == "computed":
+            need(rel, f.get("hub"), "hub", "hub"), need(rel, f.get("pit"), "pit", "pit")
+            need(rel, f.get("satellite"), "satellite", "satellite")
+            if not [a for a in ml.split_list(f.get("ruled_in", "")) if a.startswith("ADR-")]:
+                err(rel, "a computed value cites the ADR that ruled it")
+            for v, fl in s.get("Values", []):
+                if not fl.get("expr") or not fl.get("type"):
+                    err(rel, "value %s needs expr= and type=" % v)
+        elif k == "dimension":
+            if f.get("rule") != "calendar":
+                need(rel, f.get("hub"), "hub", "hub"), need(rel, f.get("pit"), "pit", "pit")
+                if f.get("bridge"):
+                    need(rel, f["bridge"], "bridge", "bridge")
+        elif k == "fact":
+            need(rel, f.get("pit"), "pit", "pit"), need(rel, f.get("bridge"), "bridge", "bridge")
+            for key, fl in s.get("Keys", []):
+                if fl.get("dimension"):
+                    need(rel, fl["dimension"], "dimension", "dimension")
+            for m, fl in s.get("Measures", []):
+                if not fl.get("additive"):
+                    err(rel, "measure %s has no aggregation contract (146 consideration 6)" % m)
+        elif k == "analysis":
+            need(rel, f.get("fact"), "fact", "fact")
+        if k in ("fact", "analysis"):
+            if f.get("decision") not in decisions:
+                err(rel, "cites decision %r, which is not in registers/decisions/ (ADR-0040 decision 3)" % f.get("decision"))
+            else:
+                cited.setdefault(f["decision"], set()).add(name)
+    for d, (rel, served) in sorted(decisions.items()):
+        for n in served:
+            if n not in cited.get(d, set()):
+                err(rel, "lists %s under Served by, which does not cite %s" % (n, d))
+        for n in sorted(cited.get(d, set()) - set(served)):
+            err(rel, "%s cites %s and is not listed under Served by" % (n, d))
+    print("marts: %d point-in-time tables, %d bridges, %d computed satellites, %d dimensions, %d fact tables, "
+          "%d analyses; %d decisions" % (counts["pit"], counts["bridge"], counts["computed"], counts["dimension"],
+                                         counts["fact"], counts["analysis"], len(decisions)))
+
+
 def main():
     check_register()
     check_adr_index()
@@ -943,6 +1037,7 @@ def main():
     check_records()
     check_analysis()
     check_model()
+    check_marts()
 
     if warnings:
         print("\n%d warning(s):" % len(warnings))

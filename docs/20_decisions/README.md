@@ -54,3 +54,4 @@ describe options; only an ADR adopts one.
 | [0037](0037-vault-generator.md) | The vault generator: SHA-256 keys, one load pattern for every day, every version kept, and the vault's first day replayed from 2016-05-31 | Accepted |
 | [0038](0038-etl-capability-equivalence-investigation.md) | The ETL capability equivalence investigation: its name, place, order, method and principles | Accepted |
 | [0039](0039-first-use-case-and-where-marts-read-from.md) | The first use case is sales over time by customer segment; marts read only from the business vault; sales excluding tax is derived there; segment as currently known | Accepted |
+| [0040](0040-the-first-slice-design.md) | The first slice is built as designed in note 141: unplaced lines stay visible, "as known on" is a replay, the decision register is one file per decision | Accepted |

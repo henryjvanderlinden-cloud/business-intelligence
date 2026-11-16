@@ -21,9 +21,10 @@ import os
 import string
 import sys
 
-GENERATOR_VERSION = "0.3.0"
+GENERATOR_VERSION = "0.4.0"
 HERE = os.path.dirname(os.path.abspath(__file__))
-GENERATED_DIRS = ("models/staging/wwi", "models/raw_vault", "tests/generated")
+GENERATED_DIRS = ("models/staging/wwi", "models/raw_vault", "models/business_vault", "models/marts", "models/analyses",
+                  "macros/generated", "tests/generated")
 
 # 143 section 4 item 4: source type -> DuckDB type. A type not here stops the generator.
 TYPE_MAP = {"int": "INTEGER", "bigint": "BIGINT", "smallint": "SMALLINT", "tinyint": "UTINYINT", "bit": "BOOLEAN",
@@ -837,7 +838,12 @@ def main():
     with open(os.path.join(HERE, "scope.txt"), encoding="utf-8") as f:
         scope = [l.strip() for l in f if l.strip() and not l.startswith("#")]
     try:
-        files = Generator(args.root, scope).run()
+        gen = Generator(args.root, scope)
+        files = gen.run()
+        # The business vault, the marts and the analyses (141, ADR-0039, ADR-0040) are written by a module of their own.
+        import generate_marts
+        generate_marts.MartGenerator(gen, Unsupported, staging_name).run()
+        files = gen.files
     except Unsupported as e:
         print("generator stopped: %s" % e, file=sys.stderr)
         return 2

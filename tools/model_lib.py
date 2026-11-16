@@ -10,14 +10,24 @@ import re
 
 MODEL_DIR = "model"
 KINDS = {"hub": "model/raw_vault/hubs", "link": "model/raw_vault/links", "satellite": "model/raw_vault/satellites",
-         "reference": "model/raw_vault/reference", "source": "model/sources"}
+         "reference": "model/raw_vault/reference", "source": "model/sources",
+         "pit": "model/business_vault/pits", "bridge": "model/business_vault/bridges",
+         "computed": "model/business_vault/computed", "dimension": "model/marts/dimensions",
+         "fact": "model/marts/facts", "analysis": "model/analyses"}
 ID_PREFIX = {"hub": "nsdn:rv:hub:", "link": "nsdn:rv:link:", "satellite": "nsdn:rv:sat:", "reference": "nsdn:rv:ref:",
-             "source": "nsdn:source:"}
+             "source": "nsdn:source:", "pit": "nsdn:bv:pit:", "bridge": "nsdn:bv:brg:", "computed": "nsdn:bv:csat:",
+             "dimension": "nsdn:mart:dim:", "fact": "nsdn:mart:fct:", "analysis": "nsdn:analysis:"}
 NAME_RE = {"hub": re.compile(r"^hub_[a-z][a-z0-9_]*$"),
            "link": re.compile(r"^lnk_[a-z][a-z0-9_]*__[a-z][a-z0-9_]*$"),
            "satellite": re.compile(r"^sat_[a-z][a-z0-9_]*__[a-z][a-z0-9]*(__[a-z][a-z0-9_]*)?$"),
            "reference": re.compile(r"^ref_[a-z][a-z0-9_]*__[a-z][a-z0-9]*$"),
-           "source": re.compile(r"^[a-z][a-z0-9]*$")}
+           "source": re.compile(r"^[a-z][a-z0-9]*$"),
+           "pit": re.compile(r"^pit_[a-z][a-z0-9_]*$"),
+           "bridge": re.compile(r"^brg_[a-z][a-z0-9_]*__[a-z][a-z0-9_]*$"),
+           "computed": re.compile(r"^csat_[a-z][a-z0-9_]*__[a-z][a-z0-9_]*$"),
+           "dimension": re.compile(r"^dim_[a-z][a-z0-9_]*$"),
+           "fact": re.compile(r"^fct_[a-z][a-z0-9_]*$"),
+           "analysis": re.compile(r"^[a-z][a-z0-9_]*$")}
 COMMON = ["id", "kind", "name", "status", "ruled_in", "defined_in", "written_by", "written_at", "step", "method"]
 REQUIRED = {
     "hub": COMMON + ["concept", "grain", "subject_area"],
@@ -26,9 +36,18 @@ REQUIRED = {
                            "valid_time", "class", "subject_area"],
     "reference": COMMON + ["source", "source_table", "key", "key_space", "history", "class", "subject_area"],
     "source": COMMON + ["title", "key_space", "key_case", "extract", "by_rule"],
+    # The business vault and the marts (docs/10_architecture/141, ADR-0039, ADR-0040).
+    "pit": COMMON + ["hub", "subject_area"],
+    "bridge": COMMON + ["start", "subject_area"],
+    "computed": COMMON + ["hub", "pit", "satellite", "rule", "rule_version", "subject_area"],
+    "dimension": COMMON + ["subject_area"],
+    "fact": COMMON + ["fact_kind", "grain", "pit", "bridge", "decision", "intent", "class", "subject_area"],
+    "analysis": COMMON + ["decision", "question", "fact"],
 }
 SECTIONS = {"hub": {"Business key"}, "link": {"Columns", "Relations"}, "satellite": {"Columns"},
-            "reference": {"Columns"}, "source": {"Base tables"}}
+            "reference": {"Columns"}, "source": {"Base tables"},
+            "pit": set(), "bridge": {"Walk"}, "computed": {"Values"}, "dimension": {"Attributes"},
+            "fact": {"Keys", "Measures"}, "analysis": {"Rows", "Values"}}
 STATUSES = {"proposed", "accepted", "contested", "retired"}
 CLASSES = {"open", "internal", "confidential", "personal", "restricted"}
 SAT_KINDS = {"payload", "milestone", "reading"}

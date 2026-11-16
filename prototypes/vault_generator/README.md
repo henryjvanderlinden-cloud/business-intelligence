@@ -26,7 +26,16 @@ cloud suite's clean load in all 216 tables (17,346,219 rows; content fingerprint
 loads in about 105 seconds instead of 320; the five-day vault equals the full-read vault in all 216 tables; the eight
 checks pass. The whole history is still read on the first load, on Sundays and with `--vars '{full_history: true}'`.
 
+**Fourth evidence (2026-11-15): generator 0.4.0 writes a business vault, a mart and an analysis**
+([141](../../docs/10_architecture/141_the-first-slice-business-vault-and-mart.md) §11): 13 objects and 33 tests for
+sales by customer segment, each object a table and a table macro "as known on" a date. On a copy of the author's
+published warehouse: every test passes in 57 seconds, three planted defects are caught, and a replay at an earlier
+date equals the tables built on the vault as it then was.
+
 ## The pieces
+
+- `generate_marts.py` — called by `generate.py`; writes `models/business_vault/`, `models/marts/`, `models/analyses/`,
+  `macros/generated/` and their tests from `model/business_vault/`, `model/marts/` and `model/analyses/`.
 
 - `generate.py` — reads the declarations, the source file and the catalogue; writes `models/staging/wwi/`,
   `models/raw_vault/` and `tests/generated/` in `prototypes/wwi_sandbox/dbt/`. Standard library only, deterministic,

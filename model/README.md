@@ -29,7 +29,21 @@ model/
     reference/<source>/ref_<table>__<source>.md                 one per reference table (149 Rule 8)
 ```
 
-The business vault and the marts would get folders of their own when they are designed.
+Since 2026-11-15 (note [141](../docs/10_architecture/141_the-first-slice-business-vault-and-mart.md), ADR-0039,
+ADR-0040), in the same grammar and checked by `check_marts` in `tools/check_repo.py`:
+
+```
+  business_vault/
+    pits/pit_<hub>.md                         point-in-time table: a hub, and under Satellites those it points at
+    bridges/brg_<start>__<name>.md            bridge: a starting hub and, under Walk, steps over links (link=, from=)
+    computed/csat_<hub>__<name>.md            computed satellite: a rule, its version, and under Values expr=, type=, oracle=
+  marts/
+    dimensions/dim_<name>.md                  dimension: a hub with its pit and bridge, or rule: calendar; Attributes
+    facts/fct_<name>.md                       fact table: grain, pit, bridge, decision; Keys and Measures (additive=)
+  analyses/<name>.md                          analysis: a decision, a fact table; Rows, Values and Plausibility
+```
+
+A fact table and an analysis cite a decision of [`registers/decisions/`](../registers/decisions/README.md).
 
 ## 2. Grammar
 
