@@ -18,7 +18,7 @@ specifications, then code. It now holds working prototypes as well, each adopted
 
 ## Status
 
-*Updated 2026-11-15, session 12.* Formally still Phase 0 of
+*Updated 2026-11-17, session 13.* Formally still Phase 0 of
 [`400`](docs/40_roadmap/400_phasing.md) (Mode 1 of [ADR-0006](docs/20_decisions/0006-project-mode.md)): the gate into
 the next phase is a decision taken on a date, and it has not been taken. In practice the Wide World Importers sandbox
 has gone further:
@@ -27,8 +27,12 @@ has gone further:
   analysis record of its 31 tables ([`analysis/`](analysis/README.md)); the raw vault declared as text
   ([`model/`](model/README.md)) and generated as plain SQL by the vault generator
   ([`prototypes/vault_generator/`](prototypes/vault_generator/README.md)), 216 tables loaded into DuckDB by the
-  runner, with 777 tests per load; a schema viewer; a PostgreSQL catalogue pass for a client database.
-- **Not built:** a business vault, any mart or analysis, the agent layer beyond a chat session and conventions, the
+  runner, with 777 tests per load; a schema viewer; a PostgreSQL catalogue pass for a client database. Since
+  2026-11-16, one thin slice on top of it ([141](docs/10_architecture/141_the-first-slice-business-vault-and-mart.md),
+  ADR-0039, ADR-0040): a generated business vault, one mart and one analysis of sales by customer segment, with 39
+  more tests per load, the decision register's first entry ([`registers/decisions/`](registers/decisions/README.md))
+  and the first findings note ([`findings/`](findings/README.md)).
+- **Not built:** any mart beyond that slice, calculation engines, the agent layer beyond a chat session and conventions, the
   adjudication queue. The falsifiable core of [`410`](docs/40_roadmap/410_first-vertical-slice.md), whether business
   keys and entity identity across sources can be machine-proposed, is untested: Wide World Importers is one clean
   source.

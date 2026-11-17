@@ -3344,6 +3344,13 @@ and generator 0.3.0. Points 1 to 10, 12 to 15 and 19 have no landing place yet.
 slice, sales over time by customer segment, with stock groups left out initially and a forecast raised but not ruled;
 his words and what was checked are in `ARC-OP-37`. Nothing is built yet.
 
+*2026-11-17, session 13: point 17 has landed.* The chain runs from a source extract to an answer: generator 0.4.0
+writes a business vault, one mart and one analysis of sales by customer segment (ADR-0039, ADR-0040,
+[141](../docs/10_architecture/141_the-first-slice-business-vault-and-mart.md)), live on the author's machine since
+2026-11-16, and the first findings note answers the question for `DEC-0001`
+([findings](../findings/DEC-0001/2026-11-17_sales-by-customer-segment.md)). Point 8 ("nothing a business user would
+see exists") is answered by the same work. Points 1 to 7, 9, 10, 12 to 15 and 19 have no landing place yet.
+
 ## §5 — Commercial premises (`BIZ`)
 
 ### BIZ-OP-1 — The adjudication hedge may not be priced

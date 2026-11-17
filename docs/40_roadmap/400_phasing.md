@@ -25,6 +25,10 @@ Importers sandbox: parts of Phase 1 (the analysis record, without an adjudicatio
 generated and loaded daily) exist there, while the falsifiable core above is untested, since one clean source cannot
 test it. Whether to take the gate, and on what condition, is the author's decision.
 
+*Status 2026-11-17, session 13.* One thin slice of Phase 3 now exists in the sandbox as well: a generated business
+vault, one mart and one analysis answering one question, which cites the first entry of a decision register
+(`DEC-0001`), as Phase 3 below requires. The gate is still undecided.
+
 ## Phase 1 — The read-only half
 
 Access contracts, discovery, profiling, card generation, hypothesis generation, the
