@@ -27,7 +27,8 @@ verdict:       FAILS [the checker accepts a host named only inside a longer host
                say that an accepted note is applied and tested on WWI and released only once a release exists, and
                that examples may be abstract); 4 applied (ADR-0041 now says no general permission, statutory
                exceptions and case-by-case permission aside); 5 holds. 1, client details in ADR-0035's context
-               (unnamed, published since 2026-10-29, outside this change), put to the author. Unreviewed.
+               (unnamed, published since 2026-10-29, outside this change), put to the author, who ruled on
+               2026-11-17 at 14:26 to leave it: "4 a let's leave it, it's very generic." Unreviewed.
 ```
 
 ## sol's answer, verbatim

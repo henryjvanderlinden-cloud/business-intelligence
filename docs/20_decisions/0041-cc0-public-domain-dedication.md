@@ -18,8 +18,10 @@ reasoning, which the note itself calls a reasoned proposal and not legal advice,
 in this paragraph. Without a licence the author grants no general permission to reuse: others may read the repository
 and use its ideas, which are not protected, but may not copy, adapt or distribute its text and code without permission,
 outside the statutory exceptions; that holds for a client applying the method too. CC0 1.0 waives copyright and
-neighbouring rights as far as the law allows, and where a waiver is not possible (in the Netherlands the moral rights
-remain, for example) it falls back to an unconditional licence. It says nothing of patents or trademarks, and it cannot
+neighbouring rights as far as the law allows; where a waiver is not possible, CC0 provides a fallback licence to the
+extent the law allows, and certain moral rights may remain (in the Netherlands, for example). The note's first version
+called that fallback an unrestricted licence without conditions; a review on another model found that too strong,
+since the fallback too holds only as far as the law allows, and the note was corrected on 2026-11-17. It says nothing of patents or trademarks, and it cannot
 cover what others made.
 
 The aim is the author's: the knowledge should be free to use, a mention is welcome but not required, and a client that
