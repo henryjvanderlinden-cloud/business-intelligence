@@ -55,7 +55,8 @@ construction.
    carries notes into the main repository, where each is applied or declined on its own, tested on WWI, and released.
    *Amended 2026-11-17 by [ADR-0042](0042-reading-at-a-distance.md): one note may hold several lessons, each judged and refused on its own; a patch may
    be made against a reading point; under reading at a distance a second model checks a note for client terms before
-   the author carries it over.*
+   the author carries it over; an example may be abstract instead of restated on WWI; an accepted note is applied and
+   tested on WWI, and released only once a client uses a fixed release.*
 4. **No release yet.** The first release is cut when a client repository is about to be set up, not now.
    *Amended 2026-11-17 by [ADR-0042](0042-reading-at-a-distance.md): the first release is cut when a client chooses a fixed release; reading at a
    distance needs none.*

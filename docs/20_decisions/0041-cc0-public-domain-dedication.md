@@ -39,7 +39,8 @@ ADR with a check. The author ruled on 2026-11-17 at 13:53, verbatim: "1 - 4 agre
 ## Options considered
 
 *No licence*, the state until now. Its case: nothing is given away, and the author keeps every option. Against it:
-it defeats the stated aim, since no one, the author's own clients included, may lawfully copy the material.
+it defeats the stated aim, since it gives no one, the author's own clients included, a general permission to copy the
+material; copying would rest on a statutory exception or on permission he grants case by case.
 
 *MIT or CC BY 4.0.* Their case: both are widely understood, and both secure credit for the author, which has
 reputational value for a one-person company. Rejected because both make attribution a condition, and the author wants

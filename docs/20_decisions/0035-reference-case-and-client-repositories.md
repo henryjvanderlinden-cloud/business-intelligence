@@ -57,7 +57,8 @@ GitHub account, and client material must not enter it.
 ## Consequences
 
 nsdn now needs releases: a tag, with release notes saying what changed, why and with what intended impact, the practice
-the author described for regression testing. How improvements travel between the main repository and client
+the author described for regression testing. *Amended 2026-11-17 by [ADR-0042](0042-reading-at-a-distance.md): releases are
+needed only for a client that holds a fixed release.* How improvements travel between the main repository and client
 repositories is open, with a proposal, under `PRC-OP-9`; how the release sits inside a client repository (a git
 submodule at a tag, or the release archive copied in) is part of it.
 

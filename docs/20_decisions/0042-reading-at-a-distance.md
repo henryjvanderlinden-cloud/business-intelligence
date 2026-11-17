@@ -6,8 +6,9 @@
 - **Superseded by:** —
 - **Amends:** [ADR-0035](0035-reference-case-and-client-repositories.md) (point 3: a client repository holds a
   fixed release or a recorded reading point); [ADR-0036](0036-releases-and-upstream-notes.md) (points 1 and 2 apply
-  only to a fixed release; point 3 lets one note hold several lessons; point 4 ties the first release to a client
-  that chooses one)
+  only to a fixed release; point 3 lets one note hold several lessons, allows abstract examples and releases an
+  accepted note only once a release exists; point 4 ties the first release to a client that chooses one; its
+  Consequences' need for releases limited to that variant)
 
 ## Context
 
@@ -71,7 +72,8 @@ changes that.
    Wide World Importers or abstract. Under (b) a note is written now and then as a comparison at the level of concepts;
    a second model checks it for client terms, and the author carries only the checked version over by hand. One note
    may hold several lessons, provided each can be judged and refused on its own. A patch in a note is made against the
-   release in use or against the reading point.
+   release in use or against the reading point. An accepted note is applied here and tested on Wide World Importers;
+   it reaches a release only once a client uses one (point 5).
 5. **Releases become optional** (ADR-0036 point 4): the first is cut when a client chooses (a), not before.
 6. **ADR-0035 and ADR-0036 stay Accepted, amended by this record**; ADR-0036 point 5, that the analysis at a client runs
    under the client's own Claude, is unchanged.

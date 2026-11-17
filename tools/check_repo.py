@@ -1049,11 +1049,11 @@ def check_licence():
         if hashlib.sha256(body).hexdigest() != CC0_SHA256:
             err(LICENSE_FILE, "is not the unchanged CC0 1.0 Universal text (ADR-0041)")
     readme = read("README.md")
-    for needle, what in (("\n## License\n", "a '## License' section"),
-                         ("\n## Third-party material\n", "a '## Third-party material' section"),
-                         ("(LICENSE)", "a link to LICENSE"),
-                         ("(%s)" % NOTICES_FILE, "a link to %s" % NOTICES_FILE)):
-        if needle not in readme:
+    for pattern, what in ((r"(?m)^## License[ \t]*$", "a '## License' section"),
+                          (r"(?m)^## Third-party material[ \t]*$", "a '## Third-party material' section"),
+                          (r"\]\(LICENSE\)", "a link to LICENSE"),
+                          (r"\]\(%s\)" % re.escape(NOTICES_FILE), "a link to %s" % NOTICES_FILE)):
+        if not re.search(pattern, readme):
             err("README.md", "lacks %s (ADR-0041)" % what)
     if not os.path.isfile(os.path.join(ROOT, NOTICES_FILE)):
         err(NOTICES_FILE, "missing (ADR-0041)")
@@ -1078,8 +1078,10 @@ def check_licence():
             if inputs.get("url"):
                 urls.append(inputs["url"])
             for url in urls:
-                host = urlparse(url).netloc
-                if host and host not in notices:
+                host = urlparse(url).netloc.lower()
+                # the host must stand as a whole name: not part of a longer host such as not<host> or sub.<host>
+                named = re.search(r"(?<![\w.-])%s(?![\w-])" % re.escape(host), notices.lower())
+                if host and not named:
                     err(rel, "cites %s, which %s does not name (ADR-0041)" % (host, NOTICES_FILE))
                 hosts.add(host)
     if len(errors) == before:
