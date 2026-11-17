@@ -32,6 +32,13 @@ sales by customer segment, each object a table and a table macro "as known on" a
 published warehouse: every test passes in 57 seconds, three planted defects are caught, and a replay at an earlier
 date equals the tables built on the vault as it then was.
 
+**Fifth evidence (2026-11-17): generator 0.4.1 after review, and constructed cases.** sol failed 0.4.0 on five findings,
+three of them real ([XREV](../../docs/30_research/notes/XREV_2026-11-17_141-build_sol.md)); 0.4.1 applies them and
+guards the other two, with 15 tests more (141 §11 item 7). `test_slice.py` loads two constructed days after one real
+extract, with an invoice that disappears, a customer that disappears and returns, a member that leaves its buying
+group and a customer known only from history: every test passes on both days, the unplaced rows are exactly the
+constructed ones, and each day's replay of the day before equals the tables built then (141 §11 item 8).
+
 ## The pieces
 
 - `generate_marts.py` — called by `generate.py`; writes `models/business_vault/`, `models/marts/`, `models/analyses/`,
@@ -42,6 +49,9 @@ date equals the tables built on the vault as it then was.
   no dates in any file. `--check` fails on a missing, edited or stray generated file.
 - `templates/` — one SQL template per kind (Python `string.Template`; `$name` is the generator's, `{{ }}` is dbt's).
 - `scope.txt` — the source tables generated so far. A pattern not yet supported stops the generator (143 §13 item 4).
+- `test_slice.py` — the cloud suite of the business vault and mart (141 §11 item 8): starts from a warehouse, or builds
+  one from a single extract, and loads two constructed days after it. `python test_slice.py --root <repo> --warehouse
+  <file> --extract <dated extract folder>`; about ten minutes in the cloud workspace.
 - `test_load.py` — the cloud suite. Lands extracts with the runner's own code and profile and runs `dbt build` as
   the runner does. `python test_load.py --root <repo> --extracts <dir with dated extract folders>`; a folder may hold
   only the files of the tables in scope.

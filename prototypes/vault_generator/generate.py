@@ -21,7 +21,7 @@ import os
 import string
 import sys
 
-GENERATOR_VERSION = "0.4.0"
+GENERATOR_VERSION = "0.4.1"
 HERE = os.path.dirname(os.path.abspath(__file__))
 GENERATED_DIRS = ("models/staging/wwi", "models/raw_vault", "models/business_vault", "models/marts", "models/analyses",
                   "macros/generated", "tests/generated")

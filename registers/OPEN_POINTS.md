@@ -2622,7 +2622,10 @@ known only from the source's history counted as present), all five findings appl
 visible. 9: okay 10: okay You can proceed."* Built the same evening as generator 0.4.0 (141 §11): 13 objects, 33
 generated tests, the decision register with its first entry (`DEC-0001`); every test passing on a copy of the
 author's published warehouse, three planted defects caught, a replay at an earlier date equal to the tables of that
-date. Not yet exercised by any data: an absent invoice, an ended link, a reappearing key. Raised by the review and left open here: whether the status-tracking satellite should record a key first seen
+date. Not yet exercised by any data: an absent invoice, an ended link, a reappearing key. *2026-11-17:* the build was reviewed on sol, which failed 0.4.0 on five findings, three real and applied, two
+guarded ([XREV](../docs/30_research/notes/XREV_2026-11-17_141-build_sol.md)); generator 0.4.1, 48 tests for the slice;
+the paths no data had exercised were exercised by constructed days in
+[`test_slice.py`](../prototypes/vault_generator/test_slice.py), all checks passing (141 §11 items 7 and 8). Raised by the review and left open here: whether the status-tracking satellite should record a key first seen
 only in history (143). Still open
 under item 8: the considerations, classification and case base of 146, and what counts as a distinct use case.
 

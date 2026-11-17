@@ -210,3 +210,32 @@ Where the build differs from §§2 to 9, or adds to them:
    The memory test ran on the author's machine, not in the cloud workspace. The rules for an absent invoice, a link
    that ended and a key that reappeared are exercised by no data yet: every line in this vault is placed, so §3 rule
    4 and the bridge's `not present` have only been read, not seen to work. This section and the code are unreviewed.
+   *Done 2026-11-17: the code was reviewed on sol (item 7) and the paths named here were exercised by constructed
+   data (item 8). The checksum of `generate_marts.py` in the header is still not written.*
+7. **Review of the build** (2026-11-17, session 13, Claude Opus 5.5 setting and disposing): sol failed generator 0.4.0
+   on five findings ([XREV](../30_research/notes/XREV_2026-11-17_141-build_sol.md)). Two (a pointer naming two
+   satellite rows; an exact tie in source order) rest on a state the raw vault excludes, since every satellite has a
+   `version_unique` test and the load inserts only versions not yet stored; they are guarded anyway: every join
+   through a pointer is also bounded by the knowledge date, and a test per point-in-time satellite,
+   `pointer_resolves_once`, fails when a pointer names other than one row. Three were real and are applied in 0.4.1:
+   the comparisons of table with macro and of mart with delivery count duplicates (`except all`); every
+   point-in-time table, bridge, computed satellite and dimension has a `keys_complete` test against the keys it must
+   have; and the lineage test compares every attribute a dimension shows, labels included, so a wrong category or
+   buying-group name no longer passes. 15 tests more, 48 in all for the slice; 0.4.1 differs from 0.4.0 in nothing
+   else.
+8. **Constructed cases** ([`test_slice.py`](../../prototypes/vault_generator/test_slice.py), 2026-11-17, in the cloud
+   workspace with the runner's versions and profile): a warehouse is loaded from the extract of 2016-06-06 alone (831
+   tests passing in 198 s), then two constructed days are loaded after it, each with every test passing (119 s each)
+   and the unplaced-rows warning firing as it should. An invoice that disappears while its 4 lines stay: the lines
+   keep their rows, on the unknown customer, without a date. A customer that disappears for a day: on that day it is
+   not in `dim_customer` and its 363 lines are unplaced; the next day its status is `reappeared` and they are placed
+   again. A buying-group member that leaves its group: `No buying group` from that day. A customer known only from
+   the history table, with one invoice: in the hub, not in the dimension, its line unplaced but dated (review of the
+   design, finding 1). The unplaced rows are exactly the constructed ones (368 on the first day, 5 on the second), and
+   on each day every object's macro as known on the day before equals the table built that day. Planted afterwards
+   in the result, each defect the review named is caught by the test meant for it: a lost bridge row by
+   `keys_complete`, a wrong category label by `lineage`, a duplicated fact row by `equals_as_known`, `grain`,
+   `key_unique` and `lineage`, two satellite rows for one source version by `pointer_resolves_once`. Writing the suite
+   took three runs: two stopped on errors in the suite's own checks, and one on a construction that, deleting a
+   customer before copying it, left an invoice pointing at no customer, which the raw vault's link test refused.
+   The changes after review are unreviewed.

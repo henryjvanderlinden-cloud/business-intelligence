@@ -74,10 +74,14 @@ class MartGenerator:
                 "where h.load_date <= %s and s.status in ('present', 'reappeared')"
                 % (rv(hub), hk, rv(sts), k, hk, hk, hk, k))
 
-    def sat_join(self, alias, sat, pa, hk):
+    def sat_join(self, alias, sat, pa, hk, mode="T"):
+        # The pointer names one source version, which the raw vault stores once (its version_unique tests); the
+        # knowledge-date bound is a second guard, so that a macro can never read a row loaded after its date
+        # (review of the build, finding 1).
         return ("left join %s %s on %s.%s = %s.%s and %s.record_source = %s.%s__record_source\n"
-                "    and %s.source_ts is not distinct from %s.%s__source_ts and %s.source_seq = %s.%s__source_seq"
-                % (rv(sat), alias, alias, hk, pa, hk, alias, pa, sat, alias, pa, sat, alias, pa, sat))
+                "    and %s.source_ts is not distinct from %s.%s__source_ts and %s.source_seq = %s.%s__source_seq\n"
+                "    and %s.load_date <= %s"
+                % (rv(sat), alias, alias, hk, pa, hk, alias, pa, sat, alias, pa, sat, alias, pa, sat, alias, self.K(mode)))
 
     def sat_cols(self, sat):
         return [c for c, fl in self.decl(sat, "satellite")[2]["Columns"]]
@@ -135,7 +139,7 @@ class MartGenerator:
             sa = "s_%s_%s" % (alias, kind)
             if sa not in seen:
                 seen.add(sa)
-                joins.append(self.sat_join(sa, kind, alias, "hk_" + ahub[4:]))
+                joins.append(self.sat_join(sa, kind, alias, "hk_" + ahub[4:], mode))
             return "%s.%s" % (sa, q(col))
         if self.kinds.get(kind) == "computed" and via is None:
             cr, cf, cs = self.decl(kind, "computed")
@@ -193,7 +197,7 @@ class MartGenerator:
             raise self.U("%s does not point at %s" % (pit, sat))
         vals = ["cast(%s as %s) as %s" % (self.expr(fl["expr"], "s", sat), fl["type"], n) for n, fl in s["Values"]]
         return ("select p.%s, '%s' as rule, %d as rule_version,\n    %s\nfrom %s p\n%s"
-                % (hk, f["rule"], int(f["rule_version"]), ",\n    ".join(vals), self.obj(pit, mode), self.sat_join("s", sat, "p", hk)))
+                % (hk, f["rule"], int(f["rule_version"]), ",\n    ".join(vals), self.obj(pit, mode), self.sat_join("s", sat, "p", hk, mode)))
 
     def dimension_sql(self, f, s, mode, name):
         if f.get("rule") == "calendar":
@@ -307,14 +311,34 @@ class MartGenerator:
                 if not dim:
                     continue
                 dr, df, ds = self.decl(dim, "dimension")
-                da = "d_" + n
-                ajoins.append("left join %s %s on %s.hk_%s = f.%s" % (rv(dim), da, da, df["hub"][4:], n))
+                da, dhub = "d_" + n, df["hub"]
+                ajoins.append("left join %s %s on %s.hk_%s = f.%s" % (rv(dim), da, da, dhub[4:], n))
+                if node[via][1] != self.bk(dhub)[0]:
+                    raise self.U("lineage: %s reaches %s, not the table of %s" % (n, node[via][1], dhub))
+                own = "%s.%s" % (a, q(self.bk(dhub)[1][0]))      # empty when the row was not delivered
+                steps = {st[0]: st for st in self.walk(df["bridge"])[1]} if df.get("bridge") else {}
+                # Every attribute the dimension shows, its labels included (review of the build, finding 5): the value
+                # the delivered rows give, the unknown member's label where the row was not delivered, and the label
+                # for 'no link' where the delivered relationship is empty.
                 for an, afl in ds["Attributes"]:
-                    if afl.get("from", "").startswith("key.") and "via" not in afl:
-                        exp.append("%s.%s" % (a, q(afl["from"][4:]))); act.append("%s.%s" % (da, an))
-                    elif afl.get("from", "").startswith("key.") and "role" not in fl:
-                        step = [st for st in self.walk(df["bridge"])[1] if st[0] == afl["via"]][0]
-                        exp.append("%s.%s" % (a, q(link_to(step[1], node[via][1])))); act.append("%s.%s" % (da, an))
+                    kind2, col = afl["from"].split(".", 1)
+                    unk = ("'%s'" % afl["unknown"].replace("'", "''")) if "unknown" in afl else "null"
+                    w = afl.get("via")
+                    if w is None:
+                        val = "%s.%s" % (a, q(col))
+                    else:
+                        lcol = "%s.%s" % (a, q(link_to(steps[w][1], node[via][1])))
+                        if kind2 == "key":
+                            val = lcol
+                        else:
+                            xt, xk = self.bk(steps[w][4])
+                            xa = "x_%s_%s" % (n, w)
+                            joins.append("left join %s %s on %s.%s = %s" % (self.stg(xt), xa, xa, q(xk[0]), lcol))
+                            val = "%s.%s" % (xa, q(col))
+                        if "when_none" in afl:
+                            val = "case when %s is null then '%s' else %s end" % (lcol, afl["when_none"].replace("'", "''"), val)
+                    exp.append("case when %s is null then %s else %s end" % (own, unk, val))
+                    act.append("%s.%s" % (da, an))
                 continue
             kind, col = src.split(".", 1)
             if self.kinds.get(kind) == "computed":
@@ -325,23 +349,42 @@ class MartGenerator:
             act.append("f." + n)
         e = "select " + ", ".join(exp) + "\n    from %s t0" % self.stg(t0) + "".join("\n    " + j for j in joins)
         a = "select " + ", ".join(act) + "\n    from %s f" % rv(name) + "".join("\n    " + j for j in ajoins)
-        return "with delivered as (\n    %s\n),\nmart as (\n    %s\n)\n(select 'delivered, not in the mart' as problem, * from (select * from delivered except select * from mart))\nunion all\n(select 'in the mart, not delivered' as problem, * from (select * from mart except select * from delivered))" % (e, a)
+        return "with delivered as (\n    %s\n),\nmart as (\n    %s\n)\n(select 'delivered, not in the mart' as problem, * from (select * from delivered except all select * from mart))\nunion all\n(select 'in the mart, not delivered' as problem, * from (select * from mart except all select * from delivered))" % (e, a)
 
     def tests(self, rel, f, s):
         name, kind = f["name"], f["kind"]
         schema = SCHEMA[kind]
         out = []   # (test name, severity, comment, sql)
         macro = "%s.%s__as_known(%s)" % (schema, name, LOAD)
-        out.append(("equals_as_known", "error", "141 section 2: the table is its own table macro at the load date.",
-                    "(select * from %s except select * from %s)\nunion all\n(select * from %s except select * from %s)"
+        out.append(("equals_as_known", "error", "141 section 2: the table is its own table macro at the load date, row for row\n-- with multiplicity (except all; review of the build, finding 2).",
+                    "(select * from %s except all select * from %s)\nunion all\n(select * from %s except all select * from %s)"
                     % (rv(name), macro, macro, rv(name))))
         hub = f.get("hub") or (self.decl(f["pit"])[1]["hub"] if f.get("pit") else f.get("start"))
         if hub and kind != "analysis":
             hk = "hk_" + hub[4:]
             out.append(("key_unique", "error", "141 section 9 items 1 and 2: one row per key.",
                         "select %s from %s group by 1 having count(*) > 1" % (hk, rv(name))))
+        if kind in ("pit", "bridge", "computed") or (kind == "dimension" and f.get("rule") != "calendar"):
+            hk = "hk_" + hub[4:]
+            if kind in ("pit", "bridge"):
+                expected = "select %s from (\n%s\n)" % (hk, ind(self.present(hub, "T")))
+                what = "the keys of %s known and present" % hub
+            else:
+                expected = "select %s from %s" % (hk, rv(f["pit"]))
+                what = "the keys of %s" % f["pit"]
+            actual = "select %s from %s" % (hk, rv(name)) + (" where %s <> '%s'" % (hk, UNKNOWN) if kind == "dimension" else "")
+            out.append(("keys_complete", "error",
+                        "141 section 9 item 2: exactly %s, none lost and none added (review of the build, finding 4)." % what,
+                        "(select 'missing' as problem, * from (%s except all %s))\nunion all\n(select 'extra', * from (%s except all %s))"
+                        % (expected, actual, actual, expected)))
         if kind == "pit":
             for sat, fl in s.get("Satellites", []):
+                out.append(("pointer_resolves_once__" + sat, "error",
+                            "141 section 3 rule 2: every pointer names exactly one satellite row loaded by the load date\n"
+                            "-- (review of the build, findings 1 and 3; the raw vault's version_unique tests are the first guard).",
+                            "select p.%s, count(s.%s) as rows_found from %s p\n%s\nwhere p.%s__record_source is not null\n"
+                            "group by p.%s having count(s.%s) <> 1"
+                            % (hk, hk, rv(name), self.sat_join("s", sat, "p", hk), sat, hk, hk)))
                 out.append(("one_source_order__" + sat, "error",
                             "141 section 3 rule 2: the last row in source order is defined only within one source table.",
                             "select 'more than one record source' as problem from (select count(distinct record_source) as n from %s) where n > 1\n"
