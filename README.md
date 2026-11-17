@@ -92,3 +92,31 @@ data/, scratch/        Not in git: extracts and the warehouse; working files
 - What is *open* lives in the register, never in a document and never in a conversation.
 - A rule without a check is decoration. Run `python tools/check_repo.py` before
   committing.
+
+## License
+
+This repository is dedicated to the public domain under CC0 1.0 Universal (see [`LICENSE`](LICENSE)). You may use,
+copy, adapt and build on it for any purpose, without asking and without attribution. A mention is appreciated, never
+required.
+
+Third-party material described or used here keeps its own licence (see below).
+
+## Third-party material
+
+CC0 covers only what the author made. What others made keeps its own licence: it is named here, and the notices and
+attributions its licences ask to be kept with copies are in [`THIRD-PARTY-NOTICES.md`](THIRD-PARTY-NOTICES.md). The
+descriptions, analyses, declarations, generated SQL, code and findings the author wrote about this material are his,
+and fall under CC0 ([ADR-0041](docs/20_decisions/0041-cc0-public-domain-dedication.md)).
+
+1. **The Wide World Importers sample database** is Microsoft's, from
+   [microsoft/sql-server-samples](https://github.com/microsoft/sql-server-samples), under the MIT License. Its schema,
+   its names and its data values appear throughout `analysis/wwi/`, `model/`, `prototypes/wwi_sandbox/` and
+   `findings/`, and one evidence file quotes its data-load simulation.
+2. **Fourteen excerpts from the Microsoft Learn page** *What is Wide World Importers*, in evidence files of kind
+   `web source` under `analysis/wwi/`, are under CC BY 4.0. Each file names the page and its URL.
+3. **Two lists of ISO 3166 codes read from Wikipedia**, in the same kind of evidence file, each name their page;
+   Wikipedia's text is under CC BY-SA 4.0.
+4. **Open data sources** catalogued in [`records/sources.jsonl`](records/sources.jsonl), such as OpenStreetMap, the
+   KvK registers and the Utrecht PAR, each have their own licence, recorded per source where known. Their data is not
+   in this repository: `data/` is never committed.
+5. **Short quotations from other authors** in `docs/`, attributed where they appear, keep their authors' rights.

@@ -1028,6 +1028,64 @@ def check_marts():
                                          counts["fact"], counts["analysis"], len(decisions)))
 
 
+LICENSE_FILE = "LICENSE"
+NOTICES_FILE = "THIRD-PARTY-NOTICES.md"
+# sha256 of the CC0 1.0 Universal legal code as GitHub's licence template gives it, LF line endings (ADR-0041).
+CC0_SHA256 = "a2010f343487d3f7618affe54f789f5487602331c0a8d03f49e9a7c547cf0499"
+
+
+def check_licence():
+    """The repository's CC0 dedication and its third-party notices are in place (ADR-0041)."""
+    import hashlib
+    from urllib.parse import urlparse
+
+    before = len(errors)
+    path = os.path.join(ROOT, LICENSE_FILE)
+    if not os.path.isfile(path):
+        err(LICENSE_FILE, "missing; the repository is dedicated under CC0 1.0 (ADR-0041)")
+    else:
+        with open(path, "rb") as fh:
+            body = fh.read().replace(b"\r\n", b"\n")
+        if hashlib.sha256(body).hexdigest() != CC0_SHA256:
+            err(LICENSE_FILE, "is not the unchanged CC0 1.0 Universal text (ADR-0041)")
+    readme = read("README.md")
+    for needle, what in (("\n## License\n", "a '## License' section"),
+                         ("\n## Third-party material\n", "a '## Third-party material' section"),
+                         ("(LICENSE)", "a link to LICENSE"),
+                         ("(%s)" % NOTICES_FILE, "a link to %s" % NOTICES_FILE)):
+        if needle not in readme:
+            err("README.md", "lacks %s (ADR-0041)" % what)
+    if not os.path.isfile(os.path.join(ROOT, NOTICES_FILE)):
+        err(NOTICES_FILE, "missing (ADR-0041)")
+        return
+    notices = read(NOTICES_FILE)
+    hosts = set()
+    for dirpath, dirnames, filenames in os.walk(os.path.join(ROOT, "analysis")):
+        if os.path.basename(dirpath) != "evidence":
+            continue
+        for name in filenames:
+            if not name.endswith(".json"):
+                continue
+            rel = os.path.relpath(os.path.join(dirpath, name), ROOT)
+            try:
+                doc = json.loads(read(rel))
+            except ValueError:
+                continue
+            if doc.get("kind") != "web source":
+                continue
+            inputs = doc.get("inputs") or {}
+            urls = list(inputs.get("urls") or [])
+            if inputs.get("url"):
+                urls.append(inputs["url"])
+            for url in urls:
+                host = urlparse(url).netloc
+                if host and host not in notices:
+                    err(rel, "cites %s, which %s does not name (ADR-0041)" % (host, NOTICES_FILE))
+                hosts.add(host)
+    if len(errors) == before:
+        print("licence: CC0 1.0 in place; %d third-party hosts cited by web-source evidence, all named" % len(hosts))
+
+
 def main():
     check_register()
     check_adr_index()
@@ -1038,6 +1096,7 @@ def main():
     check_analysis()
     check_model()
     check_marts()
+    check_licence()
 
     if warnings:
         print("\n%d warning(s):" % len(warnings))
