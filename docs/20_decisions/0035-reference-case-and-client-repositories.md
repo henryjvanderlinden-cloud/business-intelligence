@@ -4,6 +4,7 @@
 - **Date:** 2026-10-29
 - **Supersedes:** —
 - **Superseded by:** —
+- **Amended by:** [ADR-0042](0042-reading-at-a-distance.md) (point 3: a fixed release, or a recorded reading point)
 
 ## Context
 
@@ -48,6 +49,8 @@ GitHub account, and client material must not enter it.
    own; none of it is tracked here now.
 3. **Each client has a repository of its own** for its data environment: its analysis record, its declarations, its
    register, its decisions and its step log, with **a tagged release of nsdn** inside it, at a fixed version.
+   *Amended 2026-11-17 by [ADR-0042](0042-reading-at-a-distance.md): or, when the client takes over the knowledge rather than running nsdn's tooling
+   unchanged, no copy of nsdn at all but a recorded reading point.*
 4. **The catalogue pass for PostgreSQL is built** as a prototype under `prototypes/catalogue_pass/`, with the viewer's
    raw-source mode, for that first client.
 

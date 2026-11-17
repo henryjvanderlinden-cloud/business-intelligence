@@ -4,6 +4,8 @@
 - **Date:** 2026-11-03
 - **Supersedes:** —
 - **Superseded by:** —
+- **Amended by:** [ADR-0042](0042-reading-at-a-distance.md) (points 1, 2 and 4 apply to a fixed release only; point 3 lets one
+  note hold several lessons)
 
 ## Context
 
@@ -41,14 +43,22 @@ construction.
    intended impact. A client repository moves to a new release in one commit of its own, after which its checker and
    the release's own tests run; a change the release makes in the client's record is attributed to a release note or
    treated as a regression.
+   *Amended 2026-11-17 by [ADR-0042](0042-reading-at-a-distance.md): applies only to a client that chooses a fixed release.*
 2. **In the client repository.** The release is a git submodule at the tag where the client's network reaches the
    author's GitHub repository, and otherwise the release archive copied into a folder `nsdn/`, with its version and
    checksum recorded. The client repository never edits that folder.
+   *Amended 2026-11-17 by [ADR-0042](0042-reading-at-a-distance.md): applies only to a client that chooses a fixed release; a client reading at a
+   distance keeps no copy of nsdn.*
 3. **Upstream.** An improvement found at a client is written as an upstream note in the client repository: what to
    change in nsdn, why, the evidence, and, where it is code, a patch against the release in use. A note carries no
    client names, metadata or data; an example is restated on the Wide World Importers reference case. The author
    carries notes into the main repository, where each is applied or declined on its own, tested on WWI, and released.
+   *Amended 2026-11-17 by [ADR-0042](0042-reading-at-a-distance.md): one note may hold several lessons, each judged and refused on its own; a patch may
+   be made against a reading point; under reading at a distance a second model checks a note for client terms before
+   the author carries it over.*
 4. **No release yet.** The first release is cut when a client repository is about to be set up, not now.
+   *Amended 2026-11-17 by [ADR-0042](0042-reading-at-a-distance.md): the first release is cut when a client chooses a fixed release; reading at a
+   distance needs none.*
 5. **At a client, the analysis runs under the client's own Claude.** When the client repository sits on the client's
    side, the analysis is performed with the client's Claude instance, so the client's metadata is read under the
    client's own arrangement with Anthropic. Whether other models (such as the cross-model review on sol) may read it is

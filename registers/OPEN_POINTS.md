@@ -3308,6 +3308,8 @@ way. Closes with an ADR.
 
 *2026-11-03: ruled by the author in [ADR-0036](../docs/20_decisions/0036-releases-and-upstream-notes.md), the three points as proposed; no release yet; at a client the analysis runs under the client's own Claude. Ruled is not executed: no release, no client repository, and neither of the two checks (release checksum, clean upstream notes) exists.*
 
+*2026-11-17: amended by the author in [ADR-0042](../docs/20_decisions/0042-reading-at-a-distance.md), from a note brought from another conversation: a client may instead read nsdn at a distance at a recorded reading point and make what it adopts its own; releases only for a client that runs nsdn's tooling unchanged; one upstream note may hold several lessons, each judged apart. Ruled is not executed: no client uses either variant yet.*
+
 ### PRC-OP-10 — Work through the general assessment of 2026-11-14 with Opus, point by point
 **⛔ STATE: OPEN**
 Opened 2026-11-14, session 12, by the author, verbatim:

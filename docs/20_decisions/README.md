@@ -49,10 +49,11 @@ describe options; only an ADR adopts one.
 | [0032](0032-generated-sql-machinery.md) | The deterministic machinery is generated plain SQL: declarations, a generator, and dbt models in folders | Accepted |
 | [0033](0033-wwi-step-c-satellites.md) | Wide World Importers, step C: the satellites of note 149; password hashes are never loaded, their column kept empty | Accepted |
 | [0034](0034-model-declaration-format-and-viewer.md) | The model is declared in small text files under `model/`, and viewed in a static page with no library | Accepted |
-| [0035](0035-reference-case-and-client-repositories.md) | nsdn keeps Wide World Importers as its reference case; each client gets a repository of its own with a tagged release of nsdn | Accepted |
-| [0036](0036-releases-and-upstream-notes.md) | nsdn travels to clients as numbered releases with release notes, and improvements come back as upstream notes without client material | Accepted |
+| [0035](0035-reference-case-and-client-repositories.md) | nsdn keeps Wide World Importers as its reference case; each client gets a repository of its own with a tagged release of nsdn | Accepted (amended by 0042) |
+| [0036](0036-releases-and-upstream-notes.md) | nsdn travels to clients as numbered releases with release notes, and improvements come back as upstream notes without client material | Accepted (amended by 0042) |
 | [0037](0037-vault-generator.md) | The vault generator: SHA-256 keys, one load pattern for every day, every version kept, and the vault's first day replayed from 2016-05-31 | Accepted |
 | [0038](0038-etl-capability-equivalence-investigation.md) | The ETL capability equivalence investigation: its name, place, order, method and principles | Accepted |
 | [0039](0039-first-use-case-and-where-marts-read-from.md) | The first use case is sales over time by customer segment; marts read only from the business vault; sales excluding tax is derived there; segment as currently known | Accepted |
 | [0040](0040-the-first-slice-design.md) | The first slice is built as designed in note 141: unplaced lines stay visible, "as known on" is a replay, the decision register is one file per decision | Accepted |
 | [0041](0041-cc0-public-domain-dedication.md) | The repository is dedicated to the public domain under CC0 1.0; third-party material keeps its own licence and is named in the README | Accepted |
+| [0042](0042-reading-at-a-distance.md) | A client may use nsdn as a source to learn from: read at a distance at a recorded reading point, what it adopts made its own; a fixed release only when it runs nsdn's tooling unchanged | Accepted |

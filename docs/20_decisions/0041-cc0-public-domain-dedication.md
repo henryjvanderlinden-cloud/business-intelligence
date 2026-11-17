@@ -77,7 +77,7 @@ naming them costs one section.
 ## Consequences
 
 Anyone, a client of the author included, may copy, adapt and build on the repository without asking. That is what the
-second lesson of the same note relies on, decided on its own. The dedication cannot be
+second lesson of the same note relies on, decided on its own in [ADR-0042](0042-reading-at-a-distance.md). The dedication cannot be
 withdrawn from what has been published under it; later material could be licensed differently, but what was taken
 stays free. Credit can no longer be enforced. CC0 gives no rights to the names Microsoft, SQL Server or Wide World
 Importers, nor to any patent.
