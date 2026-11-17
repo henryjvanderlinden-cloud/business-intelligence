@@ -19,8 +19,9 @@
    7 and 18; [144](../docs/10_architecture/144_raw-vault-business-vault-calculation-engines.md) §3 (several sources,
    proposed, not ruled) and `ARC-OP-37` item 2.
 5. Ask the sandbox job for its status (handover 08, *Driving the sandbox*). Expect simulated date 2016-06-06 and the
-   runner `loaded`, `last_ok_date` 2016-06-06, its last good project equal to the current one. 6.6 GB was free on
-   2026-11-17.
+   runner `loaded`, `last_ok_date` 2016-06-06, its last good project equal to the current one. 8.6 GB was free on
+   2026-11-17, after the author pushed the S13 commits and deleted the two old warehouse copies; he set the open points
+   below for the next session.
 6. Open session S14 in `records/sessions.jsonl` and log from S14-001.
 
 ## Where we stand
@@ -133,9 +134,8 @@ a version bump changes nothing but the header (it did for 0.4.1).
 
 ## Outstanding for the author, not the model
 
-**Push** (the S13 commits). **Rule or reject 030** (growth classes, the watermark conditions, the Sunday reread, one day
+**Rule or reject 030** (growth classes, the watermark conditions, the Sunday reread, one day
 of overlap). **The phase gate** of 400 and ADR-0006. **`PRC-OP-10`**: points 1 to 7, 9, 10, 12 to 15 and 19.
-**Delete** `data/warehouse_pre-vault_2026-11-04` and `data/warehouse_vault-0.1.0_2026-11-04` (1.8 GB) when satisfied.
 **The tolerances** of the maintenance baseline, before the first comparison. From handover 12, still open: `git gc`; the
 task type for design work; `ARC-OP-37` items 2 and 4 (several sources, conditions on engines); which customers are
 individuals and access rules per sensitivity class before production; the two guards of session 06; two commits of
