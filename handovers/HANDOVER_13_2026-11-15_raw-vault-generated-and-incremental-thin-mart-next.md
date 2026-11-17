@@ -1,7 +1,7 @@
 # nsdn — Handover 13: the raw vault is generated, tested and loaded incrementally; one thin mart and analysis is next
 ## Written 2026-11-15 at the close of session 12
 
-> **STATUS: CURRENT.**
+> **STATUS: HISTORICAL (superseded 2026-11-17 by [handover 14](HANDOVER_14_2026-11-17_first-slice-live-messy-source-next.md))**
 
 ---
 
