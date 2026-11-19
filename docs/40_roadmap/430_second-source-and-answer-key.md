@@ -2,8 +2,9 @@
 
 *Design, 2026-11-19, session 14. Adopts nothing by itself: what the author ruled on 2026-11-19 is in
 [ADR-0044](../20_decisions/0044-answer-key-harness-for-the-second-source.md); the choice of source is
-[ADR-0043](../20_decisions/0043-second-source-a-crm-derived-from-wwi.md). Unreviewed until the review note says
-otherwise.*
+[ADR-0043](../20_decisions/0043-second-source-a-crm-derived-from-wwi.md). Failed its first review on sol on
+2026-11-19 ([XREV](../30_research/notes/XREV_2026-11-19_430-second-source_sol.md)); sections 4 to 7 revised in
+response, unreviewed since.*
 
 ## 1. What this is for, and what in it is general
 
@@ -42,7 +43,7 @@ the list.
    from one (a hash included), no numbering, row order or file order that follows WWI's. Attributes that genuinely
    describe the same customer, a name, a phone number, an opening date, may agree or differ as real systems do.
 4. It writes `data/raw/crm/<date>/` atomically, as the WWI export does: gzipped CSV in the same dialect and a
-   `manifest.json` with rows, bytes and SHA-256 per file. Retention matches WWI's: the newest three dated folders.
+   `manifest.json` with rows, bytes and SHA-256 per file. Publication and retention are as §4 describes.
 5. It writes the key for the day, and the split of §5, into the hidden folder only.
 6. It uses the Python standard library only, so that it runs in the runner's pinned environment without a new package.
 7. It is tested by sol: determinism, stability of numbers across two consecutive days, and absence of the artefacts of
@@ -65,60 +66,128 @@ Consequences).
 
 `setup.ps1` copies the generator and the scorer from `C:\nsdn-holdout\` into the job's pinned folder
 (`C:\ProgramData\nsdn-wwi\holdout\`, writable by administrators only), as it copies the job itself, so their code never
-passes through the repository. The key, the seed and the split stay in `C:\nsdn-holdout\`.
+passes through the repository. The key, the seed and the split stay in `C:\nsdn-holdout\`. Setup enables the job only
+after the Python environment the generator needs is installed and the hidden folder is found writable.
 
-After each export, the job runs the generator with the runner's Python on the new extract. If the generator fails, the
-WWI extract stands and the response says so; the next export runs it again. A day's customer extract therefore always
-belongs to a WWI extract of the same date.
+**A generation is one unit.** After each export the job runs the generator on the new extract. Each run writes, in this
+order: the customer extract to a staging folder; the key and the split for that date into the hidden folder; then, last,
+a readiness record in the hidden folder naming the SHA-256 of the WWI manifest it read, of the customer manifest it
+wrote and of the key; and only then moves the staging folder into place as `data/raw/crm/<date>/`, whose manifest
+names the WWI manifest's SHA-256 as its input. A date without a readiness record whose hashes match the published
+folders has no generation, whatever files exist; the scorer refuses it.
+
+**Failure.** A failed generation leaves the advance and the WWI export committed; the response reports the export as
+done and the generation as failed, with a fixed message and an error code. Details, which may contain hidden content,
+go to the scorer's and generator's log in the hidden folder only, never into a response or the job's log in the
+repository. A new job action, `generate`, reruns the generator for a date whose WWI extract is still present, without
+advancing. Staging folders of failed runs are removed before the next run.
+
+**Retention is joint.** A customer extract is kept exactly as long as the WWI extract it was made from; when the job
+deletes a WWI date, it deletes that date's customer extract with it. Keys and readiness records in the hidden folder are
+kept. Before generating, the job checks free space on the repository's volume and on the hidden folder's, against a
+floor of its own.
+
+The runner reads only WWI today. When it is taught the second source (scope items 3 and 4), it must treat a date as
+ready only when both extracts and the readiness of the generation are present, never on the WWI extract alone.
 
 Changing `job.ps1` and `setup.ps1` for this, and for the action of §5, is one batch, followed by one rerun of
 `setup.ps1` by the author.
 
 ## 5. Scoring
 
-**What is proposed.** For a given date, a proposals file in the repository with, for each customer of the new system,
-either the WWI customer it is or "no counterpart", a confidence between 0 and 1 and a method label; and, separately,
-pairs of its own records proposed to be the same customer. One file per method run: *cheap signals only* (deterministic
-standardisation of names, phones, postcodes and addresses, no model) and *with the model*, reported apart, as 410
-requires.
+### 5.1 The experiment is frozen
 
-**Who scores.** A new job action, `score`, with the date, the proposals file and the part. The job runs the scorer, which
-reads the key and returns figures only: never a per-customer verdict, which would leak the key.
+Daily generation feeds the pipeline; it does not feed the measurement. The measurement uses an **experiment**, frozen
+once, before any development:
 
-**The figures.** For each method: proposed links, abstentions, precision (right links over proposed links), recall
-(right links over true links), the share of abstentions that are right, precision of the 50 highest-confidence links, and
-precision and recall in two tiers: links at or above the automatic-merge confidence, and links below it (the queue a
-person would read). For the system's own duplicates: precision and recall of the proposed pairs. A link to either of the
-WWI customers a merged record holds counts as right; merges are also reported apart.
+1. One simulated date is chosen. Its WWI extract and its customer extract are copied into `data/frozen/E1/`, which the
+   job and the runner never touch, and their manifests' SHA-256 are recorded.
+2. Its key, its split and the scorer's version are copied into `C:\nsdn-holdout\experiments\E1\` with a record of the
+   same hashes. Customers that later days add never enter E1.
+3. Every score request names the experiment, and the scorer checks the frozen hashes before it reads anything.
 
-**The held-back part.** The generator assigns each customer of the new system, by the hidden seed, to a development part
-(about 70%) or a held-back part (about 30%). Proposals always cover all customers. During development the scorer reports
-on the development part only; the held-back part is scored once, at the end, and the scorer refuses it a second time.
+A breach of §7 retires the experiment; the next one is generated with a new seed and new kinds of difference, and
+starts with no scoring history.
 
-**Few runs.** Every development run reveals a little of the key, and repeated runs could be used to probe it. A
-development run is made only for a new version of a proposing method, each recorded in the step log with the method's
-version; the scorer's own log in the hidden folder lets the author check that.
+### 5.2 The split is by identity group, and the development part is not secret
+
+The split is drawn over **identity groups**: a WWI customer together with every customer-system record that holds it,
+duplicates and merges included, closed transitively; a customer-system record with no WWI counterpart is a group of its
+own. About 70% of groups go to development and 30% are held back, by the hidden seed, once, for the experiment.
+
+The list of development record numbers is published with the experiment, without their counterparts. Development
+membership is therefore not something scoring can reveal, and no identity can be learnt on one side of the split and
+used on the other. The development labels are not secret either: aggregate feedback over many runs can reveal some of
+them, and that is accepted, since development data exists to be developed on. The development schedule is fixed before
+the first run: at most five development runs per method, each a new version of the method recorded in the step log
+before it is scored.
+
+### 5.3 The scoring contract
+
+**The proposals file.** One file per method run, UTF-8 CSV, one row per customer-system record of the experiment and no
+other rows: the record's number; the proposed WWI customer number, or empty for "no counterpart"; a confidence between 0
+and 1; the method label and version. A separate file lists proposed duplicate pairs of customer-system records with a
+confidence. A file with a missing, repeated or unknown record, an unknown WWI customer, or a confidence outside 0 to 1
+is rejected whole, with the reason, and is not scored.
+
+**The truth.** Each customer-system record has an acceptable set: the WWI customers it holds; one for most records, two
+or more for a merge, none for a record with no counterpart.
+
+**Cross-source figures**, over the records of the part being scored:
+
+1. A *link* is a row with a WWI customer. It is *right* when that customer is in the record's acceptable set.
+2. *Precision* is right links over links.
+3. *Recall* is right links over *eligible records*: records whose acceptable set is not empty. Duplicate records are
+   each an opportunity of their own; WWI customers with no record in the customer system are outside this measure.
+4. *Abstention accuracy* is, among rows with no WWI customer, the share whose acceptable set is empty.
+5. *The two tiers* split the links at the method's automatic-merge cutoff (§6): links at or above it are the automatic
+   tier, links below it the queue. Each tier's precision is over its own links; each tier's recall is over all eligible
+   records, so the two recalls add up to the method's recall.
+6. *Precision of the top 50*: links ordered by confidence, highest first, ties broken by record number ascending; over
+   all links when there are fewer than 50, which is reported.
+7. A figure whose denominator is zero is reported as undefined, never as 0 or 1.
+
+**Duplicate figures.** Proposed pairs are unordered; a repeated pair is rejected with the file. A pair is right when both
+records have non-empty acceptable sets that share a customer. Precision is right pairs over proposed pairs; recall is
+right pairs over all such pairs in the part.
+
+**What comes back** is these figures, per method and part, with the experiment, the scorer's version and the date.
+Never a per-record verdict.
+
+### 5.4 The held-back part is released once
+
+When development is over, both method files, cheap signals and with the model, are submitted together in one request,
+each with its automatic-merge cutoff, which was fixed on the development part by the rule of §6. The scorer records the
+consumption of the held-back part durably before it computes, then returns both results in one response. The same
+request repeated, byte for byte, returns the same results; any other held-back request for the experiment is refused.
 
 ## 6. Thresholds, fixed before the first score
 
-Proposed by the model and ruled by the author on 2026-11-19 (ADR-0044):
+Proposed by the model and ruled by the author on 2026-11-19 (ADR-0044); their reading below was made precise after the
+review of 2026-11-19 and is put to the author for confirmation.
 
-1. **Automatic merges**: precision of at least 0.98 among links at or above the automatic-merge confidence, since a wrong
-   merge mixes two customers' sales.
-2. **The queue**: worth a person's reading when at least 0.60 of its links are right.
-3. **The model's contribution**: at the automatic-merge tier's precision, recall with the model at least 0.05 higher than
-   with cheap signals only. Less is itself the finding 410 anticipates.
+**The automatic-merge cutoff** of a method is fixed on the development part, before the held-back release: the lowest
+confidence at which the links at or above it have a precision of at least 0.98, links of equal confidence counted
+together; if no confidence gives 0.98, the method has no automatic tier. It is then locked.
 
-The automatic-merge confidence is set per method on the development part, before the held-back part is scored. The
-held-back figures are the ones reported.
+1. **Automatic merges**: on the held-back part, precision of the automatic tier at least 0.98. A method with no
+   automatic links does not meet it.
+2. **The queue**: on the held-back part, precision of the queue at least 0.60. A method with no queue links does not
+   meet it.
+3. **The model's contribution**: both methods meet threshold 1, and the model's automatic-tier recall exceeds the cheap
+   signals' by at least 0.05, each at its own locked cutoff. This is recall at a common precision floor, not at exactly
+   equal precision. If the cheap signals miss threshold 1 and the model meets it, the model's contribution is reported
+   as such; if the model misses it, threshold 3 is not met. Less than 0.05 is itself the finding 410 anticipates.
+
+The held-back figures are the ones reported; the development figures are reported beside them as such.
 
 ## 7. Conduct of the proposing model
 
 It does not read `C:\nsdn-holdout\` or the job's pinned `holdout\` folder, ask sol or the author about the kinds of
-difference, the seed, the split or the key, or use a score for anything but a method's version. sol's build and review
-assignments instruct it to report on the generator and scorer without naming the kinds of difference. A breach, or a
-suspected one, makes the test void; it is recorded, and the generator is rerun by sol with a new seed and new kinds of
-difference.
+difference, the seed, the split beyond the published development list, or the key, or use a score for anything but a
+method's version within the schedule of §5.2. sol's build and review assignments instruct it to report on the generator
+and scorer without naming the kinds of difference. A breach, or a suspected one, retires the experiment (§5.1) and is
+recorded.
 
 ## 8. What the author does
 
