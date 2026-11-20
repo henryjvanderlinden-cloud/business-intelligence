@@ -80,6 +80,23 @@ themselves*.
 The table is a starting point. A root cause that turns up in practice and is caught by none of these is
 the signal to add a test where it would have been cheapest to catch it.
 
+## A first test in place
+
+*Added 2026-11-19 on the author's instruction ([ADR-0045](../20_decisions/0045-sales-viewer-proof-of-concept.md)).*
+The framework above is still not adopted, but a first step towards it exists:
+[`prototypes/sales_viewer/verify.py`](../../prototypes/sales_viewer/verify.py), written with the sales viewer proof of
+concept. It is the first test that follows a figure across every layer, from the reader's side rather than one object
+at a time. In this file's terms it combines a data test, reconciliation along the chain (line count, sales excluding
+tax, gross profit and invoice count agree from staging through the raw vault, the business vault, the mart and the
+analysis to the page; the analysis is recomputed from the fact per month, year, segment and month by segment), with
+plausibility checks (no line twice, no fan-out on the dimension join, every invoice in one segment and one month,
+amounts consistent within each line, monthly margin and sales within rough bands, every segment present each month,
+the partial month only up to the load date). On the warehouse known on 2016-06-06 it ran 22 checks with none failing.
+It complements the per-object tests the generator already writes for dbt
+(`prototypes/wwi_sandbox/dbt/tests/generated/`), 831 of which passed on the build of 2026-11-17. It is run by hand,
+is not a gate, and is not tested against injected defects; which of its checks become standing ones, and where they
+are declared, stays open in `ARC-OP-31`.
+
 ## Not decided
 
 The tooling for unit and data tests — [180](180_technology-posture.md) names dbt tests, Great Expectations and

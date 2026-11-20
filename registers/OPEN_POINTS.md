@@ -1875,6 +1875,15 @@ routed to the wrong tenant or partition, in [162](../docs/10_architecture/162_te
 comparison on a business calendar, the arrival schedule and the shape of a warning in 160, *Plausibility*. The
 amendment is unreviewed.
 
+**First test in place, 2026-11-19**, on the author's instruction ("so we've created the first step towards a Test
+Framework. Let's also record that somewhere"; [ADR-0045](../docs/20_decisions/0045-sales-viewer-proof-of-concept.md)):
+[`prototypes/sales_viewer/verify.py`](../prototypes/sales_viewer/verify.py), written with the sales viewer proof of
+concept, reconciles line count, sales, gross profit and invoices from staging through the raw vault, the business
+vault, the mart and the analysis to the page, and runs plausibility checks on the way (double counting, fan-out, bands
+on monthly margin and sales, completeness of segments and of the partial month); 22 checks, none failing, on the
+warehouse known on 2016-06-06. Recorded in [162](../docs/10_architecture/162_test-framework.md), *A first test in
+place*. It is run by hand and is not a gate; the row stays open on adoption, bands and tooling.
+
 *Everything from here to the end of this row is superseded by the redefinition above, and kept for provenance.*
 
 
@@ -2702,6 +2711,36 @@ Also overtaken, at 23:06 the same evening, by his ruling above; the paragraph it
   directory, its database, its cloud).
 - Whether "Apache licensed" means that licence as such or permissive open-source licences in general; DuckDB is under
   the MIT licence.
+
+### ARC-OP-39 — The sales viewer: does it graduate, and where does a house style live?
+**✅ STATE: EXECUTED 2026-11-19**
+**Ruled 2026-11-19 by the author** ([ADR-0045](../docs/20_decisions/0045-sales-viewer-proof-of-concept.md)), verbatim:
+
+> The sales viewer is not a supported tool, but it is a proof of concept, most importantly that the agentic layer can
+> generate a functioning visualization of the datamart, given all the context the LLM has. The house style should
+> stay outside this repo.
+
+The viewer stays under `prototypes/` as a proof of concept, unmaintained and not offered to clients; house styles are
+read at build time from outside the repository and branded output is ignored by git, as built. Its `verify.py` is
+recorded as a first test towards the test framework, in `ARC-OP-31` and 162. Nothing is owed under this row.
+
+**Superseded 2026-11-19 by ADR-0045, kept for the record.** The row as opened read:
+
+Opened 2026-11-19 from the author's request, the same morning, for an HTML visualization of the datamart with slicing
+and dicing, a line chart and a table underneath, in the style of the VDL-DIAA website. The prototype is
+[`prototypes/sales_viewer/`](../prototypes/sales_viewer/README.md): a single page over
+`analyses.sales_by_customer_segment_month`, built by `build.py`, with `verify.py` reconciling its figures from staging
+through the raw and business vault and the mart to the page (22 checks, all passing on the warehouse known on
+2016-06-06). The author found it good; nothing is ruled.
+
+Two things are open. First, whether the viewer graduates to a supported reader of the marts under an ADR, and if so
+whether it stays bound to one analysis or reads any declared analysis from its declaration. Second, where a house style
+lives: the model proposed, and built, a neutral page by default with the VDL-DIAA style kept in
+`C:\Git\vdl-diaa\huisstijl\brand.json` and passed in with `--brand`, the branded page written to an ignored `out/`,
+because ADR-0035 decision 2 keeps company material out of this repository and ADR-0041 dedicates it to the public
+domain. A client's house style would travel the same way, from its own repository (ADR-0036, ADR-0042). Whether
+`verify.py` should become a gate in the build is not this row's question; it belongs to `ARC-OP-31` and `ARC-OP-33`.
+Unreviewed on another model.
 
 ## §3 — Evidence and measurement (`EVI`)
 
