@@ -45,3 +45,6 @@ prototypes/schema_viewer/out/fragment.html
 
 # dbt writes an anonymous user id next to the profile it is given
 prototypes/wwi_sandbox/profiles/.user.yml
+
+# The sales viewer page embeds warehouse figures and, when branded, company material (ADR-0035)
+prototypes/sales_viewer/out/
