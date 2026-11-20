@@ -58,7 +58,7 @@ def read(rel):
 
 def markdown_files():
     for dirpath, dirnames, filenames in os.walk(ROOT):
-        dirnames[:] = [d for d in dirnames if d not in (".git", "node_modules", "__pycache__")]
+        dirnames[:] = [d for d in dirnames if d not in (".git", "node_modules", "__pycache__", "scratch")]
         for name in filenames:
             if name.endswith(".md"):
                 yield os.path.relpath(os.path.join(dirpath, name), ROOT)
