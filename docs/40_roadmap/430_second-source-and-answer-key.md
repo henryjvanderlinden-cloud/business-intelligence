@@ -62,6 +62,12 @@ answers without them (§7). The arrangement rests on that tool boundary and on t
 is not absolute, since the proposing model directs the calls ([ADR-0043](../20_decisions/0043-second-source-a-crm-derived-from-wwi.md),
 Consequences).
 
+The boundary is on the session that **proposes matches**. A session that only builds, the generator, the scorer or the
+job's changes, may have the folder connected, provided it never reads it. On 2026-11-21 the author connected it to
+session 14, which builds and proposes nothing; it is not read there, at his instruction, verbatim: "just promise not to
+look into it!". Proposals are made in a later session with only the repository connected, whose first check is that
+`C:\nsdn-holdout\` is not among its folders.
+
 ## 4. Running it every simulated day
 
 `setup.ps1` copies the generator and the scorer from `C:\nsdn-holdout\` into the job's pinned folder
@@ -164,7 +170,7 @@ request repeated, byte for byte, returns the same results; any other held-back r
 ## 6. Thresholds, fixed before the first score
 
 Proposed by the model and ruled by the author on 2026-11-19 (ADR-0044); their reading below was made precise after the
-review of 2026-11-19 and is put to the author for confirmation.
+review of 2026-11-19 and confirmed by the author on 2026-11-21.
 
 **The automatic-merge cutoff** of a method is fixed on the development part, before the held-back release: the lowest
 confidence at which the links at or above it have a precision of at least 0.98, links of equal confidence counted

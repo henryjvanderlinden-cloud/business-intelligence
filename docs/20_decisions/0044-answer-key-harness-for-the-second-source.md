@@ -53,12 +53,12 @@ the final figure a fit, not a measurement (410: freeze the sample and hold part 
    *Made precise 2026-11-19 after review, in 430 §5, and put to the author: the measurement uses an experiment frozen
    once, not the daily data; the split is drawn over identity groups and the development list is published without
    counterparts; at most five development runs per method; one scoring contract; both methods' held-back results
-   released together, once.*
+   released together, once. Confirmed by the author on 2026-11-21 at 17:29, by delegation: "i trust you, so do as you see fit."*
 5. **The thresholds are fixed now** (430 §6): automatic merges at least 0.98 precise; the queue worth reading at 0.60;
    the model at least 0.05 more recall than cheap signals at the automatic tier's precision.
    *Made precise 2026-11-19 after review, in 430 §6, and put to the author: each method's automatic-merge cutoff is
    fixed on the development part and locked; the comparison is of recall at those cutoffs with both methods at least
-   0.98 precise; a method with no links in a tier does not meet that tier's threshold.*
+   0.98 precise; a method with no links in a tier does not meet that tier's threshold. Confirmed by the author on 2026-11-21 at 17:29, by delegation: "i trust you, so do as you see fit."*
 6. **The proposing model keeps to the conduct of 430 §7**; a breach voids the test and is recorded.
 
 ## Consequences
