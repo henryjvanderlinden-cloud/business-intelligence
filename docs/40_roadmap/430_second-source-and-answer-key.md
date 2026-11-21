@@ -4,7 +4,7 @@
 [ADR-0044](../20_decisions/0044-answer-key-harness-for-the-second-source.md); the choice of source is
 [ADR-0043](../20_decisions/0043-second-source-a-crm-derived-from-wwi.md). Failed its first review on sol on
 2026-11-19 ([XREV](../30_research/notes/XREV_2026-11-19_430-second-source_sol.md)); sections 4 to 7 revised in
-response, unreviewed since.*
+response, unreviewed since; §9 records the build.*
 
 ## 1. What this is for, and what in it is general
 
@@ -199,3 +199,29 @@ recorded.
 
 Creates `C:\nsdn-holdout\` once, and reruns `setup.ps1` once, after the generator, the scorer and the job's changes
 exist. Nothing else, unless something breaks on the Windows side, which remains his to repair.
+
+## 9. As built, 2026-11-21
+
+sol built the generator, freeze and scorer in the hidden folder (25 tests passing after one fix round); the job and
+setup were changed in the repository; Astra reviewed sol's code and sol the job's, each failing its first version
+([XREV of the code](../30_research/notes/XREV_2026-11-21_holdout-code_astra.md),
+[XREV of the job](../30_research/notes/XREV_2026-11-21_job-holdout-integration_sol.md)). Where the build departs from
+or adds to sections 2 to 7:
+
+1. **The generator keeps state.** Customer numbers are held stable across days by a registry in the hidden folder, so a
+   day's output is reproducible from the extract, the seed and that registry, not from the extract and seed alone.
+2. **Cutoffs are exact decimal strings.** The scorer reports each method's automatic-merge cutoff, fixed by the rule of
+   §6 on that method's last development submission, as a decimal string or null, and the held-back request must repeat
+   it exactly, or `none`. The files submitted for the held-back part must be each method's last development
+   submission, byte for byte, so that the locked cutoff belongs to the version measured.
+3. **Registration of a method's version** in the step log before it is scored is the proposing session's duty; the
+   scorer enforces the five-version limit itself but does not read the step log.
+4. **Retiring an experiment** (§5.1) has no command: it is done by the author or by sol in the hidden folder, and
+   recorded. A freeze that fails partway keeps the experiment's name reserved, to be cleared the same way.
+5. **Difficulty is calibrated against a ceiling only.** A fixed, inexpensive baseline in the hidden folder
+   (standardised names, phones, postcodes and addresses, exact and simple fuzzy comparison, no model) must stay clearly
+   below a recall of 0.9 at a precision of 0.98 on the development part; the differences are not pushed down towards any
+   target, nor tuned against any model, since making the cheap signals fail on purpose would flatter the model. On the
+   build of 2026-11-21 the baseline reached a recall of about 0.8.
+6. **The job passes on only what it rebuilds.** A response carries each action's allowed fields with plain values, or
+   a fixed error code (430 §4); the scripts' standard error never leaves the machine's hidden folder.

@@ -14,7 +14,9 @@ assignment:    assume the implementation is wrong and show it, as an evaluation 
 second reader: assignment set by Claude Opus 5.5 in session 14, which has not seen the code. The code was written by
                sol; Astra reviewed it so that neither the builder nor the proposing model grades it.
 verdict:       FAILS [private-path confinement, split validation and exact cutoff reporting require correction; the
-               difficulty is too easy]. Disposition: all five sent to sol to fix in the hidden folder.
+               difficulty is too easy]. Disposition: all five sent to sol to fix in the hidden folder; sol's fix round
+               (scratch/HOLDOUT_FIX_REPORT.md) closed them, the difficulty calibrated against a ceiling only; Astra's
+               recheck, appended below, HOLDS.
 ```
 
 ## Astra's answer, verbatim
@@ -30,3 +32,17 @@ verdict:       FAILS [private-path confinement, split validation and exact cutof
 5. **FAILS — Q4: difficulty is too easy.** The needed class of change is independently calibrated challenge construction, with difficulty validated against a fixed inexpensive baseline before the experiment is frozen.
 
 VERDICT: FAILS — private-path confinement, split validation and exact cutoff reporting require correction.
+
+## Astra's recheck after the fix round, verbatim
+
+1. **CLOSED.** Private roots and destinations are now confined to the hidden tree, with ancestor junction/symlink checks before private writes in generation, freeze and scoring. The original redirected-destination counterexample is rejected; read-only path probes also passed.
+
+2. **CLOSED.** Freeze independently derives transitive identity components and requires exhaustive, unique membership for records and source identities before writing the experiment. Read-only probes confirmed rejection of overlapping membership, a component crossing partitions and incomplete source membership.
+
+3. **CLOSED.** The reported cutoff is now an exact decimal string, identical to the logged release token. The original long-decimal counterexample survives JSON serialization unchanged; the added regression returns that token through the release interface successfully.
+
+4. **CLOSED.** The repaired fixture and regressions cover invalid splits, redirected destinations and exact cutoff round trips. Generated partitions are checked independently, and persistence is compared by identity rather than only surviving account numbers. I inspected the tests and their saved 25-test passing log; I did not rerun the file-writing suite. The read-only probes above passed.
+
+5. **CLOSED.** The calibration uses a fixed, inexpensive baseline without model involvement. A fresh run with writes blocked reproduced the saved result and development artifact exactly, verified the current implementation hashes, and matched the initial result. Overall recall is approximately 0.801 at precision at least 0.98, clearly below 0.9; this satisfies the stated ceiling-only rule. The inspected implementation and recorded history show no tuning against a model or pursuit of a further target.
+
+VERDICT: HOLDS / all five findings are closed under the stated review scope.
