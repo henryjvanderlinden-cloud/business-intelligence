@@ -17,7 +17,8 @@ scripts below in `C:\ProgramData\nsdn-wwi\`, registers the task `nsdn-wwi-job`, 
 tests the path end to end. It can be run again; it keeps an existing database unless given `-Reset`.
 
 `job.ps1` runs every minute as the author, without a window. It handles request files in `data/wwi/requests/` and
-answers in `data/wwi/responses/`. It knows four actions and no others:
+answers in `data/wwi/responses/`. It knows seven actions and no others; the last three, and the generation after
+every export, were added for the second source (see *The customer system* below):
 
 | request | does |
 |---|---|
@@ -25,6 +26,10 @@ answers in `data/wwi/responses/`. It knows four actions and no others:
 | `{"action":"advance","days":1}` | runs Microsoft's simulator for the next simulated day (1 to 7 days), then a full extract of each day |
 | `{"action":"export"}` | a full extract of the current simulated day |
 | `{"action":"query","sql":"SELECT …"}` | runs the SQL as `nsdn_reader` (`EXECUTE AS … WITH NO REVERT`), result as CSV beside the response, at most 100 000 rows or 200 MB, each text or binary value cut at 100 000 characters or bytes; spatial columns must be selected as `col.ToString()` |
+
+| `{"action":"generate","date":"YYYY-MM-DD"}` | the customer system's extract for a date whose WWI extract is present; also run after every export |
+| `{"action":"freeze","experiment":"E1","date":"YYYY-MM-DD"}` | freezes an experiment: both extracts copied into `data/frozen/E1/`, with the development list |
+| `{"action":"score","experiment":"E1","part":"development","proposals":"data/proposals/…csv"}` | figures only, never a verdict per record; `part` `holdback` takes both methods' files and cutoffs, once |
 
 `request.ps1` only writes a request file; the desktop shortcut uses it to request `advance`.
 
@@ -39,6 +44,19 @@ An extract is `data/raw/wwi/<simulated date>/`: one `<schema>.<table>.csv.gz` pe
 simulator's own schema, ordered by primary key, and a `manifest.json` with rows, bytes and SHA-256 per file. CSV is RFC
 4180 in UTF-8; every value is quoted, and NULL is an empty unquoted field. Spatial columns are given as WKT text. The
 folder appears complete or not at all. The newest three dated folders are kept; `data/frozen/` is never touched.
+
+## The customer system (added 2026-11, ADR-0043, ADR-0044)
+
+A second, messy source for the falsifiable core of [410](../../docs/40_roadmap/410_first-vertical-slice.md): WWI's
+customers as an independently built customer system would hold them, designed in
+[430](../../docs/40_roadmap/430_second-source-and-answer-key.md). Its generator, freeze and scorer are written by sol
+and live in `C:\nsdn-holdout\`, outside this repository, with the answer key; `setup.ps1` copies the scripts into the
+pinned folder's `holdout\`. The model that proposes matches never reads that folder.
+
+After every export the job runs the generator on the new extract. Its extract is `data/raw/crm/<date>/`, published
+atomically after the key and a readiness record are written in the hidden folder; it is deleted when the WWI extract of
+the same date is. A failed generation leaves the export standing, is reported with a fixed code and no detail, and is
+repeated with `generate`. Proposals for scoring go in `data/proposals/`, which, like all of `data/`, is not in git.
 
 ## Limits, known in advance
 

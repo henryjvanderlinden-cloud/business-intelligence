@@ -231,6 +231,22 @@ if ($LASTEXITCODE -ne 0) { Fail "could not set permissions on $PinDir (icacls ex
 foreach ($f in @('job.ps1', 'request.ps1', 'runner.py', 'requirements.txt')) { Copy-Item -Force (Join-Path $PSScriptRoot $f) (Join-Path $PinDir $f) }
 New-Item -ItemType Directory -Path (Join-Path $PinDir 'profiles') | Out-Null
 Copy-Item -Force (Join-Path $PSScriptRoot 'profiles\profiles.yml') (Join-Path $PinDir 'profiles\profiles.yml')
+# The hidden folder's scripts (note 430 section 4, ADR-0044) are copied from C:\nsdn-holdout\code, never through the
+# repository, so the model that proposes matches never sees how the customer system's differences are made.
+$HoldoutRoot = 'C:\nsdn-holdout'
+$holdoutCode = Join-Path $HoldoutRoot 'code'
+if (Test-Path $holdoutCode) {
+    $probe = Join-Path $HoldoutRoot ('.setup-probe-' + [guid]::NewGuid().ToString('N'))
+    try { [System.IO.File]::WriteAllText($probe, 'x', $Utf8); Remove-Item -Force $probe }
+    catch { Fail "the hidden folder $HoldoutRoot is not writable for you; the job could not write keys there." }
+    $hp = Join-Path $PinDir 'holdout'
+    New-Item -ItemType Directory -Path $hp | Out-Null
+    $hs = @(Get-ChildItem -File -Path $holdoutCode -Filter '*.py')
+    foreach ($f in $hs) { Copy-Item -Force $f.FullName (Join-Path $hp $f.Name) }
+    Say "$($hs.Count) script(s) of the hidden folder installed in $hp."
+} else {
+    Say "no $holdoutCode yet: the customer system's scripts are not installed, and exports run without them."
+}
 $pins = @(Get-ChildItem $PinDir -File -Recurse | Sort-Object FullName | ForEach-Object { "$($_.FullName.Substring($PinDir.Length + 1)) $((Get-FileHash -Algorithm SHA256 $_.FullName).Hash.ToLowerInvariant())" })
 [System.IO.File]::WriteAllText((Join-Path $invDir 'pinned.txt'), ($pins -join "`r`n") + "`r`n", $Utf8)
 Say "pinned copies installed in $PinDir."
@@ -243,9 +259,11 @@ $settings = New-ScheduledTaskSettingsSet -MultipleInstances IgnoreNew -StartWhen
     -DontStopIfGoingOnBatteries -ExecutionTimeLimit (New-TimeSpan -Hours 2)
 $taskPrincipal = New-ScheduledTaskPrincipal -UserId $me -LogonType S4U -RunLevel Limited
 Register-ScheduledTask -TaskName $TaskName -Action $action -Trigger $trigger -Settings $settings -Principal $taskPrincipal -Force | Out-Null
+# Held disabled until the Python environment below exists: the job runs the hidden folder's scripts with it (430 section 4).
+Disable-ScheduledTask -TaskName $TaskName | Out-Null
 $dur = (Get-ScheduledTask -TaskName $TaskName).Triggers[0].Repetition.Duration
 if ($dur) { Say "WARNING: the task repeats only for $dur, not indefinitely." }
-Say "scheduled task '$TaskName' registered: every minute, as $me, no window, no stored password."
+Say "scheduled task '$TaskName' registered: every minute, as $me, no window, no stored password (switched on after the Python environment)."
 
 # ------------------------------------------------------------------ 6. runner environment and task
 $freeNow = [math]::Round((New-Object System.IO.DriveInfo([System.IO.Path]::GetPathRoot($PinDir))).AvailableFreeSpace / 1GB, 2)
@@ -303,6 +321,7 @@ $stamp = (Get-Date).ToString('yyyyMMddTHHmmss', $Inv)
 $sid = "$stamp-setup-status"
 [System.IO.File]::WriteAllText((Join-Path $reqDir "$sid.json.tmp"), '{"action":"status"}', $Utf8)
 Move-Item (Join-Path $reqDir "$sid.json.tmp") (Join-Path $reqDir "$sid.json")
+Enable-ScheduledTask -TaskName $TaskName | Out-Null
 Start-ScheduledTask -TaskName $TaskName
 Say 'testing: asked the job for its status; waiting up to three minutes ...'
 $resp = Join-Path $respDir "$sid.json"
