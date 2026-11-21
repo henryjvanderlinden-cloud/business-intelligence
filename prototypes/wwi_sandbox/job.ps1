@@ -19,7 +19,8 @@
     {"action":"score", "experiment":"E1", "part":"development", "proposals":"data/proposals/...csv",
      "duplicates":"data/proposals/...csv"}  figures only (430 5.3)
     {"action":"score", "experiment":"E1", "part":"holdback", "cheap":"...csv", "model":"...csv",
-     "cheap_cutoff":0.9, "model_cutoff":0.9, ...}  the one-time release (430 5.4)
+     "cheap_cutoff":0.9, "model_cutoff":"none", ...}  the one-time release (430 5.4); a
+                                            cutoff is a number from 0 to 1, or "none" for no automatic tier
 
   The last three run Python scripts that the author's setup.ps1 copied from C:\nsdn-holdout\code
   into the pinned folder's holdout\. They are not in this repository, so that the model proposing
@@ -273,9 +274,10 @@ function Resolve-Proposal([string]$rel) {
 
 function Get-Cutoff($req, [string]$name) {
     if (-not ($req.PSObject.Properties.Name -contains $name)) { throw "$name is required" }
+    if ([string]$req.$name -eq 'none') { return 'none' }   # a method with no automatic tier (430 section 6)
     $v = [double]0
     if (-not [double]::TryParse([string]$req.$name, [System.Globalization.NumberStyles]::Float, $Inv, [ref]$v) -or $v -lt 0 -or $v -gt 1) {
-        throw "$name must be a number from 0 to 1"
+        throw "$name must be a number from 0 to 1, or none"
     }
     return $v.ToString('R', $Inv)
 }
