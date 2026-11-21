@@ -57,6 +57,9 @@ After every export the job runs the generator on the new extract. Its extract is
 atomically after the key and a readiness record are written in the hidden folder; it is deleted when the WWI extract of
 the same date is. A failed generation leaves the export standing, is reported with a fixed code and no detail, and is
 repeated with `generate`. Proposals for scoring go in `data/proposals/`, which, like all of `data/`, is not in git.
+A response carries only a result rebuilt from each action's allowed fields and plain values, or a fixed error code
+(`PROTOCOL` when a script breaks its output contract, `TIMEOUT`, `START_FAILED`); a cutoff for the held-back release is
+given as the decimal string the scorer reported, or `"none"`.
 
 ## Limits, known in advance
 

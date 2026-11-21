@@ -19,14 +19,14 @@
     {"action":"score", "experiment":"E1", "part":"development", "proposals":"data/proposals/...csv",
      "duplicates":"data/proposals/...csv"}  figures only (430 5.3)
     {"action":"score", "experiment":"E1", "part":"holdback", "cheap":"...csv", "model":"...csv",
-     "cheap_cutoff":0.9, "model_cutoff":"none", ...}  the one-time release (430 5.4); a
-                                            cutoff is a number from 0 to 1, or "none" for no automatic tier
+     "cheap_cutoff":"0.9", "model_cutoff":"none", ...}  the one-time release (430 5.4); a
+                                            cutoff is the decimal string the scorer reported, or "none"
 
   The last three run Python scripts that the author's setup.ps1 copied from C:\nsdn-holdout\code
   into the pinned folder's holdout\. They are not in this repository, so that the model proposing
   matches never sees how the customer system's differences are made (ADR-0043, ADR-0044). Their
-  standard error is drained and never reported: it may hold hidden content. Only the single JSON
-  line each prints on standard output reaches a response.
+  standard error is drained and never reported: it may hold hidden content. A response carries
+  only a result rebuilt from each action's allowed fields and plain values, or a fixed error code.
 
   This file is installed by setup.ps1 as a pinned copy in C:\ProgramData\nsdn-wwi\. Editing
   the copy in the repository changes nothing until setup.ps1 is run again.
@@ -221,45 +221,145 @@ function Get-SimulatedDate($conn) {
 
 # ---------------------------------------------------------------- actions
 # ---------------------------------------------------------------- the hidden folder's scripts
-# Runs one pinned script and returns the object of the last JSON line it printed. Standard error
-# is read and dropped; a timeout, no output or unreadable output becomes a fixed code.
-function Invoke-Holdout([string]$script, [string[]]$argList) {
-    if (-not (Test-Path $HoldoutPy)) { return [pscustomobject]@{ status = 'error'; code = 'no-python' } }
-    $path = Join-Path $HoldoutPin $script
-    if (-not (Test-Path $path)) { return [pscustomobject]@{ status = 'error'; code = 'not-installed' } }
-    $psi = New-Object System.Diagnostics.ProcessStartInfo
-    $psi.FileName = $HoldoutPy
-    $psi.Arguments = (@(@('-I', $path) + $argList) | ForEach-Object { '"' + ([string]$_).Replace('"', '\"') + '"' }) -join ' '
-    $psi.UseShellExecute = $false; $psi.CreateNoWindow = $true
-    $psi.RedirectStandardOutput = $true; $psi.RedirectStandardError = $true
-    $p = [System.Diagnostics.Process]::Start($psi)
-    $outTask = $p.StandardOutput.ReadToEndAsync()
-    $errTask = $p.StandardError.ReadToEndAsync()
-    if (-not $p.WaitForExit($HoldoutTimeoutSec * 1000)) {
-        try { $p.Kill() } catch { }
-        return [pscustomobject]@{ status = 'error'; code = 'timeout' }
+# The scripts' contract (their build reports): exactly one JSON line on standard output; exit 0
+# with status "ok" and the action's fields, or exit 1 with {"status":"error","code":...}. Only a
+# result rebuilt from allowed fields reaches a response or the log, never the child's object as
+# printed; anything else becomes the fixed code PROTOCOL. Standard error is drained and dropped.
+$HoldoutCodes = @('ARGUMENTS','BUSY','PATH','SPACE','STATE','IDENTITY','MANIFEST','INTEGRITY','EXISTS','NOT_READY',
+    'FROZEN_HASH','CSV_SCHEMA','CSV_FORMAT','UNKNOWN_RECORD','REPEATED_RECORD','MISSING_RECORD','UNKNOWN_CUSTOMER',
+    'CONFIDENCE','METHOD','SELF_PAIR','REPEATED_PAIR','RUN_LIMIT','VERSION_USED','HOLDBACK_CONSUMED',
+    'DEVELOPMENT_REQUIRED','DEVELOPMENT_MISMATCH','CUTOFF_MISMATCH','IO','INTERNAL')
+
+function New-HoldoutError([string]$code) { return [pscustomobject]@{ status = 'error'; code = $code } }
+
+# Reads a property without tripping StrictMode on objects that lack it (or have none at all).
+function Get-Prop($o, [string]$name) {
+    if ($null -eq $o -or -not ($o -is [System.Management.Automation.PSCustomObject])) { return $null }
+    $p = $o.PSObject.Properties[$name]
+    if ($null -eq $p) { return $null }
+    return $p.Value
+}
+
+# Windows command-line quoting as the C runtime decodes it (backslashes before a quote and at the end doubled).
+function ConvertTo-WindowsArg([string]$a) {
+    if ($a.Length -gt 0 -and $a -notmatch '[\s"]') { return $a }
+    $sb = New-Object System.Text.StringBuilder
+    [void]$sb.Append('"'); $bs = 0
+    foreach ($ch in $a.ToCharArray()) {
+        if ($ch -eq [char]'\') { $bs++ }
+        elseif ($ch -eq [char]'"') { [void]$sb.Append([char]'\', 2 * $bs + 1); [void]$sb.Append('"'); $bs = 0 }
+        else { if ($bs -gt 0) { [void]$sb.Append([char]'\', $bs) }; $bs = 0; [void]$sb.Append($ch) }
     }
-    [void]$outTask.Wait(10000); [void]$errTask.Wait(10000)
-    $lines = @($outTask.Result -split "`r?`n" | Where-Object { $_.Trim() -ne '' })
-    if ($lines.Count -eq 0) { return [pscustomobject]@{ status = 'error'; code = 'no-output'; exit_code = $p.ExitCode } }
-    try { $obj = $lines[$lines.Count - 1] | ConvertFrom-Json }
-    catch { return [pscustomobject]@{ status = 'error'; code = 'bad-output'; exit_code = $p.ExitCode } }
-    return $obj
+    if ($bs -gt 0) { [void]$sb.Append([char]'\', 2 * $bs) }
+    [void]$sb.Append('"')
+    return $sb.ToString()
 }
 
-function Get-HoldoutStatus($r) {
-    if ($null -ne $r -and $r.PSObject.Properties.Name -contains 'status') { return [string]$r.status }
-    return ''
+# Copies a nested result keeping only plain keys and short, plain values: no free text can pass.
+function Copy-Plain($v, [int]$depth) {
+    if ($depth -gt 5) { throw 'too deep' }
+    if ($null -eq $v -or $v -is [bool] -or $v -is [int] -or $v -is [long] -or $v -is [double] -or $v -is [decimal]) { return $v }
+    if ($v -is [string]) {
+        if ($v -match '^[A-Za-z0-9_.:\-]{0,64}$') { return $v }
+        throw 'string not plain'
+    }
+    if ($v -is [System.Management.Automation.PSCustomObject]) {
+        $o = [ordered]@{}
+        foreach ($p in $v.PSObject.Properties) {
+            if ($p.Name -notmatch '^[a-z0-9_]{1,40}$') { throw 'key not plain' }
+            $o[$p.Name] = Copy-Plain $p.Value ($depth + 1)
+        }
+        return [pscustomobject]$o
+    }
+    if ($v -is [System.Array]) { return @($v | ForEach-Object { Copy-Plain $_ ($depth + 1) }) }
+    throw 'type not plain'
 }
 
-function Get-HoldoutCode($r) {
-    if ($null -ne $r -and $r.PSObject.Properties.Name -contains 'code') { return [string]$r.code }
-    return 'unknown'
+# What each action may return on success: these fields, and nothing else.
+$HoldoutFields = @{
+    'generate_crm.py' = @('status', 'date', 'rows', 'manifest_sha256')
+    'freeze.py'       = @('status', 'experiment', 'date', 'scorer_version')
+    'score.py'        = @('status', 'experiment', 'date', 'scorer_version', 'part', 'method', 'version', 'figures',
+                          'cheap', 'model', 'automatic_recall_gain', 'threshold_3')
+}
+
+function ConvertTo-HoldoutResult([string]$script, $obj, [int]$exitCode) {
+    $status = Get-Prop $obj 'status'
+    if ($exitCode -eq 1 -and $status -eq 'error') {
+        $code = [string](Get-Prop $obj 'code')
+        if ($HoldoutCodes -contains $code) { return New-HoldoutError $code }
+        return New-HoldoutError 'PROTOCOL'
+    }
+    if ($exitCode -ne 0 -or $status -ne 'ok') { return New-HoldoutError 'PROTOCOL' }
+    $allowed = $HoldoutFields[$script]
+    $out = [ordered]@{}
+    try {
+        foreach ($p in $obj.PSObject.Properties) {
+            if ($allowed -notcontains $p.Name) { return New-HoldoutError 'PROTOCOL' }
+            $out[$p.Name] = Copy-Plain $p.Value 0
+        }
+    } catch { return New-HoldoutError 'PROTOCOL' }
+    if ($script -eq 'generate_crm.py' -and -not ([string]$out['date'] -match '^\d{4}-\d{2}-\d{2}$' -and [string]$out['manifest_sha256'] -match '^[0-9a-f]{64}$')) {
+        return New-HoldoutError 'PROTOCOL'
+    }
+    return [pscustomobject]$out
+}
+
+# Runs one pinned script under one deadline for exit and both drains; on timeout the whole
+# process tree is killed. Never reads a stream result that has not completed.
+function Invoke-Holdout([string]$script, [string[]]$argList) {
+    if (-not (Test-Path $HoldoutPy)) { return New-HoldoutError 'NO_PYTHON' }
+    $path = Join-Path $HoldoutPin $script
+    if (-not (Test-Path $path)) { return New-HoldoutError 'NOT_INSTALLED' }
+    $p = $null
+    try {
+        $psi = New-Object System.Diagnostics.ProcessStartInfo
+        $psi.FileName = $HoldoutPy
+        $psi.Arguments = (@(@('-I', $path) + $argList) | ForEach-Object { ConvertTo-WindowsArg ([string]$_) }) -join ' '
+        $psi.UseShellExecute = $false; $psi.CreateNoWindow = $true
+        $psi.RedirectStandardOutput = $true; $psi.RedirectStandardError = $true
+        $deadline = (Get-Date).AddSeconds($HoldoutTimeoutSec)
+        $p = [System.Diagnostics.Process]::Start($psi)
+        $outTask = $p.StandardOutput.ReadToEndAsync()
+        $errTask = $p.StandardError.ReadToEndAsync()
+        $left = [int][math]::Max(0, ($deadline - (Get-Date)).TotalMilliseconds)
+        if (-not $p.WaitForExit($left)) {
+            try { & taskkill.exe /T /F /PID $p.Id 2>&1 | Out-Null } catch { }
+            try { if (-not $p.HasExited) { $p.Kill() } } catch { }
+            try { [void]$p.WaitForExit(10000) } catch { }
+            return New-HoldoutError 'TIMEOUT'
+        }
+        $left = [int][math]::Max(10000, ($deadline - (Get-Date)).TotalMilliseconds)
+        if (-not [System.Threading.Tasks.Task]::WaitAll([System.Threading.Tasks.Task[]]@($outTask, $errTask), $left)) {
+            return New-HoldoutError 'TIMEOUT'
+        }
+        $exitCode = $p.ExitCode
+        $lines = @($outTask.Result -split "`r?`n" | Where-Object { $_.Trim() -ne '' })
+        if ($lines.Count -ne 1) { return New-HoldoutError 'PROTOCOL' }
+        try { $obj = $lines[0] | ConvertFrom-Json } catch { return New-HoldoutError 'PROTOCOL' }
+        return ConvertTo-HoldoutResult $script $obj $exitCode
+    } catch {
+        return New-HoldoutError 'START_FAILED'
+    } finally {
+        if ($null -ne $p) { try { $p.Dispose() } catch { } }
+    }
 }
 
 function Test-DateText([string]$d) {
     $out = [datetime]::MinValue
     return ($d -match '^\d{4}-\d{2}-\d{2}$') -and [datetime]::TryParseExact($d, 'yyyy-MM-dd', $Inv, [System.Globalization.DateTimeStyles]::None, [ref]$out)
+}
+
+function Get-ReqText($req, [string]$name, [bool]$required) {
+    $v = Get-Prop $req $name
+    if ($null -eq $v) { if ($required) { throw "$name is required" } else { return $null } }
+    return [string]$v
+}
+
+function Get-Experiment($req) {
+    $e = Get-ReqText $req 'experiment' $true
+    if ($e -notmatch '^E[1-9][0-9]{0,5}$') { throw "experiment must be E followed by a number without leading zeros" }
+    return $e
 }
 
 # A request may name only CSV files under data\proposals\, by a plain relative path.
@@ -272,22 +372,31 @@ function Resolve-Proposal([string]$rel) {
     return $full
 }
 
+# A cutoff is passed on exactly as the scorer reported it: a decimal from 0 to 1 as a string, or "none"
+# for a method with no automatic tier (430 section 6). A JSON number is accepted only if it is short.
 function Get-Cutoff($req, [string]$name) {
-    if (-not ($req.PSObject.Properties.Name -contains $name)) { throw "$name is required" }
-    if ([string]$req.$name -eq 'none') { return 'none' }   # a method with no automatic tier (430 section 6)
-    $v = [double]0
-    if (-not [double]::TryParse([string]$req.$name, [System.Globalization.NumberStyles]::Float, $Inv, [ref]$v) -or $v -lt 0 -or $v -gt 1) {
-        throw "$name must be a number from 0 to 1, or none"
+    $v = Get-Prop $req $name
+    if ($null -eq $v) { throw "$name is required" }
+    if ($v -is [double] -or $v -is [int] -or $v -is [long] -or $v -is [decimal]) { $v = ([double]$v).ToString('R', $Inv) }
+    $t = [string]$v
+    if ($t -eq 'none') { return 'none' }
+    if ($t -notmatch '^(0(\.[0-9]{1,60})?|1(\.0{1,60})?)$') {
+        throw "$name must be a decimal from 0 to 1 written as the scorer reported it, or none"
     }
-    return $v.ToString('R', $Inv)
+    return $t
 }
 
 # Joint retention (430 section 4): a customer extract lives exactly as long as its WWI extract.
+# Never throws; run before and after every generation and after every export.
 function Remove-CrmOrphans {
-    if (-not (Test-Path $CrmRoot)) { return }
-    foreach ($d in @(Get-ChildItem -Directory $CrmRoot | Where-Object { $_.Name -match '^\d{4}-\d{2}-\d{2}$' })) {
-        if (-not (Test-Path (Join-Path $ExtractRoot $d.Name))) { Remove-Item -Recurse -Force $d.FullName }
-    }
+    try {
+        if (-not (Test-Path $CrmRoot)) { return }
+        foreach ($d in @(Get-ChildItem -Directory $CrmRoot | Where-Object { $_.Name -match '^\d{4}-\d{2}-\d{2}$' })) {
+            if (-not (Test-Path (Join-Path $ExtractRoot $d.Name))) {
+                try { Remove-Item -Recurse -Force $d.FullName } catch { Write-Log "could not remove orphaned customer extract $($d.Name)" }
+            }
+        }
+    } catch { Write-Log 'customer-extract retention could not run' }
 }
 
 function Do-Generate([string]$date) {
@@ -295,36 +404,38 @@ function Do-Generate([string]$date) {
     $wwi = Join-Path $ExtractRoot $date
     if (-not (Test-Path (Join-Path $wwi 'manifest.json'))) { throw "no WWI extract for $date" }
     if (-not (Test-Path $CrmRoot)) { New-Item -ItemType Directory -Path $CrmRoot | Out-Null }
-    $r = Invoke-Holdout 'generate_crm.py' @('--wwi', $wwi, '--publish-root', $CrmRoot, '--holdout', $HoldoutRoot)
     Remove-CrmOrphans
-    return $r
+    try { return Invoke-Holdout 'generate_crm.py' @('--wwi', $wwi, '--publish-root', $CrmRoot, '--holdout', $HoldoutRoot) }
+    finally { Remove-CrmOrphans }
 }
 
 function Do-Freeze($req) {
-    $exp = [string]$req.experiment; $date = [string]$req.date
-    if ($exp -notmatch '^E\d{1,3}$') { throw "experiment must be E followed by a number" }
+    $exp = Get-Experiment $req
+    $date = Get-ReqText $req 'date' $true
     if (-not (Test-DateText $date)) { throw "date must be YYYY-MM-DD" }
     $r = Invoke-Holdout 'freeze.py' @('--holdout', $HoldoutRoot, '--repo', $RepoRoot, '--experiment', $exp, '--date', $date)
-    if ((Get-HoldoutStatus $r) -ne 'ok') { throw "freeze failed: $(Get-HoldoutCode $r)" }
+    if ((Get-Prop $r 'status') -ne 'ok') { throw "freeze failed: $(Get-Prop $r 'code')" }
     return $r
 }
 
 function Do-Score($req) {
-    $exp = [string]$req.experiment; $part = [string]$req.part
-    if ($exp -notmatch '^E\d{1,3}$') { throw "experiment must be E followed by a number" }
+    $exp = Get-Experiment $req
+    $part = Get-ReqText $req 'part' $true
     $a = @('--holdout', $HoldoutRoot, '--repo', $RepoRoot, '--experiment', $exp, '--part', $part)
-    $names = $req.PSObject.Properties.Name
     if ($part -eq 'development') {
-        $a += @('--proposals', (Resolve-Proposal ([string]$req.proposals)))
-        if ($names -contains 'duplicates') { $a += @('--duplicates', (Resolve-Proposal ([string]$req.duplicates))) }
+        $a += @('--proposals', (Resolve-Proposal (Get-ReqText $req 'proposals' $true)))
+        $dup = Get-ReqText $req 'duplicates' $false
+        if ($null -ne $dup) { $a += @('--duplicates', (Resolve-Proposal $dup)) }
     } elseif ($part -eq 'holdback') {
-        $a += @('--cheap', (Resolve-Proposal ([string]$req.cheap)), '--model', (Resolve-Proposal ([string]$req.model)))
-        if ($names -contains 'cheap_duplicates') { $a += @('--cheap-duplicates', (Resolve-Proposal ([string]$req.cheap_duplicates))) }
-        if ($names -contains 'model_duplicates') { $a += @('--model-duplicates', (Resolve-Proposal ([string]$req.model_duplicates))) }
+        $a += @('--cheap', (Resolve-Proposal (Get-ReqText $req 'cheap' $true)), '--model', (Resolve-Proposal (Get-ReqText $req 'model' $true)))
+        foreach ($k in @('cheap_duplicates', 'model_duplicates')) {
+            $dup = Get-ReqText $req $k $false
+            if ($null -ne $dup) { $a += @(('--' + $k.Replace('_', '-')), (Resolve-Proposal $dup)) }
+        }
         $a += @('--cheap-cutoff', (Get-Cutoff $req 'cheap_cutoff'), '--model-cutoff', (Get-Cutoff $req 'model_cutoff'))
     } else { throw "part must be development or holdback" }
     $r = Invoke-Holdout 'score.py' $a
-    if ((Get-HoldoutStatus $r) -eq 'error') { throw "scoring refused or failed: $(Get-HoldoutCode $r)" }
+    if ((Get-Prop $r 'status') -ne 'ok') { throw "scoring refused or failed: $(Get-Prop $r 'code')" }
     return $r
 }
 
@@ -414,10 +525,11 @@ WHERE i.object_id = $oid AND i.is_primary_key = 1 ORDER BY ic.key_ordinal;
 
     # The customer system's extract for the same date (430 section 4). Its failure leaves this
     # export standing; a "generate" request repeats it.
+    Remove-CrmOrphans
     $generation = $null
     try { $generation = Do-Generate $sim }
-    catch { $generation = [pscustomobject]@{ status = 'error'; code = 'job' } }
-    if ((Get-HoldoutStatus $generation) -ne 'ok') { Write-Log "customer extract for $sim not generated: $(Get-HoldoutCode $generation)" }
+    catch { $generation = New-HoldoutError 'JOB' }
+    if ((Get-Prop $generation 'status') -ne 'ok') { Write-Log "customer extract for $sim not generated: $(Get-Prop $generation 'code')" }
 
     # Summed by hand: Measure-Object -Property does not read hashtable keys in PowerShell 5.1.
     $totalBytes = [long]0; foreach ($x in $files) { $totalBytes += [long]$x.bytes }
@@ -527,8 +639,8 @@ foreach ($f in $pending) {
             'advance' { $resp.result = Do-Advance $conn $req }
             'query'   { $resp.result = Do-Query $conn $req $id }
             'generate' {
-                $g = Do-Generate ([string]$req.date)
-                if ((Get-HoldoutStatus $g) -ne 'ok') { throw "generation failed: $(Get-HoldoutCode $g)" }
+                $g = Do-Generate (Get-ReqText $req 'date' $true)
+                if ((Get-Prop $g 'status') -ne 'ok') { throw "generation failed: $(Get-Prop $g 'code')" }
                 $resp.result = $g
             }
             'freeze'  { $resp.result = Do-Freeze $req }
