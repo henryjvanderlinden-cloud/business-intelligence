@@ -1,7 +1,7 @@
 # nsdn — Handover 14: the first slice runs from extract to answer; a second, messy source with an answer key is next
 ## Written 2026-11-17 at the close of session 13
 
-> **STATUS: CURRENT.**
+> **STATUS: HISTORICAL (superseded 2026-11-23 by [handover 15](HANDOVER_15_2026-11-23_second-source-built-e1-frozen-matching-next.md))**
 
 ---
 
