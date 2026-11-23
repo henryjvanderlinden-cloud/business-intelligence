@@ -2778,6 +2778,8 @@ freeze to happen before development begins.
 
 *2026-11-19, session 14: how the key is held and scored ruled by the author in [ADR-0044](../docs/20_decisions/0044-answer-key-harness-for-the-second-source.md), designed in [430](../docs/40_roadmap/430_second-source-and-answer-key.md): a hidden folder outside the repository; the generator run by the sandbox job; figures only, cheap signals and the model apart; a held-back part of about 30% scored once; thresholds fixed before the first score (automatic merges 0.98, the queue 0.60, the model at least 0.05 more recall). Ruled is not executed: nothing is built.*
 
+*2026-11-23, session 14: built and frozen. The generator, freeze and scorer were written by sol in `C:\nsdn-holdout\`, reviewed by Astra, and installed by the author's setup run; the job generates the customer extract after every export ([430](../docs/40_roadmap/430_second-source-and-answer-key.md) §9). Experiment E1 is frozen on 2016-06-06 in `data/frozen/E1/`: 686 customer records, 483 in the published development list. Not yet done: the analysis of the new source, the cheap-signal and model proposals, any score. The point stays open until the held-back figures exist.*
+
 ### EVI-OP-2 — Candidate public dataset survey
 **⛔ STATE: OPEN**
 Opened 2026-09-19, session 01. *(from open question 3)*
