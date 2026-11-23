@@ -225,3 +225,9 @@ or adds to sections 2 to 7:
    build of 2026-11-21 the baseline reached a recall of about 0.8.
 6. **The job passes on only what it rebuilds.** A response carries each action's allowed fields with plain values, or
    a fixed error code (430 §4); the scripts' standard error never leaves the machine's hidden folder.
+7. **A generation's input is the content of the WWI extract**, a digest over its table files and their SHA-256, not
+   the manifest's bytes, which change on every re-export. A rerun on unchanged content is idempotent; a changed or
+   unlisted file is refused. Updates of the customer manifest and readiness record are recoverable after an
+   interruption, and freeze rechecks its copies. Found when the author's second setup run re-exported 2016-06-06
+   (2026-11-23); the first, legacy generation of that date could not be proven and was retired unused into the hidden
+   folder's archive, its public extract moved to `scratch/_legacy/`, so that the job generates the date afresh.
